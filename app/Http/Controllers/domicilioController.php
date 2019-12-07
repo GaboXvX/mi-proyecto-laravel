@@ -45,9 +45,7 @@ class DomicilioController extends Controller
 
             if (!$categoria) {
                 $errors['categoria'] = ['La categoría seleccionada no existe'];
-            } elseif ($categoria->reglasConfiguradas === null && $categoria->nombre_categoria !== 'Regular') {
-                $errors['categoria'] = ['La categoría seleccionada no tiene reglas configuradas'];
-            } else {
+            }  else {
                 $this->validarReglasCategoria($categoria, $request, $errors, $id);
             }
             
@@ -85,7 +83,7 @@ class DomicilioController extends Controller
             $domicilio = $this->crearDomicilio($request, $persona);
             
             // Aplicar reglas de categoría si existen y la categoría no es "Regular"
-            if ($categoria && $categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
+            if ($categoria && $categoria->reglasConfiguradas ) {
                 $this->aplicarReglasCategoria($categoria, $persona, $request);
             }
 
@@ -159,93 +157,7 @@ class DomicilioController extends Controller
         return $errors;
     }
 
-    protected function validarReglasCategoria($categoria, $request, &$errors, $personaId)
-    {
-        $config = $categoria->reglasConfiguradas;
-    
-        // 1. Validar si la categoría requiere comunidad
-        if ($config->requiere_comunidad && empty($request->comunidad)) {
-            $errors['comunidad'] = ['Esta categoría requiere que seleccione una comunidad'];
-            return;
-        }
-    
-        // 2. Validar unicidad en comunidad (solo activos de otras personas)
-        if ($config->unico_en_comunidad && $request->comunidad) {
-            $existeActivoOtraPersona = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
-                ->where('id_comunidad', $request->comunidad)
-                ->where('es_activo', true)
-                ->where('id_persona', '!=', $personaId)
-                ->exists();
-    
-            if ($existeActivoOtraPersona) {
-                $errors['categoria'] = ['Ya existe un ' . $categoria->nombre_categoria . ' activo en esta comunidad (asignado a otra persona)'];
-                return;
-            }
-        }
-    
-        // 3. Verificar si ya tiene esta categoría activa en esta comunidad (sin generar error)
-        $existeActivoMismaComunidad = categoriaExclusivaPersona::where('id_persona', $personaId)
-            ->where('id_categoria_persona', $categoria->id_categoria_persona)
-            ->where('id_comunidad', $request->comunidad)
-            ->where('es_activo', true)
-            ->exists();
-    
-        if ($existeActivoMismaComunidad) {
-            // No hacemos nada, simplemente continuamos
-            return;
-        }
-    
-        // 4. Validar otras categorías exclusivas activas (si aplica)
-        if ($config->una_por_persona) {
-            $otraCategoriaActiva = categoriaExclusivaPersona::where('id_persona', $personaId)
-                ->where('id_categoria_persona', '!=', $categoria->id_categoria_persona)
-                ->where('es_activo', true)
-                ->exists();
-    
-            if ($otraCategoriaActiva) {
-                $errors['categoria'] = ['La persona ya tiene otra categoría exclusiva activa'];
-            }
-        }
-    }
 
-
-protected function aplicarReglasCategoria($categoria, $persona, $request)
-{
-    if (!$categoria->reglasConfiguradas) return;
-
-    // Primero verificamos si ya existe un registro activo para esta combinación
-    $existeActivo = categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
-        ->where('id_categoria_persona', $categoria->id_categoria_persona)
-        ->where('id_comunidad', $request->comunidad)
-        ->where('es_activo', true)
-        ->exists();
-
-    // Si ya existe, no hacemos ningún cambio
-    if ($existeActivo) {
-        return;
-    }
-
-    // Si no existe, procedemos con la lógica normal
-    categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
-        ->where('es_activo', true)
-        ->update(['es_activo' => false]);
-
-    $reglaData = [
-        'id_persona' => $persona->id_persona,
-        'id_categoria_persona' => $categoria->id_categoria_persona,
-        'es_activo' => true,
-        'id_usuario' => auth()->id(),
-        'fecha_aprobacion' => now(),
-        'tipo_regla' => 'asignacion_comunidad'
-    ];
-
-    if ($categoria->reglasConfiguradas->requiere_comunidad) {
-        $reglaData['id_comunidad'] = $request->comunidad;
-    }
-
-    categoriaExclusivaPersona::create($reglaData);
-}
-    
 
     protected function crearDomicilio($request, $persona)
     {
@@ -287,119 +199,212 @@ protected function aplicarReglasCategoria($categoria, $persona, $request)
         ], 422);
     }
 
-    public function update(Request $request, $id, $idPersona)
-    {
-        DB::beginTransaction();
-        try {
-            $errors = [];
-            $domicilio = Domicilio::findOrFail($id);
-            $persona = Persona::findOrFail($idPersona);
+   public function update(Request $request, $id, $idPersona) 
+{
+    DB::beginTransaction();
+    try {
+        $errors = [];
+        $domicilio = Domicilio::findOrFail($id);
+        $persona = Persona::findOrFail($idPersona);
 
-            // Validación básica de domicilio
-            $validationErrors = $this->validarDatosDomicilio($request, $idPersona);
-            if (!empty($validationErrors)) {
-                $errors = array_merge($errors, $validationErrors);
-            }
+        // Validación básica de domicilio
+        $validationErrors = $this->validarDatosDomicilio($request, $idPersona);
+        if (!empty($validationErrors)) {
+            $errors = array_merge($errors, $validationErrors);
+        }
 
-            // Validación de categoría y sus reglas
-            $categoria = CategoriaPersona::find($request->categoria);
+        // Validación de categoría y sus reglas
+        $categoria = CategoriaPersona::find($request->categoria);
 
-            if (!$categoria) {
-                $errors['categoria'] = ['La categoría seleccionada no existe'];
-            } elseif ($categoria->reglasConfiguradas === null && $categoria->nombre_categoria !== 'Regular') {
-                $errors['categoria'] = ['La categoría seleccionada no tiene reglas configuradas'];
-            } else {
-                $this->validarReglasCategoria($categoria, $request, $errors, $idPersona);
-            }
+        if (!$categoria) {
+            $errors['categoria'] = ['La categoría seleccionada no existe'];
+        }  else {
+            $this->validarReglasCategoria($categoria, $request, $errors, $idPersona);
+        }
 
-            // Si hay errores, retornarlos de forma clara
-            if (!empty($errors)) {
-                return $this->returnValidationError($errors);
-            }
+        // Si hay errores, retornarlos de forma clara
+        if (!empty($errors)) {
+            return $this->returnValidationError($errors);
+        }
 
-            // Verificar si el domicilio ya existe (excluyendo el actual)
-            $domicilioExistente = Domicilio::where('id_persona', $idPersona)
-                ->where('id_estado', $request->estado)
-                ->where('id_municipio', $request->municipio)
-                ->where('id_parroquia', $request->parroquia)
-                ->where('id_urbanizacion', $request->urbanizacion)
-                ->where('id_sector', $request->sector)
-                ->where('id_comunidad', $request->comunidad)
-                ->where('calle', $request->calle)
-                ->where('manzana', $request->manzana)
-                ->where('numero_de_vivienda', $request->numero_de_vivienda)
-                ->where('bloque', $request->bloque)
-                ->where('id_domicilio', '!=', $id)
-                ->first();
+        // Verificar si el domicilio ya existe (excluyendo el actual)
+        $domicilioExistente = Domicilio::where('id_persona', $idPersona)
+            ->where('id_estado', $request->estado)
+            ->where('id_municipio', $request->municipio)
+            ->where('id_parroquia', $request->parroquia)
+            ->where('id_urbanizacion', $request->urbanizacion)
+            ->where('id_sector', $request->sector)
+            ->where('id_comunidad', $request->comunidad)
+            ->where('calle', $request->calle)
+            ->where('manzana', $request->manzana)
+            ->where('numero_de_vivienda', $request->numero_de_vivienda)
+            ->where('bloque', $request->bloque)
+            ->where('id_domicilio', '!=', $id)
+            ->first();
 
-            if ($domicilioExistente) {
-                return response()->json([
-                    'success' => false,
-                    'title' => 'Error de validación',
-                    'message' => 'El domicilio ya está registrado para esta persona.',
-                ], 422);
-            }
-
-            // Actualizar el domicilio
-            $domicilio->update([
-                'id_estado' => $request->estado,
-                'id_municipio' => $request->municipio,
-                'id_parroquia' => $request->parroquia,
-                'id_urbanizacion' => $request->urbanizacion,
-                'id_sector' => $request->sector,
-                'id_comunidad' => $request->comunidad,
-                'calle' => $request->calle,
-                'manzana' => $request->manzana,
-                'bloque' => $request->bloque,
-                'numero_de_vivienda' => $request->numero_de_vivienda
-            ]);
-
-            // Aplicar reglas de categoría si existen y la categoría no es "Regular"
-            if ($categoria && $categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
-                $this->aplicarReglasCategoria($categoria, $persona, $request);
-            } else {
-                // Si se cambia a Regular, desactivar cualquier categoría exclusiva para esta comunidad
-                categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
-                    ->where('id_comunidad', $domicilio->id_comunidad)
-                    ->update(['es_activo' => false]);
-            }
-
-            // Actualizar categoría de la persona si es diferente
-            if ($persona->id_categoria_persona != $request->categoria) {
-                $persona->id_categoria_persona = $request->categoria;
-                $persona->save();
-            }
-
-            // Registrar movimiento
-            $this->registrarMovimientoDomicilio($persona, $domicilio, 'Se modificó un domicilio');
-            
-            DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'title' => 'Actualización exitosa',
-                'message' => 'Domicilio actualizado correctamente',
-                'redirect_url' => route('personas.show', ['slug' => $persona->slug])
-            ]);
-
-        } catch (\Illuminate\Database\QueryException $e) {
-            DB::rollBack();
-            Log::error('Error al actualizar domicilio: '.$e->getMessage());
+        if ($domicilioExistente) {
             return response()->json([
                 'success' => false,
-                'title' => 'Error de base de datos',
-                'message' => 'Ocurrió un error al actualizar el domicilio. Por favor intente nuevamente.'
-            ], 500);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error inesperado: '.$e->getMessage());
-            return response()->json([
-                'success' => false,
-                'title' => 'Error inesperado',
-                'message' => 'Ocurrió un error inesperado. Por favor intente nuevamente.'
-            ], 500);
+                'title' => 'Error de validación',
+                'message' => 'El domicilio ya está registrado para esta persona.',
+            ], 422);
+        }
+
+        // Actualizar el domicilio
+        $domicilio->update([
+            'id_estado' => $request->estado,
+            'id_municipio' => $request->municipio,
+            'id_parroquia' => $request->parroquia,
+            'id_urbanizacion' => $request->urbanizacion,
+            'id_sector' => $request->sector,
+            'id_comunidad' => $request->comunidad,
+            'calle' => $request->calle,
+            'manzana' => $request->manzana,
+            'bloque' => $request->bloque,
+            'numero_de_vivienda' => $request->numero_de_vivienda
+        ]);
+
+        // Aplicar reglas de categoría si existen y la categoría no es "Regular"
+        if ($categoria && $categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
+            $this->aplicarReglasCategoria($categoria, $persona, $request);
+        } else {
+            // Si se cambia a Regular, desactivar cualquier categoría exclusiva para esta comunidad
+            categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+                ->where('id_comunidad', $domicilio->id_comunidad)
+                ->update(['es_activo' => false]);
+        }
+
+        // Actualizar categoría de la persona si es diferente
+        if ($persona->id_categoria_persona != $request->categoria) {
+            $persona->id_categoria_persona = $request->categoria;
+            $persona->save();
+        }
+
+        // Registrar movimiento
+        $this->registrarMovimientoDomicilio($persona, $domicilio, 'Se modificó un domicilio');
+        
+        DB::commit();
+        
+        return response()->json([
+            'success' => true,
+            'title' => 'Actualización exitosa',
+            'message' => 'Domicilio actualizado correctamente',
+            'redirect_url' => route('personas.show', ['slug' => $persona->slug])
+        ]);
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        DB::rollBack();
+        Log::error('Error al actualizar domicilio: '.$e->getMessage());
+        return response()->json([
+            'success' => false,
+            'title' => 'Error de base de datos',
+            'message' => 'Ocurrió un error al actualizar el domicilio. Por favor intente nuevamente.'
+        ], 500);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error inesperado: '.$e->getMessage());
+        return response()->json([
+            'success' => false,
+            'title' => 'Error inesperado',
+            'message' => 'Ocurrió un error inesperado. Por favor intente nuevamente.'
+        ], 500);
+    }
+}
+
+protected function validarReglasCategoria($categoria, $request, &$errors, $personaId)
+{
+    // Si no tiene reglas configuradas o es la categoría "Regular", no validamos reglas
+    if (!$categoria->reglasConfiguradas ) {
+        return;
+    }
+
+    $config = $categoria->reglasConfiguradas;
+
+    // 1. Validar si la categoría requiere comunidad
+    if ($config->requiere_comunidad && empty($request->comunidad)) {
+        $errors['comunidad'] = ['Esta categoría requiere que seleccione una comunidad'];
+        return;
+    }
+
+    // 2. Validar unicidad en comunidad (solo activos de otras personas)
+    if ($config->unico_en_comunidad && $request->comunidad) {
+        $existeActivoOtraPersona = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
+            ->where('id_comunidad', $request->comunidad)
+            ->where('es_activo', true)
+            ->where('id_persona', '!=', $personaId)
+            ->exists();
+
+        if ($existeActivoOtraPersona) {
+            $errors['categoria'] = ['Ya existe un ' . $categoria->nombre_categoria . ' activo en esta comunidad (asignado a otra persona)'];
+            return;
         }
     }
+
+    // 3. Verificar si ya tiene esta categoría activa en esta comunidad (sin generar error)
+    $existeActivoMismaComunidad = categoriaExclusivaPersona::where('id_persona', $personaId)
+        ->where('id_categoria_persona', $categoria->id_categoria_persona)
+        ->where('id_comunidad', $request->comunidad)
+        ->where('es_activo', true)
+        ->exists();
+
+    if ($existeActivoMismaComunidad) {
+        // No hacemos nada, simplemente continuamos
+        return;
+    }
+
+    // 4. Validar otras categorías exclusivas activas (si aplica)
+    if ($config->una_por_persona) {
+        $otraCategoriaActiva = categoriaExclusivaPersona::where('id_persona', $personaId)
+            ->where('id_categoria_persona', '!=', $categoria->id_categoria_persona)
+            ->where('es_activo', true)
+            ->exists();
+
+        if ($otraCategoriaActiva) {
+            $errors['categoria'] = ['La persona ya tiene otra categoría exclusiva activa'];
+        }
+    }
+}
+
+protected function aplicarReglasCategoria($categoria, $persona, $request)
+{
+    // Si no tiene reglas configuradas o es "Regular", no se aplica ninguna regla
+    if (!$categoria->reglasConfiguradas ) {
+        return;
+    }
+
+    // Primero verificamos si ya existe un registro activo para esta combinación
+    $existeActivo = categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+        ->where('id_categoria_persona', $categoria->id_categoria_persona)
+        ->where('id_comunidad', $request->comunidad)
+        ->where('es_activo', true)
+        ->exists();
+
+    // Si ya existe, no hacemos ningún cambio
+    if ($existeActivo) {
+        return;
+    }
+
+    // Si no existe, procedemos con la lógica normal
+    categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+        ->where('es_activo', true)
+        ->update(['es_activo' => false]);
+
+    $reglaData = [
+        'id_persona' => $persona->id_persona,
+        'id_categoria_persona' => $categoria->id_categoria_persona,
+        'es_activo' => true,
+        'id_usuario' => auth()->id(),
+        'fecha_aprobacion' => now(),
+        'tipo_regla' => 'asignacion_comunidad'
+    ];
+
+    if ($categoria->reglasConfiguradas->requiere_comunidad) {
+        $reglaData['id_comunidad'] = $request->comunidad;
+    }
+
+    categoriaExclusivaPersona::create($reglaData);
+}
+
 
     public function checkLiderStatus(Request $request)
     {

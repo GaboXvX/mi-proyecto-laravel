@@ -15,9 +15,9 @@ class ConfigReglasCategoriasSeeder extends Seeder
    // database/seeders/ConfigReglasCategoriasSeeder.php
 public function run()
 {
-    $categorias = categoriaPersona::all();
+    $categoria = categoriaPersona::where('nombre_categoria','Líder Comunitario')->first();
     
-    foreach ($categorias as $categoria) {
+   
         ConfigReglaCategoria::create([
             'id_categoria_persona' => $categoria->id_categoria_persona,
             'requiere_comunidad' => $categoria->nombre_categoria === 'Líder Comunitario',
@@ -27,6 +27,6 @@ public function run()
                 ? 'Ya existe un líder en esta comunidad' 
                 : null
         ]);
-    }
+    
 }
 }

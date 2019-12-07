@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriaPersonaController;
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
 use App\Http\Controllers\DomicilioController;
@@ -10,12 +11,14 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PersonaController;
+use App\Http\Controllers\personalController;
 use App\Http\Controllers\PeticionController;
 use App\Http\Controllers\RecuperarController;
 use App\Http\Controllers\RecuperarGetController;
 use App\Http\Controllers\RenovacionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+ use App\Http\Controllers\GraficoIncidenciasController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // routes/web.php
@@ -108,7 +111,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
             // Route::get('persona/{slug}/incidencia/{incidencia_slug}', 'show')->name('incidencias.show');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
-            Route::get('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderVista'])->name('incidencias.atender.vista');
+            Route::get('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderVista'])->name('incidencias.atender.vista')->middleware('incidencia.no-atendida');
             Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderGuardar'])->name('incidencias.atender.guardar');
             Route::get('/incidencias/{slug}/ver', [IncidenciaController::class, 'ver'])->name('incidencias.ver');
         });
@@ -155,5 +158,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Rutas de movimientos por usuario (individual)
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
-    });
+   
+    Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
+Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
+    Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
+    Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
+    Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
+    Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
+    Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
+Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
+ });
+
+Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
+
 });

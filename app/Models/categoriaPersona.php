@@ -19,13 +19,13 @@ class categoriaPersona extends Model
     // Relación con reglas especiales
     public function categoriasExclusivasPersonas()
     {
-        return $this->hasMany(categoriaExclusivaPersona::class, 'id_categoriaPersona');
+        return $this->hasMany(categoriaExclusivaPersona::class, 'id_categoria_persona');
     }
 
     // Relación con personas
     public function personas()
     {
-        return $this->hasMany(Persona::class, 'id_categoriaPersona');
+        return $this->hasMany(Persona::class, 'id_categoria_persona');
     }
     public function reglasConfiguradas()
     {

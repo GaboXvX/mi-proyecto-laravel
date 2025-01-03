@@ -51,7 +51,6 @@ class IncidenciaController extends Controller
                 $counter++;
             }
             $incidencia->slug = $slug;
-
             $id_lider = $request->input('id_lider');
             $id_persona = $request->input('id_persona');
             $incidencia->id_persona = $id_persona;
@@ -227,12 +226,7 @@ class IncidenciaController extends Controller
 
         return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
     }
-    public function gestionar()
-    {
-        $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();;
-        return view('incidencias.gestionincidencias', compact('incidencias'));
-    }
-
+   
     public function showChart(Request $request)
 {
     $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear())); 

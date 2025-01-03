@@ -1,13 +1,14 @@
 <?php
+
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\movimientoController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PeticionController;
 use App\Http\Controllers\UserController;
-
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -16,17 +17,17 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create')->middleware('guest');
 Route::post('registrar/{id}', [UserController::class, 'store'])->name('usuarios.store');
- Route::resource('peticiones', PeticionController::class)->except('index');
+Route::resource('peticiones', PeticionController::class)->except('index');
 
 Route::middleware(['auth'])->group(function () {
 
-    
+
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Rutas para las peticiones
     Route::get('peticiones', [PeticionController::class, 'index'])->name('peticiones.index')->middleware('role:admin');
     Route::post('/peticion/{id}', [PeticionController::class, 'rechazar'])->name('peticiones.rechazar')->middleware('role:admin');
-   
+
 
     // Rutas para las personas
     Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug']);
@@ -47,10 +48,10 @@ Route::middleware(['auth'])->group(function () {
     // Rutas de creación de incidencias para una persona o un líder
     Route::get('/persona/{slug}/incidencias/create', [IncidenciaController::class, 'create'])->name('incidencias.create');
     Route::get('/persona/{persona_slug}/incidencia/{incidencia_slug}', [IncidenciaController::class, 'show'])
-    ->name('incidencias.show');
+        ->name('incidencias.show');
 
-// routes/web.php
-Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas');
+    // routes/web.php
+    Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas');
 
     Route::get('/incidencias/{slug}', [IncidenciaController::class, 'mostrar'])->name('incidencias.mostrar');
 
@@ -62,5 +63,5 @@ Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->na
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');
     Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
     Route::post('/pdf/generar', [PdfController::class, 'generar'])->name('pdf.generar');
-   
+    Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
 });

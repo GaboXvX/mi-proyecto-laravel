@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('municipio');
             $table->string('comunidad');
             $table->string('sector');
+            $table->string('calle'); 
+            $table->string('manzana');
+            $table->string('numero_de_casa');
             $table->timestamps();
         });
     }

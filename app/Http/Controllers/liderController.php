@@ -5,9 +5,9 @@ use Illuminate\Support\Str;
 use App\Models\direccion;
 use App\Models\Domicilio;
 use App\Models\lider_comunitario;
+use App\Models\movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 class liderController extends Controller
 {
     public function index(){
@@ -16,8 +16,13 @@ class liderController extends Controller
     }
     public function create()
     {
-        $direcciones = Direccion::all();
-        return view('lideres.registrarlideres',compact('direcciones'));
+        
+        $comunidades = [
+            'Comunidad A' => ['Sector 1', 'Sector 2', 'Sector 3'],
+            'Comunidad B' => ['Sector 4', 'Sector 5'],
+            'Comunidad C' => ['Sector 6', 'Sector 7', 'Sector 8'],
+        ];
+        return view('lideres.registrarlideres',compact('comunidades'));
     }
 
     public function store( Request $request)
@@ -40,13 +45,36 @@ class liderController extends Controller
 
     try {
         $estado = 'sucre';
-        $municipio ='sucre';
-        $comunidad = $request->input('comunidad');
-        $sector = $request->input('sector');
-        $direccion = direccion::firstOrCreate(
-            ['estado' => $estado, 'municipio' => $municipio, 'comunidad' => $comunidad, 'sector' => $sector,],
-            ['estado' => $estado, 'municipio' => $municipio, 'comunidad' => $comunidad, 'sector' => $sector,]
-        );
+            $municipio = 'sucre';
+            $comunidad = $request->input('comunidad');
+            $sector = $request->input('sector');
+            $calle = $request->input('calle');
+            $manzana = $request->input('manzana');
+            $num_casa = $request->input('num_casa');
+
+            // Buscar la dirección en la base de datos
+            $direccion = Direccion::where('estado', $estado)
+                ->where('municipio', $municipio)
+                ->where('comunidad', $comunidad)
+                ->where('sector', $sector)
+                ->where('calle', $calle)
+                ->where('manzana', $manzana)
+                ->where('numero_de_casa', $num_casa)
+                ->first();
+
+            // Si la dirección no existe, crearla
+            if (!$direccion) {
+                $direccion = new Direccion();
+                $direccion->estado = $estado;
+                $direccion->municipio = $municipio;
+                $direccion->comunidad = $comunidad;
+                $direccion->sector = $sector;
+                $direccion->calle = $calle;
+                $direccion->manzana = $manzana;
+                $direccion->numero_de_casa = $num_casa;
+                $direccion->save();
+            }
+
         $slug = Str::slug($request->input('nombre'));
         $originalSlug = $slug;
         $counter = 1;
@@ -54,16 +82,7 @@ class liderController extends Controller
             $slug = $originalSlug . '-' . $counter;
             $counter++;
         }
-        $calle = $request->input('calle');
-        $manzana = $request->input('manzana');
-        $num_casa = $request->input('num_casa');
-
-        $domicilio = new Domicilio(); 
-        $domicilio->calle = $calle;
-        $domicilio->manzana = $manzana;
-        $domicilio->numero_de_casa = $num_casa;
-        $domicilio->save();
-
+       
         $usuario=Auth::user()->id_usuario;
         $lider = new lider_comunitario();
         $lider->slug = $slug;
@@ -73,10 +92,26 @@ class liderController extends Controller
         $lider->correo = $request->input('correo');
         $lider->telefono = $request->input('telefono');
         $lider->id_direccion = $direccion->id_direccion; 
-        $lider->id_domicilio=$domicilio->id_domicilio;
         $lider->id_usuario=$usuario;
         $lider->save();
-
+        $movimiento= new movimiento();
+        $movimiento->id_usuario=Auth::user()->id_usuario;
+        $movimiento->id_lider=$lider->id_lider;
+        $camposCreado = [
+            'nombre' => $request->input('nombre'),
+            'apellido' => $request->input('apellido'),
+            'cedula' => $request->input('cedula'),
+            'correo' => $request->input('correo'),
+            'telefono' => $request->input('telefono'),
+            'comunidad' => $direccion->comunidad,
+            'sector'=>$direccion->sector,
+            'calle'=>$direccion->calle,
+            'manzana'=>$direccion->manzana,
+            'numero de casa'=>$direccion->numero_de_casa,
+        ];
+        $movimiento->accion = 'se ha creado un registro';
+        $movimiento->valor_anterior = json_encode($camposCreado);  
+        $movimiento->save();
         return redirect()->route('lideres.index')->with('success', 'Datos enviados correctamente');
     } catch (\Exception $e) {
         return redirect()->route('lideres.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
@@ -134,50 +169,124 @@ public function edit($slug)
     
         try {
             
-            $estado = 'sucre';  
-            $municipio = 'sucre'; 
+            $estado = 'sucre';
+            $municipio = 'sucre';
             $comunidad = $request->input('comunidad');
             $sector = $request->input('sector');
             $calle = $request->input('calle');
             $manzana = $request->input('manzana');
             $num_casa = $request->input('num_casa');
-    
-            
-            $domicilio = Domicilio::updateOrCreate(
-                ['id_domicilio' => $request->input('id_domicilio')], 
-                [
-                    'calle' => $calle,
-                    'manzana' => $manzana,
-                    'numero_de_casa' => $num_casa
-                ]
-            );
-    
-          
+
+           
             $direccion = Direccion::where('estado', $estado)
                 ->where('municipio', $municipio)
                 ->where('comunidad', $comunidad)
                 ->where('sector', $sector)
-                ->firstOrFail(); 
-    
+                ->where('calle', $calle)
+                ->where('manzana', $manzana)
+                ->where('numero_de_casa', $num_casa)
+                ->first();
+
+            // Si la dirección no existe, crearla
+          
             
             $lider = Lider_Comunitario::where('slug', $slug)->first();
     
             if (!$lider) {
                 return redirect()->route('lideres.index')->with('error', 'Líder no encontrado con el slug: ' . $slug);
             }
+            $camposModificados = [];
+            $camposAntiguos = [
+            'nombre' => $lider->nombre,
+            'apellido' => $lider->apellido,
+            'cedula' => $lider->cedula,
+            'correo' => $lider->correo,
+            'telefono' => $lider->telefono,
+            'comunidad' => $lider->direccion->comunidad,
+            'sector'=>$lider->direccion->sector,
+            'calle'=>$lider->direccion->calle,
+            'manzana'=>$lider->direccion->manzana,
+            'numero de casa'=>$lider->direccion->numero_de_casa,
+            ];
+            if (!$direccion) {
+                $direccion = new Direccion();
+                $direccion->estado = $estado;
+                $direccion->municipio = $municipio;
+                $direccion->comunidad = $comunidad;
+                $direccion->sector = $sector;
+                $direccion->calle = $calle;
+                $direccion->manzana = $manzana;
+                $direccion->numero_de_casa = $num_casa;
+                $direccion->save();
+            }
+
+            if ($lider->nombre !== $request->input('nombre')) {
+                $camposModificados['nombre'] = $request->input('nombre');
+                $lider->nombre = $request->input('nombre'); 
+            }
     
-            $usuario=Auth::user()->id_usuario;
-            $lider->nombre = $request->input('nombre');
-            $lider->apellido = $request->input('apellido');
-            $lider->cedula = $request->input('cedula');
-            $lider->correo = $request->input('correo');
-            $lider->telefono = $request->input('telefono');
-            $lider->id_direccion = $direccion->id_direccion;
-            $lider->id_domicilio = $domicilio->id_domicilio;
-            $lider->id_usuario=$usuario;
-            $lider->save();  
+            if ($lider->apellido !== $request->input('apellido')) {
+                $camposModificados['apellido'] = $request->input('apellido');
+                $lider->apellido = $request->input('apellido'); 
+            }
     
+            if ($lider->cedula !== $request->input('cedula')) {
+                $camposModificados['cedula'] = $request->input('cedula');
+                $lider->cedula = $request->input('cedula'); 
+            }
+    
+            if ($lider->correo !== $request->input('correo')) {
+                $camposModificados['correo'] = $request->input('correo');
+                $lider->correo = $request->input('correo'); 
+            }
+    
+            if ($lider->telefono !== $request->input('telefono')) {
+                $camposModificados['telefono'] = $request->input('telefono');
+                $lider->telefono = $request->input('telefono'); 
+            }
             
+            if ($lider->direccion->comunidad !== $request->input('comunidad')) {
+                $camposModificados['comunidad'] = $request->input('comunidad');
+                $lider->direccion->comunidad = $request->input('comunidad'); 
+            }
+            
+            // Comparar y actualizar el campo 'sector'
+            if ($lider->direccion->sector !== $request->input('sector')) {
+                $camposModificados['sector'] = $request->input('sector');
+                $lider->direccion->sector = $request->input('sector');
+            }
+            
+            // Comparar y actualizar el campo 'calle'
+            if ($lider->direccion->calle !== $request->input('calle')) {
+                $camposModificados['calle'] = $request->input('calle');
+                $lider->direccion->calle = $request->input('calle'); 
+            }
+            
+            // Comparar y actualizar el campo 'manzana'
+            if ($lider->direccion->manzana !== $request->input('manzana')) {
+                $camposModificados['manzana'] = $request->input('manzana');
+                $lider->direccion->manzana = $request->input('manzana');
+            }
+            
+            // Comparar y actualizar el campo 'numero de casa'
+            if ($lider->direccion->numero_de_casa !== $request->input('num_casa')) {
+                $camposModificados['numero de casa'] = $request->input('num_casa');
+                $lider->direccion->numero_de_casa = $request->input('num_casa');
+            }
+            $lider->id_usuario = Auth::user()->id_usuario;
+                $lider->id_direccion = $direccion->id_direccion;
+                $lider->save();
+                
+            if (!empty($camposModificados)) {
+                $movimiento = new Movimiento();
+                $movimiento->id_usuario = Auth::user()->id_usuario;
+                $movimiento->id_lider = $lider->id_lider;
+                $movimiento->accion = 'se ha actualizado un registro';
+                $movimiento->valor_nuevo = json_encode($camposModificados); 
+                $movimiento->valor_anterior=json_encode($camposAntiguos);
+                $movimiento->save();
+            } 
+          
             return redirect()->route('lideres.index')->with('success', 'Líder actualizado correctamente');
         } catch (\Exception $e) {
 

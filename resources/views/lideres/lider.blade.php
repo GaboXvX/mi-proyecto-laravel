@@ -51,7 +51,7 @@
             </tr>
             <tr>
                 <th>Número de Casa</th>
-                <td>{{ $lider->domicilio->numero_de_casa }}</td>
+                <td>{{ $lider->direccion->numero_de_casa }}</td>
             </tr>
             <tr><th>Responsable</th>
             <td>{{$lider->user->nombre}}{{$lider->user->apellido}}</td>

@@ -16,13 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('id_direccion');
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_lider');
-            $table->unsignedBigInteger('id_domicilio')->nullable();
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
-            $table->integer('cedula')->unique();
+            $table->string('cedula')->unique();
             $table->string('correo', 320)->unique();
-            $table->bigInteger('telefono');
+            $table->string('telefono');
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ return new class extends Migration
            $table->foreign('id_usuario') ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
             $table->foreign('id_persona') ->references('id_persona')  ->on('personas')  ->onDelete('cascade');
             $table->foreign('id_incidencia') ->references('id_incidencia')  ->on('incidencias')  ->onDelete('cascade');
+            $table->foreign('id_lider') ->references('id_lider')  ->on('lider_comunitario')  ->onDelete('cascade');
             
         });
     }

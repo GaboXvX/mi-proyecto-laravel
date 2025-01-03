@@ -44,7 +44,6 @@ class Persona extends Model
     }
     public function lider_comunitario()
     {
-        
         return $this->belongsTo(lider_comunitario::class, 'id_lider'); 
     }
     public function direccion()
@@ -54,5 +53,8 @@ class Persona extends Model
     public function user()
     {
         return $this->belongsTo(User::class,'id_usuario');
+    }
+    public function movimiento(){
+        return $this->hasMany(movimiento::class,'id_persona');
     }
 }

@@ -8,7 +8,6 @@ use App\Models\incidencia;
 use App\Models\lider_comunitario;
 use App\Models\Persona;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade as PDF;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
 
@@ -189,29 +188,7 @@ class IncidenciaController extends Controller
             'incidencias' => $incidencias
         ]);
     }
-    public function mostrar($slug)
-    {
-        $persona = Persona::where('slug', $slug)->first();
-
-        if ($persona) {
-            $incidencia = Incidencia::where('id_persona', $persona->id)->get();
-
-            return view('incidencias.modificarincidencia', compact('incidencia', 'persona'));
-        }
-
-        $lider = Lider_Comunitario::where('slug', $slug)->first();
-
-        if ($lider) {
-
-            $incidencia = Incidencia::where('id_lider', $lider->id)->get();
-
-            return view('incidencias.modificarincidencialider', compact('incidencia', 'lider'));
-        }
-
-        return redirect()->route('home')->with('error', 'No se encontraron incidencias para este usuario o líder.');
-    }
-
-
+    
     public function show($persona_slug, $incidencia_slug)
     {
 

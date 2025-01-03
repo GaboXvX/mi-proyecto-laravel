@@ -55,4 +55,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Persona::class,'id_usuario');
     }
+    public function movimiento()
+    {
+        return $this->hasMany(movimiento::class,'id_usuario');
+    }
 }

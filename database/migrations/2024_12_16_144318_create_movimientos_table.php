@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('movimientos', function (Blueprint $table) {
             $table->bigIncrements('id_movimiento');
-            $table->unsignedBigInteger('id_incidencia');
-            $table->unsignedBigInteger('id_usuario');
-            $table->unsignedBigInteger('id_persona');
+            $table->unsignedBigInteger('id_incidencia')->nullable();
+            $table->unsignedBigInteger('id_usuario')->nullable();
+            $table->unsignedBigInteger('id_persona')->nullable();
+            $table->unsignedBigInteger('id_lider')->nullable();
+            $table->string('valor_anterior');
+            $table->string('valor_nuevo')->nullable();
             $table->string('accion');
-            $table->timestamp('created_at')->nullable();
+            $table->timestamps();
         });
     }
 

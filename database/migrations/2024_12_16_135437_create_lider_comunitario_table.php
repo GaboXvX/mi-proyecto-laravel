@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('lider_comunitario', function (Blueprint $table) {
             $table->bigIncrements('id_lider');
             $table->unsignedBigInteger('id_direccion');
-            $table->unsignedBigInteger('id_domicilio');
             $table->unsignedBigInteger('id_usuario');
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
-            $table->integer('cedula')->unique();
-            $table->bigInteger('telefono');
+            $table->string('cedula')->unique();
+            $table->string('telefono');
             $table->string('correo','320')->unique();
             $table->timestamps();
         });

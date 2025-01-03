@@ -37,16 +37,6 @@ class UserController extends Controller
             $peticion->estado_peticion = 'aceptado';
             $peticion->save();
 
-            $usuario = new User();
-            $usuario->id_rol = $peticion->id_rol;
-            $usuario->nombre = $peticion->nombre;
-            $usuario->apellido = $peticion->apellido;
-            $usuario->cedula = $peticion->cedula;
-            $usuario->email = $peticion->email;
-            $usuario->nombre_usuario = $peticion->nombre_usuario;
-            $usuario->password = bcrypt($peticion->password);
-            $usuario->estado = 'activo';
-            $usuario->save();
             return redirect()->route('peticiones.index')->with('success', 'Datos enviados correctamente');
         } catch (\Exception $e) {
             return redirect()->route('peticiones.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());

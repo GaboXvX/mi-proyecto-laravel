@@ -60,11 +60,7 @@
             <tr>
                 <th>Número de Casa</th>
                 <td>
-                    @if($persona->domicilio)
-                        {{ $persona->domicilio->numero_de_casa }}
-                    @else
-                        No disponible
-                    @endif
+                        {{ $persona->direccion->numero_de_casa }}
                 </td>
             </tr>
             <tr>

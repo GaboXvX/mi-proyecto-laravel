@@ -214,7 +214,7 @@
                         <th>Líder</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="incidencias-tbody">
                     @foreach ($incidencias as $incidencia)
                         <tr>
                             <td>{{ $incidencia->tipo_incidencia }}</td>
@@ -276,7 +276,7 @@
                         listaResultados.innerHTML = '';  // Limpiar resultados previos
 
                         // Actualizar la tabla con las nuevas incidencias filtradas
-                        let tbody = document.querySelector('.table tbody');
+                        let tbody = document.getElementById('incidencias-tbody');
                         tbody.innerHTML = ''; // Limpiar la tabla antes de agregar nuevas filas
 
                         // Comprobar si se recibieron incidencias
@@ -291,7 +291,7 @@
                                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                                 });
 
-                                tr.innerHTML = `
+                                tr.innerHTML = ` 
                                     <td>${incidencia.tipo_incidencia}</td>
                                     <td>${incidencia.descripcion}</td>
                                     <td>${incidencia.nivel_prioridad}</td>
@@ -299,7 +299,6 @@
                                     <td>${fechaFormateada}</td>
                                     <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
                                     <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                
                                 `;
 
                                 tbody.appendChild(tr);

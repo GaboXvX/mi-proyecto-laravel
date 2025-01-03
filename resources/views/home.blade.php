@@ -112,6 +112,11 @@
                         <a class="nav-link" href="{{ route('estadisticas') }}">estadisticas</a>
                     </li>
                     @endrole
+                    @role('admin')
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('movimientos') }}">movimientos</a>
+                    </li>
+                    @endrole
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf

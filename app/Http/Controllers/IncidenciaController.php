@@ -154,7 +154,7 @@ class IncidenciaController extends Controller
             $incidencia->descripcion = $request->input('descripcion');
         }
 
-        if ($incidencia->nivel_prioridad !== $request->input('nivel_prioridad')) {
+        if ($incidencia->nivel_prioridad != $request->input('nivel_prioridad')) {
             $camposModificados['nivel de prioridad'] = $request->input('nivel_prioridad');
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
         }

@@ -229,7 +229,7 @@ public function edit($slug)
                 $lider->apellido = $request->input('apellido'); 
             }
     
-            if ($lider->cedula !== $request->input('cedula')) {
+            if ($lider->cedula != $request->input('cedula')) {
                 $camposModificados['cedula'] = $request->input('cedula');
                 $lider->cedula = $request->input('cedula'); 
             }
@@ -239,7 +239,7 @@ public function edit($slug)
                 $lider->correo = $request->input('correo'); 
             }
     
-            if ($lider->telefono !== $request->input('telefono')) {
+            if ($lider->telefono != $request->input('telefono')) {
                 $camposModificados['telefono'] = $request->input('telefono');
                 $lider->telefono = $request->input('telefono'); 
             }
@@ -268,7 +268,7 @@ public function edit($slug)
             }
             
             // Comparar y actualizar el campo 'numero de casa'
-            if ($lider->direccion->numero_de_casa !== $request->input('num_casa')) {
+            if ($lider->direccion->numero_de_casa != $request->input('num_casa')) {
                 $camposModificados['numero de casa'] = $request->input('num_casa');
                 $lider->direccion->numero_de_casa = $request->input('num_casa');
             }

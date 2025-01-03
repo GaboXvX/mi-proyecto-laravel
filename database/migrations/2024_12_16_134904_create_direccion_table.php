@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('sector');
             $table->string('calle'); 
             $table->string('manzana');
-            $table->string('numero_de_casa');
+            $table->integer('numero_de_casa');
             $table->timestamps();
         });
     }

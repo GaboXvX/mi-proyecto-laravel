@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
-            $table->string('cedula')->unique();
+            $table->bigInteger('cedula')->unique();
             $table->string('correo', 320)->unique();
-            $table->string('telefono');
+            $table->bigInteger('telefono');
             $table->timestamps();
         });
     }

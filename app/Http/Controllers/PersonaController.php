@@ -243,7 +243,7 @@ class PersonaController extends Controller
                 $persona->apellido = $request->input('apellido');
             }
 
-            if ($persona->cedula !== $request->input('cedula')) {
+            if ($persona->cedula != $request->input('cedula')) {
                 $camposModificados['cedula'] = $request->input('cedula');
                 $persona->cedula = $request->input('cedula');
             }
@@ -253,7 +253,7 @@ class PersonaController extends Controller
                 $persona->correo = $request->input('correo');
             }
 
-            if ($persona->telefono !== $request->input('telefono')) {
+            if ($persona->telefono != $request->input('telefono')) {
                 $camposModificados['telefono'] = $request->input('telefono');
                 $persona->telefono = $request->input('telefono');
             }
@@ -281,7 +281,7 @@ class PersonaController extends Controller
             }
 
             // Comparar y actualizar el campo 'numero de casa'
-            if ($persona->direccion->numero_de_casa !== $request->input('num_casa')) {
+            if ($persona->direccion->numero_de_casa != $request->input('num_casa')) {
                 $camposModificados['numero de casa'] = $request->input('num_casa');
                 $persona->direccion->numero_de_casa = $request->input('num_casa');
             }

@@ -18,7 +18,7 @@ return new class extends Migration
            $table->string('slug')->unique();
             $table->string('tipo_incidencia');
             $table->text('descripcion');
-            $table->string('nivel_prioridad');
+            $table->integer('nivel_prioridad');
             $table->string('estado');
             $table->timestamps();
         });

@@ -77,6 +77,7 @@ class PersonaController extends Controller
 
 
             $usuario = Auth::user()->id_usuario;
+            $persona->slug=$slug;
             $persona->nombre = $request->input('nombre');
             $persona->apellido = $request->input('apellido');
             $persona->cedula = $request->input('cedula');

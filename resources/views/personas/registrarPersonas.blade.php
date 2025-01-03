@@ -97,7 +97,7 @@
 
             <div class="mb-3">
                 <label for="telefono" class="form-label">Teléfono:</label>
-                <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
+                <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10>=11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
             </div>
 
             <div class="mb-3">

@@ -81,7 +81,7 @@
 
             <div class="mb-3">
                 <label for="cedula" class="form-label">Cédula:</label>
-                <input type="number" id="cedula" name="cedula" class="form-control"
+                <input type="number" id="cedula" name="cedula" pattern="[0-9]{10>=11}" class="form-control"
                     value="{{ old('cedula', $persona->cedula) }}" required>
             </div>
 

@@ -134,7 +134,7 @@
                 <thead>
                     <tr>
                         <th>movimiento n°</th>
-                        <th>ID Incidencia</th>
+                        <th>n° Incidencia</th>
                         <th>Responsable</th>
                         <th>ID Persona</th>
                         <th>ID Líder</th>
@@ -152,13 +152,13 @@
                             <td>{{ $movimiento->id_incidencia }}</td>
                             <td>{{ $movimiento->usuario->nombre_usuario }} {{ $movimiento->usuario->cedula }}</td>
                             <td>@if($movimiento->Persona)
-                               {{ $movimiento->persona->cedula}}
+                               {{ $movimiento->persona->nombre}}{{ $movimiento->persona->cedula}}
                                  @else
                                  no registrado
                                @endif
                             </td>
                             <td> @if($movimiento->lider)
-                               {{ $movimiento->lider->cedula }}
+                               {{ $movimiento->lider->nombre }} {{ $movimiento->lider->cedula }}
                                 @else
                                   no registrado
                                 @endif

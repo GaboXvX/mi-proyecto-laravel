@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use App\Models\direccion;
-use App\Models\Domicilio;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
 use Illuminate\Http\Request;

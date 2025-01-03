@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
+use App\Models\Direccion;
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
+use App\Models\movimiento;
 use App\Models\Persona;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class IncidenciaController extends Controller
 {
@@ -61,8 +64,21 @@ class IncidenciaController extends Controller
             $incidencia->estado = $request->input('estado');
 
             $incidencia->save();
+            $camposCreado = [
+                'tipo de incidencia' => $incidencia->tipo_incidencia,
+                'descripcion' => $incidencia->descripcion,
+                'nivel de prioridad' => $incidencia->nivel_prioridad,
+                'estado' => $incidencia->estado,
+            ];
+            $movimiento = new movimiento();
+            $movimiento->id_incidencia=$incidencia->id_incidencia;
+            $movimiento->id_usuario = Auth::user()->id_usuario;
+            $movimiento->id_persona = $incidencia->id_persona;
+            $movimiento->id_lider = $incidencia->id_lider;
 
-
+            $movimiento->accion = 'se ha creado un registro';
+            $movimiento->valor_anterior = json_encode($camposCreado);
+            $movimiento->save();
             if ($id_lider) {
                 $lider = lider_comunitario::findOrFail($id_lider);
                 return redirect()->route('incidencias.show', [
@@ -114,52 +130,75 @@ class IncidenciaController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        try {
+{
+    try {
+        $incidencia = Incidencia::findOrFail($id);
 
-            $incidencia = Incidencia::findOrFail($id);
+        $camposModificados = [];
+        $camposAntiguos = [
+            'tipo de incidencia' => $incidencia->tipo_incidencia,
+            'descripcion' => $incidencia->descripcion,
+            'nivel de prioridad' => $incidencia->nivel_prioridad,
+            'estado' => $incidencia->estado,
+            'id_persona' => $incidencia->id_persona,
+            'id_lider' => $incidencia->id_lider,
+        ];
 
-            $validated = $request->validate([
-                'tipo_incidencia' => 'required|string|max:255',
-                'descripcion' => 'required|string|max:1000',
-                'nivel_prioridad' => 'required|string|max:255',
-                'estado' => 'required|string|max:255',
-                'id_persona' => 'nullable|exists:personas,id_persona',
-                'id_lider' => 'nullable|exists:lider_comunitario,id_lider',
-            ]);
-
-            if ($incidencia->descripcion !== $request->input('descripcion')) {
-                $slug = Str::slug($request->input('descripcion'));
-                $originalSlug = $slug;
-                $counter = 1;
-                while (Incidencia::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-                $incidencia->slug = $slug;
-            }
-
-
-            $incidencia->id_persona = $request->input('id_persona');
-            $incidencia->id_lider = $request->input('id_lider');
+        if ($incidencia->tipo_incidencia !== $request->input('tipo_incidencia')) {
+            $camposModificados['tipo de incidencia'] = $request->input('tipo_incidencia');
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-            $incidencia->descripcion = $request->input('descripcion');
-            $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-            $incidencia->estado = $request->input('estado');
-
-            $incidencia->save();
-
-            if ($incidencia->id_lider) {
-                return redirect()->route('lideres.index')->with('success', 'Incidencia registrada correctamente.');
-            } else {
-                return redirect()->route('personas.index')->with('success', 'Incidencia registrada correctamente.');
-            }
-        } catch (\Exception $e) {
-
-            return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
         }
-    }
 
+        if ($incidencia->descripcion !== $request->input('descripcion')) {
+            $camposModificados['descripcion'] = $request->input('descripcion');
+            $incidencia->descripcion = $request->input('descripcion');
+        }
+
+        if ($incidencia->nivel_prioridad !== $request->input('nivel_prioridad')) {
+            $camposModificados['nivel de prioridad'] = $request->input('nivel_prioridad');
+            $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
+        }
+
+        if ($incidencia->estado !== $request->input('estado')) {
+            $camposModificados['estado'] = $request->input('estado');
+            $incidencia->estado = $request->input('estado');
+        }
+
+        $incidencia->save();
+
+        if (!empty($camposModificados)) {
+            $movimiento = new Movimiento();
+            if (Auth::check()) {
+                $movimiento->id_usuario = Auth::user()->id_usuario;
+            } else {
+                return redirect()->route('login')->with('error', 'Debe estar autenticado para realizar esta acción.');
+            }
+
+            $movimiento->id_lider = $incidencia->id_lider;
+            $movimiento->accion = 'se ha actualizado un registro';
+            $movimiento->valor_nuevo = json_encode($camposModificados);
+            $movimiento->valor_anterior = json_encode($camposAntiguos);
+
+            if ($movimiento->save()) {
+                if ($incidencia->id_lider) {
+                    return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
+                } else {
+                    return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
+                }
+            } else {
+                return redirect()->route('personas.index')->with('error', 'Error al registrar el movimiento.');
+            }
+        } else {
+            if ($incidencia->id_lider) {
+                return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada sin cambios.');
+            } else {
+                return redirect()->route('personas.index')->with('success', 'Incidencia actualizada sin cambios.');
+            }
+        }
+    } catch (\Exception $e) {
+        return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
+    }
+}
 
     public function destroy() {}
     public function atender($slug)
@@ -187,7 +226,7 @@ class IncidenciaController extends Controller
             'incidencias' => $incidencias
         ]);
     }
-    
+
     public function show($persona_slug, $incidencia_slug)
     {
 
@@ -226,64 +265,60 @@ class IncidenciaController extends Controller
 
         return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
     }
-   
+
     public function showChart(Request $request)
-{
-    $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear())); 
-    $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth())); 
+    {
+        $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
+        $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
 
-    $tipoIncidencia = $request->input('tipo_incidencia', ''); 
+        $tipoIncidencia = $request->input('tipo_incidencia', '');
 
-    // Consultas para incidencias atendidas y por atender
-    $queryAtendidas = Incidencia::where('estado', 'Atendido')
-                                ->whereBetween('created_at', [$startDate, $endDate]);
-    $queryPorAtender = Incidencia::where('estado', 'por atender')
-                                 ->whereBetween('created_at', [$startDate, $endDate]);
+        // Consultas para incidencias atendidas y por atender
+        $queryAtendidas = Incidencia::where('estado', 'Atendido')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+        $queryPorAtender = Incidencia::where('estado', 'por atender')
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
-    if ($tipoIncidencia) {
-        $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
-        $queryPorAtender->where('tipo_incidencia', $tipoIncidencia);
-    }
-
-    // Obtener datos de incidencias atendidas
-    $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
-                                          ->groupBy('year', 'month')
-                                          ->orderBy('year')
-                                          ->orderBy('month')
-                                          ->get();
-    
-    // Obtener datos de incidencias por atender
-    $incidenciasPorAtender = $queryPorAtender->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
-                                              ->groupBy('year', 'month')
-                                              ->orderBy('year')
-                                              ->orderBy('month')
-                                              ->get();
-
-    // Preparar datos para la vista
-    $labels = [];
-    $dataAtendidas = [];
-    $dataPorAtender = [];
-
-    // Recorremos las incidencias atendidas
-    foreach ($incidenciasAtendidas as $incidencia) {
-        $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-        $labels[] = $monthName . ' ' . $incidencia->year;
-        $dataAtendidas[] = $incidencia->total;
-    }
-
-    // Recorremos las incidencias por atender
-    foreach ($incidenciasPorAtender as $incidencia) {
-        $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-        if (!in_array($monthName . ' ' . $incidencia->year, $labels)) {
-            $labels[] = $monthName . ' ' . $incidencia->year;
+        if ($tipoIncidencia) {
+            $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
+            $queryPorAtender->where('tipo_incidencia', $tipoIncidencia);
         }
-        $dataPorAtender[] = $incidencia->total;
+
+        // Obtener datos de incidencias atendidas
+        $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // Obtener datos de incidencias por atender
+        $incidenciasPorAtender = $queryPorAtender->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // Preparar datos para la vista
+        $labels = [];
+        $dataAtendidas = [];
+        $dataPorAtender = [];
+
+        // Recorremos las incidencias atendidas
+        foreach ($incidenciasAtendidas as $incidencia) {
+            $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
+            $labels[] = $monthName . ' ' . $incidencia->year;
+            $dataAtendidas[] = $incidencia->total;
+        }
+
+        // Recorremos las incidencias por atender
+        foreach ($incidenciasPorAtender as $incidencia) {
+            $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
+            if (!in_array($monthName . ' ' . $incidencia->year, $labels)) {
+                $labels[] = $monthName . ' ' . $incidencia->year;
+            }
+            $dataPorAtender[] = $incidencia->total;
+        }
+
+        return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'dataPorAtender', 'startDate', 'endDate', 'tipoIncidencia'));
     }
-
-    return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'dataPorAtender', 'startDate', 'endDate', 'tipoIncidencia'));
 }
-
-    
-    
-}    
-

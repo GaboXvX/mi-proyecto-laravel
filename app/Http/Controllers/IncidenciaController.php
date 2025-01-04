@@ -104,7 +104,11 @@ class IncidenciaController extends Controller
 
 
 
-
+    public function gestionar(Request $request)
+    {
+        $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();
+        return view('incidencias.gestionincidencias', compact('incidencias'));
+    }
 
     public function edit($slug, $persona_slug = null)
     {

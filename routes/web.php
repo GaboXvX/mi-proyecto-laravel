@@ -37,7 +37,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('usuarios', UserController::class)->except('create', 'store')->middleware('role:admin');
     Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])->name('usuarios.desactivar')->middleware('role:admin');
     Route::post('/activar/{id}', [UserController::class, 'activar'])->name('usuarios.activar')->middleware('role:admin');
-    Route::get('/gestionar-incidencias', [IncidenciaController::class, 'index'])->name('incidencias.gestionar')->middleware('role:admin');
+    Route::get('/incidencias', [IncidenciaController::class, 'index']);
+    Route::get('/gestionar-incidencias', [IncidenciaController::class, 'gestionar'])->name('incidencias.gestionar')->middleware('role:admin');
     // Rutas para las incidencias
     Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit'])->parameters(['incidencias' => 'slug']);  // Usamos slug
     Route::get('/incidencias/{slug}/edit/{persona_slug?}', [IncidenciaController::class, 'edit'])->name('incidencias.edit');

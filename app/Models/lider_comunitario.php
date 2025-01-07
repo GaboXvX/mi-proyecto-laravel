@@ -25,9 +25,9 @@ public function direccion()
     {
         return $this->belongsTo(Direccion::class, 'id_direccion');
     }
-    public function domicilio()
+    public function comunidad()
     {
-        return $this->belongsTo(domicilio::class, 'id_domicilio');
+        return $this->belongsTo(Comunidad::class, 'id_comunidad');
     }
     public function user()
     {

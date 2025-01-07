@@ -102,23 +102,7 @@
                     <option value="Sucre" {{ old('municipio') == 'Sucre' ? 'selected' : '' }}>Sucre</option>
                 </select>
             </div>
-
-            <div class="mb-3">
-                <label for="comunidad" class="form-label">Comunidad:</label>
-                <select name="comunidad" id="comunidad" class="form-select" required>
-                    <option value="">Seleccione una comunidad</option>
-                    <!-- Las comunidades serán agregadas desde el script -->
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                <label for="sector" class="form-label">Sector:</label>
-                <select name="sector" id="sector" class="form-select" required>
-                    <option value="">Seleccione un sector</option>
-                    <!-- Los sectores serán actualizados dinámicamente según la comunidad seleccionada -->
-                </select>
-            </div>
-
+           <livewire:dropdown/>
             <div class="mb-3">
                 <label for="calle" class="form-label">Calle:</label>
                 <input type="text" id="calle" name="calle" class="form-control" value="{{ old('calle') }}" required>
@@ -140,7 +124,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function () {
             const comunidadSelect = document.getElementById('comunidad');
             const sectorSelect = document.getElementById('sector');
@@ -183,7 +167,7 @@
                 }
             });
         });
-    </script>
+    </script> --}}
 </body>
 
 </html>

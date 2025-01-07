@@ -12,17 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('direccion', function (Blueprint $table) {
-            $table->bigIncrements('id_direccion');
+            $table->bigIncrements('id_direccion')->unsigned(); // Clave primaria
             $table->string('estado');
             $table->string('municipio');
-            $table->string('parroquia');
-           $table->string('urbanizacion');
-            $table->string('sector');
-            $table->string('comunidad');
-            $table->string('calle'); 
+            $table->string('calle');
             $table->string('manzana');
             $table->integer('numero_de_casa');
             $table->timestamps();
+
+          
+            $table->bigInteger('id_parroquia')->unsigned()->nullable();
+            $table->bigInteger('id_urbanizacion')->unsigned()->nullable();
+            $table->bigInteger('id_sector')->unsigned()->nullable();
+            $table->bigInteger('id_comunidad')->unsigned()->nullable();
+
+          
+            $table->foreign('id_parroquia')->references('id_parroquia')->on('parroquias')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('id_urbanizacion')->references('id_urbanizacion')->on('urbanizaciones')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('id_sector')->references('id_sector')->on('sectores')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('id_comunidad')->references('id_comunidad')->on('comunidades')->onDelete('set null')->onUpdate('cascade');
         });
     }
 
@@ -34,3 +42,4 @@ return new class extends Migration
         Schema::dropIfExists('direccion');
     }
 };
+

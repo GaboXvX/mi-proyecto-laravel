@@ -38,10 +38,6 @@ class Persona extends Model
         return $this->hasMany(Incidencia::class, 'id_persona');
     }
 
-    public function domicilio()
-    {
-        return $this->belongsTo(domicilio::class, 'id_domicilio');
-    }
     public function lider_comunitario()
     {
         return $this->belongsTo(lider_comunitario::class, 'id_lider'); 

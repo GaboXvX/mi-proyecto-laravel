@@ -94,34 +94,19 @@
 
             <div class="mb-3">
                 <label for="estado" class="form-label">Estado:</label>
-                <select name="estado" id="estado" class="form-select" required>
+                <select name="estado" id="estado" class="form-select" required disabled>
                     <option value="Sucre" {{ old('estado', $lider->direccion->estado) == 'Sucre' ? 'selected' : '' }}>Sucre</option>
                 </select>
             </div>
             
             <div class="mb-3">
                 <label for="municipio" class="form-label">Municipio:</label>
-                <select name="municipio" id="municipio" class="form-select" required>
+                <select name="municipio" id="municipio" class="form-select" required disabled>
                     <option value="Sucre" {{ old('municipio', $lider->direccion->municipio) == 'Sucre' ? 'selected' : '' }}>Sucre</option>
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="comunidad" class="form-label">Comunidad:</label>
-                <select name="comunidad" id="comunidad" class="form-select" required>
-                    <option value="">Seleccione una comunidad</option>
-                    <!-- Las comunidades se añaden dinámicamente desde un script -->
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                <label for="sector" class="form-label">Sector:</label>
-                <select name="sector" id="sector" class="form-select" required>
-                    <option value="">Seleccione un sector</option>
-                    <!-- Los sectores se actualizan dinámicamente -->
-                </select>
-            </div>
-
+<livewire:dropdown/>
             <div class="mb-3">
                 <label for="calle" class="form-label">Calle:</label>
                 <input type="text" id="calle" name="calle" class="form-control" value="{{ old('calle', $lider->direccion->calle) }}" required>
@@ -143,85 +128,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const comunidadSelect = document.getElementById('comunidad');
-            const sectorSelect = document.getElementById('sector');
-    
-            // Aquí definimos un objeto con las comunidades y sus respectivos sectores.
-            const comunidadesSectores = {
-                'Comunidad A': ['Sector 1', 'Sector 2', 'Sector 3'],
-                'Comunidad B': ['Sector 4', 'Sector 5', 'Sector 6'],
-                'Comunidad C': ['Sector 7', 'Sector 8'],
-                'Comunidad D': ['Sector 9', 'Sector 10']
-            };
-    
-            // Llenamos el select de comunidades con las opciones disponibles
-            for (let comunidad in comunidadesSectores) {
-                const option = document.createElement('option');
-                option.value = comunidad;
-                option.textContent = comunidad;
-                comunidadSelect.appendChild(option);
-            }
-    
-            // Evento para actualizar los sectores cuando se cambia la comunidad
-            comunidadSelect.addEventListener('change', function () {
-                // Limpiar el select de sectores
-                sectorSelect.innerHTML = '<option value="">Seleccione un sector</option>';
-    
-                // Obtener la comunidad seleccionada
-                const comunidadSeleccionada = comunidadSelect.value;
-    
-                // Si la comunidad seleccionada tiene sectores asociados, agregarlos
-                if (comunidadSeleccionada && comunidadesSectores[comunidadSeleccionada]) {
-                    const sectores = comunidadesSectores[comunidadSeleccionada];
-    
-                    // Crear las opciones de los sectores
-                    sectores.forEach(function (sector) {
-                        const option = document.createElement('option');
-                        option.value = sector;
-                        option.textContent = sector;
-                        sectorSelect.appendChild(option);
-                    });
-                }
-            });
-    
-            // Preselección de valores de comunidad y sector en caso de que se esté editando
-            const comunidadSeleccionada = '{{ old('comunidad', $lider->direccion->comunidad ?? '') }}';
-    
-            // Si no hay comunidad seleccionada (en caso de edición), ponemos "Seleccione una comunidad" por defecto
-            if (!comunidadSeleccionada) {
-                // Configurar el select a la opción predeterminada
-                comunidadSelect.value = '';
-            } else {
-                // Si hay una comunidad preseleccionada, la asignamos
-                comunidadSelect.value = comunidadSeleccionada;
-    
-                // Actualizar los sectores si es necesario
-                actualizarSectores(comunidadSeleccionada);
-            }
-    
-            // Función para actualizar los sectores según la comunidad seleccionada
-            function actualizarSectores(comunidad) {
-                // Limpiar el select de sectores
-                sectorSelect.innerHTML = '<option value="">Seleccione un sector</option>';
-    
-                // Si la comunidad seleccionada tiene sectores asociados, agregar los sectores
-                if (comunidad && comunidadesSectores[comunidad]) {
-                    const sectores = comunidadesSectores[comunidad];
-    
-                    // Crear las opciones de los sectores
-                    sectores.forEach(function (sector) {
-                        const option = document.createElement('option');
-                        option.value = sector;
-                        option.textContent = sector;
-                        sectorSelect.appendChild(option);
-                    });
-                }
-            }
-        });
-    </script>
-    
+
 </body>
 
 </html>

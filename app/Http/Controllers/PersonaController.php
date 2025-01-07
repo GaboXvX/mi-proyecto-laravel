@@ -26,67 +26,75 @@ class PersonaController extends Controller
     }
 
     public function store(StorePersonaRequest $request)
-    {
-        try {
+{
+    try {
+        // Obtener los datos de la dirección del request
+        $estado = 'sucre';
+        $municipio = 'sucre';
+        $parroquia = $request->input('parroquia');
+        $urbanizacion = $request->input('urbanizacion');
+        $comunidad = $request->input('comunidad');
+        $sector = $request->input('sector');
+        $calle = $request->input('calle');
+        $manzana = $request->input('manzana');
+        $num_casa = $request->input('num_casa');
 
-            $estado = 'sucre';
-            $municipio = 'sucre';
-            $comunidad = $request->input('comunidad');
-            $sector = $request->input('sector');
-            $calle = $request->input('calle');
-            $manzana = $request->input('manzana');
-            $num_casa = $request->input('num_casa');
+        // Buscar la dirección en la base de datos
+        $direccion = Direccion::where('estado', $estado)
+            ->where('municipio', $municipio)
+            ->where('parroquia', $parroquia)
+            ->where('urbanizacion', $urbanizacion)
+            ->where('comunidad', $comunidad)
+            ->where('sector', $sector)
+            ->where('calle', $calle)
+            ->where('manzana', $manzana)
+            ->where('numero_de_casa', $num_casa)
+            ->first();
 
-            // Buscar la dirección en la base de datos
-            $direccion = Direccion::where('estado', $estado)
-                ->where('municipio', $municipio)
-                ->where('comunidad', $comunidad)
-                ->where('sector', $sector)
-                ->where('calle', $calle)
-                ->where('manzana', $manzana)
-                ->where('numero_de_casa', $num_casa)
-                ->first();
+        // Si la dirección no existe, crearla
+        if (!$direccion) {
+            $direccion = new Direccion();
+            $direccion->estado = $estado;
+            $direccion->municipio = $municipio;
+            $direccion->parroquia = $parroquia;
+            $direccion->urbanizacion = $urbanizacion;
+            $direccion->comunidad = $comunidad;
+            $direccion->sector = $sector;
+            $direccion->calle = $calle;
+            $direccion->manzana = $manzana;
+            $direccion->numero_de_casa = $num_casa;
+            $direccion->save();
+        }
 
-            // Si la dirección no existe, crearla
-            if (!$direccion) {
-                $direccion = new Direccion();
-                $direccion->estado = $estado;
-                $direccion->municipio = $municipio;
-                $direccion->comunidad = $comunidad;
-                $direccion->sector = $sector;
-                $direccion->calle = $calle;
-                $direccion->manzana = $manzana;
-                $direccion->numero_de_casa = $num_casa;
-                $direccion->save();
-            }
+        // Buscar al líder comunitario de la misma comunidad
+        $lider = Lider_Comunitario::whereHas('direccion', function ($query) use ($comunidad) {
+            $query->where('comunidad', $comunidad);
+        })->first();
 
-            // Ahora puedes trabajar con la dirección, ya sea encontrada o recién creada
-
-
-
+        if ($lider) {
+            // Crear la nueva persona asociada al líder encontrado
             $persona = new Persona();
             $slug = Str::slug($request->input('nombre'));
             $originalSlug = $slug;
             $counter = 1;
-
 
             while (Persona::where('slug', $slug)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
 
-
-            $usuario = Auth::user()->id_usuario;
-            $persona->slug=$slug;
+            $persona->slug = $slug;
             $persona->nombre = $request->input('nombre');
             $persona->apellido = $request->input('apellido');
             $persona->cedula = $request->input('cedula');
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
             $persona->id_direccion = $direccion->id_direccion;
-            $persona->id_usuario = $usuario;
-            $persona->id_lider = $request->input('lider_comunitario');
+            $persona->id_usuario = Auth::user()->id_usuario;
+            $persona->id_lider = $lider->id_lider; // Asociando al líder
             $persona->save();
+
+            // Registrar el movimiento
             $movimiento = new Movimiento();
             $movimiento->id_usuario = Auth::user()->id_usuario;
             $movimiento->id_persona = $persona->id_persona;
@@ -97,20 +105,25 @@ class PersonaController extends Controller
                 'correo' => $request->input('correo'),
                 'telefono' => $request->input('telefono'),
                 'comunidad' => $direccion->comunidad,
-                'sector'=>$direccion->sector,
-                'calle'=>$direccion->calle,
-                'manzana'=>$direccion->manzana,
-                'numero de casa'=>$direccion->numero_de_casa,
+                'sector' => $direccion->sector,
+                'calle' => $direccion->calle,
+                'manzana' => $direccion->manzana,
+                'numero de casa' => $direccion->numero_de_casa,
             ];
             $movimiento->accion = 'se ha creado un registro';
             $movimiento->valor_anterior = json_encode($camposCreado);
             $movimiento->save();
 
             return redirect()->route('personas.index')->with('success', 'Datos enviados correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+        } else {
+            return redirect()->route('personas.index')->with('error', 'No se encontró un líder para esta comunidad');
         }
+    } catch (\Exception $e) {
+        return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
     }
+}
+
+
 
 
 

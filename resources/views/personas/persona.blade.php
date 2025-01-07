@@ -27,7 +27,7 @@
                 <th>Líder Comunitario</th>
                 <td>
                     @if($persona->lider_comunitario)
-                        {{ $persona->lider_comunitario->nombre }}
+                        {{ $persona->lider_comunitario->nombre }}  {{ $persona->lider_comunitario->apellido }}
                     @else
                         No asignado
                     @endif

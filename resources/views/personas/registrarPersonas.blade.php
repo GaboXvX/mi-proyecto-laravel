@@ -62,9 +62,10 @@
             <a href="{{ route('home') }}" class="btn btn-primary">Volver</a>
         </div>
 
-        <form action="{{ route('personas.store') }}" method="POST">
+        <form action="{{ route('personas.store') }}" method="POST" id="form">
             @csrf
 
+            <!-- Campos básicos -->
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" required>
@@ -81,16 +82,6 @@
             </div>
 
             <div class="mb-3">
-                <label for="lider_comunitario" class="form-label">Líder Comunitario:</label>
-                <select name="lider_comunitario" id="lider_comunitario" class="form-select" required>
-                    <option value="">Seleccione un líder comunitario</option>
-                    @foreach ($lideres as $lider)
-                        <option value="{{ $lider->id_lider }}" {{ old('lider_comunitario') == $lider->id_lider ? 'selected' : '' }}>{{ $lider->nombre }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="mb-3">
                 <label for="correo" class="form-label">Correo Electrónico:</label>
                 <input type="email" id="correo" name="correo" class="form-control" value="{{ old('correo') }}" required>
             </div>
@@ -100,6 +91,7 @@
                 <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10>=11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
             </div>
 
+            <!-- Estado y Municipio -->
             <div class="mb-3">
                 <label for="estado" class="form-label">Estado:</label>
                 <select name="estado" id="estado" class="form-select" required disabled>
@@ -114,22 +106,58 @@
                 </select>
             </div>
 
+            <!-- Parroquia -->
             <div class="mb-3">
-                <label for="comunidad" class="form-label">Comunidad:</label>
-                <select name="comunidad" id="comunidad" class="form-select" required>
-                    <option value="">Seleccione una comunidad</option>
-                    <!-- Las comunidades serán agregadas desde el script -->
+                <label for="parroquia" class="form-label">Parroquia:</label>
+                <select name="parroquia" id="parroquia" class="form-select" required>
+                    <option value="">Seleccione una parroquia</option>
+                    <option value="Valentín Valiente">Valentín Valiente</option>
+                    <option value="Altagracia">Altagracia</option>
+                    <option value="Santa Inés">Santa Inés</option>
+                    <option value="San Juan">San Juan</option>
+                    <option value="Ayacucho">Ayacucho</option>
+                    <option value="Gran Mariscal">Gran Mariscal</option>
+                    <option value="Raúl Leoni">Raúl Leoni</option>
                 </select>
             </div>
-            
+
+            <!-- Urbanización -->
+            <div class="mb-3">
+                <label for="urbanizacion" class="form-label">Urbanización:</label>
+                <select name="urbanizacion" id="urbanizacion" class="form-select" required>
+                    <option value="">Seleccione una urbanización</option>
+                    <!-- Las opciones de urbanización se agregarán dinámicamente -->
+                </select>
+            </div>
+
+            <!-- Sector -->
             <div class="mb-3">
                 <label for="sector" class="form-label">Sector:</label>
                 <select name="sector" id="sector" class="form-select" required>
                     <option value="">Seleccione un sector</option>
-                    <!-- Los sectores serán actualizados dinámicamente según la comunidad seleccionada -->
+                    <!-- Los sectores serán actualizados dinámicamente según la urbanización seleccionada -->
                 </select>
             </div>
 
+            <!-- Comunidad -->
+            <div class="mb-3">
+                <label for="comunidad" class="form-label">Comunidad:</label>
+                <select name="comunidad" id="comunidad" class="form-select" required>
+                    <option value="">Seleccione una comunidad</option>
+                    <!-- Las comunidades serán actualizadas dinámicamente según el sector seleccionado -->
+                </select>
+            </div>
+
+            <!-- Líder Comunitario -->
+            <div class="mb-3">
+                <label for="lider_comunitario" class="form-label">Líder Comunitario:</label>
+                <select name="lider_comunitario" id="lider_comunitario" class="form-select" required>
+                    <option value="">Seleccione un líder comunitario</option>
+                    <!-- Los líderes serán actualizados dinámicamente según la comunidad seleccionada -->
+                </select>
+            </div>
+
+            <!-- Calle, Manzana y Número de Casa -->
             <div class="mb-3">
                 <label for="calle" class="form-label">Calle:</label>
                 <input type="text" id="calle" name="calle" class="form-control" value="{{ old('calle') }}" required>
@@ -153,39 +181,160 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const comunidadSelect = document.getElementById('comunidad');
+            const parroquiaSelect = document.getElementById('parroquia');
+            const urbanizacionSelect = document.getElementById('urbanizacion');
             const sectorSelect = document.getElementById('sector');
-
-            // Aquí definimos un objeto con las comunidades y sus respectivos sectores.
-            const comunidadesSectores = {
-                'Comunidad A': ['Sector 1', 'Sector 2', 'Sector 3'],
-                'Comunidad B': ['Sector 4', 'Sector 5', 'Sector 6'],
-                'Comunidad C': ['Sector 7', 'Sector 8'],
-                'Comunidad D': ['Sector 9', 'Sector 10']
+            const comunidadSelect = document.getElementById('comunidad');
+            const liderSelect = document.getElementById('lider_comunitario');
+    
+            // Datos de urbanizaciones, sectores, comunidades y líderes
+            const parroquiasUrbanizaciones = {
+                'Altagracia': {
+                    'La Llanada': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Cambio de Rumbo', lider: 'Juan Pérez' },
+                                    { nombre: 'Cuatro de Marzo', lider: 'Ana González' }
+                                ]
+                            },
+                            '2': {
+                                comunidades: [
+                                    { nombre: 'La Esperanza', lider: 'Carlos Rodríguez' },
+                                    { nombre: 'Sol Naciente', lider: 'María Sánchez' },
+                                    { nombre: 'Pueblo Nuevo', lider: 'Luis Díaz' }
+                                ]
+                            }
+                        }
+                    },
+                    'Brasil': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Los Amigos', lider: 'Pedro Martínez' },
+                                    { nombre: 'Los Vencedores', lider: 'Isabel López' }
+                                ]
+                            },
+                            '2': {
+                                comunidades: [
+                                    { nombre: 'Las Palmas', lider: 'Roberto Pérez' },
+                                    { nombre: 'Los Robles', lider: 'Laura Fernández' },
+                                    { nombre: 'Jardines del Sol', lider: 'Felipe Martínez' }
+                                ]
+                            }
+                        }
+                    },
+                    'San Juan': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Mirador del Sol', lider: 'Adriana Ramírez' },
+                                    { nombre: 'La Esperanza 2', lider: 'José Morales' }
+                                ]
+                            }
+                        }
+                    }
+                },
+                'Valentín Valiente': {
+                    'El Rosal': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'El Encanto', lider: 'Pedro Gómez' },
+                                    { nombre: 'La Muralla', lider: 'Elena Ruiz' }
+                                ]
+                            }
+                        }
+                    },
+                    'La Colina': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Campo Alegre', lider: 'Juan Martínez' },
+                                    { nombre: 'Los Naranjos', lider: 'Sandra López' }
+                                ]
+                            },
+                            '2': {
+                                comunidades: [
+                                    { nombre: 'Altos de la Colina', lider: 'Carlos Jiménez' },
+                                    { nombre: 'Río Claro', lider: 'Ricardo Pérez' }
+                                ]
+                            }
+                        }
+                    }
+                },
+                'Santa Inés': {
+                    'La Candelaria': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Nuevo Horizonte', lider: 'Lina González' },
+                                    { nombre: 'La Sombra', lider: 'Antonio Ramírez' }
+                                ]
+                            }
+                        }
+                    }
+                },
+                'Gran Mariscal': {
+                    'Los Molinos': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'Valles del Sol', lider: 'Julio Rodríguez' },
+                                    { nombre: 'Sol y Luna', lider: 'Ana María Suárez' }
+                                ]
+                            }
+                        }
+                    }
+                },
+                'Raúl Leoni': {
+                    'La Estrella': {
+                        sectores: {
+                            '1': {
+                                comunidades: [
+                                    { nombre: 'La Cruz', lider: 'Carlos Hernández' },
+                                    { nombre: 'El Ávila', lider: 'Luis Fernández' }
+                                ]
+                            }
+                        }
+                    }
+                }
             };
-
-            // Llenamos el select de comunidades con las opciones disponibles
-            for (let comunidad in comunidadesSectores) {
-                const option = document.createElement('option');
-                option.value = comunidad;
-                option.textContent = comunidad;
-                comunidadSelect.appendChild(option);
-            }
-
-            // Evento para actualizar los sectores cuando se cambia la comunidad
-            comunidadSelect.addEventListener('change', function () {
-                // Limpiar el select de sectores
+    
+            // Rellenar urbanizaciones según la parroquia seleccionada
+            parroquiaSelect.addEventListener('change', function () {
+                urbanizacionSelect.innerHTML = '<option value="">Seleccione una urbanización</option>';
                 sectorSelect.innerHTML = '<option value="">Seleccione un sector</option>';
-
-                // Obtener la comunidad seleccionada
-                const comunidadSeleccionada = comunidadSelect.value;
-
-                // Si la comunidad seleccionada tiene sectores asociados, agregarlos
-                if (comunidadSeleccionada && comunidadesSectores[comunidadSeleccionada]) {
-                    const sectores = comunidadesSectores[comunidadSeleccionada];
-
-                    // Crear las opciones de los sectores
-                    sectores.forEach(function (sector) {
+                comunidadSelect.innerHTML = '<option value="">Seleccione una comunidad</option>';
+                liderSelect.innerHTML = '<option value="">Seleccione un líder comunitario</option>';
+    
+                const parroquiaSeleccionada = parroquiaSelect.value;
+    
+                if (parroquiaSeleccionada && parroquiasUrbanizaciones[parroquiaSeleccionada]) {
+                    const urbanizaciones = Object.keys(parroquiasUrbanizaciones[parroquiaSeleccionada]);
+    
+                    urbanizaciones.forEach(function (urbanizacion) {
+                        const option = document.createElement('option');
+                        option.value = urbanizacion;
+                        option.textContent = urbanizacion;
+                        urbanizacionSelect.appendChild(option);
+                    });
+                }
+            });
+    
+            // Rellenar sectores según la urbanización seleccionada
+            urbanizacionSelect.addEventListener('change', function () {
+                const parroquiaSeleccionada = parroquiaSelect.value;
+                const urbanizacionSeleccionada = urbanizacionSelect.value;
+    
+                sectorSelect.innerHTML = '<option value="">Seleccione un sector</option>';
+                comunidadSelect.innerHTML = '<option value="">Seleccione una comunidad</option>';
+                liderSelect.innerHTML = '<option value="">Seleccione un líder comunitario</option>';
+    
+                if (parroquiaSeleccionada && urbanizacionSeleccionada) {
+                    const sectores = parroquiasUrbanizaciones[parroquiaSeleccionada][urbanizacionSeleccionada].sectores;
+    
+                    Object.keys(sectores).forEach(function (sector) {
                         const option = document.createElement('option');
                         option.value = sector;
                         option.textContent = sector;
@@ -193,8 +342,58 @@
                     });
                 }
             });
+    
+            // Rellenar comunidades según el sector seleccionado
+            sectorSelect.addEventListener('change', function () {
+                const parroquiaSeleccionada = parroquiaSelect.value;
+                const urbanizacionSeleccionada = urbanizacionSelect.value;
+                const sectorSeleccionado = sectorSelect.value;
+    
+                comunidadSelect.innerHTML = '<option value="">Seleccione una comunidad</option>';
+                liderSelect.innerHTML = '<option value="">Seleccione un líder comunitario</option>';
+    
+                if (parroquiaSeleccionada && urbanizacionSeleccionada && sectorSeleccionado) {
+                    const comunidades = parroquiasUrbanizaciones[parroquiaSeleccionada][urbanizacionSeleccionada].sectores[sectorSeleccionado].comunidades;
+    
+                    comunidades.forEach(function (comunidad) {
+                        const option = document.createElement('option');
+                        option.value = comunidad.nombre;
+                        option.textContent = comunidad.nombre;
+                        comunidadSelect.appendChild(option);
+                    });
+                }
+            });
+    
+            // Rellenar líderes según la comunidad seleccionada
+            comunidadSelect.addEventListener('change', function () {
+                const comunidadSeleccionada = comunidadSelect.value;
+    
+                liderSelect.innerHTML = '<option value="">Seleccione un líder comunitario</option>';
+    
+                if (comunidadSeleccionada) {
+                    // Buscar líder para la comunidad seleccionada
+                    Object.keys(parroquiasUrbanizaciones).forEach(parroquia => {
+                        Object.keys(parroquiasUrbanizaciones[parroquia]).forEach(urbanizacion => {
+                            Object.keys(parroquiasUrbanizaciones[parroquia][urbanizacion].sectores).forEach(sector => {
+                                const sectorData = parroquiasUrbanizaciones[parroquia][urbanizacion].sectores[sector];
+                                const comunidadData = sectorData.comunidades.find(c => c.nombre === comunidadSeleccionada);
+    
+                                if (comunidadData) {
+                                    const option = document.createElement('option');
+                                    option.value = comunidadData.lider;
+                                    option.textContent = comunidadData.lider;
+                                    liderSelect.appendChild(option);
+                                }
+                            });
+                        });
+                    });
+                }
+            });
         });
     </script>
+    
+    
+    
 </body>
 
 </html>

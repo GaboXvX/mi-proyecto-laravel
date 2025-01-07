@@ -15,8 +15,10 @@ return new class extends Migration
             $table->bigIncrements('id_direccion');
             $table->string('estado');
             $table->string('municipio');
-            $table->string('comunidad');
+            $table->string('parroquia');
+           $table->string('urbanizacion');
             $table->string('sector');
+            $table->string('comunidad');
             $table->string('calle'); 
             $table->string('manzana');
             $table->integer('numero_de_casa');

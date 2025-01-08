@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,75 +7,6 @@
 
     <!-- Enlace a Bootstrap para diseño mejorado -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            margin-top: 30px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #343a40;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            font-size: 0.9rem; /* Tamaño de la fuente reducido */
-        }
-
-        th,
-        td {
-            text-align: left;
-            vertical-align: middle;
-            padding: 6px 10px; /* Menor padding */
-        }
-
-        th {
-            background-color: #f1f3f5;
-            color: #495057;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f3f5;
-        }
-
-        .pagination {
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .pagination li {
-            margin-right: 5px;
-        }
-
-        /* Ajustar ancho de las columnas */
-        .col-id {
-            width: 5%;
-        }
-
-        .col-accion {
-            width: 15%;
-        }
-
-        .col-valores {
-            width: 20%;
-        }
-
-        .col-relacion {
-            width: 10%;
-        }
-    </style>
 </head>
 
 <body>
@@ -120,7 +50,7 @@
                                         {{ ucfirst($campo) }}: {{ htmlspecialchars($valorNuevo[$campo]) }}<br>
                                     @endif
                                 @endforeach
-
+                                
                                 <!-- Urbanización -->
                                 @if (isset($valorNuevo['urbanizacion']) && $valorNuevo['urbanizacion'] != '')
                                     @php
@@ -129,11 +59,18 @@
                                     @endphp
                                     Urbanización: {{ htmlspecialchars($urbanizacionNuevo) }}<br>
                                 @endif
-
+                                
                                 <!-- Líder: Mostrar datos del líder -->
                                 @if (isset($valorNuevo['lider']) && $valorNuevo['lider'] != '')
                                     Líder: {{ htmlspecialchars($valorNuevo['lider']) }}<br>
                                 @endif
+                                
+                                <!-- Campos de incidencia (Valores nuevos) -->
+                                @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado', 'id_persona'] as $campo)
+                                    @if (isset($valorNuevo[$campo]) && $valorNuevo[$campo] != '')
+                                        {{ ucfirst(str_replace('_', ' ', $campo)) }}: {{ htmlspecialchars($valorNuevo[$campo]) }}<br>
+                                    @endif
+                                @endforeach
                             </td>
 
                             <!-- Valores Antiguos -->
@@ -143,7 +80,7 @@
                                         {{ ucfirst($campo) }}: {{ htmlspecialchars($valorAnterior[$campo]) }}<br>
                                     @endif
                                 @endforeach
-
+                                
                                 <!-- Urbanización -->
                                 @if (isset($valorAnterior['urbanizacion']) && $valorAnterior['urbanizacion'] != '')
                                     @php
@@ -152,19 +89,18 @@
                                     @endphp
                                     Urbanización: {{ htmlspecialchars($urbanizacionAnterior) }}<br>
                                 @endif
-
+                                
                                 <!-- Líder: Mostrar datos del líder en valor anterior -->
                                 @if (isset($valorAnterior['lider']) && $valorAnterior['lider'] != '')
                                     Líder: {{ htmlspecialchars($valorAnterior['lider']) }}<br>
                                 @endif
-
-                                <!-- Información de la incidencia (excepto ID) -->
-                                @if ($movimiento->incidencia)
-                                    <strong>Tipo de Incidencia:</strong> {{ $movimiento->incidencia->tipo_incidencia }}<br>
-                                    <strong>Descripción:</strong> {{ $movimiento->incidencia->descripcion }}<br>
-                                    <strong>Nivel de Prioridad:</strong> {{ $movimiento->incidencia->nivel_prioridad }}<br>
-                                    <strong>Estado:</strong> {{ $movimiento->incidencia->estado }}<br>
-                                @endif
+                                
+                                <!-- Campos de incidencia (Valores anteriores) -->
+                                @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado'] as $campo)
+                                    @if (isset($valorAnterior[$campo]) && $valorAnterior[$campo] != '')
+                                        {{ ucfirst(str_replace('_', ' ', $campo)) }}: {{ htmlspecialchars($valorAnterior[$campo]) }}<br>
+                                    @endif
+                                @endforeach
                             </td>
 
                             <!-- Usuario: Cédula, Nombre, Apellido -->
@@ -214,7 +150,5 @@
 
     <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
-
 </html>

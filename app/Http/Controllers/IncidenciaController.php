@@ -65,9 +65,9 @@ class IncidenciaController extends Controller
 
             $incidencia->save();
             $camposCreado = [
-                'tipo de incidencia' => $incidencia->tipo_incidencia,
+                'tipo_de_incidencia' => $incidencia->tipo_incidencia,
                 'descripcion' => $incidencia->descripcion,
-                'nivel de prioridad' => $incidencia->nivel_prioridad,
+                'nivel_de_prioridad' => $incidencia->nivel_prioridad,
                 'estado' => $incidencia->estado,
             ];
             $movimiento = new movimiento();
@@ -134,77 +134,86 @@ class IncidenciaController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    try {
-        $incidencia = Incidencia::findOrFail($id);
-
-        $camposModificados = [];
-        $camposAntiguos = [
-            'tipo_de_incidencia' => $incidencia->tipo_incidencia,
-            'descripcion' => $incidencia->descripcion,
-            'nivel_de_prioridad' => $incidencia->nivel_prioridad,
-            'estado' => $incidencia->estado,
-            'id_persona' => $incidencia->id_persona,
-            'id_lider' => $incidencia->id_lider,
-        ];
-
-        if ($incidencia->tipo_incidencia !== $request->input('tipo_incidencia')) {
-            $camposModificados['tipo de incidencia'] = $request->input('tipo_incidencia');
-            $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-        }
-
-        if ($incidencia->descripcion !== $request->input('descripcion')) {
-            $camposModificados['descripcion'] = $request->input('descripcion');
-            $incidencia->descripcion = $request->input('descripcion');
-        }
-
-        if ($incidencia->nivel_prioridad != $request->input('nivel_prioridad')) {
-            $camposModificados['nivel de prioridad'] = $request->input('nivel_prioridad');
-            $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-        }
-
-        if ($incidencia->estado !== $request->input('estado')) {
-            $camposModificados['estado'] = $request->input('estado');
-            $incidencia->estado = $request->input('estado');
-        }
-
-        $incidencia->save();
-
-        if (!empty($camposModificados)) {
-            $movimiento = new Movimiento();
-            if (Auth::check()) {
-                $movimiento->id_usuario = Auth::user()->id_usuario;
-            } else {
-                return redirect()->route('login')->with('error', 'Debe estar autenticado para realizar esta acción.');
+    {
+        try {
+            $incidencia = Incidencia::findOrFail($id);
+    
+            // Se guardan los valores antes de la actualización
+            $camposAntiguos = [
+                'tipo_de_incidencia' => $incidencia->tipo_incidencia,
+                'descripcion' => $incidencia->descripcion,
+                'nivel_de_prioridad' => $incidencia->nivel_prioridad,
+                'estado' => $incidencia->estado,
+                'id_persona' => $incidencia->id_persona,
+                'id_lider' => $incidencia->id_lider,
+            ];
+    
+            // Se preparan los valores que fueron modificados
+            $camposModificados = [];
+            if ($incidencia->tipo_incidencia !== $request->input('tipo_incidencia')) {
+                $camposModificados['tipo_de_incidencia'] = $request->input('tipo_incidencia');
+                $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
             }
-
-            $movimiento->id_lider = $incidencia->id_lider;
-            $movimiento->id_incidencia=$incidencia->id_incidencia;
-            $movimiento->accion = 'se ha actualizado un registro';
-            $movimiento->valor_nuevo = json_encode($camposModificados);
-            $movimiento->valor_anterior = json_encode($camposAntiguos);
-            $movimiento->id_persona=$incidencia->id_persona;
-            $movimiento->save();
-            if ($movimiento->save()) {
-                if ($incidencia->id_lider) {
-                    return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
+    
+            if ($incidencia->descripcion !== $request->input('descripcion')) {
+                $camposModificados['descripcion'] = $request->input('descripcion');
+                $incidencia->descripcion = $request->input('descripcion');
+            }
+    
+            if ($incidencia->nivel_prioridad != $request->input('nivel_prioridad')) {
+                $camposModificados['nivel_de_prioridad'] = $request->input('nivel_prioridad');
+                $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
+            }
+    
+            if ($incidencia->estado !== $request->input('estado')) {
+                $camposModificados['estado'] = $request->input('estado');
+                $incidencia->estado = $request->input('estado');
+            }
+    
+            // Guardamos la incidencia con los valores actualizados
+            $incidencia->save();
+    
+            // Si hubo modificaciones, guardamos el movimiento
+            if (!empty($camposModificados)) {
+                $movimiento = new Movimiento();
+    
+                if (Auth::check()) {
+                    $movimiento->id_usuario = Auth::user()->id_usuario;
                 } else {
-                    return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
+                    return redirect()->route('login')->with('error', 'Debe estar autenticado para realizar esta acción.');
+                }
+    
+                // Guardamos los valores antiguos y nuevos
+                $movimiento->id_lider = $incidencia->id_lider;
+                $movimiento->id_incidencia = $incidencia->id_incidencia;
+                $movimiento->accion = 'se ha actualizado un registro';
+                $movimiento->valor_nuevo = json_encode($camposModificados);  // Los valores actuales después de la actualización
+                $movimiento->valor_anterior = json_encode($camposAntiguos);  // Los valores antes de la actualización
+                $movimiento->id_persona = $incidencia->id_persona;
+                $movimiento->save();
+    
+                if ($movimiento->save()) {
+                    if ($incidencia->id_lider) {
+                        return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
+                    } else {
+                        return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
+                    }
+                } else {
+                    return redirect()->route('personas.index')->with('error', 'Error al registrar el movimiento.');
                 }
             } else {
-                return redirect()->route('personas.index')->with('error', 'Error al registrar el movimiento.');
+                // Si no hubo cambios
+                if ($incidencia->id_lider) {
+                    return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada sin cambios.');
+                } else {
+                    return redirect()->route('personas.index')->with('success', 'Incidencia actualizada sin cambios.');
+                }
             }
-        } else {
-            if ($incidencia->id_lider) {
-                return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada sin cambios.');
-            } else {
-                return redirect()->route('personas.index')->with('success', 'Incidencia actualizada sin cambios.');
-            }
+        } catch (\Exception $e) {
+            return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
         }
-    } catch (\Exception $e) {
-        return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
     }
-}
+    
 
     public function destroy() {}
     public function atender($slug)

@@ -21,5 +21,8 @@ class movimiento extends Model
     public function usuario(){
         return $this->belongsTo(User::class,'id_usuario');
     }
+    public function incidencia(){
+        return $this->belongsTo(incidencia::class,'id_incidencia');
+    }
 }
 

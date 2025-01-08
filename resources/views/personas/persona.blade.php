@@ -51,11 +51,11 @@
             </tr>
             <tr>
                 <th>Comunidad</th>
-                <td>{{ $persona->direccion->comunidad }}</td>
+                <td>{{ $persona->direccion->comunidad->nombre }}</td>
             </tr>
             <tr>
                 <th>Sector</th>
-                <td>{{ $persona->direccion->sector }}</td>
+                <td>{{ $persona->direccion->sector->nombre }}</td>
             </tr>
             <tr>
                 <th>Número de Casa</th>

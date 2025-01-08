@@ -31,4 +31,7 @@ class incidencia extends Model
     {
         return $this->belongsTo(lider_comunitario::class, 'id_lider');  
     }
+    public function movimiento(){
+        return $this->hasMany(movimiento::class,'id_lider');
+    }
 }

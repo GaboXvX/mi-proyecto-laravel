@@ -31,7 +31,7 @@
 
     <div class="mb-3">
         <label for="comunidad" class="form-label">Comunidad:</label>
-        <select name="comunidad" id="comunidad" class="form-select" wire:model.live="comunidadId" required>
+        <select name="comunidad" id="comunidad" class="form-select" wire:model.live="comunidadesId" required>
             <option value="">Seleccione una comunidad</option>
             @foreach($comunidades as $comunidad)
             <option value="{{$comunidad->id_comunidad}}">{{$comunidad->nombre}}</option>

@@ -39,9 +39,10 @@ class Persona extends Model
     }
 
     public function lider_comunitario()
-    {
-        return $this->belongsTo(lider_comunitario::class, 'id_lider'); 
-    }
+{
+    return $this->belongsTo(Lider_Comunitario::class, 'id_lider');
+}
+
     public function direccion()
     {
         return $this->belongsTo(direccion::class, 'id_direccion');

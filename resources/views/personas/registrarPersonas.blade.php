@@ -107,16 +107,6 @@
             </div>
             <livewire:dropdown-persona/>
 
-            <!-- Líder Comunitario -->
-            <div class="mb-3">
-                <label for="lider_comunitario" class="form-label">Líder Comunitario:</label>
-                <select name="lider_comunitario" id="lider_comunitario" class="form-select" required>
-                    <option value="">Seleccione un líder comunitario</option>
-                    <!-- Los líderes serán actualizados dinámicamente según la comunidad seleccionada -->
-                </select>
-            </div>
-
-            <!-- Calle, Manzana y Número de Casa -->
             <div class="mb-3">
                 <label for="calle" class="form-label">Calle:</label>
                 <input type="text" id="calle" name="calle" class="form-control" value="{{ old('calle') }}" required>

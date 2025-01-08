@@ -140,9 +140,9 @@ class IncidenciaController extends Controller
 
         $camposModificados = [];
         $camposAntiguos = [
-            'tipo de incidencia' => $incidencia->tipo_incidencia,
+            'tipo_de_incidencia' => $incidencia->tipo_incidencia,
             'descripcion' => $incidencia->descripcion,
-            'nivel de prioridad' => $incidencia->nivel_prioridad,
+            'nivel_de_prioridad' => $incidencia->nivel_prioridad,
             'estado' => $incidencia->estado,
             'id_persona' => $incidencia->id_persona,
             'id_lider' => $incidencia->id_lider,
@@ -179,10 +179,12 @@ class IncidenciaController extends Controller
             }
 
             $movimiento->id_lider = $incidencia->id_lider;
+            $movimiento->id_incidencia=$incidencia->id_incidencia;
             $movimiento->accion = 'se ha actualizado un registro';
             $movimiento->valor_nuevo = json_encode($camposModificados);
             $movimiento->valor_anterior = json_encode($camposAntiguos);
-
+            $movimiento->id_persona=$incidencia->id_persona;
+            $movimiento->save();
             if ($movimiento->save()) {
                 if ($incidencia->id_lider) {
                     return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');

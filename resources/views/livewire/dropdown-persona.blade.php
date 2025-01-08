@@ -31,13 +31,21 @@
 
     <div class="mb-3">
         <label for="comunidad" class="form-label">Comunidad:</label>
-        <select name="comunidad" id="comunidad" class="form-select" required>
+        <select name="comunidad" id="comunidad" class="form-select" wire:model.live="comunidadesId" required>
             <option value="">Seleccione una comunidad</option>
-            <!-- Las comunidades serán agregadas desde el script -->
+            @foreach($comunidades as $comunidad)
+            <option value="{{$comunidad->id_comunidad}}">{{$comunidad->nombre}}</option>
+            @endforeach
         </select>
     </div>
-    
-    
+    <div class="mb-3">
+        <label for="lider_comunitario" class="form-label">Líder Comunitario:</label>
+        <select name="lider_comunitario" id="lider_comunitario" class="form-select" wire:model.live="lideresId" required>
+            <option value="">Seleccione un líder comunitario</option>
+            @foreach($lideres as $lider)
+            <option value="{{$lider->id_lider}}">{{$lider->nombre}}</option>
+            @endforeach
+        </select>
+    </div>
 
 </div>
-

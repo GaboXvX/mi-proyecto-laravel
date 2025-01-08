@@ -122,7 +122,7 @@ class liderController extends Controller
             'correo' => $request->input('correo'),
             'telefono' => $request->input('telefono'),
             'parroquia'=>$direccion->parroquia ? $direccion->parroquia->nombre:'No disponible',
-            'urbanizacion'=>$direccion->urbanizacion ? $direccion->urbanizacion:'No disponible',
+            'urbanizacion'=>$direccion->urbanizacion ? $direccion->urbanizacion->nombre:'No disponible',
              'sector' => $direccion->sector ? $direccion->sector->nombre : 'No disponible',
             'comunidad' => $direccion->comunidad ? $direccion->comunidad->nombre : 'No disponible',
             'calle' => $direccion->calle,

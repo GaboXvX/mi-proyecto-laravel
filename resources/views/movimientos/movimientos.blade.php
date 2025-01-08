@@ -106,8 +106,8 @@
                     @foreach ($movimientos as $movimiento)
                         @php
                             // Decodificar los valores anteriores y nuevos
-                            $valorAnterior = json_decode($movimiento->valor_anterior, true);
-                            $valorNuevo = json_decode($movimiento->valor_nuevo, true);
+                            $valorAnterior = json_decode($movimiento->valor_anterior, true) ?? [];
+                            $valorNuevo = json_decode($movimiento->valor_nuevo, true) ?? [];
                         @endphp
                         <tr>
                             <td class="col-id">{{ $movimiento->id_movimiento }}</td>
@@ -115,81 +115,55 @@
 
                             <!-- Valores Nuevos -->
                             <td class="col-valores">
-                                @if (isset($valorNuevo['nombre']) && $valorNuevo['nombre'] != ($valorAnterior['nombre'] ?? ''))
-                                    Nombre: {{ htmlspecialchars($valorNuevo['nombre']) }}<br>
+                                @foreach(['nombre', 'apellido', 'cedula', 'correo', 'telefono', 'comunidad', 'sector', 'calle', 'manzana', 'numero_de_casa', 'parroquia'] as $campo)
+                                    @if (isset($valorNuevo[$campo]) && $valorNuevo[$campo] != '')
+                                        {{ ucfirst($campo) }}: {{ htmlspecialchars($valorNuevo[$campo]) }}<br>
+                                    @endif
+                                @endforeach
+
+                                <!-- Urbanización -->
+                                @if (isset($valorNuevo['urbanizacion']) && $valorNuevo['urbanizacion'] != '')
+                                    @php
+                                        $urbanizacionNuevo = is_array($valorNuevo['urbanizacion']) ? implode(', ', $valorNuevo['urbanizacion']) : $valorNuevo['urbanizacion'];
+                                        $urbanizacionNuevo = strip_tags($urbanizacionNuevo); // Eliminar cualquier HTML extra
+                                    @endphp
+                                    Urbanización: {{ htmlspecialchars($urbanizacionNuevo) }}<br>
                                 @endif
-                                @if (isset($valorNuevo['apellido']) && $valorNuevo['apellido'] != ($valorAnterior['apellido'] ?? ''))
-                                    Apellido: {{ htmlspecialchars($valorNuevo['apellido']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['cedula']) && $valorNuevo['cedula'] != ($valorAnterior['cedula'] ?? ''))
-                                    Cédula: {{ htmlspecialchars($valorNuevo['cedula']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['correo']) && $valorNuevo['correo'] != ($valorAnterior['correo'] ?? ''))
-                                    Correo: {{ htmlspecialchars($valorNuevo['correo']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['telefono']) && $valorNuevo['telefono'] != ($valorAnterior['telefono'] ?? ''))
-                                    Teléfono: {{ htmlspecialchars($valorNuevo['telefono']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['comunidad']) && $valorNuevo['comunidad'] != ($valorAnterior['comunidad'] ?? ''))
-                                    Comunidad: {{ htmlspecialchars($valorNuevo['comunidad']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['sector']) && $valorNuevo['sector'] != ($valorAnterior['sector'] ?? ''))
-                                    Sector: {{ htmlspecialchars($valorNuevo['sector']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['calle']) && $valorNuevo['calle'] != ($valorAnterior['calle'] ?? ''))
-                                    Calle: {{ htmlspecialchars($valorNuevo['calle']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['manzana']) && $valorNuevo['manzana'] != ($valorAnterior['manzana'] ?? ''))
-                                    Manzana: {{ htmlspecialchars($valorNuevo['manzana']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['numero_de_casa']) && $valorNuevo['numero_de_casa'] != ($valorAnterior['numero_de_casa'] ?? ''))
-                                    Número de Casa: {{ htmlspecialchars($valorNuevo['numero_de_casa']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['parroquia']) && $valorNuevo['parroquia'] != ($valorAnterior['parroquia'] ?? ''))
-                                    Parroquia: {{ htmlspecialchars($valorNuevo['parroquia']) }}<br>
-                                @endif
-                                @if (isset($valorNuevo['urbanizacion']) && $valorNuevo['urbanizacion'] != ($valorAnterior['urbanizacion'] ?? ''))
-                                    Urbanización: {{ htmlspecialchars($valorNuevo['urbanizacion']) }}<br>
+
+                                <!-- Líder: Mostrar datos del líder -->
+                                @if (isset($valorNuevo['lider']) && $valorNuevo['lider'] != '')
+                                    Líder: {{ htmlspecialchars($valorNuevo['lider']) }}<br>
                                 @endif
                             </td>
 
                             <!-- Valores Antiguos -->
                             <td class="col-valores">
-                                @if (isset($valorAnterior['nombre']) && $valorAnterior['nombre'] != ($valorNuevo['nombre'] ?? ''))
-                                    Nombre: {{ htmlspecialchars($valorAnterior['nombre']) }}<br>
+                                @foreach(['nombre', 'apellido', 'cedula', 'correo', 'telefono', 'comunidad', 'sector', 'calle', 'manzana', 'numero_de_casa', 'parroquia'] as $campo)
+                                    @if (isset($valorAnterior[$campo]) && $valorAnterior[$campo] != '')
+                                        {{ ucfirst($campo) }}: {{ htmlspecialchars($valorAnterior[$campo]) }}<br>
+                                    @endif
+                                @endforeach
+
+                                <!-- Urbanización -->
+                                @if (isset($valorAnterior['urbanizacion']) && $valorAnterior['urbanizacion'] != '')
+                                    @php
+                                        $urbanizacionAnterior = is_array($valorAnterior['urbanizacion']) ? implode(', ', $valorAnterior['urbanizacion']) : $valorAnterior['urbanizacion'];
+                                        $urbanizacionAnterior = strip_tags($urbanizacionAnterior); // Eliminar cualquier HTML extra
+                                    @endphp
+                                    Urbanización: {{ htmlspecialchars($urbanizacionAnterior) }}<br>
                                 @endif
-                                @if (isset($valorAnterior['apellido']) && $valorAnterior['apellido'] != ($valorNuevo['apellido'] ?? ''))
-                                    Apellido: {{ htmlspecialchars($valorAnterior['apellido']) }}<br>
+
+                                <!-- Líder: Mostrar datos del líder en valor anterior -->
+                                @if (isset($valorAnterior['lider']) && $valorAnterior['lider'] != '')
+                                    Líder: {{ htmlspecialchars($valorAnterior['lider']) }}<br>
                                 @endif
-                                @if (isset($valorAnterior['cedula']) && $valorAnterior['cedula'] != ($valorNuevo['cedula'] ?? ''))
-                                    Cédula: {{ htmlspecialchars($valorAnterior['cedula']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['correo']) && $valorAnterior['correo'] != ($valorNuevo['correo'] ?? ''))
-                                    Correo: {{ htmlspecialchars($valorAnterior['correo']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['telefono']) && $valorAnterior['telefono'] != ($valorNuevo['telefono'] ?? ''))
-                                    Teléfono: {{ htmlspecialchars($valorAnterior['telefono']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['comunidad']) && $valorAnterior['comunidad'] != ($valorNuevo['comunidad'] ?? ''))
-                                    Comunidad: {{ htmlspecialchars($valorAnterior['comunidad']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['sector']) && $valorAnterior['sector'] != ($valorNuevo['sector'] ?? ''))
-                                    Sector: {{ htmlspecialchars($valorAnterior['sector']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['calle']) && $valorAnterior['calle'] != ($valorNuevo['calle'] ?? ''))
-                                    Calle: {{ htmlspecialchars($valorAnterior['calle']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['manzana']) && $valorAnterior['manzana'] != ($valorNuevo['manzana'] ?? ''))
-                                    Manzana: {{ htmlspecialchars($valorAnterior['manzana']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['numero_de_casa']) && $valorAnterior['numero_de_casa'] != ($valorNuevo['numero_de_casa'] ?? ''))
-                                    Número de Casa: {{ htmlspecialchars($valorAnterior['numero_de_casa']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['parroquia']) && $valorAnterior['parroquia'] != ($valorNuevo['parroquia'] ?? ''))
-                                    Parroquia: {{ htmlspecialchars($valorAnterior['parroquia']) }}<br>
-                                @endif
-                                @if (isset($valorAnterior['urbanizacion']) && $valorAnterior['urbanizacion'] != ($valorNuevo['urbanizacion'] ?? ''))
-                                    Urbanización: {{ htmlspecialchars($valorAnterior['urbanizacion']) }}<br>
+
+                                <!-- Información de la incidencia (excepto ID) -->
+                                @if ($movimiento->incidencia)
+                                    <strong>Tipo de Incidencia:</strong> {{ $movimiento->incidencia->tipo_incidencia }}<br>
+                                    <strong>Descripción:</strong> {{ $movimiento->incidencia->descripcion }}<br>
+                                    <strong>Nivel de Prioridad:</strong> {{ $movimiento->incidencia->nivel_prioridad }}<br>
+                                    <strong>Estado:</strong> {{ $movimiento->incidencia->estado }}<br>
                                 @endif
                             </td>
 
@@ -199,8 +173,6 @@
                                     Cédula: {{ $movimiento->usuario->cedula }}<br>
                                     Nombre: {{ $movimiento->usuario->nombre }}<br>
                                     Apellido: {{ $movimiento->usuario->apellido }}<br>
-                                @else
-                                    No disponible
                                 @endif
                             </td>
 
@@ -210,8 +182,6 @@
                                     Cédula: {{ $movimiento->persona->cedula }}<br>
                                     Nombre: {{ $movimiento->persona->nombre }}<br>
                                     Apellido: {{ $movimiento->persona->apellido }}<br>
-                                @else
-                                    No disponible
                                 @endif
                             </td>
 
@@ -221,17 +191,13 @@
                                     Cédula: {{ $movimiento->lider->cedula }}<br>
                                     Nombre: {{ $movimiento->lider->nombre }}<br>
                                     Apellido: {{ $movimiento->lider->apellido }}<br>
-                                @else
-                                    No disponible
                                 @endif
                             </td>
 
-                            <!-- Incidencia: ID -->
+                            <!-- Incidencia: Mostrar solo el ID -->
                             <td class="col-relacion">
                                 @if ($movimiento->incidencia)
-                                    {{ $movimiento->incidencia->id_incidencia }}
-                                @else
-                                    No disponible
+                                    <strong>ID Incidencia:</strong> {{ $movimiento->incidencia->id_incidencia }}<br>
                                 @endif
                             </td>
                         </tr>

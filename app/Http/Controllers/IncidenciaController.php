@@ -221,26 +221,30 @@ class IncidenciaController extends Controller
         $incidencia = incidencia::where('slug', $slug)->first();
         $incidencia->estado = 'atendido';
         $incidencia->save();
-        return redirect()->route('incidencias.index')->with('success', 'marcado como atendido');
+        return redirect()->route('incidencias.gestionar')->with('success', 'marcado como atendido');
     }
     public function filtrar(Request $request)
-    {
+{
+    // Validación de las fechas de inicio y fin
+    $validated = $request->validate([
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date',
+    ]);
 
-        $validated = $request->validate([
-            'fecha' => 'required|date',
-        ]);
+    // Obtener las fechas de inicio y fin del request
+    $fechaInicio = $request->input('fecha_inicio');
+    $fechaFin = $request->input('fecha_fin');
 
+    // Filtrar las incidencias en el rango de fechas
+    $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->get();
 
-        $fecha = $request->input('fecha');
+    // Retornar las incidencias filtradas como JSON
+    return response()->json([
+        'incidencias' => $incidencias
+    ]);
+}
 
-
-        $incidencias = Incidencia::whereDate('created_at', '=', $fecha)->get();
-
-
-        return response()->json([
-            'incidencias' => $incidencias
-        ]);
-    }
 
     public function show($persona_slug, $incidencia_slug)
     {
@@ -272,14 +276,31 @@ class IncidenciaController extends Controller
     }
 
 
-    public function download($slug)
-    {
-        $incidencia = Incidencia::where('slug', $slug)->first();
+    public function download(Request $request)
+{
+    // Validar las fechas
+    $validated = $request->validate([
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date',
+    ]);
 
-        $pdf = FacadePdf::loadView('incidencias.incidencia', compact('incidencia'));
+    // Obtener las fechas
+    $fechaInicio = $request->input('fecha_inicio');
+    $fechaFin = $request->input('fecha_fin');
 
-        return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
+    // Filtrar las incidencias según el rango de fechas
+    $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
+
+    // Si no se encuentran incidencias
+    if ($incidencias->isEmpty()) {
+        return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
     }
+
+    // Generar PDF con las incidencias filtradas y las fechas
+    $pdf = FacadePdf::loadView('incidencias.listaincidencias', compact('incidencias', 'fechaInicio', 'fechaFin'));
+
+    return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
+}
 
     public function showChart(Request $request)
     {

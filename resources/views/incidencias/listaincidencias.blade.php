@@ -192,10 +192,14 @@
         <a href="{{route('incidencias.gestionar')}}" class="btn-custom mb-3">Cambiar Estado</a>
         @endrole
 
-        <form action="{{ route('pdf.generar') }}" method="POST" class="form-group">
+        <form action="{{ route('incidencias.download') }}" method="POST" class="form-group">
             @csrf
-            <label for="fecha" class="form-label">Selecciona una fecha:</label>
-            <input type="date" id="fecha" name="fecha" class="form-control" />
+            <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
+            <div class="d-flex">
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control mr-2" />
+                <span>hasta</span>
+                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2" />
+            </div>
             <button type="submit" class="btn-download mt-2">Generar PDF</button>
         </form>
 
@@ -252,45 +256,42 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('fecha').addEventListener('change', function() {
-                let fechaSeleccionada = this.value;  // Obtener el valor de la fecha seleccionada
-
-                if (fechaSeleccionada) {
-                    console.log('Fecha seleccionada:', fechaSeleccionada);  // Depuración
-
+            document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
+            document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
+    
+            function filtrarIncidencias() {
+                let fechaInicio = document.getElementById('fecha_inicio').value;
+                let fechaFin = document.getElementById('fecha_fin').value;
+    
+                if (fechaInicio && fechaFin) {
                     fetch('/filtrar-incidencia', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')  // CSRF token
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({
-                            fecha: fechaSeleccionada  // Pasar la fecha seleccionada
+                            fecha_inicio: fechaInicio,
+                            fecha_fin: fechaFin
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Datos recibidos:', data);  // Depuración
-
                         let listaResultados = document.getElementById('resultados');
-                        listaResultados.innerHTML = '';  // Limpiar resultados previos
-
-                        // Actualizar la tabla con las nuevas incidencias filtradas
+                        listaResultados.innerHTML = '';
+    
                         let tbody = document.getElementById('incidencias-tbody');
-                        tbody.innerHTML = ''; // Limpiar la tabla antes de agregar nuevas filas
-
-                        // Comprobar si se recibieron incidencias
+                        tbody.innerHTML = '';
+    
                         if (data.incidencias && data.incidencias.length > 0) {
                             data.incidencias.forEach(incidencia => {
                                 let tr = document.createElement('tr');
-
-                                // Convertir la fecha ISO 8601 a formato legible
                                 let fecha = new Date(incidencia.created_at);
                                 let fechaFormateada = fecha.toLocaleString('es-ES', {
                                     weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
                                     hour: '2-digit', minute: '2-digit', second: '2-digit'
                                 });
-
+    
                                 tr.innerHTML = ` 
                                     <td>${incidencia.tipo_incidencia}</td>
                                     <td>${incidencia.descripcion}</td>
@@ -300,22 +301,48 @@
                                     <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
                                     <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
                                 `;
-
+    
                                 tbody.appendChild(tr);
                             });
                         } else {
                             let tr = document.createElement('tr');
-                            tr.innerHTML = '<td colspan="7" class="text-center">No se encontraron incidencias para la fecha seleccionada.</td>';
+                            tr.innerHTML = '<td colspan="7" class="text-center">No se encontraron incidencias para el período seleccionado.</td>';
                             tbody.appendChild(tr);
+                        }
+    
+                        if (data.incidencias && data.incidencias.length > 0) {
+                            let slug = data.incidencias[0].slug;
+                            downloadIncidencia(slug, fechaInicio, fechaFin);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                     });
                 }
-            });
+            }
+    
+            function downloadIncidencia(slug, fechaInicio, fechaFin) {
+                fetch(`/incidencias/${slug}/download`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        fecha_inicio: fechaInicio,
+                        fecha_fin: fechaFin
+                    })
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    let link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `incidencia-${slug}.pdf`;
+                    link.click();
+                });
+            }
         });
-
+    
         function getStatusClass(estado) {
             switch (estado) {
                 case 'Pendiente':
@@ -329,6 +356,7 @@
             }
         }
     </script>
+    
 </body>
 
 </html>

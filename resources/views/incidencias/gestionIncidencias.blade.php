@@ -8,12 +8,12 @@
     <title>Lista de Incidencias</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
     <style>
+        /* Estilos básicos */
         body {
             background-color: #f8f9fa;
             font-family: 'Arial', sans-serif;
             font-size: 0.875rem;
         }
-
         .table-container {
             margin: 10px auto;
             max-width: 1000px;
@@ -22,43 +22,33 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-
-        .table th,
-        .table td {
+        .table th, .table td {
             text-align: center;
             vertical-align: middle;
             font-size: 0.875rem;
         }
-
         .table thead {
             background-color: #007bff;
             color: white;
         }
-
         .table tbody tr:nth-child(odd) {
             background-color: #f9f9f9;
         }
-
         .table tbody tr:nth-child(even) {
             background-color: #ffffff;
         }
-
         .table .incidencia-status {
             font-weight: bold;
         }
-
         .status-pending {
             color: orange;
         }
-
         .status-resolved {
             color: green;
         }
-
         .status-closed {
             color: red;
         }
-
         .btn-atendido {
             background-color: #28a745;
             color: white;
@@ -70,11 +60,9 @@
             transition: background-color 0.3s ease;
             font-size: 0.875rem;
         }
-
         .btn-atendido:hover {
             background-color: #218838;
         }
-
         .btn-volver {
             background-color: #007bff;
             color: white;
@@ -87,11 +75,9 @@
             transition: background-color 0.3s ease;
             font-size: 0.875rem;
         }
-
         .btn-volver:hover {
             background-color: #0056b3;
         }
-
         .btn-download {
             background-color: #17a2b8;
             color: white;
@@ -105,52 +91,42 @@
             transition: background-color 0.3s ease;
             font-size: 0.875rem;
         }
-
         .btn-download:hover {
             background-color: #138496;
         }
-
         .form-control {
             border-radius: 6px;
             font-size: 0.875rem;
         }
-
         .alert {
             border-radius: 6px;
             font-weight: bold;
         }
-
         .alert-success {
             background-color: #28a745;
             color: white;
         }
-
         .alert-danger {
             background-color: #dc3545;
             color: white;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         .form-label {
             font-weight: bold;
             font-size: 0.875rem;
             display: block;
             margin-bottom: 5px;
         }
-
         .table-container h1 {
             font-size: 1.25rem;
             color: #333;
             margin-bottom: 15px;
         }
-
         .table-responsive {
             overflow-x: auto;
         }
-
     </style>
 </head>
 
@@ -171,12 +147,13 @@
         <a href="{{route('home')}}" class="btn-volver">Volver</a>
         <h1 class="text-center">Lista de Incidencias</h1>
 
-        <form action="{{ route('pdf.generar') }}" method="POST" class="form-group">
-            @csrf
-            <label for="fecha" class="form-label">Selecciona una fecha:</label>
-            <input type="date" id="fecha" name="fecha" class="form-control" />
-            <button type="submit" class="btn-download mt-2">Generar PDF</button>
-        </form>
+        <!-- Formulario de selección de fechas -->
+        <label for="fecha_inicio" class="form-label">Selecciona el rango de fechas:</label>
+        <div class="d-flex">
+            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" />
+            <span class="mx-2">hasta</span>
+            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" />
+        </div>
 
         <ul id="resultados" class="mt-3"></ul>
 
@@ -240,74 +217,84 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('fecha').addEventListener('change', function() {
-                let fechaSeleccionada = this.value;  
-
-                if (fechaSeleccionada) {
-                    console.log('Fecha seleccionada:', fechaSeleccionada); 
-
-                    fetch('/filtrar-incidencia', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')  
-                        },
-                        body: JSON.stringify({
-                            fecha: fechaSeleccionada  
+            // Al cambiar las fechas de inicio o fin, realizar el filtrado automáticamente
+            const fechaInicio = document.getElementById('fecha_inicio');
+            const fechaFin = document.getElementById('fecha_fin');
+    
+            // Escuchar cambios en los campos de fecha
+            [fechaInicio, fechaFin].forEach(input => {
+                input.addEventListener('change', function() {
+                    let fechaInicioValue = fechaInicio.value;
+                    let fechaFinValue = fechaFin.value;
+    
+                    // Verificar que ambas fechas sean seleccionadas
+                    if (fechaInicioValue && fechaFinValue) {
+                        console.log('Rango de fechas seleccionado:', fechaInicioValue, 'a', fechaFinValue);
+    
+                        fetch('/filtrar-incidencia', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                fecha_inicio: fechaInicioValue,
+                                fecha_fin: fechaFinValue
+                            })
                         })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Datos recibidos:', data);  
-
-                        let listaResultados = document.getElementById('resultados');
-                        listaResultados.innerHTML = '';  
-
-                        let tbody = document.querySelector('.table tbody');
-                        tbody.innerHTML = ''; 
-
-                        if (data.incidencias && data.incidencias.length > 0) {
-                            data.incidencias.forEach(incidencia => {
-                                let tr = document.createElement('tr');
-
-                                let fecha = new Date(incidencia.created_at);
-                                let fechaFormateada = fecha.toLocaleString('es-ES', {
-                                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Datos recibidos:', data);
+    
+                            let listaResultados = document.getElementById('resultados');
+                            listaResultados.innerHTML = '';
+    
+                            let tbody = document.querySelector('.table tbody');
+                            tbody.innerHTML = '';
+    
+                            if (data.incidencias && data.incidencias.length > 0) {
+                                data.incidencias.forEach(incidencia => {
+                                    let tr = document.createElement('tr');
+    
+                                    let fecha = new Date(incidencia.created_at);
+                                    let fechaFormateada = fecha.toLocaleString('es-ES', {
+                                        weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                                        hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                    });
+    
+                                    tr.innerHTML = `
+                                        <td>${incidencia.tipo_incidencia}</td>
+                                        <td>${incidencia.descripcion}</td>
+                                        <td>${incidencia.nivel_prioridad}</td>
+                                        <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                                        <td>${fechaFormateada}</td>
+                                        <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
+                                        <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
+                                        ${incidencia.estado !== 'atendido' ? `
+                                            <td>
+                                                <form action="{{route('incidencias.atender', $incidencia->slug)}}" method="post">
+                                                    @csrf
+                                                    <button type="submit" class="btn-atendido">Atendido</button>
+                                                </form>
+                                            </td>
+                                        ` : ''}
+                                    `;
+                                    tbody.appendChild(tr);
                                 });
-
-                                tr.innerHTML = `
-                                    <td>${incidencia.tipo_incidencia}</td>
-                                    <td>${incidencia.descripcion}</td>
-                                    <td>${incidencia.nivel_prioridad}</td>
-                                    <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                                    <td>${fechaFormateada}</td>
-                                    <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
-                                    <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                                    ${incidencia.estado !== 'atendido' ? `
-                                        <td>
-                                            <form action="/atender/${incidencia.slug}" method="post">
-                                                @csrf
-                                                <button type="submit" class="btn-atendido">Atendido</button>
-                                            </form>
-                                        </td>
-                                    ` : ''}
-                                `;
+                            } else {
+                                let tr = document.createElement('tr');
+                                tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el rango de fechas seleccionado.</td>';
                                 tbody.appendChild(tr);
-                            });
-                        } else {
-                            let tr = document.createElement('tr');
-                            tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para la fecha seleccionada.</td>';
-                            tbody.appendChild(tr);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
             });
         });
-
+    
         function getStatusClass(estado) {
             switch (estado) {
                 case 'Pendiente':
@@ -321,6 +308,7 @@
             }
         }
     </script>
+    
 </body>
 
 </html>

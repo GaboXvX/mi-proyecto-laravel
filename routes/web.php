@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/filtrar-incidencia', [IncidenciaController::class, 'filtrar'])->name('filtrar.incidencia');
     Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atender'])->name('incidencias.atender');
     Route::post('/incidencias/download', [IncidenciaController::class, 'download'])->name('incidencias.download');
-
+    Route::get('/incidencias/{slug}/download', [IncidenciaController::class, 'descargar'])->name('incidencias.descargar');
     // Rutas de creación de incidencias para una persona o un líder
     Route::get('/persona/{slug}/incidencias/create', [IncidenciaController::class, 'create'])->name('incidencias.create');
     Route::get('/persona/{persona_slug}/incidencia/{incidencia_slug}', [IncidenciaController::class, 'show'])

@@ -31,16 +31,16 @@
                 <!-- Líder Comunitario -->
                 @if($incidencia->id_lider)
                     <h5 class="card-title">Líder Comunitario</h5>
-                    <p class="card-text">{{ $incidencia->lider->nombre }}</p>
+                    <p class="card-text">{{ $incidencia->lider->nombre }} {{ $incidencia->lider->apellido }} {{ $incidencia->lider->cedula }}</p>
                 @endif
 
                 <!-- Persona Afectada -->
                 @if($incidencia->id_persona)
                     <h5 class="card-title">Persona Afectada</h5>
-                    <p class="card-text">{{ $incidencia->persona->nombre }}</p>
+                    <p class="card-text">{{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }} {{ $incidencia->persona->cedula }}</p>
                 @endif
 
-                <a href="{{ route('incidencias.download', $incidencia->slug) }}" class="btn btn-success">Descargar PDF</a>
+                <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-success">Descargar PDF</a>
 
                 <br><br>
 

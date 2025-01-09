@@ -102,6 +102,14 @@ class IncidenciaController extends Controller
         }
     }
 
+    public function descargar($slug)
+    {
+        $incidencia = Incidencia::where('slug', $slug)->first();
+
+        $pdf = FacadePdf::loadView('incidencias.incidencia', compact('incidencia'));
+
+        return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
+    }
 
 
     public function gestionar(Request $request)

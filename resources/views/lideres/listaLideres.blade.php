@@ -63,7 +63,7 @@
             <a href="{{ route('home') }}" class="btn btn-primary">Volver</a>
       
         </div>
-      
+        @if (!empty($lideres) && count($lideres) > 0)
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
@@ -98,6 +98,10 @@
                 </tbody>
             </table>
         </div>
+        @else
+          <!-- Si no se encontró ninguna persona -->
+          <p class="alert alert-warning">No se encontró ningun lider con esa cédula.</p>
+          @endif
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>

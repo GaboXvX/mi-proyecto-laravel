@@ -165,7 +165,7 @@ public function buscar(Request $request)
     if (!$lider) {
         return view('lideres.busquedaLider')->with('lider', null);
     }
-    return view('lideres.busquedaLider')->with('lider', $lider);
+    return view('lideres.listalideres')->with('lideres', [$lider]);
 }
 public function edit($slug)
     {

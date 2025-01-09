@@ -91,7 +91,7 @@
                                     <div class="btn-group">
                                         <a href="{{ route('personas.show', $persona->slug) }}" class="btn btn-info btn-sm">Ver</a>                 
                                         <a href="{{ route('personas.edit', $persona->slug) }}" class="btn btn-warning btn-sm">Editar</a>
-                                        <a href="{{ route('incidencias.create', $persona->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                                        <a href="{{ route('incidencias.crear', $persona->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
                                     </div>
                                 </td>
                             </tr>

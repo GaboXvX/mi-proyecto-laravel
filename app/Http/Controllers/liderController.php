@@ -8,6 +8,7 @@ use App\Models\direccion;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
 use App\Models\Parroquia;
+use App\Models\Persona;
 use App\Models\Sector;
 use App\Models\Urbanizacion;
 use Illuminate\Http\Request;
@@ -86,11 +87,18 @@ class liderController extends Controller
 
         // Crear un slug único para el líder
         $slug = Str::slug($request->input('nombre'));
-        $originalSlug = $slug;
-        $counter = 1;
-        while (lider_comunitario::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
+        $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
+
+        if ($count > 0) {
+            // Si el slug ya existe, agrega un sufijo para hacerlo único
+            $originalSlug = $slug;
+            $counter = 1;
+    
+            // Mientras el slug exista en alguna de las tablas, incrementar el contador
+            while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
         }
 
         // Obtener el id del usuario actual

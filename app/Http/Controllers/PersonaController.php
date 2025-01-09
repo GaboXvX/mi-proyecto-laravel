@@ -80,13 +80,19 @@ class PersonaController extends Controller
             // Crear la nueva persona asociada al líder encontrado
             $persona = new Persona();
             $slug = Str::slug($request->input('nombre'));
-            $originalSlug = $slug;
-            $counter = 1;
+            $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
 
-            while (Persona::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
+    if ($count > 0) {
+        // Si el slug ya existe, agrega un sufijo para hacerlo único
+        $originalSlug = $slug;
+        $counter = 1;
+
+        // Mientras el slug exista en alguna de las tablas, incrementar el contador
+        while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+    }
 
             $persona->slug = $slug;
             $persona->nombre = $request->input('nombre');

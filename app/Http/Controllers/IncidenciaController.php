@@ -21,15 +21,25 @@ class IncidenciaController extends Controller
         $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();;
         return view('incidencias.listaincidencias', compact('incidencias'));
     }
+   
+    public function crear($slug)
+    {
+
+        $persona = Persona::where('slug', $slug)->first();
+
+       
+            return view('incidencias.registrarIncidencia', compact('persona'));
+    
+    }
     public function create($slug)
     {
 
         $persona = Persona::where('slug', $slug)->first();
 
-
-        $lider = null;
-        if (!$persona) {
-            $lider = lider_comunitario::where('slug', $slug)->first();
+    $lider = lider_comunitario::where('slug', $slug)->first();
+       
+        if ($lider) {
+          
             return view('incidencias.registrarIncidencialider', compact('lider'));
         }
 
@@ -41,66 +51,90 @@ class IncidenciaController extends Controller
 
 
     public function store(StoreIncidenciaRequest $request)
-    {
-        try {
-            $incidencia = new Incidencia;
+{
+    try {
+        // Crea una nueva incidencia
+        $incidencia = new Incidencia;
 
+        // Generación de slug
+        $slug = Str::slug($request->input('descripcion'));
+        $originalSlug = $slug;
+        $counter = 1;
 
-            $slug = Str::slug($request->input('descripcion'));
-            $originalSlug = $slug;
-            $counter = 1;
-            while (Incidencia::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
-            $incidencia->slug = $slug;
-            $id_lider = $request->input('id_lider');
-            $id_persona = $request->input('id_persona');
-            $incidencia->id_persona = $id_persona;
-            $incidencia->id_lider = $id_lider;
-            $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-            $incidencia->descripcion = $request->input('descripcion');
-            $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-            $incidencia->estado = $request->input('estado');
-
-            $incidencia->save();
-            $camposCreado = [
-                'tipo_de_incidencia' => $incidencia->tipo_incidencia,
-                'descripcion' => $incidencia->descripcion,
-                'nivel_de_prioridad' => $incidencia->nivel_prioridad,
-                'estado' => $incidencia->estado,
-            ];
-            $movimiento = new movimiento();
-            $movimiento->id_incidencia=$incidencia->id_incidencia;
-            $movimiento->id_usuario = Auth::user()->id_usuario;
-            $movimiento->id_persona = $incidencia->id_persona;
-            $movimiento->id_lider = $incidencia->id_lider;
-
-            $movimiento->accion = 'se ha creado un registro';
-            $movimiento->valor_anterior = json_encode($camposCreado);
-            $movimiento->save();
-            if ($id_lider) {
-                $lider = lider_comunitario::findOrFail($id_lider);
-                return redirect()->route('incidencias.show', [
-                    'persona_slug' => $lider->slug,
-                    'incidencia_slug' => $incidencia->slug
-                ])->with('success', 'Incidencia registrada correctamente.');
-            }
-
-
-            if ($id_persona) {
-                $persona = Persona::findOrFail($id_persona);
-                return redirect()->route('incidencias.show', [
-                    'persona_slug' => $persona->slug,
-                    'incidencia_slug' => $incidencia->slug
-                ])->with('success', 'Incidencia registrada correctamente.');
-            }
-
-            return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos.');
-        } catch (\Exception $e) {
-            return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+        while (Incidencia::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
         }
+
+        // Asigna el slug
+        $incidencia->slug = $slug;
+
+        // Asigna los datos
+        $id_lider = $request->input('id_lider');
+        $id_persona = $request->input('id_persona');
+
+        // Verifica que solo se asigne uno de los dos (id_lider o id_persona)
+        if ($id_lider) {
+            $incidencia->id_lider = $id_lider;
+            $incidencia->id_persona = null; // Asegúrate de que no se asigna id_persona si ya hay un id_lider
+        } elseif ($id_persona) {
+            $incidencia->id_persona = $id_persona;
+            $incidencia->id_lider = null; // Asegúrate de que no se asigna id_lider si ya hay un id_persona
+        } else {
+            // Si no se asigna ni id_lider ni id_persona, lanza un error
+            return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos de líder o persona.');
+        }
+
+        // Asignar los otros campos
+        $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
+        $incidencia->descripcion = $request->input('descripcion');
+        $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
+        $incidencia->estado = $request->input('estado');
+
+        // Guarda la incidencia
+        $incidencia->save();
+
+        // Crear el movimiento
+        $camposCreado = [
+            'tipo_de_incidencia' => $incidencia->tipo_incidencia,
+            'descripcion' => $incidencia->descripcion,
+            'nivel_de_prioridad' => $incidencia->nivel_prioridad,
+            'estado' => $incidencia->estado,
+        ];
+
+        $movimiento = new Movimiento();
+        $movimiento->id_incidencia = $incidencia->id_incidencia;
+        $movimiento->id_usuario = Auth::user()->id_usuario;
+        $movimiento->id_persona = $incidencia->id_persona;
+        $movimiento->id_lider = $incidencia->id_lider;
+        $movimiento->accion = 'se ha creado un registro';
+        $movimiento->valor_anterior = json_encode($camposCreado);
+        $movimiento->save();
+
+        // Redirección según el contexto de id_lider o id_persona
+        if ($id_lider) {
+            $lider = Lider_Comunitario::findOrFail($id_lider);
+            return redirect()->route('incidencias.show', [
+                'slug' => $lider->slug,
+                'incidencia_slug' => $incidencia->slug
+            ])->with('success', 'Incidencia registrada correctamente.');
+        }
+
+        if ($id_persona) {
+            $persona = Persona::findOrFail($id_persona);
+            return redirect()->route('incidencias.show', [
+                'slug' => $persona->slug,
+                'incidencia_slug' => $incidencia->slug
+            ])->with('success', 'Incidencia registrada correctamente.');
+        }
+
+        return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos.');
+
+    } catch (\Exception $e) {
+        return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
     }
+}
+
 
     public function descargar($slug)
     {
@@ -254,34 +288,42 @@ class IncidenciaController extends Controller
 }
 
 
-    public function show($persona_slug, $incidencia_slug)
-    {
+public function show($slug, $incidencia_slug)
+{
+    
 
-        $incidencia = Incidencia::where('slug', $incidencia_slug)->firstOrFail();
+    // Recupera la incidencia por su slug
+    $incidencia = Incidencia::where('slug', $incidencia_slug)->first();
 
-
-        $persona = Persona::where('slug', $persona_slug)->first();
-        $lider = lider_comunitario::where('slug', $persona_slug)->first();
-
-
-        if ($persona) {
-
-            if ($incidencia->id_persona !== $persona->id_persona) {
-                abort(404, 'Incidencia no encontrada para esta persona.');
-            }
-
-            return view('incidencias.incidencia', compact('incidencia', 'persona'));
-        } elseif ($lider) {
-
-            if ($incidencia->id_lider !== $lider->id_lider) {
-                abort(404, 'Incidencia no encontrada para este líder.');
-            }
-
-            return view('incidencias.incidencia', compact('incidencia', 'lider'));
-        } else {
-            abort(404, 'Persona o líder no encontrado.');
-        }
+    // Si no se encuentra la incidencia, abortamos con un 404
+    if (!$incidencia) {
+        abort(404, 'Incidencia no encontrada');
     }
+
+    // Intentamos encontrar al líder primero
+    $lider = lider_comunitario::where('slug', $slug)->first();
+
+    // Si no se encuentra líder, buscamos a la persona
+    $persona = Persona::where('slug', $slug)->first();
+    if($lider && $persona){
+        return redirect()->route('personas.index')->with('error', 'algo salio mal');
+    }else{
+    // Verificación de si se encontró un líder o una persona
+    if ($persona) {
+        if ($incidencia->id_persona !== $persona->id_persona) {
+            abort(404, 'Incidencia no encontrada para esta persona.');
+        }
+        return view('incidencias.incidencia', compact('incidencia', 'persona'));
+    } elseif ($lider) {
+        if ($incidencia->id_lider !== $lider->id_lider) {
+            abort(404, 'Incidencia no encontrada para este líder.');
+        }
+        return view('incidencias.incidencia', compact('incidencia', 'lider'));
+    } else {
+        abort(404, 'Persona o líder no encontrado.');
+    }}
+}
+
 
 
     public function download(Request $request)

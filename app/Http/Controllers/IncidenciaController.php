@@ -352,59 +352,41 @@ public function show($slug, $incidencia_slug)
     return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
 }
 
-    public function showChart(Request $request)
-    {
-        $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
-        $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
+   public function showChart(Request $request)
+{
+    $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
+    $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
 
-        $tipoIncidencia = $request->input('tipo_incidencia', '');
+    $tipoIncidencia = $request->input('tipo_incidencia', '');
 
-        // Consultas para incidencias atendidas y por atender
-        $queryAtendidas = Incidencia::where('estado', 'Atendido')
-            ->whereBetween('created_at', [$startDate, $endDate]);
-        $queryPorAtender = Incidencia::where('estado', 'por atender')
-            ->whereBetween('created_at', [$startDate, $endDate]);
+    // Consulta para incidencias atendidas
+    $queryAtendidas = Incidencia::where('estado', 'Atendido')
+        ->whereBetween('created_at', [$startDate, $endDate]);
 
-        if ($tipoIncidencia) {
-            $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
-            $queryPorAtender->where('tipo_incidencia', $tipoIncidencia);
-        }
-
-        // Obtener datos de incidencias atendidas
-        $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-
-        // Obtener datos de incidencias por atender
-        $incidenciasPorAtender = $queryPorAtender->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-
-        // Preparar datos para la vista
-        $labels = [];
-        $dataAtendidas = [];
-        $dataPorAtender = [];
-
-        // Recorremos las incidencias atendidas
-        foreach ($incidenciasAtendidas as $incidencia) {
-            $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-            $labels[] = $monthName . ' ' . $incidencia->year;
-            $dataAtendidas[] = $incidencia->total;
-        }
-
-        // Recorremos las incidencias por atender
-        foreach ($incidenciasPorAtender as $incidencia) {
-            $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-            if (!in_array($monthName . ' ' . $incidencia->year, $labels)) {
-                $labels[] = $monthName . ' ' . $incidencia->year;
-            }
-            $dataPorAtender[] = $incidencia->total;
-        }
-
-        return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'dataPorAtender', 'startDate', 'endDate', 'tipoIncidencia'));
+    if ($tipoIncidencia) {
+        $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
     }
+
+    // Obtener datos de incidencias atendidas
+    $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+        ->groupBy('year', 'month')
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get();
+
+    // Preparar datos para la vista
+    $labels = [];
+    $dataAtendidas = [];
+
+    // Recorremos las incidencias atendidas
+    foreach ($incidenciasAtendidas as $incidencia) {
+        $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
+        $labels[] = $monthName . ' ' . $incidencia->year;  // Agregar mes y año a las etiquetas
+        $dataAtendidas[] = $incidencia->total;  // Guardar los datos de incidencias atendidas
+    }
+
+    // Retornar la vista con los datos de incidencias atendidas
+    return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'startDate', 'endDate', 'tipoIncidencia'));
+}
+
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -65,29 +65,26 @@
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var myChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'bar',  // Cambié el tipo de gráfico a barras
             data: {
                 labels: @json($labels),  // Las etiquetas de los meses
                 datasets: [
                     {
                         label: 'Incidencias Atendidas',
                         data: @json($dataAtendidas),  // Los datos de incidencias atendidas
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',  // Color azul
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        barThickness: 25,
-                        maxBarThickness: 30,
-                        minBarLength: 10,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',  // Color azul claro para las barras
+                        borderColor: 'rgba(54, 162, 235, 0.2)',  // Bordes más suaves
+                        borderWidth: 0,  // Eliminado el borde para que la barra sea más suave
+                        barThickness: 30,  // Ajusté el grosor de las barras
                     },
                     {
-                        label: 'Incidencias Por Atender',
-                        data: @json($dataPorAtender),  // Los datos de incidencias "Por Atender"
-                        backgroundColor: 'rgba(255, 99, 132, 0.6)',  // Color rojo
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1,
-                        barThickness: 25,
-                        maxBarThickness: 30,
-                        minBarLength: 10,
+                        label: 'Tendencia',
+                        data: @json($dataAtendidas),  // Los mismos datos de incidencias atendidas para la tendencia
+                        borderColor: 'rgba(255, 99, 132, 1)',  // Color rojo para la línea de tendencia
+                        borderWidth: 2,
+                        type: 'line',  // Tipo de gráfico línea
+                        fill: false,  // No rellenar el área bajo la línea
+                        tension: 0.4  // Suaviza la curva de la línea
                     }
                 ]
             },
@@ -147,7 +144,6 @@
             doc.setFontSize(12);
             doc.text('Mes', 10, tableStartY);
             doc.text('Incidencias Atendidas', 80, tableStartY);
-            doc.text('Incidencias Por Atender', 180, tableStartY);
 
             let currentY = tableStartY + 10;
 
@@ -155,7 +151,6 @@
             @foreach($labels as $index => $label)
                 doc.text('{{ $label }}', 10, currentY);
                 doc.text('{{ $dataAtendidas[$index] }}', 80, currentY);  // Datos de incidencias atendidas
-                doc.text('{{ $dataPorAtender[$index] ?? 0 }}', 180, currentY);  // Datos de incidencias "Por Atender"
                 currentY += 10;
             @endforeach
 

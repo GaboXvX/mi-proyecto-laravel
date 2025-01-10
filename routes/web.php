@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas para las personas
     Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug']);
-    Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
+    Route::Post('/personas', [PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
     // Rutas para la gestión de usuarios (solo admin)
     Route::resource('usuarios', UserController::class)->except('create', 'store')->middleware('role:admin');
@@ -58,7 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas para gestionar los líderes
     Route::resource('lideres', LiderController::class);
-    Route::Post('/lideres/buscar', [LiderController::class, 'buscar'])->name('lideres.buscar');
+    Route::Post('/lideres', [LiderController::class, 'buscar'])->name('lideres.buscar');
 
     // Rutas específicas para la creación y modificación de incidencias de líderes
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');

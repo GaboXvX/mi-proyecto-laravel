@@ -360,7 +360,7 @@ public function show($slug, $incidencia_slug)
 
     $tipoIncidencia = $request->input('tipo_incidencia', '');
 
-    // Consulta para incidencias atendidas
+    
     $queryAtendidas = Incidencia::where('estado', 'Atendido')
         ->whereBetween('created_at', [$startDate, $endDate]);
 

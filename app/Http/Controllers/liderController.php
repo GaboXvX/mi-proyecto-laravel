@@ -163,7 +163,7 @@ public function buscar(Request $request)
     $cedula = $request->input('buscar');
     $lider= lider_comunitario::where('cedula', $cedula)->first();
     if (!$lider) {
-        return view('lideres.busquedaLider')->with('lider', null);
+        return view('lideres.listalideres')->with('lider', null);
     }
     return view('lideres.listalideres')->with('lideres', [$lider]);
 }

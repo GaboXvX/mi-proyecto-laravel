@@ -37,12 +37,12 @@
 <body class="bg-light">
 
     <div class="container my-5">
-        <h1 class="mb-4 text-center">Lista de Liders</h1>
-        <form action="{{ route('lideres.buscar') }}" method="POST">
+        <h1 class="mb-4 text-center">Lista de Lideres</h1>
+         <form action="{{ route('lideres.buscar') }}" method="POST">
             @csrf
             <input type="search" name="buscar" id="buscar" placeholder="Buscar por cédula">
             <button type="submit" class="btn btn-primary">Buscar</button>
-        </form>
+        </form> 
         
         
         @if (session('success'))

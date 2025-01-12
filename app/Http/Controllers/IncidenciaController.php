@@ -66,9 +66,9 @@ class IncidenciaController extends Controller
             $counter++;
         }
 
-       $codigo= bin2hex(random_bytes(8));
+       $codigo= Str::random(8);;
        while(Incidencia::where('cod_incidencia',$codigo)->exists()){
-        $codigo= bin2hex(random_bytes(8));
+        $codigo= Str::random(8);
        }
        $incidencia->slug = $slug;
 

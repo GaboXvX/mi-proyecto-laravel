@@ -213,7 +213,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Código de incidenica</th>
+                        <th>Código de incidencia</th>
                         <th>Tipo de Incidencia</th>
                         <th>Descripción</th>
                         <th>Nivel de Prioridad</th>
@@ -225,39 +225,46 @@
                 </thead>
                 <tbody id="incidencias-tbody">
                     @foreach ($incidencias as $incidencia)
-                        <tr>
-                            <td>{{$incidencia->cod_incidencia}}</td>
-                            <td>{{ $incidencia->tipo_incidencia }}</td>
-                            <td>{{ $incidencia->descripcion }}</td>
-                            <td>{{ $incidencia->nivel_prioridad }}</td>
-                            <td class="incidencia-status 
-                                        @if($incidencia->estado == 'Pendiente') status-pending 
-                                        @elseif($incidencia->estado == 'Resuelta') status-resolved 
-                                        @elseif($incidencia->estado == 'Cerrada') status-closed 
-                                        @endif">
-                                {{ $incidencia->estado }}
-                            </td>
-                            <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
-                            <td>
-                                @if($incidencia->persona)
-                                    {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
-                                @else
-                                    No registrado
-                                @endif
-                            </td>
-                            <td>
-                                @if($incidencia->lider)
-                                    {{ $incidencia->lider->nombre }} {{ $incidencia->lider->apellido }}
-                                @else
-                                    No asignado
-                                @endif
-                            </td>
-                        </tr>
+                        @if($incidencia && $incidencia->cod_incidencia)
+                            <tr>
+                                <td>{{ $incidencia->cod_incidencia }}</td>
+                                <td>{{ $incidencia->tipo_incidencia }}</td>
+                                <td>{{ $incidencia->descripcion }}</td>
+                                <td>{{ $incidencia->nivel_prioridad }}</td>
+                                <td class="incidencia-status 
+                                            @if($incidencia->estado == 'Pendiente') status-pending 
+                                            @elseif($incidencia->estado == 'Resuelta') status-resolved 
+                                            @elseif($incidencia->estado == 'Cerrada') status-closed 
+                                            @endif">
+                                    {{ $incidencia->estado }}
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
+                                <td>
+                                    @if($incidencia->persona)
+                                        {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
+                                    @else
+                                        No registrado
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($incidencia->lider)
+                                        {{ $incidencia->lider->nombre }} {{ $incidencia->lider->apellido }}
+                                    @else
+                                        No asignado
+                                    @endif
+                                </td>
+                            </tr>
+                        @else
+                            <tr>
+                                <td colspan="8" class="text-center">No se encontró incidencia para este código</td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
         </div>
-    </div>
+        
+        
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

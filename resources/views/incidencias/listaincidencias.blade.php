@@ -191,7 +191,11 @@
         @role('admin')
         <a href="{{route('incidencias.gestionar')}}" class="btn-custom mb-3">Cambiar Estado</a>
         @endrole
-
+        <form action="{{route('incidencias.buscar')}}" method="post">
+            <input type="search" name="buscar" placeholder="Ingrese un código">
+            @csrf
+            <button type="submit"> buscar</button>
+        </form>
         <form action="{{ route('incidencias.download') }}" method="POST" class="form-group">
             @csrf
             <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
@@ -209,6 +213,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th>Código de incidenica</th>
                         <th>Tipo de Incidencia</th>
                         <th>Descripción</th>
                         <th>Nivel de Prioridad</th>
@@ -221,6 +226,7 @@
                 <tbody id="incidencias-tbody">
                     @foreach ($incidencias as $incidencia)
                         <tr>
+                            <td>{{$incidencia->cod_incidencia}}</td>
                             <td>{{ $incidencia->tipo_incidencia }}</td>
                             <td>{{ $incidencia->descripcion }}</td>
                             <td>{{ $incidencia->nivel_prioridad }}</td>
@@ -255,106 +261,108 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
-            document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
-    
-            function filtrarIncidencias() {
-                let fechaInicio = document.getElementById('fecha_inicio').value;
-                let fechaFin = document.getElementById('fecha_fin').value;
-    
-                if (fechaInicio && fechaFin) {
-                    fetch('/filtrar-incidencia', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            fecha_inicio: fechaInicio,
-                            fecha_fin: fechaFin
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        let listaResultados = document.getElementById('resultados');
-                        listaResultados.innerHTML = '';
-    
-                        let tbody = document.getElementById('incidencias-tbody');
-                        tbody.innerHTML = '';
-    
-                        if (data.incidencias && data.incidencias.length > 0) {
-                            data.incidencias.forEach(incidencia => {
-                                let tr = document.createElement('tr');
-                                let fecha = new Date(incidencia.created_at);
-                                let fechaFormateada = fecha.toLocaleString('es-ES', {
-                                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                                });
-    
-                                tr.innerHTML = ` 
-                                    <td>${incidencia.tipo_incidencia}</td>
-                                    <td>${incidencia.descripcion}</td>
-                                    <td>${incidencia.nivel_prioridad}</td>
-                                    <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                                    <td>${fechaFormateada}</td>
-                                    <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
-                                    <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                                `;
-    
-                                tbody.appendChild(tr);
-                            });
-                        } else {
-                            let tr = document.createElement('tr');
-                            tr.innerHTML = '<td colspan="7" class="text-center">No se encontraron incidencias para el período seleccionado.</td>';
-                            tbody.appendChild(tr);
-                        }
-    
-                        if (data.incidencias && data.incidencias.length > 0) {
-                            let slug = data.incidencias[0].slug;
-                            downloadIncidencia(slug, fechaInicio, fechaFin);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
-            }
-    
-            function downloadIncidencia(slug, fechaInicio, fechaFin) {
-                fetch(`/incidencias/${slug}/download`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        fecha_inicio: fechaInicio,
-                        fecha_fin: fechaFin
-                    })
+      document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
+    document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
+
+    function filtrarIncidencias() {
+        let fechaInicio = document.getElementById('fecha_inicio').value;
+        let fechaFin = document.getElementById('fecha_fin').value;
+
+        if (fechaInicio && fechaFin) {
+            fetch('/filtrar-incidencia', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    fecha_inicio: fechaInicio,
+                    fecha_fin: fechaFin
                 })
-                .then(response => response.blob())
-                .then(blob => {
-                    let link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `incidencia-${slug}.pdf`;
-                    link.click();
-                });
-            }
-        });
-    
-        function getStatusClass(estado) {
-            switch (estado) {
-                case 'Pendiente':
-                    return 'status-pending';
-                case 'Resuelta':
-                    return 'status-resolved';
-                case 'Cerrada':
-                    return 'status-closed';
-                default:
-                    return '';
-            }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let listaResultados = document.getElementById('resultados');
+                listaResultados.innerHTML = '';
+
+                let tbody = document.getElementById('incidencias-tbody');
+                tbody.innerHTML = '';
+
+                if (data.incidencias && data.incidencias.length > 0) {
+                    data.incidencias.forEach(incidencia => {
+                        let tr = document.createElement('tr');
+                        let fecha = new Date(incidencia.created_at);
+                        let fechaFormateada = fecha.toLocaleString('es-ES', {
+                            weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        });
+
+                        tr.innerHTML = `
+                            <td>${incidencia.cod_incidencia}</td>
+                            <td>${incidencia.tipo_incidencia}</td>
+                            <td>${incidencia.descripcion}</td>
+                            <td>${incidencia.nivel_prioridad}</td>
+                            <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                            <td>${fechaFormateada}</td>
+                            <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
+                            <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
+                        `;
+
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el período seleccionado.</td>';
+                    tbody.appendChild(tr);
+                }
+
+                if (data.incidencias && data.incidencias.length > 0) {
+                    let slug = data.incidencias[0].slug;
+                    downloadIncidencia(slug, fechaInicio, fechaFin);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
+    }
+
+    function downloadIncidencia(slug, fechaInicio, fechaFin) {
+        fetch(`/incidencias/${slug}/download`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                fecha_inicio: fechaInicio,
+                fecha_fin: fechaFin
+            })
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `incidencia-${slug}.pdf`;
+            link.click();
+        });
+    }
+});
+
+function getStatusClass(estado) {
+    switch (estado) {
+        case 'Pendiente':
+            return 'status-pending';
+        case 'Resuelta':
+            return 'status-resolved';
+        case 'Cerrada':
+            return 'status-closed';
+        default:
+            return '';
+    }
+}
+
     </script>
     
 </body>

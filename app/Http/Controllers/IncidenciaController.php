@@ -53,10 +53,10 @@ class IncidenciaController extends Controller
     public function store(StoreIncidenciaRequest $request)
 {
     try {
-        // Crea una nueva incidencia
+       
         $incidencia = new Incidencia;
 
-        // Generación de slug
+        
         $slug = Str::slug($request->input('descripcion'));
         $originalSlug = $slug;
         $counter = 1;
@@ -66,35 +66,40 @@ class IncidenciaController extends Controller
             $counter++;
         }
 
-        // Asigna el slug
-        $incidencia->slug = $slug;
+       $codigo= bin2hex(random_bytes(8));
+       while(Incidencia::where('cod_incidencia',$codigo)->exists()){
+        $codigo= bin2hex(random_bytes(8));
+       }
+       $incidencia->slug = $slug;
 
-        // Asigna los datos
         $id_lider = $request->input('id_lider');
         $id_persona = $request->input('id_persona');
-
-        // Verifica que solo se asigne uno de los dos (id_lider o id_persona)
         if ($id_lider) {
             $incidencia->id_lider = $id_lider;
-            $incidencia->id_persona = null; // Asegúrate de que no se asigna id_persona si ya hay un id_lider
+            $incidencia->id_persona = null; 
+             $lider=lider_comunitario::where('id_lider',$id_lider)->first();
+             $incidencia->cod_incidencia= $codigo;
         } elseif ($id_persona) {
             $incidencia->id_persona = $id_persona;
-            $incidencia->id_lider = null; // Asegúrate de que no se asigna id_lider si ya hay un id_persona
+            $incidencia->id_lider = null; 
+            $persona=Persona::where('id_persona',$id_persona)->first();
+            $incidencia->cod_incidencia= $incidencia->cod_incidencia= $codigo;
+            
         } else {
-            // Si no se asigna ni id_lider ni id_persona, lanza un error
+           
             return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos de líder o persona.');
         }
 
-        // Asignar los otros campos
+
         $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
         $incidencia->descripcion = $request->input('descripcion');
         $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
         $incidencia->estado = $request->input('estado');
 
-        // Guarda la incidencia
+       
         $incidencia->save();
 
-        // Crear el movimiento
+        
         $camposCreado = [
             'tipo_de_incidencia' => $incidencia->tipo_incidencia,
             'descripcion' => $incidencia->descripcion,
@@ -111,7 +116,7 @@ class IncidenciaController extends Controller
         $movimiento->valor_anterior = json_encode($camposCreado);
         $movimiento->save();
 
-        // Redirección según el contexto de id_lider o id_persona
+       
         if ($id_lider) {
             $lider = Lider_Comunitario::findOrFail($id_lider);
             return redirect()->route('incidencias.show', [
@@ -180,7 +185,7 @@ class IncidenciaController extends Controller
         try {
             $incidencia = Incidencia::findOrFail($id);
     
-            // Se guardan los valores antes de la actualización
+            
             $camposAntiguos = [
                 'tipo_de_incidencia' => $incidencia->tipo_incidencia,
                 'descripcion' => $incidencia->descripcion,
@@ -190,7 +195,7 @@ class IncidenciaController extends Controller
                 'id_lider' => $incidencia->id_lider,
             ];
     
-            // Se preparan los valores que fueron modificados
+            
             $camposModificados = [];
             if ($incidencia->tipo_incidencia !== $request->input('tipo_incidencia')) {
                 $camposModificados['tipo_de_incidencia'] = $request->input('tipo_incidencia');
@@ -212,10 +217,10 @@ class IncidenciaController extends Controller
                 $incidencia->estado = $request->input('estado');
             }
     
-            // Guardamos la incidencia con los valores actualizados
+           
             $incidencia->save();
     
-            // Si hubo modificaciones, guardamos el movimiento
+            
             if (!empty($camposModificados)) {
                 $movimiento = new Movimiento();
     
@@ -225,7 +230,7 @@ class IncidenciaController extends Controller
                     return redirect()->route('login')->with('error', 'Debe estar autenticado para realizar esta acción.');
                 }
     
-                // Guardamos los valores antiguos y nuevos
+                
                 $movimiento->id_lider = $incidencia->id_lider;
                 $movimiento->id_incidencia = $incidencia->id_incidencia;
                 $movimiento->accion = 'se ha actualizado un registro';
@@ -244,7 +249,7 @@ class IncidenciaController extends Controller
                     return redirect()->route('personas.index')->with('error', 'Error al registrar el movimiento.');
                 }
             } else {
-                // Si no hubo cambios
+                
                 if ($incidencia->id_lider) {
                     return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada sin cambios.');
                 } else {
@@ -267,21 +272,21 @@ class IncidenciaController extends Controller
     }
     public function filtrar(Request $request)
 {
-    // Validación de las fechas de inicio y fin
+    
     $validated = $request->validate([
         'fecha_inicio' => 'required|date',
         'fecha_fin' => 'required|date',
     ]);
 
-    // Obtener las fechas de inicio y fin del request
+  
     $fechaInicio = $request->input('fecha_inicio');
     $fechaFin = $request->input('fecha_fin');
 
-    // Filtrar las incidencias en el rango de fechas
+    
     $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])
         ->get();
 
-    // Retornar las incidencias filtradas como JSON
+ 
     return response()->json([
         'incidencias' => $incidencias
     ]);
@@ -292,23 +297,21 @@ public function show($slug, $incidencia_slug)
 {
     
 
-    // Recupera la incidencia por su slug
     $incidencia = Incidencia::where('slug', $incidencia_slug)->first();
 
-    // Si no se encuentra la incidencia, abortamos con un 404
+
     if (!$incidencia) {
         abort(404, 'Incidencia no encontrada');
     }
 
-    // Intentamos encontrar al líder primero
+
     $lider = lider_comunitario::where('slug', $slug)->first();
 
-    // Si no se encuentra líder, buscamos a la persona
     $persona = Persona::where('slug', $slug)->first();
     if($lider && $persona){
         return redirect()->route('personas.index')->with('error', 'algo salio mal');
     }else{
-    // Verificación de si se encontró un líder o una persona
+   
     if ($persona) {
         if ($incidencia->id_persona !== $persona->id_persona) {
             abort(404, 'Incidencia no encontrada para esta persona.');
@@ -328,25 +331,23 @@ public function show($slug, $incidencia_slug)
 
     public function download(Request $request)
 {
-    // Validar las fechas
+   
     $validated = $request->validate([
         'fecha_inicio' => 'required|date',
         'fecha_fin' => 'required|date',
     ]);
 
-    // Obtener las fechas
+    
     $fechaInicio = $request->input('fecha_inicio');
     $fechaFin = $request->input('fecha_fin');
 
-    // Filtrar las incidencias según el rango de fechas
+   
     $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
 
-    // Si no se encuentran incidencias
     if ($incidencias->isEmpty()) {
         return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
     }
 
-    // Generar PDF con las incidencias filtradas y las fechas
     $pdf = FacadePdf::loadView('incidencias.listaincidencias', compact('incidencias', 'fechaInicio', 'fechaFin'));
 
     return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
@@ -367,26 +368,34 @@ public function show($slug, $incidencia_slug)
         $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
     }
 
-    // Obtener datos de incidencias atendidas
+ 
     $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
         ->groupBy('year', 'month')
         ->orderBy('year')
         ->orderBy('month')
         ->get();
 
-    // Preparar datos para la vista
+    
     $labels = [];
     $dataAtendidas = [];
 
-    // Recorremos las incidencias atendidas
+    
     foreach ($incidenciasAtendidas as $incidencia) {
         $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-        $labels[] = $monthName . ' ' . $incidencia->year;  // Agregar mes y año a las etiquetas
-        $dataAtendidas[] = $incidencia->total;  // Guardar los datos de incidencias atendidas
+        $labels[] = $monthName . ' ' . $incidencia->year;  
+        $dataAtendidas[] = $incidencia->total;  
     }
 
-    // Retornar la vista con los datos de incidencias atendidas
+    
     return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'startDate', 'endDate', 'tipoIncidencia'));
 }
+public function buscar(Request $request){
+    $codigo=$request->input('buscar');
+  $incidencia=incidencia::where('cod_incidencia',$codigo)->first();  
+    if(url()->previous()==route('incidencias.gestionar')){
+        return view('incidencias.gestionincidencias')->with('incidencias',[$incidencia]);
+    }
 
+return view('incidencias.listaincidencias')->with('incidencias',[$incidencia]);
+}
 }

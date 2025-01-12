@@ -146,7 +146,12 @@
     <div class="container table-container">
         <a href="{{route('home')}}" class="btn-volver">Volver</a>
         <h1 class="text-center">Lista de Incidencias</h1>
-
+        <form action="{{route('incidencias.buscar')}}" method="post">
+            <input type="search" name="buscar" placeholder="Ingrese un código">
+            @csrf
+            <button type="submit"> buscar</button>
+        </form>
+        <br><br>
         <!-- Formulario de selección de fechas -->
         <label for="fecha_inicio" class="form-label">Selecciona el rango de fechas:</label>
         <div class="d-flex">
@@ -161,6 +166,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th>Código de incidencia</th>
                         <th>Tipo de Incidencia</th>
                         <th>Descripción</th>
                         <th>Nivel de Prioridad</th>
@@ -174,6 +180,7 @@
                 <tbody>
                     @foreach ($incidencias as $incidencia)
                         <tr>
+                            <td>{{$incidencia->cod_incidencia}}</td>
                             <td>{{ $incidencia->tipo_incidencia }}</td>
                             <td>{{ $incidencia->descripcion }}</td>
                             <td>{{ $incidencia->nivel_prioridad }}</td>
@@ -216,97 +223,99 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Al cambiar las fechas de inicio o fin, realizar el filtrado automáticamente
-            const fechaInicio = document.getElementById('fecha_inicio');
-            const fechaFin = document.getElementById('fecha_fin');
-    
-            // Escuchar cambios en los campos de fecha
-            [fechaInicio, fechaFin].forEach(input => {
-                input.addEventListener('change', function() {
-                    let fechaInicioValue = fechaInicio.value;
-                    let fechaFinValue = fechaFin.value;
-    
-                    // Verificar que ambas fechas sean seleccionadas
-                    if (fechaInicioValue && fechaFinValue) {
-                        console.log('Rango de fechas seleccionado:', fechaInicioValue, 'a', fechaFinValue);
-    
-                        fetch('/filtrar-incidencia', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                fecha_inicio: fechaInicioValue,
-                                fecha_fin: fechaFinValue
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Datos recibidos:', data);
-    
-                            let listaResultados = document.getElementById('resultados');
-                            listaResultados.innerHTML = '';
-    
-                            let tbody = document.querySelector('.table tbody');
-                            tbody.innerHTML = '';
-    
-                            if (data.incidencias && data.incidencias.length > 0) {
-                                data.incidencias.forEach(incidencia => {
-                                    let tr = document.createElement('tr');
-    
-                                    let fecha = new Date(incidencia.created_at);
-                                    let fechaFormateada = fecha.toLocaleString('es-ES', {
-                                        weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                                        hour: '2-digit', minute: '2-digit', second: '2-digit'
-                                    });
-    
-                                    tr.innerHTML = `
-                                        <td>${incidencia.tipo_incidencia}</td>
-                                        <td>${incidencia.descripcion}</td>
-                                        <td>${incidencia.nivel_prioridad}</td>
-                                        <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                                        <td>${fechaFormateada}</td>
-                                        <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
-                                        <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                                        ${incidencia.estado !== 'atendido' ? `
-                                            <td>
-                                                <form action="{{route('incidencias.atender', $incidencia->slug)}}" method="post">
-                                                    @csrf
-                                                    <button type="submit" class="btn-atendido">Atendido</button>
-                                                </form>
-                                            </td>
-                                        ` : ''}
-                                    `;
-                                    tbody.appendChild(tr);
-                                });
-                            } else {
-                                let tr = document.createElement('tr');
-                                tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el rango de fechas seleccionado.</td>';
-                                tbody.appendChild(tr);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
+       document.addEventListener('DOMContentLoaded', function() {
+    // Al cambiar las fechas de inicio o fin, realizar el filtrado automáticamente
+    const fechaInicio = document.getElementById('fecha_inicio');
+    const fechaFin = document.getElementById('fecha_fin');
+
+    // Escuchar cambios en los campos de fecha
+    [fechaInicio, fechaFin].forEach(input => {
+        input.addEventListener('change', function() {
+            let fechaInicioValue = fechaInicio.value;
+            let fechaFinValue = fechaFin.value;
+
+            // Verificar que ambas fechas sean seleccionadas
+            if (fechaInicioValue && fechaFinValue) {
+                console.log('Rango de fechas seleccionado:', fechaInicioValue, 'a', fechaFinValue);
+
+                fetch('/filtrar-incidencia', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        fecha_inicio: fechaInicioValue,
+                        fecha_fin: fechaFinValue
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Datos recibidos:', data);
+
+                    let listaResultados = document.getElementById('resultados');
+                    listaResultados.innerHTML = '';
+
+                    let tbody = document.querySelector('.table tbody');
+                    tbody.innerHTML = '';
+
+                    if (data.incidencias && data.incidencias.length > 0) {
+                        data.incidencias.forEach(incidencia => {
+                            let tr = document.createElement('tr');
+
+                            let fecha = new Date(incidencia.created_at);
+                            let fechaFormateada = fecha.toLocaleString('es-ES', {
+                                weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                                hour: '2-digit', minute: '2-digit', second: '2-digit'
+                            });
+
+                            tr.innerHTML = `
+                                <td>${incidencia.cod_incidencia}</td> <!-- Código de incidencia -->
+                                <td>${incidencia.tipo_incidencia}</td>
+                                <td>${incidencia.descripcion}</td>
+                                <td>${incidencia.nivel_prioridad}</td>
+                                <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                                <td>${fechaFormateada}</td>
+                                <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
+                                <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
+                                ${incidencia.estado !== 'atendido' ? `
+                                    <td>
+                                        <form action="/incidencias/${incidencia.slug}/atender" method="post">
+                                            @csrf
+                                            <button type="submit" class="btn-atendido">Atendido</button>
+                                        </form>
+                                    </td>
+                                ` : ''}
+                            `;
+                            tbody.appendChild(tr);
                         });
+                    } else {
+                        let tr = document.createElement('tr');
+                        tr.innerHTML = '<td colspan="9" class="text-center">No se encontraron incidencias para el rango de fechas seleccionado.</td>';
+                        tbody.appendChild(tr);
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
-            });
-        });
-    
-        function getStatusClass(estado) {
-            switch (estado) {
-                case 'Pendiente':
-                    return 'status-pending';
-                case 'Resuelta':
-                    return 'status-resolved';
-                case 'Cerrada':
-                    return 'status-closed';
-                default:
-                    return '';
             }
-        }
+        });
+    });
+});
+
+function getStatusClass(estado) {
+    switch (estado) {
+        case 'Pendiente':
+            return 'status-pending';
+        case 'Resuelta':
+            return 'status-resolved';
+        case 'Cerrada':
+            return 'status-closed';
+        default:
+            return '';
+    }
+}
+
     </script>
     
 </body>

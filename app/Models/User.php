@@ -59,4 +59,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(movimiento::class,'id_usuario');
     }
+    public function preguntas_de_seguridad()
+    {
+        return $this->belongsTo(pregunta::class, 'id_pregunta');
+    }
 }

@@ -143,8 +143,9 @@
         </form>
 
         <div class="login-footer mt-3">
-
+            
             <p>¿No tienes una cuenta? <a href="{{ route('usuarios.create') }}">Regístrate aquí</a></p>
+            <p>¿olvidaste tu contraseña?</p> <a href="{{route('recuperar.clave')}}">recuperar contraseña</a>
         </div>
     </div>
 

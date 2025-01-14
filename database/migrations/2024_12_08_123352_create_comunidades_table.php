@@ -12,15 +12,17 @@ class CreateComunidadesTable extends Migration
         Schema::create('comunidades', function (Blueprint $table) {
             $table->bigIncrements('id_comunidad');  // Clave primaria para la comunidad
             $table->string('nombre');  // Nombre de la comunidad
-            $table->foreignId('id_sector')  // Clave foránea para sectores
-                  ->constrained('sectores')  // Relación con la tabla sectores
-                  ->onDelete('cascade');  // Borrado en cascada
+            $table->unsignedBigInteger('id_sector');  // Clave foránea para sectores
+            $table->foreign('id_sector')
+            ->references('id_sector')
+            ->on('sectores')
+            ->onDelete('cascade');
                   $table->unsignedBigInteger('id_lider');
                   $table->foreign('id_lider')
                         ->references('id_lider')
                         ->on('lider_comunitario')
                         ->onDelete('cascade');
-            $table->timestamps();  // Campos created_at y updated_at
+            $table->timestamps();  
         });
     }
 

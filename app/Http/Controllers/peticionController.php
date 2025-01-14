@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Models\peticion;
+use App\Models\pregunta;
 use Illuminate\Http\Request;
 
 class peticionController extends Controller
@@ -36,7 +37,18 @@ class peticionController extends Controller
                 $peticion->email = $request->input('email');
                 $peticion->nombre_usuario = $request->input('nombre_usuario');
                 $peticion->password = bcrypt($request->input('password'));
-    
+                $preguntaSeguridad = $peticion->preguntas_de_seguridad()->first();
+                
+            
+                if ($preguntaSeguridad) {
+                 
+                    $preguntaSeguridad->primera_mascota = $request->input('mascota');
+                    $preguntaSeguridad->ciudad_de_nacimiento = $request->input('ciudad');
+                    $preguntaSeguridad->nombre_de_mejor_amigo = $request->input('amigo');
+                    
+                    
+                    $preguntaSeguridad->save();
+                }
                 $slug = Str::slug($request->input('nombre'));
                 $counter = 1;
                 $originalSlug = $slug;
@@ -51,7 +63,7 @@ class peticionController extends Controller
                 return redirect()->route('login')->with('success', 'Petición actualizada correctamente');
             }
     
-            
+            $pregunta=new pregunta();
             $peticion = new Peticion();
             $peticion->id_rol = $request->input('rol');
             $peticion->estado_peticion = 'No verificado';
@@ -61,8 +73,11 @@ class peticionController extends Controller
             $peticion->email = $request->input('email');
             $peticion->nombre_usuario = $request->input('nombre_usuario');
             $peticion->password = bcrypt($request->input('password'));
+            $pregunta->primera_mascota=$request->input('mascota');
+            $pregunta->ciudad_de_nacimiento=$request->input('ciudad');
+            $pregunta->nombre_de_mejor_amigo=$request->input('amigo');
             $peticion->estado = 'inactivo';
-    
+            
             $slug = Str::slug($request->input('nombre'));
             $counter = 1;
             $originalSlug = $slug;
@@ -71,7 +86,8 @@ class peticionController extends Controller
                 $counter++;
             }
             $peticion->slug = $slug;
-    
+            $pregunta->save();
+            $peticion->id_pregunta=$pregunta->id_pregunta;
             $peticion->save();
     
             return redirect()->route('login')->with('success', 'Petición realizada correctamente');

@@ -12,10 +12,12 @@ class CreateUrbanizacionesTable extends Migration
     {
         Schema::create('urbanizaciones', function (Blueprint $table) {
             $table->bigIncrements('id_urbanizacion');  // Se crea la columna id como clave primaria
+           $table->unsignedBigInteger('id_parroquia');
             $table->string('nombre');  // Nombre de la urbanización
-            $table->foreignId('id_parroquia')  // Clave foránea con nombre explícito
-                  ->constrained('parroquias')  // Relacionado con la tabla parroquias
-                  ->onDelete('cascade');  // Borrado en cascada
+            $table->foreign('id_parroquia')
+            ->references('id_parroquia')
+            ->on('parroquias')
+            ->onDelete('cascade');
             $table->timestamps();  // Campos created_at y updated_at
         });
     }

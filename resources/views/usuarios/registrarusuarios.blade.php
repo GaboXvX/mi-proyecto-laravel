@@ -109,7 +109,18 @@
                 <label for="password" class="form-label">Contraseña:</label>
                 <input type="password" id="password" name="password" class="form-control" required>
             </div>
-
+            <div class="mb-3">
+                <label for="pregunta1" class="form-label">¿Cuál es el nombre de tu primera mascota?</label>
+                <input type="text" class="form-control" id="pregunta1" name="mascota" required>
+            </div>
+            <div class="mb-3">
+                <label for="pregunta2" class="form-label">¿En qué ciudad naciste?</label>
+                <input type="text" class="form-control" id="pregunta2" name="ciudad" required>
+            </div>
+            <div class="mb-3">
+                <label for="pregunta3" class="form-label">¿Cuál es el nombre de tu mejor amigo de la infancia?</label>
+                <input type="text" class="form-control" id="pregunta3" name="amigo" required>
+            </div>
             <button type="submit" class="btn btn-primary">Registrar Usuario</button>
         </form>
     </div>

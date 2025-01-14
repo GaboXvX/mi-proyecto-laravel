@@ -8,17 +8,20 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PeticionController;
+use App\Http\Controllers\recuperarController;
+use App\Http\Controllers\seguridadController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
+Route::get('/login',[LoginController::class,'index']);
 Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create')->middleware('guest');
 Route::post('registrar/{id}', [UserController::class, 'store'])->name('usuarios.store');
 Route::resource('peticiones', PeticionController::class)->except('index');
-
+Route::get('/recuperar',[recuperarController::class,'index'])->name('recuperar.clave')->middleware('guest');
+Route::post('/recuperar',[seguridadController::class,'comprobar'])->name('comprobar.preguntas')->middleware('guest');
 Route::middleware(['auth'])->group(function () {
 
 
@@ -66,4 +69,6 @@ Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name
     Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
     Route::post('/pdf/generar', [PdfController::class, 'generar'])->name('pdf.generar');
     Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
+    //ruta para recuperar contraseña
+    
 });

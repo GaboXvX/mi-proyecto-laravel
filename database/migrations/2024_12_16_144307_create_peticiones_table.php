@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_peticion');
             $table->unsignedBigInteger('id_usuario')->nullable();
             $table->unsignedBigInteger('id_rol');
+            $table->unsignedBigInteger('id_pregunta');
             $table->string('slug');
             $table->string('estado_peticion');
             $table->string('nombre');

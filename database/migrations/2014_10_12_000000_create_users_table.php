@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id_usuario');
             $table->unsignedBigInteger('id_rol');
+            $table->unsignedBigInteger('id_pregunta');
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->biginteger('cedula');
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->foreign('id_pregunta')->references('id_pregunta')  ->on('preguntas_de_seguridad')  ->onDelete('cascade');
         });
     }
 

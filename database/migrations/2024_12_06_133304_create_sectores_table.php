@@ -12,9 +12,11 @@ class CreateSectoresTable extends Migration
         Schema::create('sectores', function (Blueprint $table) {
             $table->bigIncrements('id_sector');  // Se crea la columna id como clave primaria
             $table->string('nombre');  // Nombre del sector
-            $table->foreignId('id_urbanizacion')  // Clave foránea con nombre explícito
-                  ->constrained('urbanizaciones')  // Relacionado con la tabla urbanizaciones
-                  ->onDelete('cascade');  // Borrado en cascada
+           $table->unsignedBigInteger('id_urbanizacion');
+           $table->foreign('id_urbanizacion')
+           ->references('id_urbanizacion')
+           ->on('urbanizaciones')
+           ->onDelete('cascade');
             $table->timestamps();  // Campos created_at y updated_at
         });
     }

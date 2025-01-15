@@ -21,11 +21,7 @@ class PersonaController extends Controller
     {
         $lideres = Lider_Comunitario::all();
 
-        $comunidades = [
-            'Comunidad A' => ['Sector 1', 'Sector 2', 'Sector 3'],
-            'Comunidad B' => ['Sector 4', 'Sector 5'],
-            'Comunidad C' => ['Sector 6', 'Sector 7', 'Sector 8'],
-        ];
+      
         return view('personas.registrarPersonas', compact('lideres', 'comunidades'));
     }
 

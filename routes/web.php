@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\configController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
@@ -70,5 +71,7 @@ Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name
     Route::post('/pdf/generar', [PdfController::class, 'generar'])->name('pdf.generar');
     Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
     //ruta para recuperar contraseña
-    
+    Route::get('/configuracion',[configController::class,'index'])->name('usuarios.configuracion');
+    Route::post('/usuarios/cambiar/{id_usuario}', [configController::class, 'update'])->name('usuarios.cambiar');
 });
+

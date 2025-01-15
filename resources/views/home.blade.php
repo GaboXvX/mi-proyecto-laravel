@@ -102,6 +102,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('lideres.index') }}">Líderes Comunitarios</a>
                     </li>
+                 
                    @role('admin')
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('usuarios.index') }}">Usuarios</a>
@@ -117,6 +118,9 @@
                         <a class="nav-link" href="{{ route('movimientos') }}">movimientos</a>
                     </li>
                     @endrole
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('usuarios.configuracion') }}">Configuración</a>
+                    </li>
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf

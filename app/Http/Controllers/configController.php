@@ -28,7 +28,7 @@ class configController extends Controller
             'apellido' => 'required|string|max:255',
             'cedula' => 'required|integer|unique:users,cedula,' . $id_usuario . ',id_usuario',
             'email' => 'required|email|max:255|unique:users,email,' . $id_usuario . ',id_usuario',
-            
+            'contraseña'=>'required',
         ];
     
         // Mensajes de validación
@@ -43,6 +43,7 @@ class configController extends Controller
             'email.unique' => 'Este correo electrónico ya está registrado.',
             'telefono.required' => 'El número de teléfono es obligatorio.',
             'telefono.digits_between' => 'El número de teléfono debe tener entre 10 y 15 dígitos.',
+            'contraseña.required'=>'la contraseña es obligatoria'
         ];
     
         // Validación de los datos de la solicitud
@@ -50,25 +51,19 @@ class configController extends Controller
     
         try {
             // Actualizar los datos del usuario
-            if ($request->has('nombre')) {
+         
                 $usuario->nombre = $request->input('nombre');
-            }
-            if ($request->has('apellido')) {
+          
+            
                 $usuario->apellido = $request->input('apellido');
-            }
-            if ($request->has('cedula')) {
+          
                 $usuario->cedula = $request->input('cedula');
-            }
-            if ($request->has('email')) {
+           
                 $usuario->email = $request->input('email');
-            }
-            if ($request->has('nombre_usuario')) {
-                $usuario->nombre_usuario = $request->input('nombre_usuario');
-            }
-            if ($request->has('contraseña')) {
+            
+              $usuario->nombre_usuario = $request->input('nombre_usuario');
                 $usuario->password = bcrypt($request->input('contraseña')); // Encriptar la contraseña
-            }
-    
+            
             // Guardar los cambios
             $usuario->save();
     

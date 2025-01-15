@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configuración de Cuenta</title>
   <!-- Enlace a Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+
   <!-- Estilos personalizados -->
   <style>
     body {
@@ -103,16 +104,23 @@
   <div class="container">
     <div class="card">
       <h2>Configuración de Cuenta</h2>
-      @if (session('success'))
-      <div class="alert alert-success mb-3">
-          {{ session('success') }}
-      </div>
-  @endif
+   @if (session('success'))
+            <div class="alert alert-success mb-3">
+                {{ session('success') }}
+            </div>
+        @endif
 
-  @if (session('error'))
+        @if (session('error'))
+            <div class="alert alert-danger mb-3">
+                {{ session('error') }}
+            </div>
+        @endif
+        @if ($errors->any())
       <div class="alert alert-danger mb-3">
-          {{ session('error') }}
-      </div>
+          <ul>
+              @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+              @endforeach
   @endif
   <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST">
     @csrf
@@ -165,7 +173,7 @@
   </div>
 
   <!-- Enlace a los scripts de Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gyb9Bmx2iER8vPHdVXbAY8pzrRAGkS/smQ9iR8FzW7GkWyA0B6p" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eylqg2RVMN2E7z0vYs3a0p/5kON6niwM5QkskFZ1fvoPfLejRjxxjfu" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

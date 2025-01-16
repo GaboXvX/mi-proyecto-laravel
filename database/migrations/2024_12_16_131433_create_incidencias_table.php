@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_lider')->nullable();
            $table->string('slug')->unique();
-           $table->bigInteger('cod_incidencia')->unique();
+           $table->string('cod_incidencia')->unique();
             $table->string('tipo_incidencia');
             $table->text('descripcion');
             $table->integer('nivel_prioridad');

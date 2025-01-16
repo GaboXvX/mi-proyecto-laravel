@@ -22,7 +22,7 @@ class PersonaController extends Controller
         $lideres = Lider_Comunitario::all();
 
       
-        return view('personas.registrarPersonas', compact('lideres', 'comunidades'));
+        return view('personas.registrarPersonas', compact('lideres'));
     }
 
     public function store(StorePersonaRequest $request)

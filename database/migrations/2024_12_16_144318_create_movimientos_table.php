@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario')->nullable();
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_lider')->nullable();
-            $table->string('valor_anterior');
-            $table->string('valor_nuevo')->nullable();
+            $table->text('valor_anterior');
+            $table->text('valor_nuevo')->nullable();
             $table->string('accion');
             $table->timestamps();
         });

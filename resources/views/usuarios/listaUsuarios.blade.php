@@ -159,6 +159,7 @@
             <tbody>
                 @foreach ($usuarios as $usuario)
                     <tr>
+                        @if($usuario->role->rol=='registrador')
                         <td>{{ $usuario->nombre }}</td>
                         <td>{{ $usuario->apellido }}</td>
                         <td>{{ $usuario->cedula }}</td>
@@ -166,7 +167,6 @@
                         <td>{{ $usuario->estado }}</td>
                         <td>{{ $usuario->created_at }}</td>
                         <td>
-                            <a href="{{ route('usuarios.edit', $usuario->slug) }}" class="btn-edit">Editar</a>
                             <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button type="submit" class="btn-disable">Deshabilitar</button>
@@ -176,6 +176,7 @@
                                 <button type="submit" class="btn-disable">activar</button>
                             </form>
                         </td>
+                    @endif
                     </tr>
                 @endforeach
             </tbody>

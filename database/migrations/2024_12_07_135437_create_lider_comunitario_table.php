@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_lider');
             $table->unsignedBigInteger('id_direccion');
             $table->unsignedBigInteger('id_usuario');
+            $table->unsignedBigInteger('id_comunidad');
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
@@ -22,6 +23,10 @@ return new class extends Migration
             $table->bigInteger('telefono');
             $table->string('correo','320')->unique();
             $table->timestamps();
+            $table->foreign('id_comunidad')
+                  ->references('id_comunidad')
+                  ->on('comunidades')
+                  ->onDelete('cascade');
         });
     }
 

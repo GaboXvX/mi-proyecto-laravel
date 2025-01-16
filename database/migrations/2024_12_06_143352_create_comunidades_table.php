@@ -17,11 +17,7 @@ class CreateComunidadesTable extends Migration
             ->references('id_sector')
             ->on('sectores')
             ->onDelete('cascade');
-                  $table->unsignedBigInteger('id_lider');
-                  $table->foreign('id_lider')
-                        ->references('id_lider')
-                        ->on('lider_comunitario')
-                        ->onDelete('cascade');
+                 
             $table->timestamps();  
         });
     }

@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
     // Rutas para la gestión de usuarios (solo admin)
-    Route::resource('usuarios', UserController::class)->except('create', 'store')->middleware('role:admin');
+    Route::resource('usuarios', UserController::class)->except('create', 'store','update')->middleware('role:admin');
     Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])->name('usuarios.desactivar')->middleware('role:admin');
     Route::post('/activar/{id}', [UserController::class, 'activar'])->name('usuarios.activar')->middleware('role:admin');
     Route::get('/incidencias', [IncidenciaController::class, 'index']);
@@ -72,6 +72,6 @@ Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name
     Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
     //ruta para recuperar contraseña
     Route::get('/configuracion',[configController::class,'index'])->name('usuarios.configuracion');
-    Route::post('/usuarios/cambiar/{id_usuario}', [configController::class, 'update'])->name('usuarios.cambiar');
+    Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
 });
 

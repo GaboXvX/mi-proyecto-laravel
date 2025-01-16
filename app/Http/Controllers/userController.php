@@ -6,8 +6,7 @@ use App\Models\Peticion;
 use App\Models\roles;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
@@ -51,33 +50,62 @@ class UserController extends Controller
         return view('usuarios.modificarUsuarios', compact('usuario'));
     }
 
-    public function update(Request $request, $slug)
+    public function update(Request $request, $id_usuario)
     {
-        $request->validate([
+        
+        $usuario = User::where('id_usuario', $id_usuario)->first();
+        if (!$usuario) {
+            return redirect()->route('usuarios.configuracion')->with('error', 'Usuario no encontrado');
+        }
+    
+        
+        $rules = [
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'cedula' => 'required|string|max:255',
-            'correo' => 'required|email|max:255|unique:users,correo,' . $slug . ',slug',
-            'password' => 'nullable|string|min:8',
-        ]);
-
+            'cedula' => 'required|integer|unique:users,cedula,' . $id_usuario . ',id_usuario',
+            'email' => 'required|email|max:255|unique:users,email,' . $id_usuario . ',id_usuario',
+            'contraseña'=>'required',
+        ];
+    
+       
+        $messages = [
+            'nombre.required' => 'El nombre es obligatorio.',
+            'apellido.required' => 'El apellido es obligatorio.',
+            'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.integer' => 'La cédula debe ser un número entero.',
+            'cedula.unique' => 'Esta cédula ya está registrada.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'El correo electrónico debe ser una dirección válida.',
+            'email.unique' => 'Este correo electrónico ya está registrado.',
+            'telefono.required' => 'El número de teléfono es obligatorio.',
+            'telefono.digits_between' => 'El número de teléfono debe tener entre 10 y 15 dígitos.',
+            'contraseña.required'=>'la contraseña es obligatoria'
+        ];
+    
+      
+        $request->validate($rules, $messages);
+    
         try {
-            $usuario = User::where('slug', $slug)->firstOrFail();
-            $usuario->nombre = $request->input('nombre');
-            $usuario->apellido = $request->input('apellido');
-            $usuario->cedula = $request->input('cedula');
-            $usuario->correo = $request->input('correo');
-
-
-            if ($request->filled('password')) {
-                $usuario->password = Hash::make($request->input('password'));
-            }
-
+            
+         
+                $usuario->nombre = $request->input('nombre');
+          
+            
+                $usuario->apellido = $request->input('apellido');
+          
+                $usuario->cedula = $request->input('cedula');
+           
+                $usuario->email = $request->input('email');
+            
+              $usuario->nombre_usuario = $request->input('nombre_usuario');
+                $usuario->password = bcrypt($request->input('contraseña')); 
+            
+            
             $usuario->save();
-
-            return redirect()->route('usuarios.index')->with('success', 'Datos actualizados correctamente');
+    
+            return redirect()->route('usuarios.configuracion')->with('success', 'Datos actualizados correctamente');
         } catch (\Exception $e) {
-            return redirect()->route('usuarios.index')->with('error', 'Error al actualizar los datos: ' . $e->getMessage());
+            return redirect()->route('usuarios.configuracion')->with('error', 'Error al actualizar los datos: ' . $e->getMessage());
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\storePeticionRequest;
 use Illuminate\Support\Str;
 use App\Models\peticion;
 use App\Models\pregunta;
@@ -14,8 +15,9 @@ class peticionController extends Controller
         $peticiones = peticion::orderBy('id_peticion', 'desc')->get();
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
-    public function store(Request $request)
+    public function store(storePeticionRequest $request)
     {
+       
         try {
          
             $peticion = Peticion::where('cedula', $request->input('cedula'))->first();

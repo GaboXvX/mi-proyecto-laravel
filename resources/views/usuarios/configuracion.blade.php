@@ -141,7 +141,7 @@
     <!-- Cédula -->
     <div class="form-group">
         <label for="inputCedula" class="form-label">Cédula</label>
-        <input type="text" class="form-control" id="inputCedula" name="cedula" value="{{ old('cedula', $usuario->cedula) }}" placeholder="Ingrese su cédula">
+        <input type="text" class="form-control" id="inputCedula" name="cedula" value="{{ $usuario->cedula }}" placeholder="Ingrese su cédula" readonly>
     </div>
 
     <!-- Correo -->

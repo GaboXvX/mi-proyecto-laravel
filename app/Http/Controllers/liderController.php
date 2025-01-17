@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\storeLiderRequest;
+use App\Http\Requests\updateLiderRequest;
 use App\Models\Comunidad;
 use Illuminate\Support\Str;
 use App\Models\direccion;
@@ -25,31 +27,15 @@ class liderController extends Controller
         return view('lideres.registrarlideres');
     }
 
-    public function store(Request $request)
+    public function store(storeLiderRequest $request)
 {
-    // Validación de los datos de entrada
-    $rules = [
-        'nombre' => 'required|string|max:255',
-        'apellido' => 'required|string|max:255',
-        'cedula' => 'required|numeric|digits:8|unique:lider_comunitario,cedula', 
-        'correo' => 'required|email|max:255|unique:lider_comunitario,correo',
-        'telefono' => 'nullable|numeric|digits_between:7,15',
-    ];
-
-    $messages = [
-        'cedula.unique' => 'Esta cédula ya está registrada.',
-        'correo.unique' => 'Este correo ya está registrado.',
-        'correo.email' => 'El correo debe ser una dirección de correo electrónico válida.',
-    ];
-
-    // Validar los datos del request
-    $request->validate($rules, $messages);
+  
 
     try {
         $estado = 'sucre';
         $municipio = 'sucre';
         
-        // Obtener los valores de las tablas relacionadas (parroquia, urbanizacion, sector, comunidad)
+        
         $parroquia = $request->input('parroquia');
         $urbanizacion = $request->input('urbanizacion');
         $sector = $request->input('sector');
@@ -58,7 +44,7 @@ class liderController extends Controller
         $manzana = $request->input('manzana');
         $num_casa = $request->input('num_casa');
         
-        // Buscar la dirección en la base de datos utilizando los IDs de las llaves foráneas
+
         $direccion = Direccion::where('estado', $estado)
             ->where('municipio', $municipio)
               ->where('id_parroquia',$parroquia)
@@ -70,7 +56,7 @@ class liderController extends Controller
             ->where('numero_de_casa', $num_casa)
             ->first();
         
-        // Si la dirección no existe, crearla
+   
         if (!$direccion) {
             $direccion = new Direccion();
             $direccion->estado = $estado;
@@ -83,28 +69,30 @@ class liderController extends Controller
             $direccion->id_parroquia = $parroquia;
             $direccion->id_urbanizacion = $urbanizacion;
             $direccion->save();
+        }else{
+            return redirect()->back()->with('error', 'Ya existe un líder registrado para esta dirección.');
         }
 
-        // Crear un slug único para el líder
+        
         $slug = Str::slug($request->input('nombre'));
         $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
 
         if ($count > 0) {
-            // Si el slug ya existe, agrega un sufijo para hacerlo único
+
             $originalSlug = $slug;
             $counter = 1;
     
-            // Mientras el slug exista en alguna de las tablas, incrementar el contador
+           
             while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
         }
 
-        // Obtener el id del usuario actual
+   
         $usuario = Auth::user()->id_usuario;
 
-        // Crear el líder comunitario
+      
         $lider = new lider_comunitario();
         $lider->slug = $slug;
         $lider->nombre = $request->input('nombre');
@@ -117,12 +105,12 @@ class liderController extends Controller
         $lider->id_usuario = $usuario;
         $lider->save();
 
-        // Crear movimiento (registro de la acción realizada)
+       
         $movimiento = new movimiento();
         $movimiento->id_usuario = Auth::user()->id_usuario;
         $movimiento->id_lider = $lider->id_lider;
 
-        // Campos creados del líder
+       
         $camposCreado = [
             'nombre' => $request->input('nombre'),
             'apellido' => $request->input('apellido'),
@@ -138,15 +126,15 @@ class liderController extends Controller
             'numero_de_casa' => $direccion->numero_de_casa,
         ];
 
-        // Acción y valores anteriores del movimiento
+        
         $movimiento->accion = 'se ha creado un registro';
         $movimiento->valor_anterior = json_encode($camposCreado);
         $movimiento->save();
 
-        // Redirigir con mensaje de éxito
+       
         return redirect()->route('lideres.index')->with('success', 'Datos enviados correctamente');
     } catch (\Exception $e) {
-        // Redirigir con mensaje de error en caso de fallo
+       
 
         return redirect()->route('lideres.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
     }
@@ -175,30 +163,9 @@ public function edit($slug)
         return view('lideres.modificarLider', compact('lider','direcciones','lideres'));
     }
 
-    public function update(Request $request, $slug) 
+    public function update(updateLiderRequest $request, $slug) 
     {
-        $rules = [
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'cedula' => 'required|integer|unique:lider_comunitario,cedula,' . $slug . ',slug',
-            'correo' => 'required|email|max:255|unique:lider_comunitario,correo,' . $slug . ',slug',
-            'telefono' => 'required|digits_between:10,15',
-        ];
-    
-        $messages = [
-            'nombre.required' => 'El nombre es obligatorio.',
-            'apellido.required' => 'El apellido es obligatorio.',
-            'cedula.required' => 'La cédula es obligatoria.',
-            'cedula.integer' => 'La cédula debe ser un número entero.',
-            'cedula.unique' => 'Esta cédula ya está registrada.',
-            'correo.required' => 'El correo electrónico es obligatorio.',
-            'correo.email' => 'El correo electrónico debe ser una dirección válida.',
-            'correo.unique' => 'Este correo electrónico ya está registrado.',
-            'telefono.required' => 'El número de teléfono es obligatorio.',
-            'telefono.digits_between' => 'El número de teléfono debe tener entre 10 y 15 dígitos.',
-        ];
-    
-        $request->validate($rules, $messages);
+      
     
         try {
             $estado = 'sucre';
@@ -258,7 +225,9 @@ public function edit($slug)
                 $direccion->id_urbanizacion = $urbanizacion;
                 $direccion->save();
             }
-    
+            else{
+                return redirect()->back()->with('error', 'Ya existe un líder registrado para esta dirección.');
+            }
             if ($lider->nombre !== $request->input('nombre')) {
                 $camposModificados['nombre'] = $request->input('nombre');
                 $lider->nombre = $request->input('nombre'); 

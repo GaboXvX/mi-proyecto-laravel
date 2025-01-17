@@ -68,10 +68,11 @@ Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name
     // Rutas específicas para la creación y modificación de incidencias de líderes
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');
     Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
-    Route::post('/pdf/generar', [PdfController::class, 'generar'])->name('pdf.generar');
+    
     Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
     //ruta para recuperar contraseña
     Route::get('/configuracion',[configController::class,'index'])->name('usuarios.configuracion');
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
+    Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
 });
 

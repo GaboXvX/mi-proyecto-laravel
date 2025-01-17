@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePersonaRequest;
+use App\Http\Requests\updatePersonaRequest;
 use App\Models\Comunidad;
 use App\Models\Direccion;
 use App\Models\lider_comunitario;
@@ -28,11 +29,11 @@ class PersonaController extends Controller
     public function store(StorePersonaRequest $request)
 {
     try {
-        // Obtener los datos de la dirección del request
+       
         $estado = 'sucre';
         $municipio = 'sucre';
         
-        // Obtener los valores de las tablas relacionadas (parroquia, urbanizacion, sector, comunidad)
+       
         $parroquia = $request->input('parroquia');
         $urbanizacion = $request->input('urbanizacion');
         $sector = $request->input('sector');
@@ -41,7 +42,7 @@ class PersonaController extends Controller
         $manzana = $request->input('manzana');
         $num_casa = $request->input('num_casa');
         
-        // Buscar la dirección en la base de datos utilizando los IDs de las llaves foráneas
+
         $direccion = Direccion::where('estado', $estado)
             ->where('municipio', $municipio)
               ->where('id_parroquia',$parroquia)
@@ -53,7 +54,7 @@ class PersonaController extends Controller
             ->where('numero_de_casa', $num_casa)
             ->first();
 
-        // Si la dirección no existe, crearla
+       
         if (!$direccion) {
             $direccion = new Direccion();
             $direccion->estado = $estado;
@@ -68,22 +69,22 @@ class PersonaController extends Controller
             $direccion->save();
         }
 
-        // Buscar al líder comunitario de la misma comunidad
+       
         $lider = Lider_Comunitario::where('id_comunidad',$comunidad
         )->first();
 
         if ($lider) {
-            // Crear la nueva persona asociada al líder encontrado
+
             $persona = new Persona();
             $slug = Str::slug($request->input('nombre'));
             $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
 
     if ($count > 0) {
-        // Si el slug ya existe, agrega un sufijo para hacerlo único
+        
         $originalSlug = $slug;
         $counter = 1;
 
-        // Mientras el slug exista en alguna de las tablas, incrementar el contador
+  
         while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
             $slug = $originalSlug . '-' . $counter;
             $counter++;
@@ -98,10 +99,10 @@ class PersonaController extends Controller
             $persona->telefono = $request->input('telefono');
             $persona->id_direccion = $direccion->id_direccion;
             $persona->id_usuario = Auth::user()->id_usuario;
-            $persona->id_lider = $lider->id_lider; // Asociando al líder
+            $persona->id_lider = $lider->id_lider; 
             $persona->save();
 
-            // Registrar el movimiento
+            
             $movimiento = new Movimiento();
             $movimiento->id_usuario = Auth::user()->id_usuario;
             $movimiento->id_persona = $persona->id_persona;
@@ -174,34 +175,10 @@ class PersonaController extends Controller
     }
 
 
-    public function update(Request $request, $slug)
+    public function update(updatePersonaRequest $request, $slug)
     {
-        // Validación de datos
-        $rules = [
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'cedula' => 'required|integer|unique:personas,cedula,' . $slug . ',slug',
-            'lider_comunitario' => 'nullable|exists:lider_comunitario,id_lider', // Valida que el ID del líder exista
-            'correo' => 'required|email|max:255|unique:personas,correo,' . $slug . ',slug',
-            'telefono' => 'required|digits_between:10,15',
-        ];
-    
-        $messages = [
-            'nombre.required' => 'El nombre es obligatorio.',
-            'apellido.required' => 'El apellido es obligatorio.',
-            'cedula.required' => 'La cédula es obligatoria.',
-            'cedula.integer' => 'La cédula debe ser un número entero.',
-            'cedula.unique' => 'Esta cédula ya está registrada.',
-            'correo.required' => 'El correo electrónico es obligatorio.',
-            'correo.email' => 'El correo electrónico debe ser una dirección válida.',
-            'correo.unique' => 'Este correo electrónico ya está registrado.',
-            'telefono.required' => 'El número de teléfono es obligatorio.',
-            'telefono.digits_between' => 'El número de teléfono debe tener entre 10 y 15 dígitos.',
-            'lider_comunitario.exists' => 'El líder comunitario seleccionado no existe.', // Mensaje de error para líder
-        ];
-    
-        $request->validate($rules, $messages);
-    
+        
+       
         try {
             $estado = 'sucre';
             $municipio = 'sucre';
@@ -243,7 +220,7 @@ class PersonaController extends Controller
                 'urbanizacion' => $persona->direccion->urbanizacion->nombre ?? 'No disponible',
                 'sector' => $persona->direccion->sector->nombre ?? 'No disponible',
                 'comunidad' => $persona->direccion->comunidad->nombre ?? 'No disponible',
-                // Acceso seguro al líder, se verifica si está presente antes de acceder a sus propiedades
+               
                 'lider' => $persona->lider_comunitario ? $persona->lider_comunitario->nombre . " " . $persona->lider_comunitario->apellido . " " . $persona->lider_comunitario->cedula : 'No disponible',
                 'calle' => $persona->direccion->calle,
                 'manzana' => $persona->direccion->manzana,
@@ -252,7 +229,7 @@ class PersonaController extends Controller
             
             
     
-            // Si la dirección no existe, crearla
+            
             if (!$direccion) {
                 $direccion = new Direccion();
                 $direccion->estado = $estado;
@@ -267,7 +244,7 @@ class PersonaController extends Controller
                 $direccion->save();
             }
     
-            // Actualización de los datos
+            
             if ($persona->nombre !== $request->input('nombre')) {
                 $camposModificados['nombre'] = $request->input('nombre');
                 $persona->nombre = $request->input('nombre');
@@ -293,13 +270,13 @@ class PersonaController extends Controller
                 $persona->telefono = $request->input('telefono');
             }
             
-            // Obtención de los nombres de las entidades relacionadas (parroquia, urbanización, sector, comunidad)
+           
             $parroquiaNombre = Parroquia::find($request->input('parroquia'))->nombre ?? 'No disponible';
             $urbanizacionNombre = Urbanizacion::find($request->input('urbanizacion'))->nombre ?? 'No disponible';
             $sectorNombre = Sector::find($request->input('sector'))->nombre ?? 'No disponible';
             $comunidadNombre = Comunidad::find($request->input('comunidad'))->nombre ?? 'No disponible';
             
-            // Actualización de los campos relacionados con la dirección, guardando los nombres
+           
             if ($persona->direccion->parroquia->nombre !== $parroquiaNombre) {
                 $camposModificados['parroquia'] = $parroquiaNombre;
                 $persona->direccion->parroquia = Parroquia::find($request->input('parroquia'));
@@ -335,17 +312,17 @@ class PersonaController extends Controller
                 $persona->direccion->numero_de_casa = $request->input('num_casa');
             }
             
-            // Si el líder comunitario cambió, actualizarlo
+          
             $lider_comunitario_id = $request->input('lider_comunitario');
             if ($persona->id_lider != $lider_comunitario_id) {
                 $camposModificados['lider'] = $lider_comunitario_id;
                 $lider = Lider_Comunitario::find($lider_comunitario_id);
                 if ($lider) {
-                    // Ahora almacenamos el nombre, apellido y cédula del líder, no su id
+                  
                     $camposModificados['lider'] = $lider->nombre . " " . $lider->apellido . " " . $lider->cedula;
                     $persona->id_lider = $lider->id_lider;
                 } else {
-                    // Si no se encuentra el líder, asignamos null
+                    
                     $persona->id_lider = null;
                 }
             }
@@ -354,7 +331,7 @@ class PersonaController extends Controller
             $persona->id_direccion = $direccion->id_direccion;
             $persona->save();
             
-            // Registrar movimiento
+         
             if (!empty($camposModificados)) {
                 $movimiento = new Movimiento();
                 $movimiento->id_usuario = Auth::user()->id_usuario;

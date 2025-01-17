@@ -107,7 +107,13 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
+        .btn-restaurar {
+            padding: 8px 12px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .btn-edit {
             background-color: #3B82F6; /* Azul claro */
         }
@@ -115,7 +121,12 @@
         .btn-edit:hover {
             background-color: #2563EB; /* Azul más oscuro */
         }
-
+        .btn-restaurar {
+            background-color: #44a118; /* Gris */
+        }
+        .btn-restaurar:hover {
+            background-color: #3f7c23; /* Gris */
+        }
         .btn-disable {
             background-color: #A1A1A1; /* Gris */
         }
@@ -167,14 +178,21 @@
                         <td>{{ $usuario->estado }}</td>
                         <td>{{ $usuario->created_at }}</td>
                         <td>
+                         <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn-restaurar">Restaurar</button>
+                            </form>
+                           @if($usuario->estado=="activo")
                             <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button type="submit" class="btn-disable">Deshabilitar</button>
                             </form>
+                           @else
                             <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                 @csrf
                                 <button type="submit" class="btn-disable">activar</button>
                             </form>
+                             @endif
                         </td>
                     @endif
                     </tr>

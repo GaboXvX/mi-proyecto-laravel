@@ -244,10 +244,9 @@
                                 <td>{{ $incidencia->descripcion }}</td>
                                 <td>{{ $incidencia->nivel_prioridad }}</td>
                                 <td class="incidencia-status 
-                                            @if($incidencia->estado == 'Pendiente') status-pending 
-                                            @elseif($incidencia->estado == 'Resuelta') status-resolved 
-                                            @elseif($incidencia->estado == 'Cerrada') status-closed 
-                                            @elseif($incidencia->estado == 'Por atender') status-pending
+                                            @if($incidencia->estado == 'Por atender') status-pending 
+                                         
+                                           
                                             @endif">
                                     {{ $incidencia->estado }}
                                 </td>

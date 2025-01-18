@@ -152,7 +152,7 @@
             <button type="submit"> buscar</button>
         </form>
         <br><br>
-        <!-- Formulario de selección de fechas -->
+      
         <label for="fecha_inicio" class="form-label">Selecciona el rango de fechas:</label>
         <div class="d-flex">
             <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" />
@@ -180,6 +180,7 @@
                 <tbody>
                     @foreach ($incidencias as $incidencia)
                         <tr>
+                            @if($incidencia->estado != 'atendido')
                             <td>{{$incidencia->cod_incidencia}}</td>
                             <td>{{ $incidencia->tipo_incidencia }}</td>
                             <td>{{ $incidencia->descripcion }}</td>
@@ -206,7 +207,7 @@
                                     No asignado
                                 @endif
                             </td>
-                            @if($incidencia->estado != 'atendido')
+                           
                                 <td>
                                     <form action="{{route('incidencias.atender', $incidencia->slug)}}" method="post">
                                         @csrf
@@ -238,7 +239,7 @@
             if (fechaInicioValue && fechaFinValue) {
                 console.log('Rango de fechas seleccionado:', fechaInicioValue, 'a', fechaFinValue);
 
-                fetch('/filtrar-incidencia', {
+                fetch('/filtrar-incidencias-por-fechas', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

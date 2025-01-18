@@ -382,7 +382,7 @@ class IncidenciaController extends Controller
             $fechaFin = Carbon::now()->endOfMonth()->toDateString();
         }
 
-        // Construir la consulta
+       
         $query = Incidencia::with(['persona', 'lider'])
             ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
 
@@ -395,14 +395,14 @@ class IncidenciaController extends Controller
             }
         }
 
-        // Obtener las incidencias filtradas
+        
         $incidencias = $query->get();
 
         if ($incidencias->isEmpty()) {
             return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
         }
 
-        // Generar PDF
+        
         $pdf = FacadePdf::loadView('incidencias.listaincidencias', compact('incidencias', 'fechaInicio', 'fechaFin'));
 
         return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
@@ -464,19 +464,19 @@ class IncidenciaController extends Controller
     }
     public function filtrarPorFechas(Request $request)
     {
-        // Validamos las fechas que el usuario envió
+        
         $request->validate([
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', // Validamos que la fecha fin sea mayor o igual a la fecha inicio
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', 
         ]);
 
-        $fechaInicio = Carbon::parse($request->input('fecha_inicio'))->startOfDay(); // Inicia al principio del día
-        $fechaFin = Carbon::parse($request->input('fecha_fin'))->endOfDay(); // Termina al final del día
+        $fechaInicio = Carbon::parse($request->input('fecha_inicio'))->startOfDay(); 
+        $fechaFin = Carbon::parse($request->input('fecha_fin'))->endOfDay(); 
 
-        // Filtrar incidencias por rango de fechas
+       
         $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])->where('estado'=='por atender')->get();
 
-        // Retornamos los resultados como JSON (para la llamada Ajax)
+
         return response()->json([
             'incidencias' => $incidencias
         ]);

@@ -225,17 +225,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
        document.addEventListener('DOMContentLoaded', function() {
-    // Al cambiar las fechas de inicio o fin, realizar el filtrado automáticamente
+   
     const fechaInicio = document.getElementById('fecha_inicio');
     const fechaFin = document.getElementById('fecha_fin');
 
-    // Escuchar cambios en los campos de fecha
+
     [fechaInicio, fechaFin].forEach(input => {
         input.addEventListener('change', function() {
             let fechaInicioValue = fechaInicio.value;
             let fechaFinValue = fechaFin.value;
 
-            // Verificar que ambas fechas sean seleccionadas
+           
             if (fechaInicioValue && fechaFinValue) {
                 console.log('Rango de fechas seleccionado:', fechaInicioValue, 'a', fechaFinValue);
 

@@ -463,22 +463,26 @@ class IncidenciaController extends Controller
         return view('incidencias.listaincidencias')->with('incidencias', [$incidencia]);
     }
     public function filtrarPorFechas(Request $request)
-    {
-        
-        $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', 
-        ]);
+{
+   
+    $request->validate([
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_inicio', 
+    ]);
 
-        $fechaInicio = Carbon::parse($request->input('fecha_inicio'))->startOfDay(); 
-        $fechaFin = Carbon::parse($request->input('fecha_fin'))->endOfDay(); 
+ 
+    $fechaInicio = Carbon::parse($request->input('fecha_inicio'))->startOfDay(); 
+    $fechaFin = Carbon::parse($request->input('fecha_fin'))->endOfDay(); 
 
-       
-        $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])->where('estado'=='por atender')->get();
+ 
+    $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])
+        ->where('estado', 'por atender')
+        ->get();
 
+    
+    return response()->json([
+        'incidencias' => $incidencias
+    ]);
+}
 
-        return response()->json([
-            'incidencias' => $incidencias
-        ]);
-    }
 }

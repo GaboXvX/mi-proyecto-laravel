@@ -139,7 +139,7 @@
                             @if($peticion->estado_peticion=='No verificado')
                             <td>
                                 <div>
-                                <form action="{{route('usuarios.store',$peticion->id_peticion)}}" method="post" >
+                                <form action="{{route('peticion.aceptar',$peticion->id_peticion)}}" method="post" >
                                 
                                     @csrf
                                     <button type="submit" class="btn-custom btn-accept">Aceptar</button>

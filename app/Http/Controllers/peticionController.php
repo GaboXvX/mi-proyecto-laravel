@@ -6,7 +6,7 @@ use App\Http\Requests\storePeticionRequest;
 use Illuminate\Support\Str;
 use App\Models\peticion;
 use App\Models\pregunta;
-use Illuminate\Http\Request;
+
 
 class peticionController extends Controller
 {
@@ -108,5 +108,23 @@ class peticionController extends Controller
         $peticion->estado_peticion = 'rechazada';
         $peticion->save();
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
+    }
+    public function aceptar($id)
+    {
+
+
+        try {
+            $peticion = Peticion::where('id_peticion', $id)->first();
+
+            if (!$peticion) {
+                return redirect()->route('usuarios.create')->with('error', 'Petición no encontrada');
+            }
+            $peticion->estado_peticion = 'aceptado';
+            $peticion->save();
+
+            return redirect()->route('peticiones.index')->with('success', 'Datos enviados correctamente');
+        } catch (\Exception $e) {
+            return redirect()->route('peticiones.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+        }
     }
 }

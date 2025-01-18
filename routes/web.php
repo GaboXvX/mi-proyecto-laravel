@@ -19,7 +19,7 @@ Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenti
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/login',[LoginController::class,'index']);
 Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create')->middleware('guest');
-Route::post('registrar/{id}', [UserController::class, 'store'])->name('usuarios.store');
+Route::post('aceptar/{id}', [PeticionController::class, 'aceptar'])->name('peticion.aceptar');
 Route::resource('peticiones', PeticionController::class)->except('index');
 Route::get('/recuperar',[recuperarController::class,'index'])->name('recuperar.clave')->middleware('guest');
 Route::post('/recuperar',[seguridadController::class,'comprobar'])->name('comprobar.preguntas')->middleware('guest');

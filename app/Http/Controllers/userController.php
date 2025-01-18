@@ -6,7 +6,7 @@ use App\Http\Requests\updateUserRequest;
 use App\Models\Peticion;
 use App\Models\roles;
 use App\Models\User;
-use Illuminate\Http\Request;
+
 
 
 class UserController extends Controller
@@ -22,28 +22,6 @@ class UserController extends Controller
         $roles = roles::all();
         return view('usuarios.registrarUsuarios', compact('roles'));
     }
-
-    public function store( $id)
-    {
-
-
-        try {
-            $peticion = Peticion::where('id_peticion', $id)->first();
-
-            if (!$peticion) {
-                return redirect()->route('usuarios.create')->with('error', 'Petición no encontrada');
-            }
-
-            $peticion->estado_peticion = 'aceptado';
-            $peticion->save();
-
-            return redirect()->route('peticiones.index')->with('success', 'Datos enviados correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('peticiones.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
-        }
-    }
-
-
 
     public function edit($slug)
     {

@@ -185,17 +185,20 @@
     @endif
 
     <div class="container table-container">
-        <a href="{{route('home')}}" class="btn-back">Volver</a>
+        <a href="{{ route('home') }}" class="btn-back">Volver</a>
         <h1 class="text-center">Lista de Incidencias</h1>
 
         @role('admin')
-        <a href="{{route('incidencias.gestionar')}}" class="btn-custom mb-3">Cambiar Estado</a>
+        <a href="{{ route('incidencias.gestionar') }}" class="btn-custom mb-3">Cambiar Estado</a>
         @endrole
-        <form action="{{route('incidencias.buscar')}}" method="post">
+
+       
+        <form action="{{ route('incidencias.buscar') }}" method="post">
             <input type="search" name="buscar" placeholder="Ingrese un código">
             @csrf
-            <button type="submit"> buscar</button>
+            <button type="submit">Buscar</button>
         </form>
+
         <form action="{{ route('incidencias.download') }}" method="POST" class="form-group">
             @csrf
             <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
@@ -204,6 +207,15 @@
                 <span>hasta</span>
                 <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2" />
             </div>
+
+           
+            <label for="estado" class="form-label mt-2">Estado de la incidencia:</label>
+            <select name="estado" id="estado" class="form-control">
+                <option value="Todos">Todos</option>
+                <option value="Atendido">Atendido</option>
+                <option value="Por atender">Por atender</option>
+            </select>
+
             <button type="submit" class="btn-download mt-2">Generar PDF</button>
         </form>
 
@@ -235,6 +247,7 @@
                                             @if($incidencia->estado == 'Pendiente') status-pending 
                                             @elseif($incidencia->estado == 'Resuelta') status-resolved 
                                             @elseif($incidencia->estado == 'Cerrada') status-closed 
+                                            @elseif($incidencia->estado == 'Por atender') status-pending
                                             @endif">
                                     {{ $incidencia->estado }}
                                 </td>
@@ -263,115 +276,91 @@
                 </tbody>
             </table>
         </div>
-        
-        
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
-    document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
+            document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
+            document.getElementById('estado').addEventListener('change', filtrarIncidencias);
 
-    function filtrarIncidencias() {
-        let fechaInicio = document.getElementById('fecha_inicio').value;
-        let fechaFin = document.getElementById('fecha_fin').value;
+            function filtrarIncidencias() {
+                let fechaInicio = document.getElementById('fecha_inicio').value;
+                let fechaFin = document.getElementById('fecha_fin').value;
+                let estado = document.getElementById('estado').value;
 
-        if (fechaInicio && fechaFin) {
-            fetch('/filtrar-incidencia', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    fecha_inicio: fechaInicio,
-                    fecha_fin: fechaFin
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                let listaResultados = document.getElementById('resultados');
-                listaResultados.innerHTML = '';
+                if (fechaInicio && fechaFin) {
+                    fetch('/filtrar-incidencia', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            fecha_inicio: fechaInicio,
+                            fecha_fin: fechaFin,
+                            estado: estado  
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        let listaResultados = document.getElementById('resultados');
+                        listaResultados.innerHTML = '';
 
-                let tbody = document.getElementById('incidencias-tbody');
-                tbody.innerHTML = '';
+                        let tbody = document.getElementById('incidencias-tbody');
+                        tbody.innerHTML = '';
 
-                if (data.incidencias && data.incidencias.length > 0) {
-                    data.incidencias.forEach(incidencia => {
-                        let tr = document.createElement('tr');
-                        let fecha = new Date(incidencia.created_at);
-                        let fechaFormateada = fecha.toLocaleString('es-ES', {
-                            weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                            hour: '2-digit', minute: '2-digit', second: '2-digit'
-                        });
+                        if (data.incidencias && data.incidencias.length > 0) {
+                            data.incidencias.forEach(incidencia => {
+                                let tr = document.createElement('tr');
+                                let fecha = new Date(incidencia.created_at);
+                                let fechaFormateada = fecha.toLocaleString('es-ES', {
+                                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                });
 
-                        tr.innerHTML = `
-                            <td>${incidencia.cod_incidencia}</td>
-                            <td>${incidencia.tipo_incidencia}</td>
-                            <td>${incidencia.descripcion}</td>
-                            <td>${incidencia.nivel_prioridad}</td>
-                            <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                            <td>${fechaFormateada}</td>
-                            <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
-                            <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                        `;
+                                tr.innerHTML = `
+                                    <td>${incidencia.cod_incidencia}</td>
+                                    <td>${incidencia.tipo_incidencia}</td>
+                                    <td>${incidencia.descripcion}</td>
+                                    <td>${incidencia.nivel_prioridad}</td>
+                                    <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                                    <td>${fechaFormateada}</td>
+                                    <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
+                                    <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
+                                `;
 
-                        tbody.appendChild(tr);
+                                tbody.appendChild(tr);
+                            });
+                        } else {
+                            let tr = document.createElement('tr');
+                            tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el período y estado seleccionado.</td>';
+                            tbody.appendChild(tr);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                     });
-                } else {
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el período seleccionado.</td>';
-                    tbody.appendChild(tr);
                 }
+            }
 
-                if (data.incidencias && data.incidencias.length > 0) {
-                    let slug = data.incidencias[0].slug;
-                    downloadIncidencia(slug, fechaInicio, fechaFin);
+            function getStatusClass(estado) {
+                switch (estado) {
+                    case 'Atendido':
+                        return 'status-resolved'; 
+                    case 'Por atender':
+                        return 'status-pending'; 
+                    default:
+                        return '';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    }
-
-    function downloadIncidencia(slug, fechaInicio, fechaFin) {
-        fetch(`/incidencias/${slug}/download`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                fecha_inicio: fechaInicio,
-                fecha_fin: fechaFin
-            })
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `incidencia-${slug}.pdf`;
-            link.click();
+            }
         });
-    }
-});
-
-function getStatusClass(estado) {
-    switch (estado) {
-        case 'Pendiente':
-            return 'status-pending';
-        case 'Resuelta':
-            return 'status-resolved';
-        case 'Cerrada':
-            return 'status-closed';
-        default:
-            return '';
-    }
-}
-
     </script>
-    
 </body>
+
+
+
+
 
 </html>

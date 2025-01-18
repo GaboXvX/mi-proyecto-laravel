@@ -58,33 +58,32 @@
         <canvas id="myChart" width="600" height="300"></canvas>
     </div>
 
-    <!-- Botón para descargar el gráfico en PDF -->
     <button class="download-btn" id="downloadPdfBtn">Descargar PDF</button>
 
     <script>
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var myChart = new Chart(ctx, {
-            type: 'bar',  // Cambié el tipo de gráfico a barras
+            type: 'bar',  
             data: {
-                labels: @json($labels),  // Las etiquetas de los meses
+                labels: @json($labels),  
                 datasets: [
                     {
                         label: 'Incidencias Atendidas',
-                        data: @json($dataAtendidas),  // Los datos de incidencias atendidas
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',  // Color azul claro para las barras
-                        borderColor: 'rgba(54, 162, 235, 0.2)',  // Bordes más suaves
-                        borderWidth: 0,  // Eliminado el borde para que la barra sea más suave
-                        barThickness: 30,  // Ajusté el grosor de las barras
+                        data: @json($dataAtendidas),  
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',  
+                        borderColor: 'rgba(54, 162, 235, 0.2)',  
+                        borderWidth: 0, 
+                        barThickness: 30, 
                     },
                     {
                         label: 'Tendencia',
-                        data: @json($dataAtendidas),  // Los mismos datos de incidencias atendidas para la tendencia
-                        borderColor: 'rgba(255, 99, 132, 1)',  // Color rojo para la línea de tendencia
+                        data: @json($dataAtendidas), 
+                        borderColor: 'rgba(255, 99, 132, 1)',  
                         borderWidth: 2,
-                        type: 'line',  // Tipo de gráfico línea
-                        fill: false,  // No rellenar el área bajo la línea
-                        tension: 0.4  // Suaviza la curva de la línea
+                        type: 'line', 
+                        fill: false,  
+                        tension: 0.4  
                     }
                 ]
             },
@@ -121,17 +120,17 @@
             }
         });
 
-        // Función para generar y descargar el PDF
+       
         document.getElementById('downloadPdfBtn').addEventListener('click', function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const imageUrl = myChart.toBase64Image();
 
-            // Agregar un título al PDF
+           
             doc.setFontSize(18);
             doc.text('Informe de Incidencias', 10, 10);
 
-            // Agregar las fechas de inicio y fin al informe
+        
             doc.setFontSize(12);
             doc.text(`Fecha de Inicio: ${@json($startDate->toDateString())}`, 10, 20);
             doc.text(`Fecha de Fin: ${@json($endDate->toDateString())}`, 10, 30);
@@ -139,7 +138,7 @@
                 doc.text(`Tipo de Incidencia: {{$tipoIncidencia}}`, 10, 40);
             }
 
-            // Agregar una tabla con los datos de las incidencias
+          
             const tableStartY = 50;
             doc.setFontSize(12);
             doc.text('Mes', 10, tableStartY);
@@ -147,17 +146,17 @@
 
             let currentY = tableStartY + 10;
 
-            // Iterar sobre las etiquetas y agregar los datos correspondientes
+          
             @foreach($labels as $index => $label)
                 doc.text('{{ $label }}', 10, currentY);
-                doc.text('{{ $dataAtendidas[$index] }}', 80, currentY);  // Datos de incidencias atendidas
+                doc.text('{{ $dataAtendidas[$index] }}', 80, currentY); 
                 currentY += 10;
             @endforeach
 
-            // Agregar el gráfico al PDF
+            
             doc.addImage(imageUrl, 'PNG', 10, currentY, 180, 90);
 
-            // Guardar el archivo PDF
+            
             doc.save('informe_incidencias.pdf');
         });
     </script>

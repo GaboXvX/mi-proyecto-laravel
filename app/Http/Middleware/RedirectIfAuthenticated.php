@@ -19,14 +19,10 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            // Verificar el rol del usuario
+            
             $user = Auth::user();
-            // Si es administrador, redirigir al homeAdmin
-            if ($user->role == 'admin') {
-                return redirect()->route('homeAdmin');
-            }
 
-            // Si es registrador, redirigir al home
+           
             return redirect()->route('home');
         }
 

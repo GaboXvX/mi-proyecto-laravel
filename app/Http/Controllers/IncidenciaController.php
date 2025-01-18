@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
-use App\Http\Requests\storePeticionRequest;
-use App\Models\Direccion;
+
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
@@ -142,11 +141,14 @@ class IncidenciaController extends Controller
     public function descargar($slug)
     {
         $incidencia = Incidencia::where('slug', $slug)->first();
-
-        $pdf = FacadePdf::loadView('incidencias.incidencia', compact('incidencia'));
-
+    
+       
+        $pdf = FacadePdf::loadView('incidencias.incidencia', compact('incidencia'))
+                        ->setPaper('a4', 'portrait');  
+    
         return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
     }
+    
 
 
     public function gestionar(Request $request)
@@ -268,27 +270,55 @@ class IncidenciaController extends Controller
         $incidencia->save();
         return redirect()->route('incidencias.gestionar')->with('success', 'marcado como atendido');
     }
+
+
     public function filtrar(Request $request)
     {
 
         $validated = $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date',
+            'estado' => 'required|string|in:Atendido,Por atender,Todos',
         ]);
 
 
         $fechaInicio = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
+        $estado = $request->input('estado');
 
 
-        $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])
-            ->get();
+        if (!$fechaInicio) {
+            $fechaInicio = Carbon::now()->startOfYear()->toDateString();
+        }
+
+
+        if (!$fechaFin) {
+            $fechaFin = Carbon::now()->endOfMonth()->toDateString();
+        }
+
+
+        $query = Incidencia::with(['persona', 'lider'])
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+
+        if ($estado !== 'Todos') {
+            if ($estado === 'Por atender') {
+                $query->where('estado', 'Por atender');
+            } else {
+                $query->where('estado', $estado);
+            }
+        }
+
+
+        $incidencias = $query->get();
 
 
         return response()->json([
             'incidencias' => $incidencias
         ]);
     }
+
+
 
 
     public function show($slug, $incidencia_slug)
@@ -330,64 +360,98 @@ class IncidenciaController extends Controller
 
     public function download(Request $request)
     {
-
+       
         $validated = $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date',
+            'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
         ]);
 
 
         $fechaInicio = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
+        $estado = $request->input('estado', 'Todos');
 
 
-        $incidencias = Incidencia::whereBetween('created_at', [$fechaInicio, $fechaFin])->get();
+        if (!$fechaInicio) {
+            $fechaInicio = Carbon::now()->startOfYear()->toDateString();
+        }
+
+
+        if (!$fechaFin) {
+            $fechaFin = Carbon::now()->endOfMonth()->toDateString();
+        }
+
+        // Construir la consulta
+        $query = Incidencia::with(['persona', 'lider'])
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+
+        if ($estado != 'Todos') {
+            if ($estado == 'Por atender') {
+                $query->where('estado', 'Por atender');
+            } else {
+                $query->where('estado', $estado);
+            }
+        }
+
+        // Obtener las incidencias filtradas
+        $incidencias = $query->get();
 
         if ($incidencias->isEmpty()) {
             return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
         }
 
+        // Generar PDF
         $pdf = FacadePdf::loadView('incidencias.listaincidencias', compact('incidencias', 'fechaInicio', 'fechaFin'));
 
         return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
     }
 
+
+
     public function showChart(Request $request)
-    {
-        $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
-        $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
+{
+    
+    Carbon::setLocale('es'); 
 
-        $tipoIncidencia = $request->input('tipo_incidencia', '');
+    
+    $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
+    $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
 
+   
+    $tipoIncidencia = $request->input('tipo_incidencia', '');
 
-        $queryAtendidas = Incidencia::where('estado', 'Atendido')
-            ->whereBetween('created_at', [$startDate, $endDate]);
+   
+    $queryAtendidas = Incidencia::where('estado', 'Atendido')
+        ->whereBetween('created_at', [$startDate, $endDate]);
 
-        if ($tipoIncidencia) {
-            $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
-        }
-
-
-        $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-
-
-        $labels = [];
-        $dataAtendidas = [];
-
-
-        foreach ($incidenciasAtendidas as $incidencia) {
-            $monthName = Carbon::createFromFormat('m', $incidencia->month)->format('F');
-            $labels[] = $monthName . ' ' . $incidencia->year;
-            $dataAtendidas[] = $incidencia->total;
-        }
-
-
-        return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'startDate', 'endDate', 'tipoIncidencia'));
+    if ($tipoIncidencia) {
+        $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
     }
+
+   
+    $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+        ->groupBy('year', 'month')
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get();
+
+
+    $labels = [];
+    $dataAtendidas = [];
+
+  
+    foreach ($incidenciasAtendidas as $incidencia) {
+       
+        $monthName = Carbon::createFromFormat('m', $incidencia->month)->locale('es')->isoFormat('MMMM');
+        $labels[] = $monthName . ' ' . $incidencia->year; 
+        $dataAtendidas[] = $incidencia->total; 
+    }
+
+    
+    return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'startDate', 'endDate', 'tipoIncidencia'));
+}
     public function buscar(Request $request)
     {
         $codigo = $request->input('buscar');

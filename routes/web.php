@@ -58,7 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // routes/web.php
-    Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas');
+    Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas')->middleware('role:admin');
 
     Route::get('/incidencias/{slug}', [IncidenciaController::class, 'mostrar'])->name('incidencias.mostrar');
 Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name('incidencias.buscar');

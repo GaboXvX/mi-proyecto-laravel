@@ -10,6 +10,10 @@
         "dompdf/dompdf": "^3.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
+<<<<<<< HEAD
+=======
+        "laravel/jetstream": "^4.3",
+>>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.6",

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
 

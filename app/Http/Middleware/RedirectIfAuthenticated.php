@@ -27,6 +27,10 @@ class RedirectIfAuthenticated
             }
 
             // Si es registrador, redirigir al home
+            
+            $user = Auth::user();
+
+           
             return redirect()->route('home');
         }
 

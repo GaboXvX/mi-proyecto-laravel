@@ -7,7 +7,6 @@ use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
-use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PeticionController;
 use App\Http\Controllers\recuperarController;
 use App\Http\Controllers\seguridadController;
@@ -71,7 +70,7 @@ Route::post('/lideres/buscar', [liderController::class, 'buscar'])->name('lidere
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');
     Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
     
-    Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos');
+    Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos')->middleware('role:admin');;
     //ruta para recuperar contraseña
     Route::get('/configuracion',[configController::class,'index'])->name('usuarios.configuracion');
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');

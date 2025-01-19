@@ -21,14 +21,6 @@ class Lider_Comunitario extends Model
     {
         return $this->hasMany(Persona::class, 'id_lider');
 }
-<<<<<<< HEAD
-
-=======
-public function direccion()
-    {
-        return $this->belongsTo(Direccion::class, 'id_direccion');
-    }
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
     public function comunidad()
     {
         return $this->belongsTo(Comunidad::class, 'id_comunidad');

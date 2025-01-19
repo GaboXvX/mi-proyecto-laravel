@@ -63,12 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/incidencias/{slug}', [IncidenciaController::class, 'mostrar'])->name('incidencias.mostrar');
 Route::post('/incidencias/buscar',[IncidenciaController::class, 'buscar'])->name('incidencias.buscar');
     // Rutas para gestionar los líderes
-<<<<<<< HEAD
-    Route::resource('lideres', LiderController::class)->except(['create,store,update']);
-=======
-    Route::resource('lideres', LiderController::class);
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
-    Route::post('/lideres/buscar', [LiderController::class, 'buscar'])->name('lideres.buscar');
+    Route::resource('lideres', liderController::class)->except(['create', 'store', 'update']);
+Route::post('/lideres/buscar', [liderController::class, 'buscar'])->name('lideres.buscar');
+
     
     // Rutas específicas para la creación y modificación de incidencias de líderes
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');

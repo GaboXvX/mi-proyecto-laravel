@@ -60,14 +60,7 @@
                                     Urbanización: {{ htmlspecialchars($urbanizacionNuevo) }}<br>
                                 @endif
                                 
-<<<<<<< HEAD
                              
-=======
-                                <!-- Líder: Mostrar datos del líder -->
-                                @if (isset($valorNuevo['lider']) && $valorNuevo['lider'] != '')
-                                    Líder: {{ htmlspecialchars($valorNuevo['lider']) }}<br>
-                                @endif
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                                 
                                 <!-- Campos de incidencia (Valores nuevos) -->
                                 @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado', 'id_persona'] as $campo)
@@ -94,14 +87,7 @@
                                     Urbanización: {{ htmlspecialchars($urbanizacionAnterior) }}<br>
                                 @endif
                                 
-<<<<<<< HEAD
                               
-=======
-                                <!-- Líder: Mostrar datos del líder en valor anterior -->
-                                @if (isset($valorAnterior['lider']) && $valorAnterior['lider'] != '')
-                                    Líder: {{ htmlspecialchars($valorAnterior['lider']) }}<br>
-                                @endif
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                                 
                                 <!-- Campos de incidencia (Valores anteriores) -->
                                 @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado'] as $campo)

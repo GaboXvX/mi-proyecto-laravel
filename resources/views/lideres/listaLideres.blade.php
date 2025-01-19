@@ -58,11 +58,7 @@
         @endif
 
         <div class="mb-3">
-<<<<<<< HEAD
           
-=======
-            <a href="{{ route('lideres.create') }}" class="btn btn-primary">registrar lider</a>
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
            
             <a href="{{ route('home') }}" class="btn btn-primary">Volver</a>
       
@@ -93,10 +89,6 @@
                                 <div class="btn-group">
                                     
                                     <a href="{{ route('lideres.show',$lider->slug) }}" class="btn btn-info btn-sm">Ver</a>                 
-<<<<<<< HEAD
-=======
-                                   <a href="{{ route('lideres.edit', $lider->slug) }}" class="btn btn-warning btn-sm">Editar</a> 
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                                     <a href="{{ route('incidenciaslider.create', $lider->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
                                 </div>
                             </td>

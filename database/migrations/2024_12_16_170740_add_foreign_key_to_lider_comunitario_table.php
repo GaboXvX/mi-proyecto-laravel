@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('lider_comunitario', function (Blueprint $table) {
-<<<<<<< HEAD
            
-=======
-              $table->foreign('id_direccion') ->references('id_direccion')  ->on('direccion')  ->onDelete('cascade');
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
               $table->foreign('id_usuario') ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
              
             });

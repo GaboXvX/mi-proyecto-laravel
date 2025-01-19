@@ -121,11 +121,8 @@
                         <th>Cédula</th>
                         <th>Email</th>
                         <th>Nombre de Usuario</th>
-<<<<<<< HEAD
                         
-=======
                         <th>Estado</th>
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -139,11 +136,9 @@
                             <td>{{ $peticion->cedula }}</td>
                             <td>{{ $peticion->email }}</td>
                             <td>{{ $peticion->nombre_usuario }}</td>
-<<<<<<< HEAD
                             
-=======
+
                             <td class="status-inactive">{{ $peticion->estado }}</td>
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                             @if($peticion->estado_peticion=='No verificado')
                             <td>
                                 <div>

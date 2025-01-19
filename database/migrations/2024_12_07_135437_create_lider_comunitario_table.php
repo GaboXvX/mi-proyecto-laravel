@@ -13,10 +13,6 @@ return new class extends Migration
     {
         Schema::create('lider_comunitario', function (Blueprint $table) {
             $table->bigIncrements('id_lider');
-<<<<<<< HEAD
-=======
-            $table->unsignedBigInteger('id_direccion');
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_comunidad');
             $table->string('slug')->unique();
@@ -25,12 +21,6 @@ return new class extends Migration
             $table->bigInteger('cedula')->unique();
             $table->bigInteger('telefono');
             $table->string('correo','320')->unique();
-<<<<<<< HEAD
-            $table->string('calle');
-            $table->string('manzana');
-            $table->string('numero_de_casa');
-=======
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
             $table->timestamps();
             $table->foreign('id_comunidad')
                   ->references('id_comunidad')

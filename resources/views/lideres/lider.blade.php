@@ -124,7 +124,6 @@
                             <td>{{ $incidencia->nivel_prioridad }}</td>
                             <td>{{ $incidencia->estado }}</td>
                             <td>{{ $incidencia->created_at }}</td>
-<<<<<<< HEAD
                             <td> 
                                 @if($incidencia->estado =='Por atender')
                                 <a
@@ -133,11 +132,6 @@
                                    @else
                                     @endif
 
-=======
-                            <td> <a
-                                    href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $lider->slug]) }}">Modificar
-                                    incidencia</a>
->>>>>>> 6274081162731933fa5a1f461cf7cde9adc29d56
                             </td>
                         </tr>
                     @endforeach

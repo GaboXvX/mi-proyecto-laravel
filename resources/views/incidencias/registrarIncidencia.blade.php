@@ -104,7 +104,7 @@
 
 <body>
     <div class="form-container">
-        <h1>Formulario de Captura de Datossdd</h1>
+        <h1>Formulario de Captura de Datos</h1>
 
         <!-- Mensajes de éxito y error -->
         @if (session('success'))

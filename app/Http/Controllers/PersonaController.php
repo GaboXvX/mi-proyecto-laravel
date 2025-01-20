@@ -244,7 +244,24 @@ class PersonaController extends Controller
                 $direccion->save();
             }
     
-            
+            if ($persona->nombre !== $request->input('nombre')) {
+                $camposModificados['nombre'] = $request->input('nombre');
+                $persona->nombre = $request->input('nombre');
+    
+                
+                $nuevoSlug = Str::slug($persona->nombre . ' ' . $persona->apellido);
+    
+                // Verificar que el slug no exista en otras tablas
+                $slugExistePersona = Persona::where('slug', $nuevoSlug)->exists();
+                $slugExisteLider = Lider_Comunitario::where('slug', $nuevoSlug)->exists();
+    
+                
+                if ($slugExistePersona || $slugExisteLider) {
+                    $nuevoSlug .= '-' . Str::random(5); 
+                }
+    
+                $persona->slug = $nuevoSlug;
+            }
             if ($persona->nombre !== $request->input('nombre')) {
                 $camposModificados['nombre'] = $request->input('nombre');
                 $persona->nombre = $request->input('nombre');

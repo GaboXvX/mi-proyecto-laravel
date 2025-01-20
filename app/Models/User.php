@@ -40,7 +40,7 @@ class User extends Authenticatable
    
     public function role()
     {
-        return $this->belongsTo(roles::class, 'id_rol', 'id_rol'); 
+        return $this->belongsTo(roles::class, 'id_rol'); 
     }
 
     public function lideres()

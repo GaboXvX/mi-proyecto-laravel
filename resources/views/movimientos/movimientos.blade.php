@@ -60,8 +60,6 @@
                                     Urbanización: {{ htmlspecialchars($urbanizacionNuevo) }}<br>
                                 @endif
                                 
-                             
-                                
                                 <!-- Campos de incidencia (Valores nuevos) -->
                                 @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado', 'id_persona'] as $campo)
                                     @if (isset($valorNuevo[$campo]) && $valorNuevo[$campo] != '')
@@ -86,8 +84,6 @@
                                     @endphp
                                     Urbanización: {{ htmlspecialchars($urbanizacionAnterior) }}<br>
                                 @endif
-                                
-                              
                                 
                                 <!-- Campos de incidencia (Valores anteriores) -->
                                 @foreach(['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado'] as $campo)
@@ -145,4 +141,5 @@
     <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

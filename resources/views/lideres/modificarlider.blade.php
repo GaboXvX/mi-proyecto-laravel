@@ -63,7 +63,7 @@
         </div>
 
         <!-- Usamos PUT ya que es una acción de actualización -->
-        <form action="{{ route('lideres.cambiar', $lider->slug) }}" method="POST">
+        <form action="{{ route('lideres.update', $lider->slug) }}" method="POST">
             @csrf
             @method('PUT')
 

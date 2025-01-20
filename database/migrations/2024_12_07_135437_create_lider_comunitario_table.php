@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_lider');
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_comunidad');
+            $table->unsignedBigInteger('id_direccion');
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');

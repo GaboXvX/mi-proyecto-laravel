@@ -38,6 +38,7 @@
 
     <div class="container my-5">
         <h1 class="mb-4 text-center">Lista de Lideres</h1>
+        
          <form action="{{ route('lideres.buscar') }}" method="POST">
             @csrf
             <input type="search" name="buscar" id="buscar" placeholder="Buscar por cédula">
@@ -61,11 +62,13 @@
           
            
             <a href="{{ route('home') }}" class="btn btn-primary">Volver</a>
+             <a href="{{ route('lideres.create') }}" class="btn btn-primary">registrar lider</a>
       
         </div>
         @if (!empty($lideres) && count($lideres) > 0)
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
+                
                 <thead class="thead-dark">
                     <tr>
                         <th>Nombre</th>
@@ -90,6 +93,7 @@
                                     
                                     <a href="{{ route('lideres.show',$lider->slug) }}" class="btn btn-info btn-sm">Ver</a>                 
                                     <a href="{{ route('incidenciaslider.create', $lider->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                                    <a href="{{ route('lideres.edit',$lider->slug) }}" class="btn btn-info btn-sm">modificar</a>                 
                                 </div>
                             </td>
                         </tr>

@@ -32,4 +32,8 @@ class Lider_Comunitario extends Model
     public function movimiento(){
         return $this->hasMany(movimiento::class,'id_lider');
     }
+    public function direccion()
+    {
+        return $this->belongsTo(Direccion::class,'id_direccion');
+    }
 }

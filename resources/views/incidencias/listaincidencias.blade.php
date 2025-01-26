@@ -215,8 +215,9 @@
                 <option value="Atendido">Atendido</option>
                 <option value="Por atender">Por atender</option>
             </select>
-
-            <button type="submit" class="btn-download mt-2">Generar PDF</button>
+            @role('admin')
+            <button type="submit" class="btn-download mt-2">Descargar Listado</button>
+            @endrole
         </form>
 
         <div id="resultados" class="mt-3"></div>

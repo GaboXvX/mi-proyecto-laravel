@@ -65,7 +65,6 @@
         <form action="{{ route('personas.store') }}" method="POST" id="form">
             @csrf
 
-            <!-- Campos básicos -->
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" required>
@@ -91,7 +90,6 @@
                 <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10>=11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
             </div>
 
-            <!-- Estado y Municipio -->
             <div class="mb-3">
                 <label for="estado" class="form-label">Estado:</label>
                 <select name="estado" id="estado" class="form-select" required disabled>

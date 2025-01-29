@@ -30,10 +30,10 @@ class Peticion extends Model
     }
 
 
-// En el modelo Peticion
+
 public function preguntas_de_seguridad()
 {
-    return $this->belongsTo(Pregunta::class, 'id_pregunta'); // Asegúrate que 'id_pregunta' sea el campo de clave foránea
+    return $this->belongsTo(Pregunta::class, 'id_pregunta'); 
 }
 
 

@@ -6,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Captura de Datos</title>
 
-    
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 
     <style>
-        
         body {
             background-color: #f8f9fa;
             font-family: Arial, sans-serif;
@@ -41,7 +40,8 @@
             display: block;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -49,7 +49,8 @@
             border: 1px solid #ced4da;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: #80bdff;
             outline: none;
             box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
@@ -97,7 +98,7 @@
         .btn-link:hover {
             color: white;
             text-decoration: none;
-            
+
         }
     </style>
 </head>
@@ -106,7 +107,6 @@
     <div class="form-container">
         <h1>Formulario de Captura de Datos</h1>
 
-        <!-- Mensajes de éxito y error -->
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -129,25 +129,29 @@
             </div>
         @endif
 
-        
+
         <form action="{{ route('incidencias.store') }}" method="POST">
             @csrf
 
-            <input type="text" name="id_persona" value="{{ $persona->id_persona }}" class="form-control mb-3" readonly hidden> 
+            <input type="text" name="id_persona" value="{{ $persona->id_persona }}" class="form-control mb-3"
+                readonly hidden>
 
 
             <div class="mb-3">
                 <label for="tipo_incidencia" class="form-label">Tipo de incidencia:</label>
                 <select id="tipo_incidencia" name="tipo_incidencia" class="form-select" required>
                     <option value="" disabled selected>--Seleccione--</option>
-                    <option value="agua potable" {{ old('tipo_incidencia') == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
-                    <option value="agua servida" {{ old('tipo_incidencia') == 'agua servida' ? 'selected' : '' }}>Agua Servida</option>
+                    <option value="agua potable" {{ old('tipo_incidencia') == 'agua potable' ? 'selected' : '' }}>Agua
+                        Potable</option>
+                    <option value="agua servida" {{ old('tipo_incidencia') == 'agua servida' ? 'selected' : '' }}>Agua
+                        Servida</option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <label for="descripcion" class="form-label">Descripción:</label>
-                <input type="text" id="descripcion" name="descripcion" value="{{ old('descripcion') }}" class="form-control" required>
+                <input type="text" id="descripcion" name="descripcion" value="{{ old('descripcion') }}"
+                    class="form-control" required>
             </div>
 
             <div class="mb-3">
@@ -175,7 +179,7 @@
         </div>
     </div>
 
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

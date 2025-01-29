@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Usuarios</title>
     <style>
-        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -18,7 +17,6 @@
             height: 100vh;
         }
 
-        /* Contenedor de la página */
         .container {
             width: 90%;
             max-width: 1100px;
@@ -28,13 +26,11 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Título principal */
         h1 {
             text-align: center;
             color: #1E3A8A; /* Azul oscuro */
         }
 
-        /* Estilos de la tabla */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -48,17 +44,16 @@
         }
 
         table th {
-            background-color: #3B82F6; /* Azul claro */
+            background-color: #3B82F6; 
             color: white;
         }
 
         table tr:nth-child(even) {
-            background-color: #F0F9FF; /* Azul muy claro */
+            background-color: #F0F9FF; 
         }
 
-        /* Estilo de los enlaces */
         a {
-            color: #3B82F6; /* Azul claro */
+            color: #3B82F6; 
             text-decoration: none;
         }
 
@@ -66,7 +61,6 @@
             text-decoration: underline;
         }
 
-        /* Estilos de los alertas */
         .alert {
             padding: 10px;
             border-radius: 5px;
@@ -74,16 +68,15 @@
         }
 
         .alert-success {
-            background-color: #D1FAE5; /* Verde claro */
+            background-color: #D1FAE5; 
             color: #065F46;
         }
 
         .alert-error {
-            background-color: #FEE2E2; /* Rojo claro */
+            background-color: #FEE2E2; 
             color: #B91C1C;
         }
 
-        /* Botón Volver */
         .btn-volver {
             display: inline-block;
             margin-top: 15px;
@@ -95,10 +88,10 @@
         }
 
         .btn-volver:hover {
-            background-color: #2563EB; /* Azul más oscuro */
+            background-color: #2563EB; 
         }
 
-        /* Botones de acción (Editar y Deshabilitar) */
+        
         .btn-edit,
         .btn-disable {
             padding: 8px 12px;
@@ -115,24 +108,24 @@
             cursor: pointer;
         }
         .btn-edit {
-            background-color: #3B82F6; /* Azul claro */
+            background-color: #3B82F6; 
         }
 
         .btn-edit:hover {
-            background-color: #2563EB; /* Azul más oscuro */
+            background-color: #2563EB; 
         }
         .btn-restaurar {
-            background-color: #44a118; /* Gris */
+            background-color: #44a118; 
         }
         .btn-restaurar:hover {
-            background-color: #3f7c23; /* Gris */
+            background-color: #3f7c23; 
         }
         .btn-disable {
-            background-color: #A1A1A1; /* Gris */
+            background-color: #A1A1A1; 
         }
 
         .btn-disable:hover {
-            background-color: #6B6B6B; /* Gris oscuro */
+            background-color: #6B6B6B; 
         }
     </style>
 </head>

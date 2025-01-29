@@ -58,13 +58,12 @@
             color: red;
         }
 
-        /* Estilo de los botones */
         .btn-custom {
             padding: 6px 12px;
             font-size: 12px;
             border-radius: 5px;
-            width: 90px; /* Un tamaño más pequeño */
-            margin: 0 5px; /* Espaciado entre botones */
+            width: 90px; 
+            margin: 0 5px; 
         }
 
         .btn-accept {

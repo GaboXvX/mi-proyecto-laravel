@@ -4,15 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configuración de Cuenta</title>
-  <!-- Enlace a Bootstrap 5 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
 
-  <!-- Estilos personalizados -->
   <style>
     body {
-      background-color: #f1f5f9; /* Fondo suave y neutro */
-      font-family: 'Arial', sans-serif; /* Fuente moderna */
-      height: 100vh; /* Asegura que el cuerpo ocupe toda la pantalla */
+      background-color: #f1f5f9; 
+      font-family: 'Arial', sans-serif; 
+      height: 100vh; 
       display: flex;
       justify-content: center;
       align-items: center;
@@ -20,7 +18,7 @@
 
     .container {
       max-width: 500px;
-      width: 100%; /* Asegura que la tarjeta se ajuste al ancho del contenedor */
+      width: 100%; 
     }
 
     .card {
@@ -31,30 +29,30 @@
     }
 
     h2 {
-      color: #007bff; /* Título en azul */
+      color: #007bff; 
       font-weight: 600;
       margin-bottom: 30px;
       text-align: center;
     }
 
     .form-label {
-      color: #495057; /* Gris oscuro para las etiquetas */
+      color: #495057; 
       font-weight: 500;
       font-size: 16px;
     }
 
     .form-control {
-      border-radius: 8px; /* Bordes más suaves */
+      border-radius: 8px; 
       padding: 10px;
       border: 1px solid #ced4da;
-      background-color: #f8f9fa; /* Fondo claro para inputs */
-      font-size: 14px; /* Fuente más pequeña */
+      background-color: #f8f9fa; 
+      font-size: 14px; 
       transition: border-color 0.3s ease;
     }
 
     .form-control:focus {
-      border-color: #007bff; /* Azul al enfocar */
-      box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5); /* Efecto azul al enfocar */
+      border-color: #007bff; 
+      box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5); 
     }
 
     .btn-primary {
@@ -68,7 +66,7 @@
     }
 
     .btn-primary:hover {
-      background-color: #0056b3; /* Azul más oscuro en hover */
+      background-color: #0056b3;
       border-color: #0056b3;
     }
 
@@ -83,12 +81,12 @@
     }
 
     .btn-success:hover {
-      background-color: #218838; /* Verde más oscuro en hover */
+      background-color: #218838; 
       border-color: #1e7e34;
     }
 
     .form-group {
-      margin-bottom: 20px; /* Espaciado entre los inputs */
+      margin-bottom: 20px;
     }
 
     .save-changes {
@@ -126,43 +124,43 @@
     @csrf
    
 
-    <!-- Nombre -->
+   
     <div class="form-group">
         <label for="inputNombre" class="form-label">Nombre</label>
         <input type="text" class="form-control" id="inputNombre" name="nombre" value="{{ old('nombre', $usuario->nombre) }}" placeholder="Ingrese su nombre">
     </div>
 
-    <!-- Apellido -->
+    
     <div class="form-group">
         <label for="inputApellido" class="form-label">Apellido</label>
         <input type="text" class="form-control" id="inputApellido" name="apellido" value="{{ old('apellido', $usuario->apellido) }}" placeholder="Ingrese su apellido">
     </div>
 
-    <!-- Cédula -->
+    
     <div class="form-group">
         <label for="inputCedula" class="form-label">Cédula</label>
         <input type="text" class="form-control" id="inputCedula" name="cedula" value="{{ $usuario->cedula }}" placeholder="Ingrese su cédula" readonly>
     </div>
 
-    <!-- Correo -->
+  
     <div class="form-group">
         <label for="inputCorreo" class="form-label">Correo Electrónico</label>
         <input type="email" class="form-control" id="inputCorreo" name="email" value="{{ old('email', $usuario->email) }}" placeholder="Ingrese su correo electrónico">
     </div>
 
-    <!-- Nombre de Usuario -->
+    
     <div class="form-group">
         <label for="inputUsuario" class="form-label">Nombre de Usuario</label>
         <input type="text" class="form-control" id="inputUsuario" name="nombre_usuario" value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}" placeholder="Ingrese su nombre de usuario">
     </div>
 
-    <!-- Contraseña -->
+    
     <div class="form-group">
         <label for="inputContraseña" class="form-label">Contraseña</label>
         <input type="password" class="form-control" id="inputContraseña" name="contraseña" placeholder="Ingrese su nueva contraseña">
     </div>
 
-    <!-- Botón de Enviar cambios -->
+    
     <div class="save-changes">
         <button type="submit" class="btn btn-success">Guardar Cambios</button>
     </div>
@@ -172,7 +170,6 @@
     </div>
   </div>
 
-  <!-- Enlace a los scripts de Bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

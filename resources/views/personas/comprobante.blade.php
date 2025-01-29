@@ -11,12 +11,8 @@
             <p class="card-text">Fecha: {{ $comprobante->fecha }}</p>
             <p class="card-text">Monto: ${{ number_format($comprobante->monto, 2) }}</p>
 
-            <!-- Aquí podrías mostrar otros detalles del comprobante -->
-
-            <!-- Botón de Volver -->
             <a href="{{ route('home') }}" class="btn btn-secondary">Volver</a>
 
-            <!-- Botón de Descargar -->
             <a href="{{ route('comprobantes.download', $comprobante->id) }}" class="btn btn-primary">Descargar Comprobante</a>
         </div>
     </div>

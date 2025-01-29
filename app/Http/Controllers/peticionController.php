@@ -17,17 +17,17 @@ class peticionController extends Controller
     }
     public function store(storePeticionRequest $request)
     {
-       
+
         try {
-         
+
             $peticion = Peticion::where('cedula', $request->input('cedula'))->first();
-    
-         
+
+
             if ($peticion && $peticion->estado_peticion == 'No verificado') {
                 return redirect()->route('login')->with('error', 'Ya existe una petición con esa cédula');
             }
-    
-            
+
+
             if ($peticion && $peticion->estado_peticion == 'aceptado') {
                 return redirect()->route('login')->with('error', 'este solicitante ya tiene una peticion aceptada');
             }
@@ -40,15 +40,15 @@ class peticionController extends Controller
                 $peticion->nombre_usuario = $request->input('nombre_usuario');
                 $peticion->password = bcrypt($request->input('password'));
                 $preguntaSeguridad = $peticion->preguntas_de_seguridad()->first();
-                
-            
+
+
                 if ($preguntaSeguridad) {
-                 
+
                     $preguntaSeguridad->primera_mascota = $request->input('mascota');
                     $preguntaSeguridad->ciudad_de_nacimiento = $request->input('ciudad');
                     $preguntaSeguridad->nombre_de_mejor_amigo = $request->input('amigo');
-                    
-                    
+
+
                     $preguntaSeguridad->save();
                 }
                 $slug = Str::slug($request->input('nombre'));
@@ -59,13 +59,13 @@ class peticionController extends Controller
                     $counter++;
                 }
                 $peticion->slug = $slug;
-    
+
                 $peticion->save();
-    
+
                 return redirect()->route('login')->with('success', 'Petición actualizada correctamente');
             }
-    
-            $pregunta=new pregunta();
+
+            $pregunta = new pregunta();
             $peticion = new Peticion();
             $peticion->id_rol = $request->input('rol');
             $peticion->estado_peticion = 'No verificado';
@@ -75,11 +75,11 @@ class peticionController extends Controller
             $peticion->email = $request->input('email');
             $peticion->nombre_usuario = $request->input('nombre_usuario');
             $peticion->password = bcrypt($request->input('password'));
-            $pregunta->primera_mascota=$request->input('mascota');
-            $pregunta->ciudad_de_nacimiento=$request->input('ciudad');
-            $pregunta->nombre_de_mejor_amigo=$request->input('amigo');
-            
-            
+            $pregunta->primera_mascota = $request->input('mascota');
+            $pregunta->ciudad_de_nacimiento = $request->input('ciudad');
+            $pregunta->nombre_de_mejor_amigo = $request->input('amigo');
+
+
             $slug = Str::slug($request->input('nombre'));
             $counter = 1;
             $originalSlug = $slug;
@@ -89,9 +89,9 @@ class peticionController extends Controller
             }
             $peticion->slug = $slug;
             $pregunta->save();
-            $peticion->id_pregunta=$pregunta->id_pregunta;
+            $peticion->id_pregunta = $pregunta->id_pregunta;
             $peticion->save();
-    
+
             return redirect()->route('login')->with('success', 'Petición realizada correctamente');
         } catch (\Exception $e) {
             return redirect()->route('login')->with('error', 'Error al procesar la petición: ' . $e->getMessage());

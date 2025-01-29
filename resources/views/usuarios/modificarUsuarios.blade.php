@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Usuario</title>
     <style>
-        /* Estilos generales para la página */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
@@ -17,7 +16,6 @@
             height: 100vh;
         }
 
-        /* Estilo del contenedor principal */
         .container {
             background-color: #fff;
             padding: 30px;
@@ -27,20 +25,17 @@
             max-width: 600px;
         }
 
-        /* Título */
         h1 {
             text-align: center;
             color: #333;
         }
 
-        /* Estilo de los mensajes de error */
         .error-messages {
             color: red;
             font-weight: bold;
             margin-bottom: 20px;
         }
 
-        /* Estilos para las etiquetas y los inputs */
         label {
             font-weight: bold;
             margin-bottom: 5px;
@@ -61,7 +56,6 @@
             outline: none;
         }
 
-        /* Estilo del botón */
         button {
             background-color: #4CAF50;
             color: white;
@@ -77,7 +71,6 @@
             background-color: #45a049;
         }
 
-        /* Espaciado entre los elementos */
         .form-group {
             margin-bottom: 20px;
         }

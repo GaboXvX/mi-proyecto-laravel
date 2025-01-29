@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Incluir jsPDF -->
     <style>
-        /* Estilos para el botón de descarga */
+        
         .download-btn {
             background-color: #4CAF50;
             color: white;
@@ -35,14 +35,14 @@
 
     <div class="filter-container">
         <form action="{{ route('estadisticas') }}" method="GET">
-            <!-- Filtro de fecha -->
+            
             <label for="start_date">Fecha de inicio:</label>
             <input type="date" id="start_date" name="start_date" value="{{ $startDate->toDateString() }}">
             
             <label for="end_date">Fecha de fin:</label>
             <input type="date" id="end_date" name="end_date" value="{{ $endDate->toDateString() }}">
 
-            <!-- Filtro de tipo de incidencia -->
+            
             <label for="tipo_incidencia">Tipo de incidencia:</label>
             <select id="tipo_incidencia" name="tipo_incidencia">
                 <option value="" {{ $tipoIncidencia == '' ? 'selected' : '' }}>Todos</option>

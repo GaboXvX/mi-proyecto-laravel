@@ -8,7 +8,7 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="Fri, 01 Jan 1990 00:00:00 GMT">
-    
+
 
     <title>Minaguas - Sistema de Atención de Aguas</title>
 
@@ -102,21 +102,21 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('lideres.index') }}">Líderes Comunitarios</a>
                     </li>
-                 
-                   @role('admin')
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('usuarios.index') }}">Usuarios</a>
-                    </li>
+
+                    @role('admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('usuarios.index') }}">Usuarios</a>
+                        </li>
                     @endrole
                     @role('admin')
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('estadisticas') }}">estadisticas</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('estadisticas') }}">estadisticas</a>
+                        </li>
                     @endrole
                     @role('admin')
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('movimientos') }}">movimientos</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('movimientos') }}">movimientos</a>
+                        </li>
                     @endrole
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('usuarios.configuracion') }}">Configuración</a>
@@ -141,19 +141,19 @@
     </section>
 
     <div class="container">
-        
+
         <div class="row mt-4">
             @role('admin')
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-header">Usuarios</div>
-                    <div class="card-body">
-                        <h3>{{ $totalUsuarios }}</h3>
-                        <p>Total de usuarios registrados.</p>
-                        <a href="{{ route('usuarios.index') }}" class="btn btn-primary">Gestionar Usuarios</a>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header">Usuarios</div>
+                        <div class="card-body">
+                            <h3>{{ $totalUsuarios }}</h3>
+                            <p>Total de usuarios registrados.</p>
+                            <a href="{{ route('usuarios.index') }}" class="btn btn-primary">Gestionar Usuarios</a>
+                        </div>
                     </div>
                 </div>
-            </div>
             @endrole
             <div class="col-md-3">
                 <div class="card">
@@ -165,18 +165,17 @@
                     </div>
                 </div>
             </div>
-           @role('admin')
-            
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-header">Peticiones</div>
-                    <div class="card-body">
-                        <h3>{{ $totalPeticiones }}</h3>
-                        <p>Total de peticiones pendientes.</p>
-                        <a href="{{ route('peticiones.index') }}" class="btn btn-primary">Gestionar Peticiones</a>
+            @role('admin')
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header">Peticiones</div>
+                        <div class="card-body">
+                            <h3>{{ $totalPeticiones }}</h3>
+                            <p>Total de peticiones pendientes.</p>
+                            <a href="{{ route('peticiones.index') }}" class="btn btn-primary">Gestionar Peticiones</a>
+                        </div>
                     </div>
                 </div>
-            </div>
             @endrole
             <div class="col-md-3">
                 <div class="card">
@@ -194,8 +193,10 @@
             <div class="col-md-12">
                 <h2>Accesos Directos</h2>
                 <div class="list-group">
-                    <a href="{{ route('personas.create') }}" class="list-group-item list-group-item-action">Registrar Nueva Persona</a>
-                    <a href="{{ route('lideres.index') }}" class="list-group-item list-group-item-action">Gestionar Líderes</a>
+                    <a href="{{ route('personas.create') }}" class="list-group-item list-group-item-action">Registrar
+                        Nueva Persona</a>
+                    <a href="{{ route('lideres.index') }}" class="list-group-item list-group-item-action">Gestionar
+                        Líderes</a>
                 </div>
             </div>
         </div>
@@ -206,13 +207,14 @@
                 <form action="{{ route('personas.buscar') }}" method="POST">
                     @csrf
                     <div class="input-group">
-                        <input type="text" class="form-control" name="buscar" placeholder="Buscar persona..." required>
+                        <input type="text" class="form-control" name="buscar" placeholder="Buscar persona..."
+                            required>
                         <button class="btn btn-primary" type="submit">Buscar</button>
                     </div>
                 </form>
             </div>
         </div>
-        
+
     </div>
 
     <footer class="mt-5 py-4 text-center" style="background-color: #003366; color: white;">

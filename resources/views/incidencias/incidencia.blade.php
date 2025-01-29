@@ -43,7 +43,7 @@
             margin-top: 0;
         }
 
-        /* Información de la factura */
+      
         .invoice-details {
             margin-bottom: 20px;
         }
@@ -69,7 +69,7 @@
             margin-bottom: 10px;
         }
 
-        /* Pie de página con datos adicionales */
+        
         .footer {
             text-align: center;
             margin-top: 40px;
@@ -83,7 +83,7 @@
             margin-top: 10px;
         }
 
-        /* Estilos para los botones */
+        
         .button-container {
             text-align: center;
             margin-top: 30px;

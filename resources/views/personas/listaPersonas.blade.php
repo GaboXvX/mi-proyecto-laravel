@@ -39,14 +39,12 @@
     <div class="container my-5">
         <h1 class="mb-4 text-center">Lista de Personas</h1>
         
-        <!-- Formulario de búsqueda -->
         <form action="{{ route('personas.buscar') }}" method="POST">
             @csrf
             <input type="search" name="buscar" id="buscar" placeholder="Buscar por cédula">
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
 
-        <!-- Mensajes de éxito y error -->
         @if (session('success'))
             <div class="alert alert-success" role="alert">
                 {{ session('success') }}
@@ -63,7 +61,6 @@
             <a href="{{ route('home') }}" class="btn btn-primary">Volver</a>
         </div>
 
-        <!-- Verifica si hay personas encontradas -->
         @if (!empty($personas) && count($personas) > 0)
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
@@ -100,7 +97,6 @@
                 </table>
             </div>
         @else
-            <!-- Si no se encontró ninguna persona -->
             <p class="alert alert-warning">No se encontró ninguna persona con esa cédula.</p>
         @endif
     </div>

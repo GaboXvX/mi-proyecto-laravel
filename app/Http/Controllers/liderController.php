@@ -9,7 +9,6 @@ use App\Models\Direccion;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
 use App\Models\Parroquia;
-use App\Models\Lider;
 use App\Models\Persona;
 use App\Models\Sector;
 use App\Models\Urbanizacion;
@@ -45,13 +44,13 @@ public function store(storeLiderRequest $request)
         $manzana = $request->input('manzana');
         $num_casa = $request->input('num_casa');
 
-        // Verificar si ya hay un líder en la comunidad
+        
         $liderExistente = Lider_Comunitario::where('id_comunidad', $comunidad)->first();
         if ($liderExistente) {
             return redirect()->route('lideres.index')->with('error', 'Ya existe un líder asignado a esta comunidad.');
         }
 
-        // Comprobar si la dirección ya existe
+       
         $direccion = Direccion::where('estado', $estado)
             ->where('municipio', $municipio)
             ->where('id_parroquia', $parroquia)
@@ -77,7 +76,7 @@ public function store(storeLiderRequest $request)
             $direccion->save();
         }
 
-        // Verificar si el slug ya existe en las tablas correspondientes
+       
         $slug = Str::slug($request->input('nombre'));
         $slugCount = Lider_Comunitario::where('slug', $slug)->count() + Persona::where('slug', $slug)->count();
 
@@ -91,7 +90,7 @@ public function store(storeLiderRequest $request)
             }
         }
 
-        // Crear el líder
+        
         $lider = new Lider_Comunitario();
         $lider->slug = $slug;
         $lider->nombre = $request->input('nombre');
@@ -104,7 +103,7 @@ public function store(storeLiderRequest $request)
         $lider->id_usuario = Auth::user()->id_usuario;
         $lider->save();
 
-        // Crear el movimiento
+       
         $movimiento = new Movimiento();
         $movimiento->id_usuario = Auth::user()->id_usuario;
         $movimiento->id_lider = $lider->id_lider;
@@ -137,11 +136,11 @@ public function store(storeLiderRequest $request)
 public function update(updateLiderRequest $request, $slug)
 {
     try {
-        // Definir valores predeterminados para la dirección
+       
         $estado = 'sucre';
         $municipio = 'sucre';
 
-        // Obtener los valores del request
+       
         $parroquia = $request->input('parroquia');
         $urbanizacion = $request->input('urbanizacion');
         $sector = $request->input('sector');
@@ -150,14 +149,14 @@ public function update(updateLiderRequest $request, $slug)
         $manzana = $request->input('manzana');
         $num_casa = $request->input('num_casa');
 
-        // Buscar el líder comunitario por su slug
+        
         $lider = Lider_Comunitario::where('slug', $slug)->first();
 
         if (!$lider) {
             return redirect()->route('lideres.index')->with('error', 'Líder no encontrado con el slug: ' . $slug);
         }
 
-        // Obtener los datos antiguos del líder
+        
         $camposModificados = [];
         $camposAntiguos = [
             'nombre' => $lider->nombre,
@@ -174,7 +173,7 @@ public function update(updateLiderRequest $request, $slug)
             'numero_de_casa' => $lider->direccion->numero_de_casa,
         ];
 
-        // Comprobar si la dirección ya existe o crearla si no existe
+        
         $direccion = Direccion::where('estado', $estado)
             ->where('municipio', $municipio)
             ->where('id_parroquia', $parroquia)
@@ -200,21 +199,21 @@ public function update(updateLiderRequest $request, $slug)
             $direccion->save();
         }
 
-        // Validar y actualizar los campos del líder
+       
         if ($lider->nombre !== $request->input('nombre')) {
             $camposModificados['nombre'] = $request->input('nombre');
             $lider->nombre = $request->input('nombre');
 
-            // Generar el nuevo slug
+          
             $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido);
 
-            // Verificar que el slug no exista en otras tablas
+           
             $slugExisteLider = Lider_Comunitario::where('slug', $nuevoSlug)->exists();
             $slugExistePersona = Persona::where('slug', $nuevoSlug)->exists();
 
-            // Si el slug ya existe, generar un nuevo slug único
+           
             if ($slugExisteLider || $slugExistePersona) {
-                $nuevoSlug .= '-' . Str::random(5); // Agregar un sufijo aleatorio para garantizar unicidad
+                $nuevoSlug .= '-' . Str::random(5); 
             }
 
             $lider->slug = $nuevoSlug;
@@ -240,7 +239,7 @@ public function update(updateLiderRequest $request, $slug)
             $lider->telefono = $request->input('telefono');
         }
 
-        // Verificar si se han modificado las relaciones de dirección
+       
         $parroquiaNombre = Parroquia::find($parroquia)->nombre ?? 'No disponible';
         $urbanizacionNombre = Urbanizacion::find($urbanizacion)->nombre ?? 'No disponible';
         $sectorNombre = Sector::find($sector)->nombre ?? 'No disponible';
@@ -281,15 +280,15 @@ public function update(updateLiderRequest $request, $slug)
             $lider->direccion->numero_de_casa = $request->input('num_casa');
         }
 
-        // Guardar la dirección actualizada
+        
         $lider->direccion->save();
 
-        // Guardar cambios en el líder
+       
         $lider->id_usuario = Auth::user()->id_usuario;
         $lider->id_direccion = $direccion->id_direccion;
         $lider->save();
 
-        // Registrar movimiento si hubo cambios
+        
         if (!empty($camposModificados)) {
             $movimiento = new Movimiento();
             $movimiento->id_usuario = Auth::user()->id_usuario;

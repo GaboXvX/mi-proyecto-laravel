@@ -10,7 +10,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        /* Fondo general de la página */
         body {
             background-color: #e9f7ff;
             font-family: 'Arial', sans-serif;
@@ -22,10 +21,9 @@
             height: 100vh;
         }
 
-        /* Estilo para el contenedor de login */
         .login-container {
-            background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco con opacidad */
-            backdrop-filter: blur(10px); /* Efecto de desenfoque */
+            background-color: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(10px); 
             border-radius: 15px;
             padding: 40px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -45,7 +43,6 @@
             color: #007bff;
         }
 
-        /* Estilo para los campos de entrada */
         .form-control {
             border-radius: 8px;
             border: 1px solid #007bff;
@@ -59,7 +56,6 @@
             box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
         }
 
-        /* Estilo para el botón */
         .btn-primary {
             background-color: #007bff;
             border: none;
@@ -75,7 +71,6 @@
             background-color: #0056b3;
         }
 
-        /* Estilo para el footer */
         .login-footer {
             margin-top: 20px;
         }

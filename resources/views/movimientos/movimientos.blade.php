@@ -2,147 +2,153 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Movimientos</title>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Historial de Movimientos</title>
 
-    <!-- Enlace a Bootstrap para diseño mejorado -->
+    <!-- Enlace a Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
 </head>
 
 <body>
 
-    <div class="container">
-        <h1>Historial de Movimientos</h1>
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column p-3" id="sidebar">
+        <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
+            <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
+            <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
+        </a>
+        <hr class="text-secondary">
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a href="{{ route('home') }}" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Panel</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('lideres.index') }}" class="nav-link">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Líderes Comunitarios</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#layouts" class="nav-link" data-bs-toggle="collapse">
+                    <i class="bi bi-search"></i>
+                    <span>Consultar</span>
+                    <span class="right-icon px-2"><i class="bi bi-chevron-down"></i></span>
+                </a>
+                <div class="collapse" id="layouts">
+                    <ul class="navbar-nav ps-3">
+                        <li><a href="{{ route('usuarios.index') }}" class="nav-link px-3"><i class="bi bi-people"></i><span>Usuarios</span></a></li>
+                        <li><a href="{{ route('personas.index') }}" class="nav-link px-3"><i class="bi bi-person-circle"></i><span>Personas</span></a></li>
+                        <li><a href="{{ route('incidencias.index') }}" class="nav-link px-3"><i class="bi bi-exclamation-triangle"></i><span>Incidencias</span></a></li>
+                        <li><a href="{{ route('peticiones.index') }}" class="nav-link px-3"><i class="bi bi-envelope"></i><span>Peticiones</span></a></li>
+                        <li><a href="{{ route('movimientos.index') }}" class="nav-link px-3"><i class="bi bi-arrow-left-right"></i><span>Movimientos</span></a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('estadisticas') }}" class="nav-link">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Estadísticas</span>
+                </a>
+            </li>
+        </ul>
+        <hr class="text-secondary">
+    </nav>
 
-        @if ($movimientos->isEmpty())
-            <div class="alert alert-warning">
-                No hay movimientos registrados.
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar d-flex align-items-center justify-content-between">
+            <button class="btn btn-light burger-btn" id="menuToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <button class="btn btn-light me-2">
+                    <i class="bi bi-bell"></i>
+                </button>
+                <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
             </div>
-        @else
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th class="col-id">Movimiento n°</th>
-                        <th class="col-accion">Acción</th>
-                        <th class="col-valores">Valores Nuevos</th>
-                        <th class="col-valores">Valores Antiguos</th>
-                        <th class="col-relacion">Usuario</th>
-                        <th class="col-relacion">Persona</th>
-                        <th class="col-relacion">Líder</th>
-                        <th class="col-relacion">Incidencia</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($movimientos as $movimiento)
-                        @php
+        </div>
 
-                            $valorAnterior = json_decode($movimiento->valor_anterior, true) ?? [];
-                            $valorNuevo = json_decode($movimiento->valor_nuevo, true) ?? [];
-                        @endphp
-                        <tr>
-                            <td class="col-id">{{ $movimiento->id_movimiento }}</td>
-                            <td class="col-accion">{{ $movimiento->accion }}</td>
+        <!-- Contenido -->
+        <div class="container-fluid mt-4">
+            <h2>Historial de Movimientos</h2>
 
+            @if ($movimientos->isEmpty())
+                <div class="alert alert-warning">
+                    No hay movimientos registrados.
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Movimiento n°</th>
+                                <th>Acción</th>
+                                <th>Valores Nuevos</th>
+                                <th>Valores Antiguos</th>
+                                <th>Usuario</th>
+                                <th>Persona</th>
+                                <th>Líder</th>
+                                <th>Incidencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($movimientos as $movimiento)
+                                @php
+                                    $valorAnterior = json_decode($movimiento->valor_anterior, true) ?? [];
+                                    $valorNuevo = json_decode($movimiento->valor_nuevo, true) ?? [];
+                                @endphp
+                                <tr>
+                                    <td>{{ $movimiento->id_movimiento }}</td>
+                                    <td>{{ $movimiento->accion }}</td>
+                                    <td>
+                                        @foreach ($valorNuevo as $campo => $valor)
+                                            @if ($valor) {{ ucfirst($campo) }}: {{ htmlspecialchars($valor) }}<br>@endif
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @foreach ($valorAnterior as $campo => $valor)
+                                            @if ($valor) {{ ucfirst($campo) }}: {{ htmlspecialchars($valor) }}<br>@endif
+                                        @endforeach
+                                    </td>
+                                    <td>{{ $movimiento->usuario->nombre ?? 'N/A' }}</td>
+                                    <td>{{ $movimiento->persona->nombre ?? 'N/A' }}</td>
+                                    <td>{{ $movimiento->lider->nombre ?? 'N/A' }}</td>
+                                    <td>{{ $movimiento->incidencia->id_incidencia ?? 'N/A' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
 
-                            <td class="col-valores">
-                                @foreach (['nombre', 'apellido', 'cedula', 'correo', 'telefono', 'comunidad', 'sector', 'calle', 'manzana', 'numero_de_casa', 'parroquia'] as $campo)
-                                    @if (isset($valorNuevo[$campo]) && $valorNuevo[$campo] != '')
-                                        {{ ucfirst($campo) }}: {{ htmlspecialchars($valorNuevo[$campo]) }}<br>
-                                    @endif
-                                @endforeach
-
-
-                                @if (isset($valorNuevo['urbanizacion']) && $valorNuevo['urbanizacion'] != '')
-                                    @php
-                                        $urbanizacionNuevo = is_array($valorNuevo['urbanizacion'])
-                                            ? implode(', ', $valorNuevo['urbanizacion'])
-                                            : $valorNuevo['urbanizacion'];
-                                        $urbanizacionNuevo = strip_tags($urbanizacionNuevo);
-                                    @endphp
-                                    Urbanización: {{ htmlspecialchars($urbanizacionNuevo) }}<br>
-                                @endif
-
-
-                                @foreach (['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado', 'id_persona'] as $campo)
-                                    @if (isset($valorNuevo[$campo]) && $valorNuevo[$campo] != '')
-                                        {{ ucfirst(str_replace('_', ' ', $campo)) }}:
-                                        {{ htmlspecialchars($valorNuevo[$campo]) }}<br>
-                                    @endif
-                                @endforeach
-                            </td>
-
-
-                            <td class="col-valores">
-                                @foreach (['nombre', 'apellido', 'cedula', 'correo', 'telefono', 'comunidad', 'sector', 'calle', 'manzana', 'numero_de_casa', 'parroquia'] as $campo)
-                                    @if (isset($valorAnterior[$campo]) && $valorAnterior[$campo] != '')
-                                        {{ ucfirst($campo) }}: {{ htmlspecialchars($valorAnterior[$campo]) }}<br>
-                                    @endif
-                                @endforeach
-
-
-                                @if (isset($valorAnterior['urbanizacion']) && $valorAnterior['urbanizacion'] != '')
-                                    @php
-                                        $urbanizacionAnterior = is_array($valorAnterior['urbanizacion'])
-                                            ? implode(', ', $valorAnterior['urbanizacion'])
-                                            : $valorAnterior['urbanizacion'];
-                                        $urbanizacionAnterior = strip_tags($urbanizacionAnterior);
-                                    @endphp
-                                    Urbanización: {{ htmlspecialchars($urbanizacionAnterior) }}<br>
-                                @endif
-
-
-                                @foreach (['tipo_de_incidencia', 'descripcion', 'nivel_de_prioridad', 'estado'] as $campo)
-                                    @if (isset($valorAnterior[$campo]) && $valorAnterior[$campo] != '')
-                                        {{ ucfirst(str_replace('_', ' ', $campo)) }}:
-                                        {{ htmlspecialchars($valorAnterior[$campo]) }}<br>
-                                    @endif
-                                @endforeach
-                            </td>
-
-
-                            <td class="col-relacion">
-                                @if ($movimiento->usuario)
-                                    Cédula: {{ $movimiento->usuario->cedula }}<br>
-                                    Nombre: {{ $movimiento->usuario->nombre }}<br>
-                                    Apellido: {{ $movimiento->usuario->apellido }}<br>
-                                @endif
-                            </td>
-
-
-                            <td class="col-relacion">
-                                @if ($movimiento->persona)
-                                    Cédula: {{ $movimiento->persona->cedula }}<br>
-                                    Nombre: {{ $movimiento->persona->nombre }}<br>
-                                    Apellido: {{ $movimiento->persona->apellido }}<br>
-                                @endif
-                            </td>
-
-                            <td class="col-relacion">
-                                @if ($movimiento->lider)
-                                    Cédula: {{ $movimiento->lider->cedula }}<br>
-                                    Nombre: {{ $movimiento->lider->nombre }}<br>
-                                    Apellido: {{ $movimiento->lider->apellido }}<br>
-                                @endif
-                            </td>
-
-                            <td class="col-relacion">
-                                @if ($movimiento->incidencia)
-                                    <strong>ID Incidencia:</strong> {{ $movimiento->incidencia->id_incidencia }}<br>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <div class="pagination">
-                {{ $movimientos->links() }}
-            </div>
-        @endif
+                    <div class="pagination">
+                        {{ $movimientos->links() }}
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
 </body>
 
 </html>

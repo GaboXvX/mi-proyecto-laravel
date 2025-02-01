@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/activar/{id}', [UserController::class, 'activar'])->name('usuarios.activar')->middleware('role:admin');
     Route::get('/incidencias', [IncidenciaController::class, 'index']);
     Route::get('/gestionar-incidencias', [IncidenciaController::class, 'gestionar'])->name('incidencias.gestionar')->middleware('role:admin');
-    Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit'])->parameters(['incidencias' => 'slug']);  // Usamos slug
+    Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit'])->parameters(['incidencias' => 'slug']);
     Route::get('/incidencias/{slug}/edit/{persona_slug?}', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
     Route::post('/filtrar-incidencia', [IncidenciaController::class, 'filtrar'])->name('filtrar.incidencia');
     Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atender'])->name('incidencias.atender');
@@ -61,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');
     Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
 
-    Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos')->middleware('role:admin');;
+    Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos.index')->middleware('role:admin');;
     Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
     Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');

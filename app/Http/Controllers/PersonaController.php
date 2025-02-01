@@ -137,13 +137,10 @@ class PersonaController extends Controller
         }
     }
 
-
-
-
-
     public function index()
     {
-        $personas = Persona::orderBy('id_persona', 'desc')->get();
+        $personas = Persona::orderBy('id_persona', 'desc')->paginate(10);
+        
         return view('personas.listaPersonas', compact('personas'));
     }
     public function show($slug)

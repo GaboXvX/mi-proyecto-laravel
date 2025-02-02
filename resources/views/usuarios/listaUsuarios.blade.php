@@ -187,7 +187,8 @@
 
 <!-- Incluir los scripts de Bootstrap -->
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('js/script.js') }}"></script></body>
+<script src="{{ asset('js/script.js') }}"></script>
 </body>
+
 
 </html>

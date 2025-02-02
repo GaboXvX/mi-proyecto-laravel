@@ -47,7 +47,6 @@
     </div>
 </div>
     </div>
-
     <footer>
         <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
     </footer>

@@ -7,142 +7,75 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Iniciar Sesión - Minaguas</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 
-    <style>
-        body {
-            background-color: #e9f7ff;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .login-container {
-            background-color: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(10px); 
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #007bff;
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #007bff;
-            box-shadow: none;
-            margin-bottom: 20px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #0056b3;
-            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .login-footer {
-            margin-top: 20px;
-        }
-
-        .login-footer p {
-            color: #007bff;
-            font-size: 1rem;
-        }
-
-        .login-footer a {
-            color: #0056b3;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 
 <body>
 
-    <div class="login-container">
-        <h1>Iniciar Sesión</h1>
-
-        @if (session('success'))
-        <div class="alert alert-success" role="alert">
-            {{ session('success') }}
-        </div>
-        @endif
-        @if (session('error'))
-        <div class="alert alert-danger" role="alert">
-            {{ session('error') }}
-        </div>
-        @endif
-        
-        @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        <form method="POST" action="{{ route('login.authenticate') }}">
-            @csrf
-            <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" name="email" id="email" placeholder="ejemplo@minaguas.com" value="{{ old('email') }}" required>
+            <!-- Mensajes de error o éxito -->
+            @if (session('success'))
+            <div class="alert alert-success" role="alert">
+                {{ session('success') }}
             </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" name="password" id="password" placeholder="******" required>
+            @endif
+            @if (session('error'))
+            <div class="alert alert-danger" role="alert">
+                {{ session('error') }}
             </div>
+            @endif
 
-            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-        </form>
+            @if ($errors->any())
+            <div class="alert alert-danger" role="alert">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+    <div class="container">
+        <div class="content text-center">
+            <h2>Bienvenido al sistema de MinAguas!</h2>
+            <p>Tu plataforma confiable para el manejo de recursos hídricos.</p>
+        </div>
+        <hr>
 
-        <div class="login-footer mt-3">
-            
-            <p>¿No tienes una cuenta? <a href="{{ route('usuarios.create') }}">Regístrate aquí</a></p>
-            <p>¿olvidaste tu contraseña?</p> <a href="{{route('recuperar.clave')}}">recuperar contraseña</a>
+        <div class="form-content">
+            <h3>Iniciar Sesión</h3>
+
+
+            <!-- Formulario de inicio de sesión -->
+            <form method="POST" action="{{ route('login.authenticate') }}">
+                @csrf
+                <input type="email" class="form-control mb-3" name="email" placeholder="Correo electrónico" value="{{ old('email') }}" required>
+
+                <input type="password" class="form-control mb-3" name="password" placeholder="Contraseña" required>
+
+                <a href="{{ route('recuperar.clave') }}" class="d-block mb-3">¿Olvidaste tu contraseña?</a>
+
+                <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar sesión</button>
+
+                <p>¿No tienes una cuenta? <a href="{{ route('usuarios.create') }}">Regístrate aquí</a></p>
+            </form>
         </div>
     </div>
+
+    <!-- Iconos sociales -->
+    <div class="social-icons text-center mt-4">
+        <a href="#"><i class="bi bi-facebook"></i></a>
+        <a href="#"><i class="bi bi-instagram"></i></a>
+        <a href="#"><i class="bi bi-whatsapp"></i></a>
+        <a href="#"><i class="bi bi-envelope"></i></a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-4">
+        <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

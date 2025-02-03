@@ -22,7 +22,7 @@ class Urbanizacion extends Model
     }
     public function direccion()
     {
-        return $this->hasOne(Direccion::class, 'id_sector');
+        return $this->hasOne(Direccion::class,'id_urbanizacion');
     }
 }
 

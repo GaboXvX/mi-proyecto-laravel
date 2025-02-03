@@ -30,6 +30,7 @@ class updateLiderRequest extends FormRequest
         'cedula' => 'required|integer|unique:lider_comunitario,cedula,' . $slug . ',slug',
         'correo' => 'required|email|max:255|unique:lider_comunitario,correo,' . $slug . ',slug',
         'telefono' => 'required|digits_between:10,15',
+        'id_comunidad' => 'unique:lider_comunitario,id_comunidad,' . $slug . ',slug',
     ];
 }
 
@@ -46,6 +47,7 @@ public function messages(): array
         'correo.unique' => 'Este correo electrónico ya está registrado.',
         'telefono.required' => 'El número de teléfono es obligatorio.',
         'telefono.digits_between' => 'El número de teléfono debe tener entre 10 y 15 dígitos.',
+        'id_comunidad.unique' => 'Este líder ya está asignado a una comunidad.',
     ];
 }
 

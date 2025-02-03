@@ -23,7 +23,7 @@ class Comunidad extends Model
     }
     public function direccion()
     {
-        return $this->hasMany(Comunidad::class, 'id_comunidad');
+        return $this->hasOne(Comunidad::class, 'id_comunidad');
     }
 }
 

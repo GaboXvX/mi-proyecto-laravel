@@ -18,16 +18,23 @@ use Illuminate\Support\Str;
 class liderController extends Controller
 {
     public function index(){
+       
         $lideres=lider_comunitario::all();
-        return view('lideres.listalideres',compact('lideres'));
+       
+            return view('lideres.listalideres',compact('lideres'));
+        
     }
 public function create(){
     return view('lideres.registrarlideres');
 }
 public function show($slug){
     $lider= lider_comunitario::where('slug', $slug)->firstOrFail();
-    
+    if($lider){
     return view('lideres.lider', compact('lider'));
+}
+else{
+    return redirect()->route('lideres.index');
+}
 }
 
 public function store(storeLiderRequest $request)
@@ -151,12 +158,15 @@ public function update(updateLiderRequest $request, $slug)
 
         
         $lider = Lider_Comunitario::where('slug', $slug)->first();
-
+       
         if (!$lider) {
             return redirect()->route('lideres.index')->with('error', 'Líder no encontrado con el slug: ' . $slug);
         }
 
-        
+        $liderExistente = Lider_Comunitario::where('id_comunidad', $comunidad)->first();
+        if ($liderExistente && $liderExistente->id_lider !== $lider->id_lider) {
+            return redirect()->route('lideres.index')->with('error', 'Ya existe un líder asignado a esta comunidad.');
+        }
         $camposModificados = [];
         $camposAntiguos = [
             'nombre' => $lider->nombre,
@@ -205,23 +215,23 @@ public function update(updateLiderRequest $request, $slug)
             $lider->nombre = $request->input('nombre');
 
           
-            $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido);
-
-           
-            $slugExisteLider = Lider_Comunitario::where('slug', $nuevoSlug)->exists();
-            $slugExistePersona = Persona::where('slug', $nuevoSlug)->exists();
-
-           
-            if ($slugExisteLider || $slugExistePersona) {
-                $nuevoSlug .= '-' . Str::random(5); 
-            }
-
-            $lider->slug = $nuevoSlug;
+         
         }
 
         if ($lider->apellido !== $request->input('apellido')) {
             $camposModificados['apellido'] = $request->input('apellido');
             $lider->apellido = $request->input('apellido');
+            $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido);
+
+           
+            $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido);
+
+            
+            while (Lider_Comunitario::where('slug', $nuevoSlug)->exists() || Persona::where('slug', $nuevoSlug)->exists()) {
+                $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido) . '-' . Str::random(10);
+            }
+            
+            $lider->slug = $nuevoSlug;
         }
 
         if ($lider->cedula != $request->input('cedula')) {
@@ -298,7 +308,7 @@ public function update(updateLiderRequest $request, $slug)
             $movimiento->valor_anterior = json_encode($camposAntiguos);
             $movimiento->save();
         }
-
+      
         return redirect()->route('lideres.index')->with('success', 'Datos actualizados correctamente');
     } catch (\Exception $e) {
         return redirect()->route('lideres.index')->with('error', 'Error al actualizar los datos: ' . $e->getMessage());
@@ -307,12 +317,20 @@ public function update(updateLiderRequest $request, $slug)
 
 
 
-public function edit($slug){
+public function edit($slug)
+{
+    $lider = Lider_Comunitario::where('slug', $slug)->first();
+    if ($lider) {
+        return view('lideres.modificarLider', compact('lider'));    }
 
+    else  {
+       
+        return redirect()->route('lideres.index');
+    }
 
-    $lider= lider_comunitario::where('slug', $slug)->firstOrFail();
-    return view('lideres.modificarLider', compact('lider'));
+  
 }
+
 public function buscar(Request $request)
 {
     $cedula = $request->input('buscar');

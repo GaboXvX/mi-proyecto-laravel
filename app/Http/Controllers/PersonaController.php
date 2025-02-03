@@ -20,10 +20,8 @@ class PersonaController extends Controller
 {
     public function create()
     {
-        $lideres = Lider_Comunitario::all();
-
-
-        return view('personas.registrarPersonas', compact('lideres'));
+      
+        return view('personas.registrarPersonas');
     }
 
     public function store(StorePersonaRequest $request)
@@ -142,17 +140,21 @@ class PersonaController extends Controller
         $personas = Persona::orderBy('id_persona', 'desc')->paginate(10);
         
         return view('personas.listaPersonas', compact('personas'));
+    
+    
     }
     public function show($slug)
     {
 
         $persona = Persona::where('slug', $slug)->firstOrFail();
-
+if($persona){
         return view('personas.persona', compact('persona'));
     }
 
-
-
+    else{
+        return redirect()->route('personas.index');
+    }
+}
     public function destroy($slug)
     {
         try {
@@ -167,10 +169,12 @@ class PersonaController extends Controller
 
     public function edit($slug)
     {
-        $lideres = lider_comunitario::all();
-        $direcciones = Direccion::all();
-        $persona = Persona::where('slug', $slug)->firstOrFail();
-        return view('personas.modificarPersonas', compact('persona', 'direcciones', 'lideres'));
+        $persona = Persona::where('slug', $slug)->first();
+        if($persona){
+        return view('personas.modificarPersonas', compact('persona'));
+    }else{
+        return redirect()->route('personas.index');
+    }
     }
 
     public function update(updatePersonaRequest $request, $slug)
@@ -249,6 +253,17 @@ class PersonaController extends Controller
             if ($persona->apellido !== $request->input('apellido')) {
                 $camposModificados['apellido'] = $request->input('apellido');
                 $persona->apellido = $request->input('apellido');
+                $nuevoSlug = Str::slug($persona->nombre . ' ' . $persona->apellido);
+
+           
+                $nuevoSlug = Str::slug($persona->nombre . ' ' . $persona->apellido);
+    
+                
+                while (Lider_Comunitario::where('slug', $nuevoSlug)->exists() || Persona::where('slug', $nuevoSlug)->exists()) {
+                    $nuevoSlug = Str::slug($persona->nombre . ' ' . $persona->apellido) . '-' . Str::random(10);
+                }
+                
+                $persona->slug = $nuevoSlug;
             }
 
             if ($persona->cedula != $request->input('cedula')) {

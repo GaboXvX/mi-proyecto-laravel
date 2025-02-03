@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::get('/login', [LoginController::class, 'index']);
+Route::get('/login', [LoginController::class, 'index'])->middleware('guest');
 Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create')->middleware('guest');
 Route::post('aceptar/{id}', [PeticionController::class, 'aceptar'])->name('peticion.aceptar');
 Route::resource('peticiones', PeticionController::class)->except('index');

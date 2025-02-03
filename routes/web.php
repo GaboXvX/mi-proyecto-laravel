@@ -12,7 +12,9 @@ use App\Http\Controllers\recuperarController;
 use App\Http\Controllers\seguridadController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
+Route::group(['middleware' => 'prevent-back-history'],function(){
+   
+ 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -66,3 +68,4 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
     Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
 });
+ });

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('incidencias', function (Blueprint $table) {
           $table->foreign('id_persona') ->references('id_persona')  ->on('personas')  ->onDelete('cascade'); 
-          $table->foreign('id_lider') ->references('id_lider')  ->on('lider_comunitario')  ->onDelete('cascade'); 
+          $table->foreign('id_lider') ->references('id_lider')  ->on('lideres_comunitarios')  ->onDelete('cascade'); 
         });
     }
 

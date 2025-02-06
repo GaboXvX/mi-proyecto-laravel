@@ -172,7 +172,12 @@
         </div>
         <form action="{{ route('lideres.store') }}" method="POST">
             @csrf
-
+            <div class="mb-3">
+                <select name="estado" id="estado">
+                    <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
+                    <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                </select>
+            </div>
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" required>

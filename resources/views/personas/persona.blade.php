@@ -145,8 +145,21 @@
                             <th>Líder Comunitario:</th>
                             <td>
                                 @if($persona->lider_comunitario)
-                                    {{ $persona->lider_comunitario->nombre }}  {{ $persona->lider_comunitario->apellido }}
-                                @else
+                                <span>
+                                    {{ $persona->lider_comunitario->nombre }} 
+                                    {{ $persona->lider_comunitario->apellido }} 
+                                    {{ $persona->lider_comunitario->cedula }} 
+                                    <span class="
+                                        @if($persona->lider_comunitario->estado == 'activo')
+                                            text-success  <!-- Clase para color verde -->
+                                        @elseif($persona->lider_comunitario->estado == 'inactivo')
+                                            text-danger  <!-- Clase para color rojo -->
+                                        @endif
+                                    ">
+                                        {{ $persona->lider_comunitario->estado }}
+                                    </span>
+                                </span>
+                                                                    @else
                                     No asignado
                                 @endif
                             </td>

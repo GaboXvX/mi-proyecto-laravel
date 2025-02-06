@@ -27,10 +27,10 @@ class updateLiderRequest extends FormRequest
     return [
         'nombre' => 'required|string|max:255',
         'apellido' => 'required|string|max:255',
-        'cedula' => 'required|integer|unique:lider_comunitario,cedula,' . $slug . ',slug',
-        'correo' => 'required|email|max:255|unique:lider_comunitario,correo,' . $slug . ',slug',
+        'cedula' => 'required|integer|unique:lideres_comunitarios,cedula,' . $slug . ',slug',
+        'correo' => 'required|email|max:255|unique:lideres_comunitarios,correo,' . $slug . ',slug',
         'telefono' => 'required|digits_between:10,15',
-        'id_comunidad' => 'unique:lider_comunitario,id_comunidad,' . $slug . ',slug',
+        'id_comunidad' => 'unique:lideres_comunitarios,id_comunidad,' . $slug . ',slug',
     ];
 }
 

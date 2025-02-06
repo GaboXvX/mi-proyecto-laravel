@@ -184,7 +184,10 @@
                     <td>No registrado</td>
             </tr>
             @endif
-
+            <tr>
+                <th>Estado de cargo </th>
+                <td>{{$lider->estado}}</td>
+            </tr>
             <!-- Responsable -->
             @if ($lider->user)
                 <tr>

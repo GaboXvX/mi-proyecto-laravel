@@ -24,8 +24,8 @@ class storeLiderRequest extends FormRequest
         return [
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'cedula' => 'required|numeric|digits:8|unique:lider_comunitario,cedula',
-            'correo' => 'required|email|max:255|unique:lider_comunitario,correo',
+            'cedula' => 'required|numeric|digits:8|unique:lideres_comunitarios,cedula',
+            'correo' => 'required|email|max:255|unique:lideres_comunitarios,correo',
             'telefono' => 'nullable|numeric|digits_between:7,15',
         ];
     }

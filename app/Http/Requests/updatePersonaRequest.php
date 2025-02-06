@@ -26,7 +26,7 @@ class updatePersonaRequest extends FormRequest
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
             'cedula' => 'required|integer|unique:personas,cedula,' . $slug . ',slug',
-            'lider_comunitario' => 'nullable|exists:lider_comunitario,id_lider', 
+            'lideres_comunitarios' => 'nullable|exists:lideres_comunitarios,id_lider', 
             'correo' => 'required|email|max:255|unique:personas,correo,' . $slug . ',slug',
             'telefono' => 'required|digits_between:10,15',
         ];

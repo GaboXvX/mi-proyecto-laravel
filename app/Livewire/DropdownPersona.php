@@ -44,7 +44,9 @@ class DropdownPersona extends Component
         $this->comunidades=Comunidad::where('id_sector',$value)->get();
     }
     public function updatedComunidadesid($value){
-        $this->lideres=Lider_Comunitario::where('id_comunidad',$value)->get();
+        $this->lideres = Lider_Comunitario::where('id_comunidad', $value)
+        ->where('estado', 'activo')
+        ->get();
     }
     public function render()
     {

@@ -155,6 +155,8 @@
                             <th>Cédula</th>
                             <th>Correo Electrónico</th>
                             <th>Teléfono</th>
+                            
+                            <th>estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -166,6 +168,16 @@
                             <td>{{ $lider->cedula }}</td>
                             <td>{{ $lider->correo }}</td>
                             <td>{{ $lider->telefono }}</td>
+                            
+                            <td> <span class="
+                                @if($lider->estado == 'activo')
+                                    text-success  <!-- Clase para color verde -->
+                                @elseif($lider->estado == 'inactivo')
+                                    text-danger  <!-- Clase para color rojo -->
+                                @endif
+                            ">
+                                {{ $lider->estado }}
+                            </span></td>
                             <td>
                                 <div class="btn-group">
                                     <a href="{{ route('lideres.show', $lider->slug) }}" class="btn btn-info btn-sm">Ver</a>

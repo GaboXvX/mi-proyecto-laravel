@@ -10,7 +10,7 @@ class Lider_Comunitario extends Model
 {
     use HasFactory;
 
-    protected $table = 'lider_comunitario';
+    protected $table ='lideres_comunitarios';
     protected $primaryKey = 'id_lider';
 
     public function incidencias()
@@ -20,11 +20,12 @@ class Lider_Comunitario extends Model
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_lider');
-}
-    public function comunidad()
-    {
-        return $this->belongsTo(Comunidad::class, 'id_comunidad');
     }
+public function comunidad()
+{
+    return $this->belongsTo(Comunidad::class, 'id_comunidad');
+}
+
     public function user()
     {
         return $this->belongsTo(User::class,'id_usuario');
@@ -36,4 +37,5 @@ class Lider_Comunitario extends Model
     {
         return $this->belongsTo(Direccion::class,'id_direccion');
     }
+    
 }

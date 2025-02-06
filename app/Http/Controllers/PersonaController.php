@@ -25,115 +25,110 @@ class PersonaController extends Controller
     }
 
     public function store(StorePersonaRequest $request)
-    {
-        try {
+{
+    try {
+        $estado = 'sucre';
+        $municipio = 'sucre';
 
-            $estado = 'sucre';
-            $municipio = 'sucre';
+        // Obtener datos del formulario
+        $parroquia = $request->input('parroquia');
+        $urbanizacion = $request->input('urbanizacion');
+        $sector = $request->input('sector');
+        $comunidad = $request->input('comunidad');
+        $calle = $request->input('calle');
+        $manzana = $request->input('manzana');
+        $num_casa = $request->input('num_casa');
 
+        // Buscar o crear la dirección
+        $direccion = Direccion::where('estado', $estado)
+            ->where('municipio', $municipio)
+            ->where('id_parroquia', $parroquia)
+            ->where('id_urbanizacion', $urbanizacion)
+            ->where('id_sector', $sector)
+            ->where('id_comunidad', $comunidad)
+            ->where('calle', $calle)
+            ->where('manzana', $manzana)
+            ->where('numero_de_casa', $num_casa)
+            ->first();
 
-            $parroquia = $request->input('parroquia');
-            $urbanizacion = $request->input('urbanizacion');
-            $sector = $request->input('sector');
-            $comunidad = $request->input('comunidad');
-            $calle = $request->input('calle');
-            $manzana = $request->input('manzana');
-            $num_casa = $request->input('num_casa');
-
-
-            $direccion = Direccion::where('estado', $estado)
-                ->where('municipio', $municipio)
-                ->where('id_parroquia', $parroquia)
-                ->where('id_urbanizacion', $urbanizacion)
-                ->where('id_sector', $sector)
-                ->where('id_comunidad', $comunidad)
-                ->where('calle', $calle)
-                ->where('manzana', $manzana)
-                ->where('numero_de_casa', $num_casa)
-                ->first();
-
-
-            if (!$direccion) {
-                $direccion = new Direccion();
-                $direccion->estado = $estado;
-                $direccion->municipio = $municipio;
-                $direccion->id_comunidad = $comunidad;
-                $direccion->id_sector = $sector;
-                $direccion->calle = $calle;
-                $direccion->manzana = $manzana;
-                $direccion->numero_de_casa = $num_casa;
-                $direccion->id_parroquia = $parroquia;
-                $direccion->id_urbanizacion = $urbanizacion;
-                $direccion->save();
-            }
-
-
-            $lider = Lider_Comunitario::where(
-                'id_comunidad',
-                $comunidad
-            )->first();
-
-            if ($lider) {
-
-                $persona = new Persona();
-                $slug = Str::slug($request->input('nombre'));
-                $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
-
-                if ($count > 0) {
-
-                    $originalSlug = $slug;
-                    $counter = 1;
-
-
-                    while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
-                        $slug = $originalSlug . '-' . $counter;
-                        $counter++;
-                    }
-                }
-
-                $persona->slug = $slug;
-                $persona->nombre = $request->input('nombre');
-                $persona->apellido = $request->input('apellido');
-                $persona->cedula = $request->input('cedula');
-                $persona->correo = $request->input('correo');
-                $persona->telefono = $request->input('telefono');
-                $persona->id_direccion = $direccion->id_direccion;
-                $persona->id_usuario = Auth::user()->id_usuario;
-                $persona->id_lider = $lider->id_lider;
-                $persona->save();
-
-
-                $movimiento = new Movimiento();
-                $movimiento->id_usuario = Auth::user()->id_usuario;
-                $movimiento->id_persona = $persona->id_persona;
-                $camposCreado = [
-                    'nombre' => $request->input('nombre'),
-                    'apellido' => $request->input('apellido'),
-                    'cedula' => $request->input('cedula'),
-                    'correo' => $request->input('correo'),
-                    'telefono' => $request->input('telefono'),
-                    'parroquia' => $direccion->parroquia ? $direccion->parroquia->nombre : 'No disponible',
-                    'urbanizacion' => $direccion->urbanizacion ? $direccion->urbanizacion->nombre : 'No disponible',
-                    'sector' => $direccion->sector ? $direccion->sector->nombre : 'No disponible',
-                    'comunidad' => $direccion->comunidad ? $direccion->comunidad->nombre : 'No disponible',
-                    'lider' => $lider->nombre . " " . $lider->apellido . " " . $lider->cedula ?: 'No diponible',
-                    'calle' => $direccion->calle,
-                    'manzana' => $direccion->manzana,
-                    'numero_de_casa' => $direccion->numero_de_casa,
-                ];
-
-                $movimiento->accion = 'se ha creado un registro';
-                $movimiento->valor_anterior = json_encode($camposCreado);
-                $movimiento->save();
-
-                return redirect()->route('personas.index')->with('success', 'Datos enviados correctamente');
-            } else {
-                return redirect()->route('personas.index')->with('error', 'No se encontró un líder para esta comunidad');
-            }
-        } catch (\Exception $e) {
-            return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+        if (!$direccion) {
+            $direccion = new Direccion();
+            $direccion->estado = $estado;
+            $direccion->municipio = $municipio;
+            $direccion->id_comunidad = $comunidad;
+            $direccion->id_sector = $sector;
+            $direccion->calle = $calle;
+            $direccion->manzana = $manzana;
+            $direccion->numero_de_casa = $num_casa;
+            $direccion->id_parroquia = $parroquia;
+            $direccion->id_urbanizacion = $urbanizacion;
+            $direccion->save();
         }
+
+        // Buscar un líder activo en la comunidad
+        $lider = Lider_Comunitario::where('id_comunidad', $comunidad)
+            ->where('estado', 'activo') // Solo líderes activos
+            ->first();
+
+        if ($lider) {
+            // Crear la persona
+            $persona = new Persona();
+            $slug = Str::slug($request->input('nombre'));
+            $count = Persona::where('slug', $slug)->count() + Lider_Comunitario::where('slug', $slug)->count();
+
+            if ($count > 0) {
+                $originalSlug = $slug;
+                $counter = 1;
+
+                while (Persona::where('slug', $slug)->exists() || Lider_Comunitario::where('slug', $slug)->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+            }
+
+            $persona->slug = $slug;
+            $persona->nombre = $request->input('nombre');
+            $persona->apellido = $request->input('apellido');
+            $persona->cedula = $request->input('cedula');
+            $persona->correo = $request->input('correo');
+            $persona->telefono = $request->input('telefono');
+            $persona->id_direccion = $direccion->id_direccion;
+            $persona->id_usuario = Auth::user()->id_usuario;
+            $persona->id_lider = $lider->id_lider;
+            $persona->save();
+
+            // Registrar el movimiento
+            $movimiento = new Movimiento();
+            $movimiento->id_usuario = Auth::user()->id_usuario;
+            $movimiento->id_persona = $persona->id_persona;
+            $camposCreado = [
+                'nombre' => $request->input('nombre'),
+                'apellido' => $request->input('apellido'),
+                'cedula' => $request->input('cedula'),
+                'correo' => $request->input('correo'),
+                'telefono' => $request->input('telefono'),
+                'parroquia' => $direccion->parroquia ? $direccion->parroquia->nombre : 'No disponible',
+                'urbanizacion' => $direccion->urbanizacion ? $direccion->urbanizacion->nombre : 'No disponible',
+                'sector' => $direccion->sector ? $direccion->sector->nombre : 'No disponible',
+                'comunidad' => $direccion->comunidad ? $direccion->comunidad->nombre : 'No disponible',
+                'lider' => $lider->nombre . " " . $lider->apellido . " " . $lider->cedula ?: 'No disponible',
+                'calle' => $direccion->calle,
+                'manzana' => $direccion->manzana,
+                'numero_de_casa' => $direccion->numero_de_casa,
+            ];
+
+            $movimiento->accion = 'se ha creado un registro';
+            $movimiento->valor_anterior = json_encode($camposCreado);
+            $movimiento->save();
+
+            return redirect()->route('personas.index')->with('success', 'Datos enviados correctamente');
+        } else {
+            return redirect()->route('personas.index')->with('error', 'No se encontró un líder activo para esta comunidad.');
+        }
+    } catch (\Exception $e) {
+        return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
     }
+}
 
     public function index()
     {

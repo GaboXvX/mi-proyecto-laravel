@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('direccion', function (Blueprint $table) {
+        Schema::create('direcciones', function (Blueprint $table) {
             $table->bigIncrements('id_direccion')->unsigned(); // Clave primaria
             $table->string('estado');
             $table->string('municipio');
@@ -39,7 +39,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('direccion');
+        Schema::dropIfExists('direcciones');
     }
 };
 

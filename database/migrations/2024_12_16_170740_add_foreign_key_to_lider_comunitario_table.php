@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('lider_comunitario', function (Blueprint $table) {
+        Schema::table('lideres_comunitarios', function (Blueprint $table) {
            
               $table->foreign('id_usuario') ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
-              $table->foreign('id_direccion') ->references('id_direccion')  ->on('direccion')  ->onDelete('cascade');
+              $table->foreign('id_direccion') ->references('id_direccion')  ->on('direcciones')  ->onDelete('cascade');
             });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('lider_comunitario', function (Blueprint $table) {
+        Schema::table('lideres_comunitarios', function (Blueprint $table) {
             $table->dropColumn('id_direccion');
         });
     }

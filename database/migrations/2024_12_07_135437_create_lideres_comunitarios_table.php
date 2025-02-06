@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lider_comunitario', function (Blueprint $table) {
+        Schema::create('lideres_comunitarios', function (Blueprint $table) {
             $table->bigIncrements('id_lider');
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_comunidad');
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->bigInteger('cedula')->unique();
             $table->bigInteger('telefono');
             $table->string('correo','320')->unique();
+            $table->string('estado');
             $table->timestamps();
             $table->foreign('id_comunidad')
                   ->references('id_comunidad')
@@ -35,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lider_comunitario');
+        Schema::dropIfExists('lideres_comunitarios');
     }
 };

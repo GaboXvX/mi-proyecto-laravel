@@ -1,5 +1,4 @@
 <?php
-// database/seeders/ComunidadSeeder.php
 namespace Database\Seeders;
 
 use App\Models\Comunidad;

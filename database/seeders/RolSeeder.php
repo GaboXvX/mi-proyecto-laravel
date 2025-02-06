@@ -1,5 +1,4 @@
 <?php
-// database/seeders/RolSeeder.php
 namespace Database\Seeders;
 
 

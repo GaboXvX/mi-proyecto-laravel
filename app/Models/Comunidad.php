@@ -17,7 +17,6 @@ class Comunidad extends Model
         return $this->belongsTo(Sector::class, 'id_sector');
     }
 
-    // En el modelo Comunidad
 public function lideres_comunitarios()
 {
     return $this->hasMany(Lider_Comunitario::class, 'id_comunidad');

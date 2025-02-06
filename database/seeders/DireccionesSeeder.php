@@ -15,7 +15,7 @@ class DireccionesSeeder extends Seeder
      */
     public function run()
     {
-        // Insertar 10 direcciones de ejemplo (ajusta la cantidad según necesites)
+       
         DB::table('direcciones')->insert([
             [
                 'estado' => 'Sucre',
@@ -23,7 +23,7 @@ class DireccionesSeeder extends Seeder
                 'calle' => 'Calle 1',
                 'manzana' => 'A',
                 'numero_de_casa' => '123',
-                'id_parroquia' => 1, // Asegúrate de que los ids de parroquia, urbanización, sector y comunidad existan
+                'id_parroquia' => 1,
                 'id_urbanizacion' => 1,
                 'id_sector' => 1,
                 'id_comunidad' => 1,
@@ -43,7 +43,6 @@ class DireccionesSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            // Agrega más direcciones según sea necesario
         ]);
     }
 }

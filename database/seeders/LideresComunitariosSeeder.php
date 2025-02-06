@@ -16,7 +16,6 @@ class LideresComunitariosSeeder extends Seeder
      */
     public function run()
     {
-        // Asignar líderes a las direcciones previamente insertadas (asegúrate de que las direcciones existan)
         DB::table('lideres_comunitarios')->insert([
             [
                 'id_usuario' => 1,
@@ -28,7 +27,7 @@ class LideresComunitariosSeeder extends Seeder
                 'cedula' => '12345678',
                 'telefono' => '0412345678',
                 'correo' => 'juanperez@example.com',
-                'estado' => 'activo', // Agrega el valor para 'estado'
+                'estado' => 'activo', 
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -42,7 +41,7 @@ class LideresComunitariosSeeder extends Seeder
                 'cedula' => '87654321',
                 'telefono' => '0422345678',
                 'correo' => 'mariagomez@example.com',
-                'estado' => 'activo', // Agrega el valor para 'estado'
+                'estado' => 'activo', 
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

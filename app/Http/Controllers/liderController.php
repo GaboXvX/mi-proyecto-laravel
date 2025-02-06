@@ -148,7 +148,6 @@ public function update(updateLiderRequest $request, $slug)
         $estado = 'sucre';
         $municipio = 'sucre';
 
-        // Obtener datos del formulario
         $parroquia = $request->input('parroquia');
         $urbanizacion = $request->input('urbanizacion');
         $sector = $request->input('sector');
@@ -157,15 +156,12 @@ public function update(updateLiderRequest $request, $slug)
         $manzana = $request->input('manzana');
         $num_casa = $request->input('num_casa');
 
-        // Buscar el líder por slug
         $lider = Lider_Comunitario::where('slug', $slug)->first();
         if (!$lider) {
             return redirect()->route('lideres.index')->with('error', 'Líder no encontrado con el slug: ' . $slug);
         }
 
-        // Verificar si la comunidad ha cambiado
         if ($lider->id_comunidad != $comunidad) {
-            // Verificar si ya existe otro líder activo en la nueva comunidad
             $liderExistente = Lider_Comunitario::where('id_comunidad', $comunidad)
                 ->where('id_lider', '!=', $lider->id_lider) // Comparar id_lider, no estado
                 ->where('estado', 'activo')
@@ -176,14 +172,14 @@ public function update(updateLiderRequest $request, $slug)
             }
         }
 
-        // Guardar valores antiguos para el movimiento
+       
         $camposAntiguos = [
             'nombre' => $lider->nombre,
             'apellido' => $lider->apellido,
             'cedula' => $lider->cedula,
             'correo' => $lider->correo,
             'telefono' => $lider->telefono,
-            'estado' => $lider->estado, // Incluir el estado antiguo
+            'estado' => $lider->estado, 
             'parroquia' => $lider->direccion->parroquia->nombre ?? 'No disponible',
             'urbanizacion' => $lider->direccion->urbanizacion->nombre ?? 'No disponible',
             'sector' => $lider->direccion->sector->nombre ?? 'No disponible',
@@ -193,7 +189,6 @@ public function update(updateLiderRequest $request, $slug)
             'numero_de_casa' => $lider->direccion->numero_de_casa,
         ];
 
-        // Buscar o crear la dirección
         $direccion = Direccion::where('estado', $estado)
             ->where('municipio', $municipio)
             ->where('id_parroquia', $parroquia)
@@ -219,10 +214,8 @@ public function update(updateLiderRequest $request, $slug)
             $direccion->save();
         }
 
-        // Inicializar array de campos modificados
         $camposModificados = [];
 
-        // Actualizar campos del líder
         if ($lider->nombre !== $request->input('nombre')) {
             $camposModificados['nombre'] = $request->input('nombre');
             $lider->nombre = $request->input('nombre');
@@ -232,7 +225,6 @@ public function update(updateLiderRequest $request, $slug)
             $camposModificados['apellido'] = $request->input('apellido');
             $lider->apellido = $request->input('apellido');
 
-            // Generar nuevo slug si el nombre o apellido cambian
             $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido);
             while (Lider_Comunitario::where('slug', $nuevoSlug)->where('id_lider', '!=', $lider->id_lider)->exists()) {
                 $nuevoSlug = Str::slug($lider->nombre . ' ' . $lider->apellido) . '-' . Str::random(5);
@@ -255,44 +247,15 @@ public function update(updateLiderRequest $request, $slug)
             $lider->telefono = $request->input('telefono');
         }
 
-        // Actualizar el estado si ha cambiado
         if ($lider->estado !== $request->input('estado')) {
             $camposModificados['estado'] = $request->input('estado');
             $lider->estado = $request->input('estado');
         }
 
-        // Actualizar dirección del líder
         $lider->id_direccion = $direccion->id_direccion;
         $lider->id_usuario = Auth::user()->id_usuario;
         $lider->save();
-        // Buscar todas las personas que tienen el mismo id_lider
-$personas = Persona::where('id_lider', $lider->id_lider)->get();
 
-foreach ($personas as $persona) {
-    // Obtener la comunidad asociada a la dirección de la persona
-    $comunidad = $persona->direccion->comunidad;
-
-    if ($comunidad) {
-        // Buscar al líder activo dentro de esa comunidad a través de la tabla 'lider_comunitario'
-        $liderActivo = $comunidad->lideres_comunitarios()
-            ->where('estado', 'activo')
-            ->first();  // Obtener el primer líder activo de esa comunidad
-        
-        if ($liderActivo) {
-            // Si encontramos un líder activo, asignamos el id_lider de la persona
-            $persona->id_lider = $liderActivo->id_lider;  // Asumimos que el campo 'id_lider' está en 'lider_comunitario'
-            $persona->save();  // Guardar los cambios en la persona
-        } else {
-            // Si no hay líder activo, podrías manejar el caso aquí
-            // Como asignar un líder por defecto o dejarlo vacío
-        }
-    }
-}
-
-        
-        
-
-        // Registrar movimiento si hay cambios
         if (!empty($camposModificados)) {
             $movimiento = new Movimiento();
             $movimiento->id_usuario = Auth::user()->id_usuario;

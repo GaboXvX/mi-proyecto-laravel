@@ -163,7 +163,7 @@ public function update(updateLiderRequest $request, $slug)
 
         if ($lider->id_comunidad != $comunidad) {
             $liderExistente = Lider_Comunitario::where('id_comunidad', $comunidad)
-                ->where('id_lider', '!=', $lider->id_lider) // Comparar id_lider, no estado
+                ->where('id_lider', '!=', $lider->id_lider) 
                 ->where('estado', 'activo')
                 ->first();
 

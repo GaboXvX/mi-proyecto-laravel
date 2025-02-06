@@ -161,16 +161,21 @@ public function update(updateLiderRequest $request, $slug)
             return redirect()->route('lideres.index')->with('error', 'Líder no encontrado con el slug: ' . $slug);
         }
 
-        if ($lider->id_comunidad != $comunidad) {
+       
+        $cambioComunidad = $lider->id_comunidad != $comunidad;
+        $estadoNuevo = $request->input('estado');
+
+        if ($lider->id_comunidad != $comunidad || ($lider->id_comunidad == $comunidad && $request->input('estado') == 'activo')) {
             $liderExistente = Lider_Comunitario::where('id_comunidad', $comunidad)
-                ->where('id_lider', '!=', $lider->id_lider) 
+                ->where('id_lider', '!=', $lider->id_lider)
                 ->where('estado', 'activo')
                 ->first();
 
-            if ($liderExistente) {
-                return redirect()->route('lideres.index')->with('error', 'Ya existe un líder activo en esta comunidad.');
+            if ($liderExistente && $request->input('estado') == 'activo') {
+                return redirect()->route('lideres.index')->with('error', 'Ya existe un líder activo en esta comunidad. No se puede mover el líder como activo.');
             }
         }
+        
 
        
         $camposAntiguos = [

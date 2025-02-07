@@ -142,26 +142,20 @@
                             <td>{{ $persona->cedula }}</td>
                         </tr>
                         <tr>
-                            <th>Líder Comunitario:</th>
+                            <th>¿Es líder Comunitario?</th>
                             <td>
-                                @if($persona->lider_comunitario)
-                                <span>
-                                    {{ $persona->lider_comunitario->nombre }} 
-                                    {{ $persona->lider_comunitario->apellido }} 
-                                    {{ $persona->lider_comunitario->cedula }} 
                                     <span class="
-                                        @if($persona->lider_comunitario->estado == 'activo')
+                                        @if($persona->es_lider==1)
                                             text-success  <!-- Clase para color verde -->
-                                        @elseif($persona->lider_comunitario->estado == 'inactivo')
+                                        @elseif($persona->es_lider == 0)
                                             text-danger  <!-- Clase para color rojo -->
                                         @endif
                                     ">
-                                        {{ $persona->lider_comunitario->estado }}
+                                    {{ $persona->es_lider ? 'Sí' : 'No' }}
                                     </span>
                                 </span>
-                                                                    @else
-                                    No asignado
-                                @endif
+                                                                   
+                               
                             </td>
                         </tr>
                         <tr>

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('personas', function (Blueprint $table) {
              $table->foreign('id_direccion') ->references('id_direccion')  ->on('direcciones')  ->onDelete('cascade');
             $table->foreign('id_usuario') ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
-            $table->foreign('id_lider') ->references('id_lider')  ->on('lideres_comunitarios')  ->onDelete('cascade');
 
         });
     }

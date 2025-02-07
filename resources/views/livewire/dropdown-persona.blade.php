@@ -38,14 +38,5 @@
             @endforeach
         </select>
     </div>
-    <div class="mb-3">
-        <label for="lider_comunitario" class="form-label">Líder Comunitario:</label>
-        <select name="lider_comunitario" id="lider_comunitario" class="form-select" wire:model.live="lideresId" required>
-            <option value="">Seleccione un líder comunitario</option>
-            @foreach($lideres as $lider)
-            <option value="{{$lider->id_lider}}">{{$lider->nombre}}</option>
-            @endforeach
-        </select>
-    </div>
 
 </div>

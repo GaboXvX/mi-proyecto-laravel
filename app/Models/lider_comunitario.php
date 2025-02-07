@@ -12,14 +12,19 @@ class Lider_Comunitario extends Model
 
     protected $table ='lideres_comunitarios';
     protected $primaryKey = 'id_lider';
-
+    protected $fillable = [
+        'id_persona',  
+        'estado',
+        'id_comunidad'      
+       
+    ];
     public function incidencias()
     {
         return $this->hasMany(Incidencia::class, 'id_lider');
     }
     public function personas()
     {
-        return $this->hasMany(Persona::class, 'id_lider');
+        return $this->belongsTo(Persona::class, 'id_persona');
     }
 public function comunidad()
 {

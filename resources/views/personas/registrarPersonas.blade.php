@@ -171,7 +171,14 @@
 
         <form action="{{ route('personas.store') }}" method="POST" id="form">
             @csrf
-
+            <div class="mb-3">
+                <label for="lider_comunitario" class="form-label">¿Es líder comunitario?</label>
+                <div class="form-check">
+                    <input type="hidden" name="lider_comunitario" value="0"> <!-- Valor por defecto -->
+                    <input class="form-check-input" type="checkbox" id="lider_comunitario" name="lider_comunitario" value="1" {{ old('lider_comunitario') == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="lider_comunitario">Sí</label>
+                </div>
+            </div>
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" required>

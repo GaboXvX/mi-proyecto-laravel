@@ -156,7 +156,6 @@
                                 <th>Nombre</th>
                                 <th>Apellido</th>
                                 <th>Cédula</th>
-                                <th>Líder Comunitario</th>
                                 <th>Correo</th>
                                 <th>Teléfono</th>
                                 <th>Acciones</th>
@@ -168,7 +167,6 @@
                                     <td>{{ $persona->nombre }}</td>
                                     <td>{{ $persona->apellido }}</td>
                                     <td>{{ $persona->cedula }}</td>
-                                    <td>{{ $persona->lider_comunitario ? $persona->lider_comunitario->nombre : 'No asignado' }}</td>
                                     <td>{{ $persona->correo }}</td>
                                     <td>{{ $persona->telefono }}</td>
                                     <td>

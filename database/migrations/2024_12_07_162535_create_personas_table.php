@@ -15,13 +15,13 @@ return new class extends Migration
             $table->bigIncrements('id_persona');
             $table->unsignedBigInteger('id_direccion');
             $table->unsignedBigInteger('id_usuario');
-            $table->unsignedBigInteger('id_lider');
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
             $table->bigInteger('cedula')->unique();
             $table->string('correo', 320)->unique();
             $table->bigInteger('telefono');
+            $table->boolean('es_lider');
             $table->timestamps();
         });
     }

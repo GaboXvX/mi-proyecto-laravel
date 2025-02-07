@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('lideres_comunitarios', function (Blueprint $table) {
-           
-              $table->foreign('id_usuario') ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
-              $table->foreign('id_direccion') ->references('id_direccion')  ->on('direcciones')  ->onDelete('cascade');
+            $table->foreign('id_persona') ->references('id_persona')  ->on('personas')  ->onDelete('cascade');
+              $table->foreign('id_comunidad') ->references('id_comunidad')  ->on('comunidades')  ->onDelete('cascade');
             });
     }
 
@@ -24,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('lideres_comunitarios', function (Blueprint $table) {
-            $table->dropColumn('id_direccion');
+            $table->dropColumn('id_comunidad');
         });
     }
 };

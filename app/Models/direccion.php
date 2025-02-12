@@ -12,12 +12,7 @@ class Direccion extends Model
     protected $table = 'direcciones';
     protected $primaryKey = 'id_direccion';
 
-    protected $fillable = [
-        'estado', 
-        'municipio', 
-        'comunidad', 
-        'sector',
-    ];
+    
 
     
     public function persona()

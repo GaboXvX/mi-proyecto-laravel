@@ -12,7 +12,7 @@
             <p class="card-text">Monto: ${{ number_format($comprobante->monto, 2) }}</p>
 
             <a href="{{ route('home') }}" class="btn btn-secondary">Volver</a>
-
+            
             <a href="{{ route('comprobantes.download', $comprobante->id) }}" class="btn btn-primary">Descargar Comprobante</a>
         </div>
     </div>

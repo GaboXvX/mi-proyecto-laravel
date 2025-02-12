@@ -107,7 +107,6 @@
                                 <th>Valores Antiguos</th>
                                 <th>Usuario</th>
                                 <th>Persona</th>
-                                <th>Líder</th>
                                 <th>Incidencia</th>
                             </tr>
                         </thead>
@@ -122,17 +121,52 @@
                                     <td>{{ $movimiento->accion }}</td>
                                     <td>
                                         @foreach ($valorNuevo as $campo => $valor)
-                                            @if ($valor) {{ ucfirst($campo) }}: {{ htmlspecialchars($valor) }}<br>@endif
+                                            @if ($campo == 'es_lider')
+                                                <!-- Mostrar estado de es_lider en los valores nuevos -->
+                                                <span class="{{ $valor == 1 ? 'text-success' : 'text-danger' }}">
+                                                    {{ $valor == 1 ? 'Sí' : 'No' }}
+                                                </span>
+                                                <small class="text-muted">
+                                                    @if ($valor == 1)
+                                                        (Activado)
+                                                    @else
+                                                        (Desactivado)
+                                                    @endif
+                                                </small>
+                                                <br>
+                                            @elseif ($valor)
+                                                {{ ucfirst(str_replace('_', ' ', $campo)) }}: {{ htmlspecialchars($valor) }}<br>
+                                            @endif
                                         @endforeach
                                     </td>
                                     <td>
                                         @foreach ($valorAnterior as $campo => $valor)
-                                            @if ($valor) {{ ucfirst($campo) }}: {{ htmlspecialchars($valor) }}<br>@endif
+                                            @if ($campo == 'es_lider')
+                                                <!-- Mostrar estado de es_lider en los valores antiguos -->
+                                                <span class="{{ $valor == 1 ? 'text-success' : 'text-danger' }}">
+                                                    {{ $valor == 1 ? 'Sí' : 'No' }}
+                                                </span>
+                                                <small class="text-muted">
+                                                    @if ($valor == 1)
+                                                        (Activado)
+                                                    @else
+                                                        (Desactivado)
+                                                    @endif
+                                                </small>
+                                                <br>
+                                            @elseif ($valor)
+                                                {{ ucfirst(str_replace('_', ' ', $campo)) }}: {{ htmlspecialchars($valor) }}<br>
+                                            @endif
                                         @endforeach
                                     </td>
                                     <td>{{ $movimiento->usuario->nombre ?? 'N/A' }}</td>
-                                    <td>{{ $movimiento->persona->nombre ?? 'N/A' }}</td>
-                                    <td>{{ $movimiento->lider->nombre ?? 'N/A' }}</td>
+                                    <td>
+                                        {{ $movimiento->persona->nombre ?? 'N/A' }} {{ $movimiento->persona->apellido ?? '' }}<br>
+                                        Cédula: {{ $movimiento->persona->cedula ?? 'N/A' }}<br>
+                                        @if ($movimiento->persona->es_lider)
+                                            <span class="badge bg-success">Líder</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $movimiento->incidencia->id_incidencia ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach

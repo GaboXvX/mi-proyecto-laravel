@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('direcciones', function (Blueprint $table) {
             $table->bigIncrements('id_direccion')->unsigned(); // Clave primaria
-            $table->string('estado');
-            $table->string('municipio');
             $table->string('calle');
             $table->string('manzana');
             $table->integer('numero_de_casa');

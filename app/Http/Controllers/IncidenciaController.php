@@ -102,7 +102,6 @@ class IncidenciaController extends Controller
             // Guardar la incidencia
             $incidencia->save();
     
-            // Registrar el movimiento (historial de la incidencia)
             $camposCreado = [
                 'tipo_de_incidencia' => $incidencia->tipo_incidencia,
                 'descripcion' => $incidencia->descripcion,
@@ -118,7 +117,6 @@ class IncidenciaController extends Controller
             $movimiento->valor_anterior = json_encode($camposCreado);
             $movimiento->save();
     
-            // Redirigir después de guardar la incidencia
             if ($id_persona) {
                 $persona = Persona::findOrFail($id_persona);
                 return redirect()->route('incidencias.show', [

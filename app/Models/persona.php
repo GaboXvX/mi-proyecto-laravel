@@ -40,7 +40,7 @@ class Persona extends Model
 
     public function lider_Comunitario()
     {
-        return $this->hasOne(Lider_Comunitario::class, 'id_persona', 'id_persona');
+        return $this->hasMany(Lider_Comunitario::class, 'id_persona', 'id_persona');
     }
     
 

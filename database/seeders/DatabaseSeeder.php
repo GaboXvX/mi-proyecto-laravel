@@ -10,8 +10,6 @@ use Database\Seeders\ComunidadSeeder;
 use Database\Seeders\RolSeeder;
 use Database\Seeders\PreguntaSeguridadSeeder;
 use Database\Seeders\UsuarioSeeder;
-use Database\Seeders\DireccionesSeeder;
-
 class DatabaseSeeder extends Seeder
 {
     public function run()
@@ -24,7 +22,6 @@ class DatabaseSeeder extends Seeder
             RolSeeder::class,
             PreguntaSeguridadSeeder::class,
             UsuarioSeeder::class,
-            DireccionesSeeder::class,
            
         ]);
     }

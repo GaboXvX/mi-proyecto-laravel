@@ -12,7 +12,6 @@
 </head>
 
 <body>
-    <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
@@ -89,9 +88,7 @@
         <hr class="text-secondary">
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -116,7 +113,6 @@
             </div>
         </div>
 
-        <!-- Content -->
         <div class="table-container">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Lista de Personas</h2>
@@ -127,14 +123,12 @@
                 </div>
             </div>
 
-            <!-- Search Form -->
             <form action="{{ route('personas.buscar') }}" method="POST" class="mb-4">
                 @csrf
                 <input type="search" name="buscar" id="buscar" placeholder="Buscar por cédula" class="form-control d-inline-block" style="width: auto;">
                 <button type="submit" class="btn btn-primary ms-2">Buscar</button>
             </form>
 
-            <!-- Messages -->
             @if (session('success'))
                 <div class="alert alert-success" role="alert">
                     {{ session('success') }}
@@ -147,7 +141,6 @@
                 </div>
             @endif
 
-            <!-- Table -->
             @if (!empty($personas) && count($personas) > 0)
                 <div class="table-responsive">
                     <table class="table table-striped align-middle">

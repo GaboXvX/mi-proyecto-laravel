@@ -4,17 +4,14 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Estilos CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
     <title>Minaguas</title>
 </head>    
 <body>
-    <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
-            <!-- Imagen -->
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
         </a>
@@ -89,9 +86,7 @@
         <hr class="text-secondary">
     </nav>
     
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -116,7 +111,6 @@
             </div>
         </div>
     
-        <!-- Contenido -->
         <div class="container-fluid mt-4">
             <div class="row g-4">
                 <div class="col-md-4">
@@ -163,7 +157,6 @@
         </div>
     </div>
 
-    <!-- Scripts JS -->
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
 </body>

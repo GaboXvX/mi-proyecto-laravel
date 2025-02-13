@@ -6,14 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Captura de Datos</title>
 
-    <!-- Usando asset() para cargar los archivos CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 
 <body>
-    <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
@@ -90,9 +88,7 @@
         <hr class="text-secondary">
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -117,7 +113,6 @@
             </div>
         </div>
 
-        <!-- Formulario de captura -->
         <div class="table-container">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Formulario de Captura de Datos</h2>

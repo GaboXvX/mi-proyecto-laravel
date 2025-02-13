@@ -4,7 +4,6 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Estilos CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
@@ -14,7 +13,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* Custom Styles */
         .download-btn {
             background-color: #4CAF50;
             color: white;
@@ -40,10 +38,8 @@
     </style>
 </head>    
 <body>
-    <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
-            <!-- Imagen -->
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
         </a>
@@ -118,9 +114,7 @@
         <hr class="text-secondary">
     </nav>
     
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -145,8 +139,6 @@
             </div>
         </div>
     
-        <!-- Contenido -->
-        <!-- Filtrado -->
         <div class="filter-container">
             <form action="{{ route('estadisticas') }}" method="GET">
                 <div class="row g-3 align-items-end filter-section">
@@ -173,7 +165,6 @@
             </form>
         </div>
 
-        <!-- Gráfico -->
         <div style="width: 80%; margin: 0 auto;">
             <canvas id="myChart" width="600" height="300"></canvas>
         </div>
@@ -186,10 +177,10 @@
             var myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: @json($labels),  // Estos datos deben ser generados desde el backend
+                    labels: @json($labels),
                     datasets: [{
                         label: 'Incidencias Atendidas',
-                        data: @json($dataAtendidas),  // Datos de las incidencias atendidas
+                        data: @json($dataAtendidas),
                         backgroundColor: 'rgba(54, 162, 235, 0.5)', 
                         borderColor: 'rgba(54, 162, 235, 0.2)',
                         borderWidth: 0,
@@ -197,7 +188,7 @@
                     },
                     {
                         label: 'Tendencia',
-                        data: @json($dataAtendidas),  // Usando los mismos datos para la línea de tendencia
+                        data: @json($dataAtendidas),
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         type: 'line',
@@ -238,16 +229,14 @@
                 }
             });
 
-            // Lógica para el botón de hamburguesa
             document.getElementById('menuToggle').addEventListener('click', function() {
                 var sidebar = document.getElementById('sidebar');
                 var mainContent = document.querySelector('.main-content');
 
-                sidebar.classList.toggle('collapsed');  // Alterna la clase para colapsar o expandir el sidebar
-                mainContent.classList.toggle('collapsed');  // Mueve el contenido principal
+                sidebar.classList.toggle('collapsed');  
+                mainContent.classList.toggle('collapsed');  
             });
 
-            // Lógica para la descarga del PDF
             document.getElementById('downloadPdfBtn').addEventListener('click', function() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();

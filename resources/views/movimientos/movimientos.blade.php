@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Historial de Movimientos</title>
 
-    <!-- Enlace a Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
@@ -15,7 +14,6 @@
 
 <body>
 
-    <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
@@ -61,9 +59,7 @@
         <hr class="text-secondary">
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -88,7 +84,6 @@
             </div>
         </div>
 
-        <!-- Contenido -->
         <div class="container-fluid mt-4">
             <h2>Historial de Movimientos</h2>
 
@@ -122,7 +117,6 @@
                                     <td>
                                         @foreach ($valorNuevo as $campo => $valor)
                                             @if ($campo == 'es_lider')
-                                                <!-- Mostrar estado de es_lider en los valores nuevos -->
                                                 <span class="{{ $valor == 1 ? 'text-success' : 'text-danger' }}">
                                                     {{ $valor == 1 ? 'Sí' : 'No' }}
                                                 </span>
@@ -142,7 +136,6 @@
                                     <td>
                                         @foreach ($valorAnterior as $campo => $valor)
                                             @if ($campo == 'es_lider')
-                                                <!-- Mostrar estado de es_lider en los valores antiguos -->
                                                 <span class="{{ $valor == 1 ? 'text-success' : 'text-danger' }}">
                                                     {{ $valor == 1 ? 'Sí' : 'No' }}
                                                 </span>

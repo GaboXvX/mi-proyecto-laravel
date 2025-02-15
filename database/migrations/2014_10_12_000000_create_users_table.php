@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id_usuario');
+            $table->unsignedBigInteger('id_peticion')->nullable();
             $table->unsignedBigInteger('id_rol');
             $table->unsignedBigInteger('id_pregunta');
-            $table->unsignedBigInteger('id_peticion')->nullable();
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->biginteger('cedula');

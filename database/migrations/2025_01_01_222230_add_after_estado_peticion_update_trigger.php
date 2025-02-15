@@ -20,11 +20,11 @@ class AddAfterEstadoPeticionUpdateTrigger extends Migration
             BEGIN
                 IF NEW.estado_peticion = "aceptado" THEN
                     INSERT INTO users (
-                        id_rol, slug, nombre, cedula, apellido, email, 
+                        id_rol,id_peticion, slug, nombre, cedula, apellido, email, 
                         nombre_usuario, password, estado, created_at, updated_at, id_pregunta
                     )
                     VALUES (
-                        NEW.id_rol, NEW.slug, NEW.nombre, NEW.cedula, NEW.apellido, NEW.email, 
+                        NEW.id_rol,New.id_peticion, NEW.slug, NEW.nombre, NEW.cedula, NEW.apellido, NEW.email, 
                         NEW.nombre_usuario, NEW.password, "activo", NEW.created_at, NEW.updated_at, NEW.id_pregunta
                     );
                 END IF;

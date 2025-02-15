@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('peticiones', function (Blueprint $table) {
             $table->bigIncrements('id_peticion');
-            $table->unsignedBigInteger('id_usuario')->nullable();
             $table->unsignedBigInteger('id_rol');
             $table->unsignedBigInteger('id_pregunta');
             $table->string('slug');

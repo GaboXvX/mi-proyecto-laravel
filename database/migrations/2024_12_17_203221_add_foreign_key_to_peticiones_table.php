@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('peticiones', function (Blueprint $table) {
-            $table->foreign('id_usuario')->nullable() ->references('id_usuario')  ->on('users')  ->onDelete('cascade');
             $table->foreign('id_rol')->nullable() ->references('id_rol')  ->on('roles')  ->onDelete('cascade');
 
         });

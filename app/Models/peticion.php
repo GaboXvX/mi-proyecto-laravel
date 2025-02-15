@@ -36,6 +36,9 @@ public function preguntas_de_seguridad()
     return $this->belongsTo(Pregunta::class, 'id_pregunta'); 
 }
 
-
+public function user()
+{
+    return $this->belongsTo(User::class, 'id_peticion'); 
+}
 
 }

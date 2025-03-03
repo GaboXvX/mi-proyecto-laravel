@@ -1,0 +1,105 @@
+/* Reset de márgenes y padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fondo con color degradado */
+body {
+    background: linear-gradient(to bottom right, #1E3A8A, #3B82F6);
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: white;
+}
+
+/* Contenedor del formulario */
+.form-container {
+    background: rgba(255, 255, 255, 0.1);  /* Efecto vidrio */
+    backdrop-filter: blur(10px);  /* Efecto de desenfoque de fondo */
+    border-radius: 15px;
+    padding: 30px 40px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos del encabezado */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+
+/* Estilo de las etiquetas */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #e0f2fe;
+}
+
+/* Estilos de los campos de entrada */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2); /* Fondo translúcido */
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Estilo al enfocar los campos */
+input:focus {
+    border-color: #3B82F6;
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 5px #3B82F6;
+}
+
+/* Estilo del botón */
+button {
+    width: 100%;
+    padding: 14px;
+    background-color: #3B82F6;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Efecto hover del botón */
+button:hover {
+    background-color: #2563eb;
+}
+
+/* Estilo para los campos booleanos */
+input[type="checkbox"] {
+    width: auto;
+    margin: 10px 0;
+}
+
+/* Estilos para el formulario en móvil */
+@media (max-width: 600px) {
+    .form-container {
+        padding: 20px;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    input {
+        padding: 10px;
+    }
+}

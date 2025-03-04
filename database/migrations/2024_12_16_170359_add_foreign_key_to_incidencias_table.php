@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('incidencias', function (Blueprint $table) {
           $table->foreign('id_persona') ->references('id_persona')  ->on('personas')  ->onDelete('cascade'); 
           $table->foreign('id_lider') ->references('id_lider')  ->on('lideres_comunitarios')  ->onDelete('cascade'); 
+$table->foreign('id_direccion') ->references('id_direccion')  ->on('direcciones')  ->onDelete('cascade');
         });
     }
 

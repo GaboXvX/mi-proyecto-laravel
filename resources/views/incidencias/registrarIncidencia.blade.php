@@ -175,6 +175,17 @@
                     <label for="estado" class="form-label">Estado:</label>
                     <input type="text" id="estado" name="estado" value="Por atender" class="form-control" readonly>
                 </div>
+                <div class="mb-3">
+                    <label for="direccion" class="form-label">Dirección:</label>
+                    <select id="direccion" name="direccion" class="form-select" required>
+                        <option value="" disabled selected>--Seleccione--</option>
+                        @foreach ($persona->direccion as $direccion)
+                            <option value="{{ $direccion->id_direccion }}">
+                                Parroquia: {{ $direccion->parroquia->nombre }} - Urbanización: {{ $direccion->urbanizacion->nombre }} - Sector: {{ $direccion->sector->nombre }} - Comunidad: {{ $direccion->comunidad->nombre }} - Calle: {{ $direccion->calle }} Manzana: {{ $direccion->manzana }} Número de Casa: {{ $direccion->numero_de_casa }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <button type="submit" name="btn-enviar" class="btn btn-primary">Enviar</button>
             </form>

@@ -204,13 +204,15 @@
                 @csrf
                 @method('PUT')
                 <div class="mb-3">
-                    <label for="lider_comunitario" class="form-label">¿Es líder comunitario?</label>
-                    <div class="form-check">
-                        <input type="hidden" name="lider_comunitario" value="0"> <!-- Valor por defecto -->
-                        <input class="form-check-input" type="checkbox" id="lider_comunitario" name="lider_comunitario"
-                            value="1" {{ old('lider_comunitario', $persona->lider_comunitario) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="lider_comunitario">Sí</label>
-                    </div>
+                    <label for="id_categoriaPersona" class="form-label">Categoría de Persona:</label>
+                    <select id="id_categoriaPersona" name="categoria" class="form-select" required>
+                        <option value="" disabled selected>--Seleccione--</option>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria->id_categoriaPersona }}" {{ old('id_categoriaPersona', $persona->id_categoriaPersona) == $categoria->id_categoriaPersona ? 'selected' : '' }}>
+                                {{ $categoria->nombre_categoria }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>

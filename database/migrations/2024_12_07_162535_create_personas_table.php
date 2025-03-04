@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('personas', function (Blueprint $table) {
             $table->bigIncrements('id_persona');
+            $table->unsignedBigInteger('id_categoriaPersona');
             $table->unsignedBigInteger('id_usuario');
             $table->string('slug')->unique();
             $table->string('nombre');
@@ -20,7 +21,6 @@ return new class extends Migration
             $table->bigInteger('cedula')->unique();
             $table->string('correo', 320)->unique();
             $table->bigInteger('telefono');
-            $table->boolean('es_lider');
             $table->timestamps();
         });
     }

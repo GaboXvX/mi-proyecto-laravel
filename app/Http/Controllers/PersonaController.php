@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePersonaRequest;
 use App\Http\Requests\updatePersonaRequest;
+use App\Models\categoriaPersona;
 use App\Models\Comunidad;
 use App\Models\Direccion;
 use App\Models\Lider_Comunitario;
@@ -20,7 +21,8 @@ class PersonaController extends Controller
 {
     public function create()
     {
-        return view('personas.registrarPersonas');
+        $categorias=categoriaPersona::all();
+        return view('personas.registrarPersonas',compact('categorias'));
     }
 
     public function store(StorePersonaRequest $request)
@@ -42,16 +44,15 @@ class PersonaController extends Controller
                 }
             }
     
-            // Comprobamos si ya existe un líder en la comunidad
-            $lider = Persona::whereHas('direccion', function ($query) use ($request) {
-                $query->where('id_comunidad', $request->input('comunidad'));
-            })
-            ->where('es_lider', 1)
-            ->first();
+            // Verificamos si ya existe otro líder en la misma comunidad
+            if ($request->input('categoria') == 2) { // Suponiendo que la categoría 2 es la de líder comunitario
+                $otroLider = Persona::whereHas('direccion', function ($query) use ($request) {
+                    $query->where('id_comunidad', $request->input('comunidad'));
+                })->where('id_categoriaPersona', 2)->first();
     
-            // Si la persona intenta ser líder y ya existe otro líder, lanzamos un error
-            if ($lider && $request->input('lider_comunitario') == 1) {
-                return redirect()->route('personas.index')->with('error', 'Ya existe un líder para esa comunidad');
+                if ($otroLider) {
+                    return back()->withErrors(['error' => 'Ya existe un líder activo para esta comunidad.'])->withInput();
+                }
             }
     
             // Asignamos los datos a la persona
@@ -62,7 +63,7 @@ class PersonaController extends Controller
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
             $persona->id_usuario = Auth::user()->id_usuario;
-            $persona->es_lider = $request->input('lider_comunitario');
+            $persona->id_categoriaPersona = $request->input('categoria'); // Asignamos la categoría seleccionada
             $persona->save();
     
             // Ahora que la persona está creada, creamos la dirección
@@ -91,7 +92,7 @@ class PersonaController extends Controller
             $persona->direccion()->save($direccion);
     
             // Si la persona es un líder, la registramos en la tabla lideres_comunitarios
-            if ($persona->es_lider == 1) {
+            if ($persona->id_categoriaPersona == 2) { // Suponiendo que la categoría 2 es la de líder comunitario
                 $liderComunitario = new Lider_Comunitario();
                 $liderComunitario->id_persona = $persona->id_persona;
                 $liderComunitario->id_comunidad = $comunidad;
@@ -127,9 +128,11 @@ class PersonaController extends Controller
    
     public function edit($slug)
     {
+        $categorias=categoriaPersona::all();
+
         $persona = Persona::where('slug', $slug)->first();
         if ($persona) {
-            return view('personas.modificarPersonas', compact('persona'));
+            return view('personas.modificarPersonas', compact('persona','categorias'));
         } else {
             return redirect()->route('personas.index');
         }
@@ -145,6 +148,17 @@ class PersonaController extends Controller
             return redirect()->route('personas.index')->with('error', 'Persona no encontrada con el slug: ' . $slug);
         }
 
+        // Verificamos si ya existe otro líder en la misma comunidad
+        if ($request->input('categoria') == 2 && $persona->id_categoriaPersona != 2) { // Suponiendo que la categoría 2 es la de líder comunitario
+            $otroLider = Persona::whereHas('direccion', function ($query) use ($persona) {
+                $query->where('id_comunidad', $persona->direccion->first()->id_comunidad);
+            })->where('id_categoriaPersona', 2)->first();
+
+            if ($otroLider) {
+                return back()->withErrors(['error' => 'Ya existe un líder activo para esta comunidad.'])->withInput();
+            }
+        }
+
         // Actualizamos los campos de la persona
         $persona->nombre = $request->input('nombre');
         $persona->apellido = $request->input('apellido');
@@ -152,35 +166,42 @@ class PersonaController extends Controller
         $persona->correo = $request->input('correo');
         $persona->telefono = $request->input('telefono');
         $persona->id_usuario = Auth::user()->id_usuario;
+        $persona->id_categoriaPersona = $request->input('categoria'); // Actualizamos la categoría seleccionada
 
         // Verificamos y actualizamos el estado de 'es_lider' si ha cambiado
-        $esLiderNuevo = $request->input('lider_comunitario');
-        if ($persona->es_lider != $esLiderNuevo) {
-            $persona->es_lider = $esLiderNuevo;
-
-            if ($esLiderNuevo == 1) {
-                // Verificamos si ya existe otro líder en la misma comunidad
-                $otroLider = Persona::whereHas('direccion', function ($query) use ($persona) {
-                    $query->where('id_comunidad', $persona->direccion->id_comunidad);
-                })->where('es_lider', 1)->first();
-
-                if ($otroLider) {
-                    return redirect()->route('personas.index')->with('error', 'Ya existe un líder activo para esta comunidad.');
-                }
-
+        $esLiderNuevo = $request->input('categoria') == 2; // Suponiendo que la categoría 2 es la de líder comunitario
+        if ($persona->id_categoriaPersona != $request->input('categoria')) {
+            if ($esLiderNuevo) {
                 // Si no existe, asignamos al nuevo líder
                 $persona->lider_Comunitario()->updateOrCreate(
                     ['id_persona' => $persona->id_persona],
-                    ['estado' => true, 'id_comunidad' => $persona->direccion->id_comunidad]
+                    ['estado' => true, 'id_comunidad' => $persona->direccion->first()->id_comunidad]
                 );
             } else {
                 // Si ya no es líder, lo desactivamos
                 $persona->lider_Comunitario()->update(['estado' => false]);
             }
+        } else if ($persona->id_categoriaPersona == 2 && $request->input('categoria') != 2) {
+            // Si la persona ya no es líder, desactivamos su estado en la tabla lideres_comunitarios
+            $persona->lider_Comunitario()->update(['estado' => false]);
         }
 
         // Guardamos los cambios en la persona
         $persona->save();
+
+        // Si se asigna un nuevo líder a la misma comunidad, creamos un nuevo registro en la tabla lideres_comunitarios
+        if ($esLiderNuevo) {
+            $nuevoLider = new Lider_Comunitario();
+            $nuevoLider->id_persona = $persona->id_persona;
+            $nuevoLider->id_comunidad = $persona->direccion->first()->id_comunidad;
+            $nuevoLider->estado = 1; // El líder está activo
+            $nuevoLider->save();
+        }
+
+        // Si la categoría de la persona es regular (1), desactivamos su estado en la tabla lideres_comunitarios
+        if ($request->input('categoria') == 1) {
+            $persona->lider_Comunitario()->update(['estado' => false]);
+        }
 
         return redirect()->route('personas.index')->with('success', 'Datos de la persona actualizados correctamente');
     } catch (\Exception $e) {

@@ -2,6 +2,7 @@
 
 // database/seeders/DatabaseSeeder.php
 
+use Database\Seeders\categoriaPersonaSeeder;
 use Database\Seeders\ParroquiaSeeder;
 use Database\Seeders\UrbanizacionSeeder;
 use Illuminate\Database\Seeder;
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
             RolSeeder::class,
             PreguntaSeguridadSeeder::class,
             UsuarioSeeder::class,
+            categoriaPersonaSeeder::class,
            
         ]);
     }

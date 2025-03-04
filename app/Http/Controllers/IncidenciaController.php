@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
-
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
@@ -76,16 +75,16 @@ class IncidenciaController extends Controller
             // Buscar al líder según la comunidad de la persona y su estado activo
             $lider = Lider_Comunitario::whereHas('comunidad', function ($query) use ($persona) {
                 // Asegúrate de que esté buscando la comunidad de la persona
-                $query->where('id_comunidad', $persona->direccion->id_comunidad);
+                $query->where('id_comunidad', $persona->direccion->first()->id_comunidad ?? null);
             })
             ->where('estado', 1) // Verificamos que el líder esté activo
             ->first();
     
             if ($lider) {
                 // Asignamos el líder a la incidencia
-                $incidencia->id_lider = $lider->id_persona;
+                $incidencia->id_lider = $lider->id_lider;
             } else {
-                // Si no hay un líder activo, asignamos NULL o no asignamos ningún líder
+                // Si no hay un líder activo, asignamos NULL
                 $incidencia->id_lider = null;
             }
     
@@ -98,24 +97,10 @@ class IncidenciaController extends Controller
             $incidencia->descripcion = $request->input('descripcion');
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
             $incidencia->estado = $request->input('estado');
+            $incidencia->id_direccion = $request->input('direccion');
     
             // Guardar la incidencia
             $incidencia->save();
-    
-            $camposCreado = [
-                'tipo_de_incidencia' => $incidencia->tipo_incidencia,
-                'descripcion' => $incidencia->descripcion,
-                'nivel_de_prioridad' => $incidencia->nivel_prioridad,
-                'estado' => $incidencia->estado,
-            ];
-    
-            $movimiento = new Movimiento();
-            $movimiento->id_incidencia = $incidencia->id_incidencia;
-            $movimiento->id_usuario = Auth::user()->id_usuario;
-            $movimiento->id_persona = $incidencia->id_persona;
-            $movimiento->accion = 'se ha creado un registro';
-            $movimiento->valor_anterior = json_encode($camposCreado);
-            $movimiento->save();
     
             if ($id_persona) {
                 $persona = Persona::findOrFail($id_persona);
@@ -320,30 +305,23 @@ class IncidenciaController extends Controller
 
     public function show($slug, $incidencia_slug)
     {
-
-
         $incidencia = Incidencia::where('slug', $incidencia_slug)->first();
         
-
-
         if (!$incidencia) {
             abort(404, 'Incidencia no encontrada');
         }
 
-
-
         $persona = Persona::where('slug', $slug)->first();
         $lider = Persona::whereHas('direccion', function ($query) use ($persona) {
-            $query->where('id_comunidad', $persona->direccion->id_comunidad);
+            $query->where('id_comunidad', $persona->direccion->first()->id_comunidad ?? null);
         })->first();
         
-            if ($persona) {
-                if ($incidencia->id_persona !== $persona->id_persona) {
-                    abort(404, 'Incidencia no encontrada para esta persona.');
-                }
-                return view('incidencias.incidencia', compact('incidencia', 'persona','lider'));
-            } 
-        
+        if ($persona) {
+            if ($incidencia->id_persona !== $persona->id_persona) {
+                abort(404, 'Incidencia no encontrada para esta persona.');
+            }
+            return view('incidencias.incidencia', compact('incidencia', 'persona', 'lider'));
+        }
     }
 
 

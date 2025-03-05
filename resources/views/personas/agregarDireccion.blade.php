@@ -6,6 +6,27 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Agregar Dirección</h4>
+                        @if (session('success'))
+                        <div class="alert alert-success mb-3">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                
+                    @if (session('error'))
+                        <div class="alert alert-danger mb-3" id="error-alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-3" id="validation-errors">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     </div>
                     <div class="card-body">
                         <form action="{{ route('guardarDireccion',$persona->id_persona ) }}" method="POST">
@@ -38,6 +59,16 @@
                             <div class="mb-3">
                                 <label for="numero_de_casa" class="form-label">Número de Casa:</label>
                                 <input type="number" id="numero_de_casa" name="numero_de_casa" class="form-control" value="{{ old('numero_de_casa') }}" required min="1" step="1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoría:</label>
+                                <select id="categoria" name="categoria" class="form-select" required>
+                                    <option value="" disabled selected>--Seleccione--</option>
+                                    @foreach($categorias as $categoria)
+                                        <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             
                             <button type="submit" class="btn btn-primary">Guardar</button>

@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
 </head>
 <body>
-      <!-- Sidebar -->
-      <nav class="sidebar d-flex flex-column p-3" id="sidebar">
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
@@ -113,199 +113,195 @@
                 </ul>
             </div>
         </div>
-    <div class="container mt-5">
-        @if (session('success'))
-        <div class="alert alert-success mb-3">
-            {{ session('success') }}
-        </div>
-    @endif
+        <div class="container mt-5">
+            @if (session('success'))
+            <div class="alert alert-success mb-3">
+                {{ session('success') }}
+            </div>
+            @endif
 
-    @if (session('error'))
-        <div class="alert alert-danger mb-3" id="error-alert">
-            {{ session('error') }}
-        </div>
-    @endif
+            @if (session('error'))
+            <div class="alert alert-danger mb-3" id="error-alert">
+                {{ session('error') }}
+            </div>
+            @endif
 
-    @if ($errors->any())
-        <div class="alert alert-danger mb-3" id="validation-errors">
-            <ul>
-                @foreach ($errors->all() as $error)
+            @if ($errors->any())
+            <div class="alert alert-danger mb-3" id="validation-errors">
+                <ul>
+                    @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
-   
-        <h2 class="text-center">Datos de la Persona</h2>
-        <div class="mt-3">
-            <!-- Botón Volver utilizando ruta de Laravel -->
-            <a href="{{ route('personas.index') }}" class="btn btn-primary fw-bold">Volver</a>
-        </div>
-        
-        <!-- Card para mostrar la información personal -->
-        <div class="card mt-4">
-            <div class="card-header">
-            Información Personal
+            <h2 class="text-center">Datos de la Persona</h2>
+            <div class="mt-3">
+                <!-- Botón Volver utilizando ruta de Laravel -->
+                <a href="{{ route('personas.index') }}" class="btn btn-primary fw-bold">Volver</a>
             </div>
-            <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <tbody>
-                <tr>
-                    <th>Nombre:</th>
-                    <td>{{ $persona->nombre }}</td>
-                </tr>
-                <tr>
-                    <th>Apellido:</th>
-                    <td>{{ $persona->apellido }}</td>
-                </tr>
-                <tr>
-                    <th>Cédula:</th>
-                    <td>{{ $persona->cedula }}</td>
-                </tr>
-                <tr>
-                    <th>¿Es líder Comunitario?</th>
-                    <td>
-                        <span class="
-                        @if($persona->es_lider==1)
-                            text-success  <!-- Clase para color verde -->
-                        @elseif($persona->es_lider == 0)
-                            text-danger  <!-- Clase para color rojo -->
-                        @endif
-                        ">
-                        {{ $persona->es_lider ? 'Sí' : 'No' }}
-                        </span>                               
-                    </td>
-                </tr>
-                <tr>
-                    <th>Correo Electrónico:</th>
-                    <td>{{ $persona->correo }}</td>
-                </tr>
-                <tr>
-                    <th>Teléfono:</th>
-                    <td>{{ $persona->telefono }}</td>
-                </tr>
-                <tr>
-                    <th>Responsable:</th>
-                    <td>{{ $persona->user->nombre }} {{ $persona->user->apellido }}</td>
-                </tr>
-                <tr>
-                    <th>Creado en:</th>
-                    <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
-                </tr>
-                </tbody>
-            </table>
-            </div>
-        </div>
-
-        <!-- Card para mostrar las direcciones -->
-        <div class="card mt-4">
-            <div class="card-header">
-            Direcciones
-            </div>
-            <div class="card-body">
-               
-            @foreach($persona->direccion as $direcciones)
             
-            <div class="card mb-4">
+            <!-- Card para mostrar la información personal -->
+            <div class="card mt-4">
                 <div class="card-header">
-                    
-                   
+                Información Personal
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-striped">
-                        <tbody>
-                            <tr>
-                                <th>Estado:</th>
-                                <td>{{ $direcciones->estado ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Municipio:</th>
-                                <td>{{ $direcciones->municipio ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Parroquia:</th>
-                                <td>{{ $direcciones->parroquia->nombre ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Urbanización:</th>
-                                <td>{{ $direcciones->urbanizacion->nombre ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Sector:</th>
-                                <td>{{ $direcciones->sector->nombre ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Comunidad:</th>
-                                <td>{{ $direcciones->comunidad->nombre ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Calle:</th>
-                                <td>{{ $direcciones->calle ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Manzana:</th>
-                                <td>{{ $direcciones->manzana ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Número de Casa:</th>
-                                <td>{{ $direcciones->numero_de_casa ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Fecha de Registro:</th>
-                                <td>{{ $direcciones->created_at->format('d/m/Y H:i') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <table class="table table-bordered table-striped">
+                    <tbody>
+                    <tr>
+                        <th>Nombre:</th>
+                        <td>{{ $persona->nombre }}</td>
+                    </tr>
+                    <tr>
+                        <th>Apellido:</th>
+                        <td>{{ $persona->apellido }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cédula:</th>
+                        <td>{{ $persona->cedula }}</td>
+                    </tr>
+                    <tr>
+                        <th>Correo Electrónico:</th>
+                        <td>{{ $persona->correo }}</td>
+                    </tr>
+                    <tr>
+                        <th>Teléfono:</th>
+                        <td>{{ $persona->telefono }}</td>
+                    </tr>
+                    <tr>
+                        <th>Responsable:</th>
+                        <td>{{ $persona->user->nombre }} {{ $persona->user->apellido }}</td>
+                    </tr>
+                    <tr>
+                        <th>Creado en:</th>
+                        <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
                 </div>
             </div>
-            @endforeach
+
+            <!-- Card para mostrar las direcciones -->
+            <div class="card mt-4">
+                <div class="card-header">
+                Direcciones
+                </div>
+                <div class="card-body">
+                @foreach($persona->direccion as $direccion)
+                <div class="card mb-4">
+                    <div class="card-header">
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Estado:</th>
+                                    <td>{{ $direccion->estado ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Municipio:</th>
+                                    <td>{{ $direccion->municipio ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Parroquia:</th>
+                                    <td>{{ $direccion->parroquia->nombre ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Urbanización:</th>
+                                    <td>{{ $direccion->urbanizacion->nombre ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Sector:</th>
+                                    <td>{{ $direccion->sector->nombre ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Comunidad:</th>
+                                    <td>{{ $direccion->comunidad->nombre ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Calle:</th>
+                                    <td>{{ $direccion->calle ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Manzana:</th>
+                                    <td>{{ $direccion->manzana ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Número de Casa:</th>
+                                    <td>{{ $direccion->numero_de_casa ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>¿Es líder Comunitario?</th>
+                                    <td>
+                                        <span class="
+                                        @if($direccion->esLider)
+                                            text-success  <!-- Clase para color verde -->
+                                        @else
+                                            text-danger  <!-- Clase para color rojo -->
+                                        @endif
+                                        ">
+                                        {{ $direccion->esLider ? 'Sí' : 'No' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Fecha de Registro:</th>
+                                    <td>{{ $direccion->created_at->format('d/m/Y H:i') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endforeach
+                </div>
             </div>
+
+            <hr>
+
+            <h3>Reportes de Incidencias</h3>
+            @if($persona->incidencias->isEmpty())
+                <p>No hay incidencias registradas para esta persona.</p>
+            @else
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Incidencia</th>
+                            <th>Descripción</th>
+                            <th>Nivel de Prioridad</th>
+                            <th>Estado</th>
+                            <th>Fecha de Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($persona->incidencias as $incidencia)
+                            <tr>
+                                <td>{{ $incidencia->tipo_incidencia }}</td>
+                                <td>{{ $incidencia->descripcion }}</td>
+                                <td>{{ $incidencia->nivel_prioridad }}</td>
+                                <td>{{ $incidencia->estado }}</td>
+                                <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}">Modificar incidencia</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
 
-        <hr>
-
-        <h3>Reportes de Incidencias</h3>
-        @if($persona->incidencias->isEmpty())
-            <p>No hay incidencias registradas para esta persona.</p>
-        @else
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Tipo de Incidencia</th>
-                        <th>Descripción</th>
-                        <th>Nivel de Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha de Creación</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($persona->incidencias as $incidencia)
-                        <tr>
-                            <td>{{ $incidencia->tipo_incidencia }}</td>
-                            <td>{{ $incidencia->descripcion }}</td>
-                            <td>{{ $incidencia->nivel_prioridad }}</td>
-                            <td>{{ $incidencia->estado }}</td>
-                            <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
-                            <td>
-                                <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}">Modificar incidencia</a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
+        <!-- Enlace al JS de Bootstrap -->
+        <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('js/script.js') }}"></script>
+        <script>
+            setTimeout(function() {
+                document.getElementById('error-alert')?.style.display = 'none';
+                document.getElementById('validation-errors')?.style.display = 'none';
+            }, 2000);
+        </script>
     </div>
-
-    <!-- Enlace al JS de Bootstrap -->
-    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/script.js') }}"></script>
-    <script>
-        setTimeout(function() {
-            document.getElementById('error-alert')?.style.display = 'none';
-            document.getElementById('validation-errors')?.style.display = 'none';
-        }, 2000);
-    </script>
 </body>
 </html>

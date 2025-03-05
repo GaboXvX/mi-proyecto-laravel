@@ -55,6 +55,21 @@ class PersonaController extends Controller
                 }
             }
     
+            // Verificamos si la dirección ya está registrada para la persona
+            $direccionExistente = Direccion::where('id_persona', $persona->id_persona)
+                ->where('id_parroquia', $request->input('parroquia'))
+                ->where('id_urbanizacion', $request->input('urbanizacion'))
+                ->where('id_sector', $request->input('sector'))
+                ->where('id_comunidad', $request->input('comunidad'))
+                ->where('calle', $request->input('calle'))
+                ->where('manzana', $request->input('manzana'))
+                ->where('numero_de_casa', $request->input('num_casa'))
+                ->first();
+    
+            if ($direccionExistente) {
+                return back()->withErrors(['error' => 'La dirección ya está registrada para esta persona.'])->withInput();
+            }
+    
             // Asignamos los datos a la persona
             $persona->slug = $slug;
             $persona->nombre = $request->input('nombre');
@@ -119,6 +134,10 @@ class PersonaController extends Controller
     {
         $persona = Persona::where('slug', $slug)->firstOrFail();
         if ($persona) {
+            // Determinamos si la persona es líder comunitario en alguna de sus direcciones
+            foreach ($persona->direccion as $direccion) {
+                $direccion->esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->where('estado', 1)->exists();
+            }
             return view('personas.persona', compact('persona'));
         } else {
             return redirect()->route('personas.index');
@@ -157,6 +176,22 @@ class PersonaController extends Controller
             if ($otroLider) {
                 return back()->withErrors(['error' => 'Ya existe un líder activo para esta comunidad.'])->withInput();
             }
+        }
+
+        // Verificamos si la dirección ya está registrada para la persona
+        $direccionExistente = Direccion::where('id_persona', $persona->id_persona)
+            ->where('id_parroquia', $request->input('parroquia'))
+            ->where('id_urbanizacion', $request->input('urbanizacion'))
+            ->where('id_sector', $request->input('sector'))
+            ->where('id_comunidad', $request->input('comunidad'))
+            ->where('calle', $request->input('calle'))
+            ->where('manzana', $request->input('manzana'))
+            ->where('numero_de_casa', $request->input('num_casa'))
+            ->where('id_direccion', '!=', $persona->direccion->first()->id_direccion) // Excluimos la dirección actual
+            ->first();
+
+        if ($direccionExistente) {
+            return back()->withErrors(['error' => 'La dirección ya está registrada para esta persona.'])->withInput();
         }
 
         // Actualizamos los campos de la persona

@@ -242,6 +242,15 @@
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 2000);
+        });
+    </script>
     <!-- Ensure this is included for dropdown and collapse functionality -->
 </body>
 

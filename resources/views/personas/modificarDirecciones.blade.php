@@ -3,9 +3,30 @@
 @section('content')
 <div class="container">
     <h1>Modificar Direcciones</h1>
+    @if (session('success'))
+        <div class="alert alert-success mb-3" id="success-alert">
+            {{ session('success') }}
+        </div>
+    @endif
 
+    @if (session('error'))
+        <div class="alert alert-danger mb-3" id="error-alert">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger mb-3" id="validation-errors">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+   
     <!-- Botón para añadir dirección -->
-    <button type="button" class="btn btn-primary mb-4" id="addDireccionBtn">Añadir Dirección</button>
 
     <!-- Tabla con las direcciones existentes -->
     <table class="table table-striped">
@@ -20,6 +41,7 @@
                 <th>Calle</th>
                 <th>Manzana</th>
                 <th>Número de Casa</th>
+                <th>¿Es líder Comunitario?</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -36,13 +58,25 @@
                     <td>{{ $direccion->manzana }}</td>
                     <td>{{ $direccion->numero_de_casa }}</td>
                     <td>
+                        <span class="
+                        @if($direccion->esLider)
+                            text-success  <!-- Clase para color verde -->
+                        @else
+                            text-danger  <!-- Clase para color rojo -->
+                        @endif
+                        ">
+                        {{ $direccion->esLider ? 'Sí' : 'No' }}
+                        </span>
+                    </td>
+                    <td>
                         <!-- Botón de editar -->
                         <button type="button" class="btn btn-warning btn-sm edit-btn" data-id="{{ $direccion->id_direccion }}" 
                                 data-estado="{{ $direccion->estado }}" data-municipio="{{ $direccion->municipio }}"
                                 data-parroquia="{{ $direccion->parroquia->nombre }}" data-urbanizacion="{{ $direccion->urbanizacion->nombre }}"
                                 data-sector="{{ $direccion->sector->nombre }}" data-comunidad="{{ $direccion->comunidad->nombre }}"
                                 data-calle="{{ $direccion->calle }}" data-manzana="{{ $direccion->manzana }}"
-                                data-numero-de-casa="{{ $direccion->numero_de_casa }}" data-bs-toggle="modal" data-bs-target="#editDireccionModal">
+                                data-numero-de-casa="{{ $direccion->numero_de_casa }}" data-id-persona="{{ $persona->id_persona }}"
+                                data-bs-toggle="modal" data-bs-target="#editDireccionModal">
                             Modificar
                         </button>
                     </td>
@@ -85,6 +119,16 @@
                             <input type="text" id="numero_de_casa" name="numero_de_casa" class="form-control" required>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoría:</label>
+                            <select id="categoria" name="categoria" class="form-select" required>
+                                <option value="" disabled selected>--Seleccione--</option>
+                                @foreach($categorias as $categoria)
+                                    <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     </form>
                 </div>
@@ -98,6 +142,7 @@
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
+            const idPersona = this.getAttribute('data-id-persona');
             const estado = this.getAttribute('data-estado');
             const municipio = this.getAttribute('data-municipio');
             const parroquia = this.getAttribute('data-parroquia');
@@ -114,10 +159,18 @@
             document.getElementById('manzana').value = manzana;
             document.getElementById('numero_de_casa').value = numeroDeCasa;
 
-            // Establecer la acción del formulario con el id de la dirección
-            document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}`;
+            // Establecer la acción del formulario con el id de la dirección y el id de la persona
+            document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
         });
     });
 </script>
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                alert.style.display = 'none';
+            });
+        }, 2000);
+    });
+</script>
 @endsection

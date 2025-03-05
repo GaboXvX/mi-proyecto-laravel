@@ -20,7 +20,7 @@ class liderController extends Controller
 {
     public function index(){
        
-        $lideres = persona::where('es_lider',1)->get();
+        $lideres = persona::where('id_categoriaPersona',2)->get();
 
 
        

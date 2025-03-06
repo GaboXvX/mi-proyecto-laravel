@@ -61,7 +61,7 @@
                                 <input type="number" id="numero_de_casa" name="numero_de_casa" class="form-control" value="{{ old('numero_de_casa') }}" required min="1" step="1">
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-3" id="categoria-container">
                                 <label for="categoria" class="form-label">Categoría:</label>
                                 <select id="categoria" name="categoria" class="form-select" required>
                                     <option value="" disabled selected>--Seleccione--</option>
@@ -78,4 +78,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('comunidad').addEventListener('change', function() {
+            const comunidadId = this.value;
+            const personaId = {{ $persona->id_persona }};
+            
+            fetch(`/check-lider-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ comunidad_id: comunidadId, persona_id: personaId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.esLider) {
+                    document.getElementById('categoria-container').style.display = 'none';
+                } else {
+                    document.getElementById('categoria-container').style.display = 'block';
+                }
+            });
+        });
+    </script>
 @endsection

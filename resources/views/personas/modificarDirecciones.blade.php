@@ -119,7 +119,7 @@
                             <input type="text" id="numero_de_casa" name="numero_de_casa" class="form-control" required>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" id="categoria-container">
                             <label for="categoria" class="form-label">Categoría:</label>
                             <select id="categoria" name="categoria" class="form-select" required>
                                 <option value="" disabled selected>--Seleccione--</option>
@@ -161,6 +161,24 @@
 
             // Establecer la acción del formulario con el id de la dirección y el id de la persona
             document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
+
+            // Verificar si la persona ya es líder en la comunidad seleccionada
+            fetch(`/check-lider-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ comunidad_id: comunidad, persona_id: idPersona })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.esLider) {
+                    document.getElementById('categoria-container').style.display = 'none';
+                } else {
+                    document.getElementById('categoria-container').style.display = 'block';
+                }
+            });
         });
     });
 </script>

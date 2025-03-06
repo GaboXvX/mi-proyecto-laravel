@@ -63,8 +63,11 @@ class direccionController extends Controller
             $query->where('id_comunidad', $request->input('comunidad'));
         })->where('id_categoriaPersona', 2)->exists();
 
-        if ($request->input('categoria') == 2 && $otroLider) {
-            return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad.'])->withInput();
+        // Verificamos si la persona ya es líder de otra comunidad
+        $esLiderOtraComunidad = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->exists();
+
+        if ($request->input('categoria') == 2 && ($otroLider || $esLiderOtraComunidad)) {
+            return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad o la persona ya es líder de otra comunidad.'])->withInput();
         }
 
         $direccion->id_parroquia = $request->input('parroquia');
@@ -155,22 +158,25 @@ class direccionController extends Controller
           ->where('id_persona', '!=', $idPersona)  // Excluimos a la persona actual
           ->exists();
     
+        // Verificamos si la persona ya es líder de otra comunidad
+        $esLiderOtraComunidad = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->where('id_comunidad', '!=', $request->input('comunidad'))->exists();
+
         // Priorizar la condición de actualizar la misma dirección en la que es líder
         if ($esLider && $direccion->id_comunidad == $request->input('comunidad')) {
             // Si se está actualizando la misma dirección, no se toma en cuenta la condición de otro líder
             $otroLider = false;
-        }else{
-    
-        if ($esLider && $otroLider) {
-            return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad y esta persona ya es líder de una comunidad.'])->withInput();
-        } elseif ($esLider) {
-            return redirect()->back()->withErrors(['error' => 'Esta persona ya es líder de una comunidad.'])->withInput();
-        } elseif ($otroLider) {
-            return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad.'])->withInput();
+        } else {
+            if ($esLider && ($otroLider || $esLiderOtraComunidad)) {
+                return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad o la persona ya es líder de otra comunidad.'])->withInput();
+            } elseif ($esLider) {
+                return redirect()->back()->withErrors(['error' => 'Esta persona ya es líder de una comunidad.'])->withInput();
+            } elseif ($otroLider) {
+                return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad.'])->withInput();
+            }
         }
-    }
+    
         // Si no hay líder para esa comunidad y la persona no es líder de ninguna, asignamos el puesto de líder
-        if (!$esLider && !$otroLider && $request->input('categoria') == 2) {
+        if (!$esLider && !$otroLider && !$esLiderOtraComunidad && $request->input('categoria') == 2) {
             $persona->id_categoriaPersona = 2;
             $persona->save();
     
@@ -209,6 +215,17 @@ class direccionController extends Controller
         $direccion->save();
     
         return redirect()->route('personas.show', ['slug' => $persona->slug])->with('success', 'Dirección actualizada exitosamente');
+    }
+
+    public function checkLiderStatus(Request $request)
+    {
+        $personaId = $request->input('persona_id');
+        $comunidadId = $request->input('comunidad_id');
+
+        $persona = Persona::find($personaId);
+        $esLider = $persona->lider_Comunitario()->where('id_comunidad', $comunidadId)->where('estado', 1)->exists();
+
+        return response()->json(['esLider' => $esLider]);
     }
     
 }

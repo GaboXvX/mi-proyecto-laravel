@@ -71,5 +71,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
     Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
+    Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);
 });
  });

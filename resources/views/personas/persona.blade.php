@@ -229,8 +229,8 @@
                                     <td>{{ $direccion->manzana ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Número de Casa:</th>
-                                    <td>{{ $direccion->numero_de_casa ?? 'N/A' }}</td>
+                                    <th>Número de Vivienda:</th>
+                                    <td>{{ $direccion->numero_de_vivienda ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
                                     <th>¿Es líder Comunitario?</th>

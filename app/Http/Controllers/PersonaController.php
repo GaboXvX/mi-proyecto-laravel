@@ -63,7 +63,7 @@ class PersonaController extends Controller
                 ->where('id_comunidad', $request->input('comunidad'))
                 ->where('calle', $request->input('calle'))
                 ->where('manzana', $request->input('manzana'))
-                ->where('numero_de_casa', $request->input('num_casa'))
+                ->where('numero_de_vivienda', $request->input('num_vivienda'))
                 ->first();
     
             if ($direccionExistente) {
@@ -88,17 +88,21 @@ class PersonaController extends Controller
             $comunidad = $request->input('comunidad');
             $calle = $request->input('calle');
             $manzana = $request->input('manzana');
-            $num_casa = $request->input('num_casa');
+            $num_vivienda = $request->input('num_vivienda');
+            $bloque = $request->input('bloque');
+            $es_principal = $request->input('es_principal', 0); // Capturamos si es principal o secundaria
     
                 $direccion = new Direccion();
                 $direccion->id_comunidad = $comunidad;
                 $direccion->id_sector = $sector;
                 $direccion->calle = $calle;
                 $direccion->manzana = $manzana;
-                $direccion->numero_de_casa = $num_casa;
+                $direccion->numero_de_vivienda = $num_vivienda;
+                $direccion->bloque = $bloque;
                 $direccion->id_parroquia = $parroquia;
                 $direccion->id_urbanizacion = $urbanizacion;
                 $direccion->id_persona = $persona->id_persona;  // Asignamos el id_persona
+                $direccion->es_principal = $es_principal;
                 $direccion->save();
             
     
@@ -186,7 +190,7 @@ class PersonaController extends Controller
             ->where('id_comunidad', $request->input('comunidad'))
             ->where('calle', $request->input('calle'))
             ->where('manzana', $request->input('manzana'))
-            ->where('numero_de_casa', $request->input('num_casa'))
+            ->where('numero_de_vivienda', $request->input('num_casa'))
             ->where('id_direccion', '!=', $persona->direccion->first()->id_direccion) // Excluimos la dirección actual
             ->first();
 

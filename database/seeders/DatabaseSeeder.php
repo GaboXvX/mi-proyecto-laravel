@@ -10,6 +10,7 @@ use Database\Seeders\SectorSeeder;
 use Database\Seeders\ComunidadSeeder;
 use Database\Seeders\RolSeeder;
 use Database\Seeders\PreguntaSeguridadSeeder;
+use Database\Seeders\RespuestasSeeder;
 use Database\Seeders\UsuarioSeeder;
 class DatabaseSeeder extends Seeder
 {
@@ -24,7 +25,7 @@ class DatabaseSeeder extends Seeder
             PreguntaSeguridadSeeder::class,
             UsuarioSeeder::class,
             categoriaPersonaSeeder::class,
-           
+            RespuestasSeeder::class,
         ]);
     }
 }

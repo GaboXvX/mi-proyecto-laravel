@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('personas/guardardireccion/{id}', [direccionController::class, 'store'])->name('guardarDireccion');
     Route::get('/personas/modificardireccion/{slug}',[direccionController::class,'edit'])->name('personas.modificarDireccion');
     Route::post('/personas/actualizardireccion/{id}/{idPersona}',[direccionController::class,'update'])->name('personas.actualizarDireccion');
+    Route::post('/personas/marcarprincipal', [direccionController::class, 'marcarPrincipal'])->name('personas.marcarPrincipal');
     Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas')->middleware('role:admin');
 
     Route::get('/incidencias/{slug}', [IncidenciaController::class, 'mostrar'])->name('incidencias.mostrar');

@@ -20,7 +20,8 @@ return new class extends Migration
             $table->bigInteger('id_comunidad')->unsigned()->nullable();
             $table->string('calle');
             $table->string('manzana');
-            $table->integer('numero_de_casa');
+            $table->string('bloque')->nullable();
+            $table->integer('numero_de_vivienda');
             $table->boolean('es_principal');
             $table->timestamps();
         $table->foreign('id_persona')->references('id_persona')->on('personas')->onDelete('cascade')->onUpdate('cascade');

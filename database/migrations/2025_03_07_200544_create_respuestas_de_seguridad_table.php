@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('preguntas_de_seguridad', function (Blueprint $table) {
-            $table->bigIncrements('id_pregunta');
-            $table->string('pregunta');
+        Schema::create('respuestas_de_seguridad', function (Blueprint $table) {
+            $table->bigIncrements('id_respuesta');
+            $table->unsignedBigInteger('id_pregunta');
+            $table->unsignedBigInteger('id_usuario');
+            $table->string('respuesta');
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('preguntas_de_seguridad');
+        Schema::dropIfExists('respuestas_de_seguridad');
     }
 };

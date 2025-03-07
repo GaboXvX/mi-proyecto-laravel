@@ -25,9 +25,6 @@
         </div>
     @endif
 
-   
-    <!-- Botón para añadir dirección -->
-
     <!-- Tabla con las direcciones existentes -->
     <table class="table table-striped">
         <thead>
@@ -40,7 +37,9 @@
                 <th>Comunidad</th>
                 <th>Calle</th>
                 <th>Manzana</th>
-                <th>Número de Casa</th>
+                <th>Número de Vivienda</th>
+                <th>Bloque</th>
+                <th>Principal</th>
                 <th>¿Es líder Comunitario?</th>
                 <th>Acciones</th>
             </tr>
@@ -56,7 +55,13 @@
                     <td>{{ $direccion->comunidad->nombre }}</td>
                     <td>{{ $direccion->calle }}</td>
                     <td>{{ $direccion->manzana }}</td>
-                    <td>{{ $direccion->numero_de_casa }}</td>
+                    <td>{{ $direccion->numero_de_vivienda }}</td>
+                    <td>{{ $direccion->bloque }}</td>
+                    <td>
+                        <span class="{{ $direccion->es_principal ? 'text-success' : 'text-danger' }}">
+                            {{ $direccion->es_principal ? 'Sí' : 'No' }}
+                        </span>
+                    </td>
                     <td>
                         <span class="
                         @if($direccion->esLider)
@@ -75,10 +80,20 @@
                                 data-parroquia="{{ $direccion->parroquia->nombre }}" data-urbanizacion="{{ $direccion->urbanizacion->nombre }}"
                                 data-sector="{{ $direccion->sector->nombre }}" data-comunidad="{{ $direccion->comunidad->nombre }}"
                                 data-calle="{{ $direccion->calle }}" data-manzana="{{ $direccion->manzana }}"
-                                data-numero-de-casa="{{ $direccion->numero_de_casa }}" data-id-persona="{{ $persona->id_persona }}"
+                                data-numero-de-vivienda="{{ $direccion->numero_de_vivienda }}" data-bloque="{{ $direccion->bloque }}"
+                                data-id-persona="{{ $persona->id_persona }}"
                                 data-bs-toggle="modal" data-bs-target="#editDireccionModal">
                             Modificar
                         </button>
+                        @if(!$direccion->es_principal)
+                            <form action="{{ route('personas.marcarPrincipal') }}" method="POST" style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="id_direccion" value="{{ $direccion->id_direccion }}">
+                                <button type="submit" class="btn btn-primary btn-sm" title="Marcar como principal">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                </button>
+                            </form>
+                        @endif
                     </td>
                 </tr>
             @endforeach
@@ -115,8 +130,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="numero_de_casa" class="form-label">Número de Casa:</label>
-                            <input type="text" id="numero_de_casa" name="numero_de_casa" class="form-control" required>
+                            <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
+                            <input type="text" id="bloque" name="bloque" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
+                            <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required>
                         </div>
 
                         <div class="mb-3" id="categoria-container">
@@ -151,13 +171,15 @@
             const comunidad = this.getAttribute('data-comunidad');
             const calle = this.getAttribute('data-calle');
             const manzana = this.getAttribute('data-manzana');
-            const numeroDeCasa = this.getAttribute('data-numero-de-casa');
+            const numeroDeVivienda = this.getAttribute('data-numero-de-vivienda');
+            const bloque = this.getAttribute('data-bloque');
 
             // Asignar los valores al formulario del modal
             document.getElementById('direccion_id').value = id;
             document.getElementById('calle').value = calle;
             document.getElementById('manzana').value = manzana;
-            document.getElementById('numero_de_casa').value = numeroDeCasa;
+            document.getElementById('numero_de_vivienda').value = numeroDeVivienda;
+            document.getElementById('bloque').value = bloque;
 
             // Establecer la acción del formulario con el id de la dirección y el id de la persona
             document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;

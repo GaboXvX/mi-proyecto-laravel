@@ -181,7 +181,7 @@
                         <option value="" disabled selected>--Seleccione--</option>
                         @foreach ($persona->direccion as $direccion)
                             <option value="{{ $direccion->id_direccion }}">
-                                Parroquia: {{ $direccion->parroquia->nombre }} - Urbanización: {{ $direccion->urbanizacion->nombre }} - Sector: {{ $direccion->sector->nombre }} - Comunidad: {{ $direccion->comunidad->nombre }} - Calle: {{ $direccion->calle }} Manzana: {{ $direccion->manzana }} Número de Casa: {{ $direccion->numero_de_casa }}
+                                Parroquia: {{ $direccion->parroquia->nombre }} - Urbanización: {{ $direccion->urbanizacion->nombre }} - Sector: {{ $direccion->sector->nombre }} - Comunidad: {{ $direccion->comunidad->nombre }} - Calle: {{ $direccion->calle }} Manzana: {{ $direccion->manzana }} Número de Casa: {{ $direccion->numero_de_vivienda }}
                             </option>
                         @endforeach
                     </select>

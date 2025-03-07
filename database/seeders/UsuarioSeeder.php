@@ -19,7 +19,6 @@ class UsuarioSeeder extends Seeder
                 'nombre_usuario' => 'admin',
                 'estado' => 'activo',
                 'id_rol' => 1,
-                'id_pregunta' => 1,
                 
             ],
             

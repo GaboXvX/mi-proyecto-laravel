@@ -232,8 +232,21 @@
             </div>
 
             <div class="mb-3">
-                <label for="num_casa" class="form-label">Número de Casa:</label>
-                <input type="number" id="num_casa" name="num_casa" class="form-control" value="{{ old('num_casa') }}" required min="1" step="1">
+                <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
+                <input type="text" id="bloque" name="bloque" class="form-control" value="{{ old('bloque') }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                <input type="number" id="num_vivienda" name="num_vivienda" class="form-control" value="{{ old('num_vivienda') }}" required min="1" step="1">
+            </div>
+
+            <div class="mb-3">
+                <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
+                <select name="es_principal" id="es_principal" class="form-select" required>
+                    <option value="1" {{ old('es_principal') == '1' ? 'selected' : '' }}>Sí</option>
+                    <option value="0" {{ old('es_principal') == '0' ? 'selected' : '' }}>No</option>
+                </select>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Enviar</button>

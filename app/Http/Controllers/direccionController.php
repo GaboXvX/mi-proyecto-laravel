@@ -35,12 +35,18 @@ class direccionController extends Controller
             'comunidad' => 'required|string|max:255',
             'calle' => 'nullable|string|max:255',
             'manzana' => 'nullable|string|max:255',
-            'numero_de_casa' => 'required|string|max:255',
-            'categoria' => 'required|integer',
+            'numero_de_vivienda' => 'required|string|max:255',
+            'bloque' => 'nullable|string|max:255',
+            'es_principal' => 'required|boolean',
         ]);
 
         if (empty($request->input('calle')) && empty($request->input('manzana'))) {
             return redirect()->back()->withErrors(['error' => 'Debe llenar al menos uno de los campos: calle o manzana']);
+        }
+
+        // Verificamos si ya existe una dirección principal para la persona
+        if ($request->input('es_principal') && Direccion::where('id_persona', $id)->where('es_principal', 1)->exists()) {
+            return redirect()->back()->withErrors(['error' => 'Ya existe una dirección marcada como principal para esta persona.'])->withInput();
         }
 
         // Verificamos si la dirección ya está registrada para la persona
@@ -51,7 +57,7 @@ class direccionController extends Controller
             ->where('id_comunidad', $request->input('comunidad'))
             ->where('calle', $request->input('calle'))
             ->where('manzana', $request->input('manzana'))
-            ->where('numero_de_casa', $request->input('numero_de_casa'))
+            ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))
             ->first();
 
         if ($direccionExistente) {
@@ -70,14 +76,21 @@ class direccionController extends Controller
             return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad o la persona ya es líder de otra comunidad.'])->withInput();
         }
 
+        // Si la dirección es principal, desmarcamos cualquier otra dirección principal de la persona
+        if ($request->input('es_principal')) {
+            Direccion::where('id_persona', $id)->update(['es_principal' => 0]);
+        }
+
         $direccion->id_parroquia = $request->input('parroquia');
         $direccion->id_urbanizacion = $request->input('urbanizacion');
         $direccion->id_sector = $request->input('sector');
         $direccion->id_comunidad = $request->input('comunidad');
         $direccion->calle = $request->input('calle');
         $direccion->manzana = $request->input('manzana');
-        $direccion->numero_de_casa = $request->input('numero_de_casa');
+        $direccion->numero_de_vivienda = $request->input('numero_de_vivienda');
+        $direccion->bloque = $request->input('bloque');
         $direccion->id_persona = $id;
+        $direccion->es_principal = $request->input('es_principal');
 
         $direccion->save();
 
@@ -125,7 +138,8 @@ class direccionController extends Controller
             'comunidad' => 'required|string|max:255',
             'calle' => 'nullable|string|max:255',
             'manzana' => 'nullable|string|max:255',
-            'numero_de_casa' => 'required|string|max:255',
+            'bloque' => 'nullable|string|max:255',  // Nuevo campo
+            'numero_de_vivienda' => 'required|string|max:255',  // Reemplaza a numero_de_casa
         ]);
     
         if (empty($request->input('calle')) && empty($request->input('manzana'))) {
@@ -140,7 +154,8 @@ class direccionController extends Controller
             ->where('id_comunidad', $request->input('comunidad'))
             ->where('calle', $request->input('calle'))
             ->where('manzana', $request->input('manzana'))
-            ->where('numero_de_casa', $request->input('numero_de_casa'))
+            ->where('bloque', $request->input('bloque'))  // Verificamos el nuevo campo
+            ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))  // Reemplazamos numero_de_casa
             ->where('id_direccion', '!=', $id) // Excluimos la dirección actual
             ->first();
     
@@ -160,7 +175,7 @@ class direccionController extends Controller
     
         // Verificamos si la persona ya es líder de otra comunidad
         $esLiderOtraComunidad = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->where('id_comunidad', '!=', $request->input('comunidad'))->exists();
-
+    
         // Priorizar la condición de actualizar la misma dirección en la que es líder
         if ($esLider && $direccion->id_comunidad == $request->input('comunidad')) {
             // Si se está actualizando la misma dirección, no se toma en cuenta la condición de otro líder
@@ -204,18 +219,21 @@ class direccionController extends Controller
             $persona->save();
         }
     
+        // Actualizamos la dirección con los nuevos datos
         $direccion->id_parroquia = $request->input('parroquia');
         $direccion->id_urbanizacion = $request->input('urbanizacion');
         $direccion->id_sector = $request->input('sector');
         $direccion->id_comunidad = $request->input('comunidad');
         $direccion->calle = $request->input('calle');
         $direccion->manzana = $request->input('manzana');
-        $direccion->numero_de_casa = $request->input('numero_de_casa');
+        $direccion->bloque = $request->input('bloque');  // Asignamos el nuevo campo
+        $direccion->numero_de_vivienda = $request->input('numero_de_vivienda');  // Reemplazamos el número de casa
     
         $direccion->save();
     
         return redirect()->route('personas.show', ['slug' => $persona->slug])->with('success', 'Dirección actualizada exitosamente');
     }
+    
 
     public function checkLiderStatus(Request $request)
     {
@@ -226,6 +244,25 @@ class direccionController extends Controller
         $esLider = $persona->lider_Comunitario()->where('id_comunidad', $comunidadId)->where('estado', 1)->exists();
 
         return response()->json(['esLider' => $esLider]);
+    }
+
+    public function marcarPrincipal(Request $request)
+    {
+        $direccionId = $request->input('id_direccion');
+        $direccion = Direccion::find($direccionId);
+
+        if ($direccion) {
+            // Desmarcar cualquier otra dirección principal de la persona
+            Direccion::where('id_persona', $direccion->id_persona)->update(['es_principal' => 0]);
+
+            // Marcar la nueva dirección como principal
+            $direccion->es_principal = 1;
+            $direccion->save();
+
+            return redirect()->route('personas.modificarDireccion', ['slug' => $direccion->persona->slug])->with('success', 'La dirección se marcó como principal');
+        }
+
+        return redirect()->back()->with('error', 'Dirección no encontrada');
     }
     
 }

@@ -16,8 +16,5 @@ class roles extends Model
     {
         return $this->hasMany(User::class, 'id_rol', 'id_rol');  
     }
-    public function peticion()
-    {
-        return $this->hasMany(User::class, 'id_rol', 'id_rol');  
-    }
+  
 }

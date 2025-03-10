@@ -13,7 +13,10 @@ class pregunta extends Model
     protected $table='preguntas_de_seguridad';
 
     public function usuario(){
-        return $this->hasOne(User::class,'id_usuario');
+        return $this->belongsTo(User::class,'id_usuario');
     }
-   
+    public function respuestas()
+    {
+        return $this->hasMany(RespuestaDeSeguridad::class, 'id_pregunta');
+    }
 }

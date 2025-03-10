@@ -2,30 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pregunta;
-use App\Models\User;
+use App\Models\Pregunta;
+use App\Models\RespuestaDeSeguridad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class seguridadController extends Controller
 {
-  public function comprobar(Request $request)
-  {
-    try {
-      $cedula = $request->input('cedula');
-      $mascota = $request->input('mascota');
-      $ciudad = $request->input('ciudad');
-      $amigo = $request->input('amigo');
-      $usuario = User::where('cedula', $cedula)->first();
-      $preguntas = $usuario->preguntas_de_seguridad()->first();
-      if ($preguntas->primera_mascota == $mascota && $preguntas->ciudad_de_nacimiento == $ciudad && $preguntas->nombre_de_mejor_amigo == $amigo) {
-        $usuario->password = bcrypt('12345678');
-        $usuario->save();
-      } else {
-        return redirect()->route('recuperar.clave')->with('error', 'algunas de las preguntas respondidas son incorrectas');
-      }
-      return redirect()->route('login')->with('success', 'su contraseña se ha restablecido');
-    } catch (\Exception $e) {
-      return redirect()->route('login')->with('error', 'Error al procesar la petición: ' . $e->getMessage());
+    // Mostrar las preguntas de seguridad para que el usuario las conteste
+    public function show()
+    {
+        $usuario = Auth::user();
+
+        // Verificar si ya tiene respuestas de seguridad
+        if ($usuario->respuestasDeSeguridad->isNotEmpty()) {
+            return redirect()->route('home')->with('success', 'Ya has registrado tus respuestas de seguridad.');
+        }
+
+        // Obtener las preguntas de seguridad
+        $preguntas = Pregunta::all();
+
+        return view('respuesta_seguridad', compact('preguntas'));
     }
-  }
+
+    // Guardar las respuestas de seguridad
+    public function store(Request $request)
+    {
+        $request->validate([
+            'respuestas' => 'required|array',
+            'respuestas.*' => 'required|string',
+        ]);
+
+        $usuario = Auth::user();
+
+        // Registrar las respuestas de seguridad
+        foreach ($request->input('respuestas') as $pregunta_id => $respuesta) {
+            RespuestaDeSeguridad::create([
+                'usuario_id' => $usuario->id_usuario,
+                'pregunta_id' => $pregunta_id,
+                'respuesta' => $respuesta,
+            ]);
+        }
+
+        return redirect()->route('home')->with('success', 'Respuestas de seguridad registradas correctamente.');
+    }
 }

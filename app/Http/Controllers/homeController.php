@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\incidencia;
@@ -8,16 +7,23 @@ use App\Models\Peticion;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-
-class homeController extends Controller
+class HomeController extends Controller
 {
     public function index()
     {
+        // Contar el número total de usuarios
         $totalUsuarios = User::count();
-        $totalIncidencias = incidencia::count();
-        $totalPeticiones = Peticion::count();
+
+        // Contar el número total de incidencias
+        $totalIncidencias = Incidencia::count();
+
+        // Contar el número de usuarios con id_estado_usuario == 3 (pendientes de verificación)
+        $totalPeticiones = User::where('id_estado_usuario', 3)->count();
+
+        // Contar el número total de personas
         $totalPersonas = Persona::count();
 
+        // Pasar los valores a la vista
         return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas'));
     }
 }

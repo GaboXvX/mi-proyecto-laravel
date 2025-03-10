@@ -1,145 +1,151 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Requests\storePeticionRequest;
+use App\Models\EstadoUsuario;
 use Illuminate\Support\Str;
 use App\Models\peticion;
 use App\Models\pregunta;
+use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class peticionController extends Controller
 {
     public function index()
     {
-        $peticiones = peticion::orderBy('id_peticion', 'desc')->get();
+        $peticiones = user::where('id_estado_usuario',3)->get();
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
-    public function store(storePeticionRequest $request)
-    {
+   // UserController.php
+   public function store(Request $request)
+   {
+       // Validación
+       $validated = $request->validate([
+           'nombre' => 'required|string|max:255',
+           'apellido' => 'required|string|max:255',
+           'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
+           'cedula' => 'required|string|max:255|unique:users,cedula',
+           'email' => 'required|email|unique:users,email',
+           'password' => 'required|string|min:8',
+           'genero' => 'required|string',
+           'fecha_nacimiento' => 'required|date',
+           'altura' => 'required|numeric|min:0',
+           'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+           'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+           'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+           'respuesta_1' => 'required|string|max:255',
+           'respuesta_2' => 'required|string|max:255',
+           'respuesta_3' => 'required|string|max:255',
+           'rol' => 'required|exists:roles,id_rol',
+       ]);
+   
+       // Inserción manual del usuario
+       $user = new User;
+       $user->id_rol = $validated['rol'];
+       $user->slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
+       $user->nombre = $validated['nombre'];
+       $user->apellido = $validated['apellido'];
+       $user->nombre_usuario = $validated['nombre_usuario'];
+       $user->cedula = $validated['cedula'];
+       $user->email = $validated['email'];
+       $user->password = bcrypt($validated['password']);
+       $user->genero = $validated['genero'];
+       $user->fecha_nacimiento = $validated['fecha_nacimiento'];
+       $user->altura = $validated['altura'];
+       $user->id_estado_usuario = 3; // Asignación manual de estado no verificado (3)
+       $user->save(); // Guardar el usuario
+   
+       // Crear respuestas de seguridad
+       for ($i = 1; $i <= 3; $i++) {
+           $preguntaId = $validated['pregunta_' . $i];
+           $respuesta = $validated['respuesta_' . $i];
+   
+           // Verificar si la pregunta existe
+           $pregunta = Pregunta::find($preguntaId);
+           
+           if ($pregunta) {
+               // Crear la respuesta de seguridad
+               $respuestaSeguridad = new RespuestaDeSeguridad;
+               $respuestaSeguridad->id_usuario = $user->id_usuario;
+               $respuestaSeguridad->id_pregunta = $preguntaId;
+               $respuestaSeguridad->respuesta = $respuesta;
+               $respuestaSeguridad->save(); // Guardar la respuesta
+           } else {
+               // Si la pregunta no existe, devolver un error
+               return redirect()->back()->withErrors("La pregunta de seguridad $i no existe.");
+           }
+       }
+   
+       // Redirigir al login con mensaje de éxito
+       return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+   }
+   
+   
+   
 
-        try {
+    
 
-            $peticion = Peticion::where('cedula', $request->input('cedula'))->first();
-
-
-            if ($peticion && $peticion->estado_peticion == 'No verificado') {
-                return redirect()->route('login')->with('error', 'Ya existe una petición con esa cédula');
-            }
-
-
-            if ($peticion && $peticion->estado_peticion == 'aceptado') {
-                return redirect()->route('login')->with('error', 'este solicitante ya tiene una peticion aceptada');
-            }
-            if ($peticion && $peticion->estado_peticion == 'rechazada') {
-                $peticion->id_rol = $request->input('rol');
-                $peticion->estado_peticion = 'No verificado';
-                $peticion->nombre = $request->input('nombre');
-                $peticion->apellido = $request->input('apellido');
-                $peticion->email = $request->input('email');
-                $peticion->nombre_usuario = $request->input('nombre_usuario');
-                $peticion->password = bcrypt($request->input('password'));
-                $preguntaSeguridad = $peticion->preguntas_de_seguridad()->first();
-
-
-                if ($preguntaSeguridad) {
-
-                    $preguntaSeguridad->primera_mascota = $request->input('mascota');
-                    $preguntaSeguridad->ciudad_de_nacimiento = $request->input('ciudad');
-                    $preguntaSeguridad->nombre_de_mejor_amigo = $request->input('amigo');
-
-
-                    $preguntaSeguridad->save();
-                }
-                $slug = Str::slug($request->input('nombre'));
-                $counter = 1;
-                $originalSlug = $slug;
-                while (Peticion::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-                $peticion->slug = $slug;
-
-                $peticion->save();
-
-                return redirect()->route('login')->with('success', 'Petición actualizada correctamente');
-            }
-
-            $pregunta = new pregunta();
-            $peticion = new Peticion();
-            $peticion->id_rol = $request->input('rol');
-            $peticion->estado_peticion = 'No verificado';
-            $peticion->nombre = $request->input('nombre');
-            $peticion->apellido = $request->input('apellido');
-            $peticion->cedula = $request->input('cedula');
-            $peticion->email = $request->input('email');
-            $peticion->nombre_usuario = $request->input('nombre_usuario');
-            $peticion->password = bcrypt($request->input('password'));
-            $pregunta->primera_mascota = $request->input('mascota');
-            $pregunta->ciudad_de_nacimiento = $request->input('ciudad');
-            $pregunta->nombre_de_mejor_amigo = $request->input('amigo');
-
-
-            $slug = Str::slug($request->input('nombre'));
-            $counter = 1;
-            $originalSlug = $slug;
-            while (Peticion::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
-            $peticion->slug = $slug;
-            $pregunta->save();
-            $peticion->id_pregunta = $pregunta->id_pregunta;
-            $peticion->save();
-
-            return redirect()->route('login')->with('success', 'Petición realizada correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Error al procesar la petición: ' . $e->getMessage());
-        }
-    }
+    
     public function rechazar($id)
     {
-        $peticion = Peticion::where('id_peticion', $id)->first();
-
+$peticion=user::where('id_usuario',$id)->first();
         if (!$peticion) {
             return redirect()->route('peticiones.index')->with('error', 'Petición no encontrada');;
         }
 
-        $peticion->estado_peticion = 'rechazada';
+        $peticion->id_estado_usuario = 4;
         $peticion->save();
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
+ 
+    
     public function aceptar($id)
     {
-
-
         try {
-            $peticion = Peticion::where('id_peticion', $id)->first();
-
+            // Buscar la petición por su ID
+            $peticion = User::where('id_usuario', $id)->first();
+        
+            // Verificar si la petición existe
             if (!$peticion) {
-                return redirect()->route('usuarios.create')->with('error', 'Petición no encontrada');
+                return redirect()->route('usuarios.index')->with('error', 'Usuario no encontrado');
             }
-            $peticion->estado_peticion = 'aceptado';
-            $peticion->save();
-            $usuario = new User();
-            $usuario->id_peticion = $peticion->id_peticion;
-            $usuario->id_rol = $peticion->id_rol;
-            $usuario->id_pregunta = $peticion->id_pregunta;
-            $usuario->slug = $peticion->slug;
-            $usuario->estado_peticion = $peticion->estado_peticion;
-            $usuario->nombre = $peticion->nombre;
-            $usuario->cedula = $peticion->cedula;
-            $usuario->apellido = $peticion->apellido;
-            $usuario->email = $peticion->email;
-            $usuario->nombre_usuario = $peticion->nombre_usuario;
-            $usuario->password = $peticion->password;
-            $usuario->created_at = now();
-            $usuario->updated_at = now();
-            $usuario->save();
-
-            return redirect()->route('peticiones.index')->with('success', 'Datos enviados correctamente');
+    
+            // Verificar si el usuario está en estado "No Verificado" (id 3)
+            if ($peticion->id_estado_usuario == 3) { // "No Verificado" tiene el id 3
+                // Cambiar el estado del usuario a "Aceptado" (id 1)
+                
+        
+                // Obtener el ID del estado "Aceptado" (id 1)
+               
+        
+                // Asignar el ID de "Aceptado" al campo id_estado_usuario
+                $peticion->id_estado_usuario =1;
+                $peticion->save(); // Guardar el cambio de estado
+        
+                // Confirmar la transacción
+                
+        
+                // Redirigir con un mensaje de éxito
+                return redirect()->route('usuarios.index')->with('success', 'Usuario aceptado correctamente');
+            }
+        
+            // Si el usuario no está en estado "No Verificado", mostrar un mensaje de error
+            return redirect()->route('usuarios.index')->with('error', 'Este usuario no está en estado No Verificado');
+            
         } catch (\Exception $e) {
-            return redirect()->route('peticiones.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+            // En caso de error, revertir la transacción y mostrar el mensaje correspondiente
+            DB::rollBack();
+            return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
+    
+    
+
+    
+
+
+
+    
 }

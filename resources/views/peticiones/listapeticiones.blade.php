@@ -188,40 +188,45 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($peticiones as $peticion)
-                            <tr>
-                                <td>{{ $peticion->rol->rol }}</td>
-                               @if( $peticion->estado_peticion=='No verificado')
-                                <td class="status-pending">{{ $peticion->estado_peticion }}</td>
-                                @else
-                                <td >{{ $peticion->estado_peticion }}</td>
-                                @endif
-                                <td>{{ $peticion->nombre }}</td>
-                                <td>{{ $peticion->apellido }}</td>
-                                <td>{{ $peticion->cedula }}</td>
-                                <td>{{ $peticion->email }}</td>
-                                <td>{{ $peticion->nombre_usuario }}</td>
-                                
-                                
-                                @if($peticion->estado_peticion=='No verificado')
-                                <td>
-                                    <div>
-                                    <form action="{{route('peticion.aceptar',$peticion->id_peticion)}}" method="post" >
-                                    
-                                        @csrf
-                                        <button type="submit" class="btn-custom btn-accept">Aceptar</button>
-                                    </form>
-                                    <form action="{{route('peticiones.rechazar',$peticion->id_peticion)}}" method="post" >
-                                        @csrf
-                                        <button type="submit" class="btn-custom btn-reject">Rechazar</button>
-                                    </div>
-                                    
-                                    </form>
-                                </td>
-                                
-                                @endif
-                            </tr>
-                        @endforeach
+                       @foreach ($peticiones as $peticion)
+    <tr>
+        <!-- Mostrar el rol de la petición -->
+        <td>{{ $peticion->role->rol }}</td>
+        
+        <!-- Verificar si el estado de la petición es "No verificado" -->
+        @if($peticion->id_estado_usuario == 3)
+            <td class="status-pending">{{ $peticion->estadoUsuario->nombre_estado }}</td>
+        @else
+            <td>{{ $peticion->estado_peticion }}</td>
+        @endif
+        
+        <td>{{ $peticion->nombre }}</td>
+        <td>{{ $peticion->apellido }}</td>
+        <td>{{ $peticion->cedula }}</td>
+        <td>{{ $peticion->email }}</td>
+        <td>{{ $peticion->nombre_usuario }}</td>
+
+        <!-- Mostrar botones de aceptar/rechazar solo si el estado es "No verificado" -->
+        @if($peticion->id_estado_usuario == 3)
+            <td>
+                <div>
+                    <!-- Botón de Aceptar -->
+                    <form action="{{ route('peticion.aceptar', $peticion->id_usuario) }}" method="post">
+                        @csrf
+                        <button type="submit" class="btn-custom btn-accept">Aceptar</button>
+                    </form>
+                    
+                    <!-- Botón de Rechazar -->
+                    <form action="{{ route('peticiones.rechazar', $peticion->id_usuario) }}" method="post">
+                        @csrf
+                        <button type="submit" class="btn-custom btn-reject">Rechazar</button>
+                    </form>
+                </div>
+            </td>
+        @endif
+    </tr>
+@endforeach
+
                     </tbody>
                 </table>
             </div>

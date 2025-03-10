@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('apellido');
             $table->bigInteger('cedula')->unique();
+            $table->char('genero');
+            $table->date('fecha_nacimiento');
+            $table->double('altura');
             $table->string('correo', 320)->unique();
             $table->bigInteger('telefono');
             $table->timestamps();

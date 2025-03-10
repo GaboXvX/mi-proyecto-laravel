@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'role' => \App\Http\Middleware\CheckRole::class,
         'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
+        'check.preguntas' => \App\Http\Middleware\CheckPreguntasCompletadas::class,
     ];
 }

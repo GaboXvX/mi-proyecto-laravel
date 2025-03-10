@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('peticiones', function (Blueprint $table) {
-            $table->foreign('id_rol')->nullable() ->references('id_rol')  ->on('roles')  ->onDelete('cascade');
-
+        Schema::create('estado_usuarios', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('peticiones', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('estado_usuarios');
     }
 };

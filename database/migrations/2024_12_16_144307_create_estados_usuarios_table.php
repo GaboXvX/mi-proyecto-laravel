@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('_respuestas_de_seguridad', function (Blueprint $table) {
-            //
+        Schema::create('estados_usuarios', function (Blueprint $table) {
+            $table->bigIncrements('id_estado_usuario');
+            $table->string('nombre_estado');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('_respuestas_de_seguridad', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('peticiones');
     }
 };

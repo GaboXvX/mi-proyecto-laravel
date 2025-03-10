@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\updateUserRequest;
 use App\Models\Peticion;
+use App\Models\pregunta;
 use App\Models\roles;
 use App\Models\User;
 
@@ -14,13 +15,15 @@ class UserController extends Controller
     public function index()
     {
         $usuarios = User::orderBy('id_usuario', 'desc')->get();
-        return view('usuarios.listaUsuarios', compact('usuarios'));
+        return view('usuarios.listaUsuarios', compact('usuarios',));
     }
 
     public function create()
     {
+        $preguntas=pregunta::all();
+
         $roles = roles::all();
-        return view('usuarios.registrarUsuarios', compact('roles'));
+        return view('usuarios.registrarUsuarios', compact('roles','preguntas'));
     }
 
     public function edit($slug)

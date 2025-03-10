@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -12,20 +11,21 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $primaryKey = 'id_usuario';  
+    protected $primaryKey = 'id_usuario';
 
     protected $fillable = [
         'id_usuario',
         'id_rol',    
-        'name',
+        'nombre', 
         'email',
         'password',
         'slug',
-        'nombre',
         'apellido',
         'cedula',
         'nombre_usuario',
         'estado',
+        'altura', 
+        'fecha_nacimiento',
     ];
 
     protected $hidden = [
@@ -37,7 +37,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-   
     public function role()
     {
         return $this->belongsTo(roles::class, 'id_rol', 'id_rol'); 
@@ -45,25 +44,33 @@ class User extends Authenticatable
 
     public function lideres()
     {
-        return $this->hasMany(Lider_Comunitario::class,'id_usuario');
+        return $this->hasMany(Lider_Comunitario::class, 'id_usuario');
     }
+
     public function hasRole($role)
     {
         return $this->role->rol === $role;
     }
+
     public function personas()
     {
-        return $this->hasMany(Persona::class,'id_usuario');
+        return $this->hasMany(Persona::class, 'id_usuario');
     }
+
     public function movimiento()
     {
-        return $this->hasMany(movimiento::class,'id_usuario');
+        return $this->hasMany(movimiento::class, 'id_usuario');
     }
-    public function preguntas_de_seguridad()
+
+    // Relación corregida: respuestas_de_seguridad
+    public function respuestas_de_seguridad()
     {
-        return $this->belongsTo(pregunta::class, 'id_pregunta');
+        return $this->hasMany(RespuestaDeSeguridad::class, 'id_usuario');
     }
-    public function peticion(){
-        return $this->belongsTo(peticion::class,"id_peticion");
-    }
+    // En el modelo User
+public function estadoUsuario()
+{
+    return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
+}
+
 }

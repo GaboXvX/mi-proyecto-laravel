@@ -7,34 +7,26 @@
     <title>Configuración de Cuenta</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
-    <!-- Enlace al archivo de Bootstrap CSS usando asset() -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
     <style>
-        /* Hacer los inputs más pequeños */
         .form-control-sm {
             font-size: 12px;
-            /* Reducir el tamaño de fuente */
             padding: 6px 12px;
-            /* Reducir el padding */
             height: 34px;
-            /* Reducir la altura del input */
             width: 100%;
         }
 
         .btn-sm {
             font-size: 12px;
             padding: 6px 15px;
-            /* Reducir el tamaño del botón */
         }
     </style>
 </head>
 
 <body>
-   <!-- Sidebar -->
    <nav class="sidebar d-flex flex-column p-3" id="sidebar">
     <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
-        <!-- Imagen -->
         <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
         <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
     </a>
@@ -109,9 +101,7 @@
     <hr class="text-secondary">
 </nav>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Topbar -->
     <div class="topbar d-flex align-items-center justify-content-between">
         <button class="btn btn-light burger-btn" id="menuToggle">
             <i class="bi bi-list"></i>
@@ -141,7 +131,6 @@
             <div class="card-body">
                 <h2 class="text-center text-primary mb-3">Configuración de Cuenta</h2>
 
-                <!-- Mensajes de éxito o error -->
                 @if (session('success'))
                     <div class="alert alert-success mb-3">
                         {{ session('success') }}
@@ -164,86 +153,113 @@
                     </div>
                 @endif
                 
-                    <!-- Formulario -->
-                    <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST">
-                        @csrf
+                <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST">
+                    @csrf
 
-                        <!-- Fila de nombre y apellido -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputNombre" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control form-control-sm" id="inputNombre"
-                                        name="nombre" value="{{ old('nombre', $usuario->nombre) }}"
-                                        placeholder="Ingrese su nombre" required>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputApellido" class="form-label">Apellido</label>
-                                    <input type="text" class="form-control form-control-sm" id="inputApellido"
-                                        name="apellido" value="{{ old('apellido', $usuario->apellido) }}"
-                                        placeholder="Ingrese su apellido" required>
-                                </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputNombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control form-control-sm" id="inputNombre"
+                                    name="nombre" value="{{ old('nombre', $usuario->nombre) }}"
+                                    placeholder="Ingrese su nombre" required>
                             </div>
                         </div>
 
-                        <!-- Fila de cédula y correo electrónico -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputCedula" class="form-label">Cédula</label>
-                                    <input type="text" class="form-control form-control-sm" id="inputCedula"
-                                        name="cedula" value="{{ $usuario->cedula }}" placeholder="Ingrese su cédula"
-                                        readonly>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputApellido" class="form-label">Apellido</label>
+                                <input type="text" class="form-control form-control-sm" id="inputApellido"
+                                    name="apellido" value="{{ old('apellido', $usuario->apellido) }}"
+                                    placeholder="Ingrese su apellido" required>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputCorreo" class="form-label">Correo Electrónico</label>
-                                    <input type="email" class="form-control form-control-sm" id="inputCorreo"
-                                        name="email" value="{{ old('email', $usuario->email) }}"
-                                        placeholder="Ingrese su correo electrónico" required>
-                                </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputCedula" class="form-label">Cédula</label>
+                                <input type="text" class="form-control form-control-sm" id="inputCedula"
+                                    name="cedula" value="{{ $usuario->cedula }}" placeholder="Ingrese su cédula"
+                                    readonly>
                             </div>
                         </div>
 
-                        <!-- Fila de nombre de usuario y contraseña -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputUsuario" class="form-label">Nombre de Usuario</label>
-                                    <input type="text" class="form-control form-control-sm" id="inputUsuario"
-                                        name="nombre_usuario"
-                                        value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
-                                        placeholder="Ingrese su nombre de usuario" required>
-                                </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputCorreo" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control form-control-sm" id="inputCorreo"
+                                    name="email" value="{{ old('email', $usuario->email) }}"
+                                    placeholder="Ingrese su correo electrónico" required>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="inputContraseña" class="form-label">Contraseña</label>
-                                    <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                        name="contraseña" placeholder="Ingrese su nueva contraseña">
-                                </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputUsuario" class="form-label">Nombre de Usuario</label>
+                                <input type="text" class="form-control form-control-sm" id="inputUsuario"
+                                    name="nombre_usuario"
+                                    value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
+                                    placeholder="Ingrese su nombre de usuario" required>
                             </div>
                         </div>
 
-                        <!-- Botón de guardar cambios -->
-                        <div class="d-flex justify-content-center mt-3">
-                            <button type="submit" class="btn btn-success btn-sm px-4">Guardar Cambios</button>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputContraseña" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control form-control-sm" id="inputContraseña"
+                                    name="contraseña" placeholder="Ingrese su nueva contraseña">
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- Campos adicionales -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputGenero" class="form-label">Género</label>
+                                <select class="form-control form-control-sm" id="inputGenero" name="genero" required>
+                                    <option value="M" {{ old('genero', $usuario->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="F" {{ old('genero', $usuario->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputFechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control form-control-sm" id="inputFechaNacimiento"
+                                    name="fecha_nacimiento" value="{{ old('fecha_nacimiento', $usuario->fecha_nacimiento) }}"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputAltura" class="form-label">Altura (cm)</label>
+                                <input type="number" class="form-control form-control-sm" id="inputAltura"
+                                    name="altura" value="{{ old('altura', $usuario->altura) }}" min="0" step="0.01"
+                                    placeholder="Ingrese su altura" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-3">
+                        <button type="submit" class="btn btn-success btn-sm px-4">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Enlace al archivo JS de Bootstrap usando asset() -->
-     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/script.js') }}"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/script.js') }}"></script>
 </body>
 
 </html>

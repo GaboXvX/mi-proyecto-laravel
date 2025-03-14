@@ -20,67 +20,77 @@ class peticionController extends Controller
     }
    // UserController.php
    public function store(Request $request)
-   {
-       // Validación
-       $validated = $request->validate([
-           'nombre' => 'required|string|max:255',
-           'apellido' => 'required|string|max:255',
-           'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
-           'cedula' => 'required|string|max:255|unique:users,cedula',
-           'email' => 'required|email|unique:users,email',
-           'password' => 'required|string|min:8',
-           'genero' => 'required|string',
-           'fecha_nacimiento' => 'required|date',
-           'altura' => 'required|numeric|min:0',
-           'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'respuesta_1' => 'required|string|max:255',
-           'respuesta_2' => 'required|string|max:255',
-           'respuesta_3' => 'required|string|max:255',
-           'rol' => 'required|exists:roles,id_rol',
-       ]);
-   
-       // Inserción manual del usuario
-       $user = new User;
-       $user->id_rol = $validated['rol'];
-       $user->slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
-       $user->nombre = $validated['nombre'];
-       $user->apellido = $validated['apellido'];
-       $user->nombre_usuario = $validated['nombre_usuario'];
-       $user->cedula = $validated['cedula'];
-       $user->email = $validated['email'];
-       $user->password = bcrypt($validated['password']);
-       $user->genero = $validated['genero'];
-       $user->fecha_nacimiento = $validated['fecha_nacimiento'];
-       $user->altura = $validated['altura'];
-       $user->id_estado_usuario = 3; // Asignación manual de estado no verificado (3)
-       $user->save(); // Guardar el usuario
-   
-       // Crear respuestas de seguridad
-       for ($i = 1; $i <= 3; $i++) {
-           $preguntaId = $validated['pregunta_' . $i];
-           $respuesta = $validated['respuesta_' . $i];
-   
-           // Verificar si la pregunta existe
-           $pregunta = Pregunta::find($preguntaId);
-           
-           if ($pregunta) {
-               // Crear la respuesta de seguridad
-               $respuestaSeguridad = new RespuestaDeSeguridad;
-               $respuestaSeguridad->id_usuario = $user->id_usuario;
-               $respuestaSeguridad->id_pregunta = $preguntaId;
-               $respuestaSeguridad->respuesta = $respuesta;
-               $respuestaSeguridad->save(); // Guardar la respuesta
-           } else {
-               // Si la pregunta no existe, devolver un error
-               return redirect()->back()->withErrors("La pregunta de seguridad $i no existe.");
-           }
-       }
-   
-       // Redirigir al login con mensaje de éxito
-       return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
-   }
+    {
+        // Validación
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
+            'cedula' => 'required|string|max:255|unique:users,cedula',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'genero' => 'required|string',
+            'fecha_nacimiento' => 'required|date',
+            'altura' => 'required|numeric|min:0',
+            'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'respuesta_1' => 'required|string|max:255',
+            'respuesta_2' => 'required|string|max:255',
+            'respuesta_3' => 'required|string|max:255',
+            'rol' => 'required|exists:roles,id_rol',
+        ]);
+
+        // Generar un slug único
+        $slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (User::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        // Inserción manual del usuario
+        $user = new User;
+        $user->id_rol = $validated['rol'];
+        $user->slug = $slug;
+        $user->nombre = $validated['nombre'];
+        $user->apellido = $validated['apellido'];
+        $user->nombre_usuario = $validated['nombre_usuario'];
+        $user->cedula = $validated['cedula'];
+        $user->email = $validated['email'];
+        $user->password = bcrypt($validated['password']);
+        $user->genero = $validated['genero'];
+        $user->fecha_nacimiento = $validated['fecha_nacimiento'];
+        $user->altura = $validated['altura'];
+        $user->id_estado_usuario = 3; // Asignación manual de estado no verificado (3)
+        $user->save(); // Guardar el usuario
+
+        // Crear respuestas de seguridad
+        for ($i = 1; $i <= 3; $i++) {
+            $preguntaId = $validated['pregunta_' . $i];
+            $respuesta = $validated['respuesta_' . $i];
+
+            // Verificar si la pregunta existe
+            $pregunta = Pregunta::find($preguntaId);
+
+            if ($pregunta) {
+                // Crear la respuesta de seguridad
+                $respuestaSeguridad = new RespuestaDeSeguridad;
+                $respuestaSeguridad->id_usuario = $user->id_usuario;
+                $respuestaSeguridad->id_pregunta = $preguntaId;
+                $respuestaSeguridad->respuesta = $respuesta;
+                $respuestaSeguridad->save(); // Guardar la respuesta
+            } else {
+                // Si la pregunta no existe, devolver un error
+                return redirect()->back()->withErrors("La pregunta de seguridad $i no existe.");
+            }
+        }
+
+        // Redirigir al login con mensaje de éxito
+        return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+    }
    
    
    

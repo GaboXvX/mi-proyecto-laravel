@@ -55,7 +55,7 @@
 
                 <input type="password" class="form-control mb-3" name="password" placeholder="Contraseña" required>
 
-                <a href="{{ route('recuperar.clave') }}" class="d-block mb-3">¿Olvidaste tu contraseña?</a>
+                <a href="{{ route('recuperar.ingresarCedula') }}" class="d-block mb-3">¿Olvidaste tu contraseña?</a>
 
                 <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar sesión</button>
 

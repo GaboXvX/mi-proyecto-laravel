@@ -11,21 +11,7 @@
             <h3>Registrarse</h3>
 
             <!-- Mensajes de éxito o error -->
-            @if (session('success'))
-                <div class="alert alert-success" role="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="alert alert-danger" role="alert">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+          
 
             <!-- Formulario de registro -->
             <form action="{{ route('peticiones.store') }}" method="POST">
@@ -91,6 +77,21 @@
                 <button type="submit">Registrar Usuario</button>
             </form>
             <p>¿Ya tienes cuenta? <a href="{{ route('login') }}">Iniciar Sesión</a></p>
+              @if (session('success'))
+                <div class="alert alert-success" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
     </div>
 

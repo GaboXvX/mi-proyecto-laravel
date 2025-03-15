@@ -15,9 +15,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'prevent-back-history'],function(){
-   
-    
-    // Ruta para actualizar la contraseña del usuario
+
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -25,16 +23,7 @@ Route::group(['middleware' => 'prevent-back-history'],function(){
     Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create')->middleware('guest');
     Route::post('aceptar/{id}', [PeticionController::class, 'aceptar'])->name('peticion.aceptar');
     Route::resource('peticiones', PeticionController::class)->except('index');
-    // Rutas de recuperación de contraseña
-    Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
-    Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
-    Route::get('/recuperar-clave/{usuarioId}/{preguntaId}', [RecuperarController::class, 'recuperarClave'])->name('recuperar.recuperarClave');
-    Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
-
-    // Ruta para cambiar la clave
-    Route::get('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
-    Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
-    
+    Route::get('/recuperar', [recuperarController::class, 'index'])->name('recuperar.clave')->middleware('guest');
 
     Route::middleware(['auth'])->group(function () {
 
@@ -84,13 +73,13 @@ Route::group(['middleware' => 'prevent-back-history'],function(){
 
         // Ruta para movimientos (solo admin)
         Route::get('/movimientos', [movimientoController::class, 'index'])->name('movimientos.index')->middleware('role:admin');
-        Route::post('/incidencias/buscar', [IncidenciaController::class, 'buscar'])->name('incidencias.buscar');
 
         // Ruta para configuración del usuario
         Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
         Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
         Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
 
-       
+        // Nueva ruta para responder preguntas de seguridad
+      
     });
 });

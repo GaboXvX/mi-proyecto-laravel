@@ -100,7 +100,7 @@ class UserController extends Controller
     {
         try {
             $usuario = User::where('id_usuario', $id)->first();
-            $usuario->estado = 'activo';
+            $usuario->id_estado_usuario = 1;
             $usuario->save();
             return redirect()->route('usuarios.index')->with('success', 'Usuario activado correctamente');
         } catch (\Exception $e) {

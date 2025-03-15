@@ -11,8 +11,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Contar el número total de usuarios
-        $totalUsuarios = User::count();
+        $totalUsuarios = User::where('id_rol',2)->where('id_estado_usuario',1)->count();
 
         // Contar el número total de incidencias
         $totalIncidencias = Incidencia::count();

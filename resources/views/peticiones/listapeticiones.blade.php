@@ -63,12 +63,7 @@
                     <span>Panel</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('lideres.index') }}" class="nav-link">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Líderes Comunitarios</span>
-                </a>
-            </li>
+           
             <li class="nav-item">
                 <a href="#layouts" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="bi bi-search"></i>
@@ -104,12 +99,7 @@
                                 <span>Peticiones</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('movimientos.index') }}" class="nav-link px-3">
-                                <i class="bi bi-arrow-left-right"></i>
-                                <span>Movimientos</span>
-                            </a>
-                        </li>
+                        
                         @endrole
                     </ul>
                 </div>
@@ -188,17 +178,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                       @foreach ($peticiones as $peticion)
+    @foreach ($peticiones as $peticion)
     <tr>
         <!-- Mostrar el rol de la petición -->
         <td>{{ $peticion->role->rol }}</td>
         
-        <!-- Verificar si el estado de la petición es "No verificado" -->
-        @if($peticion->id_estado_usuario == 3)
-            <td class="status-pending">{{ $peticion->estadoUsuario->nombre_estado }}</td>
-        @else
-            <td>{{ $peticion->estado_peticion }}</td>
-        @endif
+        <!-- Mostrar el estado de la petición -->
+        <td>{{ $peticion->estadoUsuario->nombre_estado }}</td>
         
         <td>{{ $peticion->nombre }}</td>
         <td>{{ $peticion->apellido }}</td>
@@ -207,8 +193,8 @@
         <td>{{ $peticion->nombre_usuario }}</td>
 
         <!-- Mostrar botones de aceptar/rechazar solo si el estado es "No verificado" -->
-        @if($peticion->id_estado_usuario == 3)
-            <td>
+        <td>
+            @if($peticion->id_estado_usuario == 3)
                 <div>
                     <!-- Botón de Aceptar -->
                     <form action="{{ route('peticion.aceptar', $peticion->id_usuario) }}" method="post">
@@ -222,12 +208,11 @@
                         <button type="submit" class="btn-custom btn-reject">Rechazar</button>
                     </form>
                 </div>
-            </td>
-        @endif
+            @endif
+        </td>
     </tr>
-@endforeach
-
-                    </tbody>
+    @endforeach
+</tbody>
                 </table>
             </div>
         </div>

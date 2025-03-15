@@ -23,12 +23,7 @@
                     <span>Panel</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('lideres.index') }}" class="nav-link">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Líderes Comunitarios</span>
-                </a>
-            </li>
+           
             <li class="nav-item">
                 <a href="#layouts" class="nav-link" data-bs-toggle="collapse">
                     <i class="bi bi-search"></i>
@@ -64,12 +59,7 @@
                                 <span>Peticiones</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('movimientos.index') }}" class="nav-link px-3">
-                                <i class="bi bi-arrow-left-right"></i>
-                                <span>Movimientos</span>
-                            </a>
-                        </li>
+                     
                         @endrole
                     </ul>
                 </div>

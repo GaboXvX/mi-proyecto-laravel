@@ -75,16 +75,7 @@ class UserController extends Controller
     }
 }
 
-    public function destroy($slug)
-    {
-        try {
-            $usuario = User::where('slug', $slug)->firstOrFail();
-            $usuario->delete();
-            return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('usuarios.index')->with('error', 'Error al eliminar el usuario: ' . $e->getMessage());
-        }
-    }
+   
     public function desactivar($id)
     {
         try {

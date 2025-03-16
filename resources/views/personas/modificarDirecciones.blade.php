@@ -47,8 +47,8 @@
         <tbody>
             @foreach($persona->direccion as $direccion)
                 <tr id="direccion_{{ $direccion->id_direccion }}">
-                    <td>{{ $direccion->estado }}</td>
-                    <td>{{ $direccion->municipio }}</td>
+                    <td>{{ $direccion->estado->nombre }}</td>
+                    <td>{{ $direccion->municipio->nombre }}</td>
                     <td>{{ $direccion->parroquia->nombre }}</td>
                     <td>{{ $direccion->urbanizacion->nombre }}</td>
                     <td>{{ $direccion->sector->nombre }}</td>

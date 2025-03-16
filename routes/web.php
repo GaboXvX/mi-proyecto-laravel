@@ -65,7 +65,7 @@ Route::group(['middleware' => 'prevent-back-history'],function(){
         // Rutas para agregar y gestionar direcciones
         Route::get('personas/agregardirecion/{slug}', [direccionController::class, 'index'])->name('personas.agregarDireccion');
         Route::post('personas/guardardireccion/{id}', [direccionController::class, 'store'])->name('guardarDireccion');
-        Route::post('/personas/actualizardireccion/{id}/{idPersona}',[direccionController::class,'update'])->name('personas.actualizarDireccion');
+Route::post('/incidencias/download', [IncidenciaController::class, 'download'])->name('incidencias.download');        Route::post('/personas/actualizardireccion/{id}/{idPersona}',[direccionController::class,'update'])->name('personas.actualizarDireccion');
         Route::post('/personas/marcarprincipal', [direccionController::class, 'marcarPrincipal'])->name('personas.marcarPrincipal');
 
         // Ruta para estadísticas de incidencias (solo admin)

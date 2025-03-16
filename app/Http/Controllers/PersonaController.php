@@ -153,7 +153,9 @@ class PersonaController extends Controller
             foreach ($persona->direccion as $direccion) {
                 $direccion->esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->where('estado', 1)->exists();
             }
-            return view('personas.persona', compact('persona' ,'categorias'));
+            $direcciones = $persona->direccion()->paginate(5); // Paginate with 10 items per page
+
+            return view('personas.persona', compact('persona' ,'categorias','direcciones'));
         } else {
             return redirect()->route('personas.index');
         }

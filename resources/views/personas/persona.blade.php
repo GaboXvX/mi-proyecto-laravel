@@ -73,35 +73,34 @@
         </div>
 
         <!-- Card para mostrar las direcciones -->
-        <div class="card mt-4">
-            <div class="card-header">
-                Direcciones                 <a href="{{ route('personas.agregarDireccion', $persona->slug) }}" class="btn btn-secondary btn-sm">Añadir dirección</a>
-
-            </div>
-            <div class="card-body">
-              
-        
-            <!-- Tabla con las direcciones existentes -->
-            <table class="table table-striped">
+       <div class="card mt-4">
+    <div class="card-header">
+        Direcciones
+        <a href="{{ route('personas.agregarDireccion', $persona->slug) }}" class="btn btn-secondary btn-sm float-end">Añadir dirección</a>
+    </div>
+    <div class="card-body">
+        <!-- Tabla con las direcciones existentes -->
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th>Estado</th>
-                        <th>Municipio</th>
-                        <th>Parroquia</th>
-                        <th>Urbanización</th>
-                        <th>Sector</th>
-                        <th>Comunidad</th>
-                        <th>Calle</th>
-                        <th>Manzana</th>
-                        <th>Número de Vivienda</th>
-                        <th>Bloque</th>
-                        <th>Principal</th>
-                        <th>¿Es líder Comunitario?</th>
-                        <th>Acciones</th>
+                        <th style="width: 10%;">Estado</th>
+                        <th style="width: 10%;">Municipio</th>
+                        <th style="width: 10%;">Parroquia</th>
+                        <th style="width: 10%;">Urbanización</th>
+                        <th style="width: 10%;">Sector</th>
+                        <th style="width: 10%;">Comunidad</th>
+                        <th style="width: 10%;">Calle</th>
+                        <th style="width: 5%;">Manzana</th>
+                        <th style="width: 5%;">N° vivienda</th>
+                        <th style="width: 5%;">Bloque</th>
+                        <th style="width: 5%;">Principal</th>
+                        <th style="width: 5%;">Líder</th>
+                        <th style="width: 10%;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($persona->direccion as $direccion)
+                    @foreach($direcciones as $direccion)
                         <tr id="direccion_{{ $direccion->id_direccion }}">
                             <td>{{ $direccion->estado->nombre }}</td>
                             <td>{{ $direccion->municipio->nombre }}</td>
@@ -119,41 +118,43 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="
-                                @if($direccion->esLider)
-                                    text-success  <!-- Clase para color verde -->
-                                @else
-                                    text-danger  <!-- Clase para color rojo -->
-                                @endif
-                                ">
-                                {{ $direccion->esLider ? 'Sí' : 'No' }}
+                                <span class="{{ $direccion->esLider ? 'text-success' : 'text-danger' }}">
+                                    {{ $direccion->esLider ? 'Sí' : 'No' }}
                                 </span>
                             </td>
                             <td>
-                                <!-- Botón de editar -->
-                                <button type="button" class="btn btn-warning btn-sm edit-btn" data-id="{{ $direccion->id_direccion }}" 
-                                        data-estado="{{ $direccion->estado }}" data-municipio="{{ $direccion->municipio }}"
-                                        data-parroquia="{{ $direccion->parroquia->nombre }}" data-urbanizacion="{{ $direccion->urbanizacion->nombre }}"
-                                        data-sector="{{ $direccion->sector->nombre }}" data-comunidad="{{ $direccion->comunidad->nombre }}"
-                                        data-calle="{{ $direccion->calle }}" data-manzana="{{ $direccion->manzana }}"
-                                        data-numero-de-vivienda="{{ $direccion->numero_de_vivienda }}" data-bloque="{{ $direccion->bloque }}"
-                                        data-id-persona="{{ $persona->id_persona }}"
-                                        data-bs-toggle="modal" data-bs-target="#editDireccionModal">
-                                    Modificar
-                                </button>
-                                @if(!$direccion->es_principal)
-                                    <form action="{{ route('personas.marcarPrincipal') }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <input type="hidden" name="id_direccion" value="{{ $direccion->id_direccion }}">
-                                        <button type="submit" class="btn btn-primary btn-sm" title="Marcar como principal">
-                                            <i class="bi bi-arrow-up-circle"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                                <div class="d-flex flex-column">
+                                    <button type="button" class="btn btn-warning btn-sm mb-1 edit-btn" data-id="{{ $direccion->id_direccion }}" 
+                                            data-estado="{{ $direccion->estado }}" data-municipio="{{ $direccion->municipio }}"
+                                            data-parroquia="{{ $direccion->parroquia->nombre }}" data-urbanizacion="{{ $direccion->urbanizacion->nombre }}"
+                                            data-sector="{{ $direccion->sector->nombre }}" data-comunidad="{{ $direccion->comunidad->nombre }}"
+                                            data-calle="{{ $direccion->calle }}" data-manzana="{{ $direccion->manzana }}"
+                                            data-numero-de-vivienda="{{ $direccion->numero_de_vivienda }}" data-bloque="{{ $direccion->bloque }}"
+                                            data-id-persona="{{ $persona->id_persona }}"
+                                            data-bs-toggle="modal" data-bs-target="#editDireccionModal">
+                                        Modificar
+                                    </button>
+                                    @if(!$direccion->es_principal)
+                                        <form action="{{ route('personas.marcarPrincipal') }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <input type="hidden" name="id_direccion" value="{{ $direccion->id_direccion }}">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Marcar como principal">
+                                                <i class="bi bi-arrow-up-circle"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            {{ $direcciones->links() }}
+        </div>
+    </div>
+</div>
             </table>
         
             <!-- Modal de edición de dirección -->

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +10,7 @@ class incidencia extends Model
     protected $table = 'incidencias';
     protected $primaryKey = 'id_incidencia';
     protected $fillable = [
-        'id_persona','id_lider',
+        'id_persona', 'id_lider', 'id_direccion', // Added id_direccion to fillable
         'slug',
         'tipo_incidencia',
         'descripcion',
@@ -33,5 +32,9 @@ class incidencia extends Model
     }
     public function movimiento(){
         return $this->hasMany(movimiento::class,'id_lider');
+    }
+    public function direccion()
+    {
+        return $this->belongsTo(Direccion::class, 'id_direccion');
     }
 }

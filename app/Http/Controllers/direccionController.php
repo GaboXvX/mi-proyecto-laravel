@@ -122,7 +122,7 @@ class direccionController extends Controller
     }
 
 
-   
+
 
     public function update(Request $request, $id, $idPersona)
     {
@@ -166,7 +166,10 @@ class direccionController extends Controller
         if ($direccionExistente) {
             return redirect()->back()->withErrors(['error' => 'La dirección ya está registrada para esta persona.'])->withInput();
         }
-
+        $bloque = $request->input('bloque');
+        if (empty($bloque)) {
+            $bloque = null;
+        }
         // Verificamos si la persona ya es líder de una comunidad
         $esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->exists();
 
@@ -230,7 +233,7 @@ class direccionController extends Controller
         $direccion->id_comunidad = $request->input('comunidad');
         $direccion->calle = $request->input('calle');
         $direccion->manzana = $request->input('manzana');
-        $direccion->bloque = $request->input('bloque');  // Asignamos el nuevo campo
+        $direccion->bloque = $bloque;
         $direccion->numero_de_vivienda = $request->input('numero_de_vivienda');  // Reemplazamos el número de casa
         $direccion->id_estado = $request->input('estado'); // Asignamos el estado
         $direccion->id_municipio = $request->input('municipio'); // Asignamos el municipio

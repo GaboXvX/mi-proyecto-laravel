@@ -193,17 +193,7 @@
             <form action="{{ route('personas.update', $persona->slug) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="mb-3">
-                    <label for="id_categoriaPersona" class="form-label">Categoría de Persona:</label>
-                    <select id="id_categoriaPersona" name="categoria" class="form-select" required>
-                        <option value="" disabled selected>--Seleccione--</option>
-                        @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id_categoriaPersona }}" {{ old('id_categoriaPersona', $persona->id_categoriaPersona) == $categoria->id_categoriaPersona ? 'selected' : '' }}>
-                                {{ $categoria->nombre_categoria }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+                
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>
                     <input type="text" id="nombre" name="nombre" class="form-control"

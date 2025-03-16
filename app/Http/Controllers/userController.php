@@ -13,12 +13,14 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $usuarios = User::orderBy('id_usuario', 'desc')->get();
-        return view('usuarios.listaUsuarios', compact('usuarios',));
-    }
-
+   public function index()
+{
+    $usuarios = User::where('id_estado_usuario', 1)
+                    ->orWhere('id_estado_usuario', 2)
+                    ->orderBy('id_usuario', 'desc')
+                    ->get();
+    return view('usuarios.listaUsuarios', compact('usuarios'));
+}
     public function create()
     {
         $preguntas=pregunta::all();
@@ -80,7 +82,7 @@ class UserController extends Controller
     {
         try {
             $usuario = User::where('id_usuario', $id)->first();
-            $usuario->estado = 'desactivado';
+            $usuario->id_estado_usuario = 2;
             $usuario->save();
             return redirect()->route('usuarios.index')->with('success', 'Usuario desactivado correctamente');
         } catch (\Exception $e) {

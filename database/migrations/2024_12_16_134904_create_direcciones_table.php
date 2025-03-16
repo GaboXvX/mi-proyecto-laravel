@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('direcciones', function (Blueprint $table) {
             $table->bigIncrements('id_direccion')->unsigned(); // Clave primaria
             $table->unsignedBigInteger('id_persona');
+            $table->unsignedBigInteger('id_estado');
+            $table->unsignedBigInteger('id_municipio');
             $table->bigInteger('id_parroquia')->unsigned()->nullable();
             $table->bigInteger('id_urbanizacion')->unsigned()->nullable();
             $table->bigInteger('id_sector')->unsigned()->nullable();
@@ -24,11 +26,7 @@ return new class extends Migration
             $table->integer('numero_de_vivienda');
             $table->boolean('es_principal');
             $table->timestamps();
-        $table->foreign('id_persona')->references('id_persona')->on('personas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_parroquia')->references('id_parroquia')->on('parroquias')->onDelete('set null')->onUpdate('cascade');
-            $table->foreign('id_urbanizacion')->references('id_urbanizacion')->on('urbanizaciones')->onDelete('set null')->onUpdate('cascade');
-            $table->foreign('id_sector')->references('id_sector')->on('sectores')->onDelete('set null')->onUpdate('cascade');
-            $table->foreign('id_comunidad')->references('id_comunidad')->on('comunidades')->onDelete('set null')->onUpdate('cascade');
+       
         });
     }
 

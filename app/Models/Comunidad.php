@@ -24,7 +24,7 @@ public function lideres_comunitarios()
 
     public function direccion()
     {
-        return $this->hasOne(Comunidad::class, 'id_comunidad');
+        return $this->hasMany(Comunidad::class, 'id_comunidad');
     }
 }
 

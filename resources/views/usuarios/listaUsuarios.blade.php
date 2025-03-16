@@ -96,7 +96,6 @@
                 <i class="bi bi-person-circle"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
                 <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
@@ -154,17 +153,18 @@
                                     <button type="submit" class="btn btn-success btn-sm">Restaurar</button>
                                 </form>
 
-                                @if($usuario->estado == "activo")
-                                    <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
-                                    </form>
-                                @else
-                                    <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Activar</button>
-                                    </form>
-                                @endif
+                                @if($usuario->id_estado_usuario==1)
+                                <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
+                                </form>
+                            @else
+                                <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">Activar</button>
+                                </form>
+                            @endif
+                            
                             </td>
                         </tr>
                         @endif

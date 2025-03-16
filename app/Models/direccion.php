@@ -39,4 +39,13 @@ class Direccion extends Model
     {
         return $this->belongsTo(Urbanizacion::class, 'id_urbanizacion');
     }
+    public function estado()
+    {
+        return $this->belongsTo(Estado::class, 'id_estado'); 
+    }
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class, 'id_municipio');
+    }
 }

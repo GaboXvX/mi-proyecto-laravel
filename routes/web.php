@@ -24,7 +24,15 @@ Route::group(['middleware' => 'prevent-back-history'],function(){
     Route::post('aceptar/{id}', [PeticionController::class, 'aceptar'])->name('peticion.aceptar');
     Route::resource('peticiones', PeticionController::class)->except('index');
     Route::get('/recuperar', [recuperarController::class, 'index'])->name('recuperar.clave')->middleware('guest');
+ // Rutas de recuperación de contraseña
+ Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
+ Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
+ Route::get('/recuperar-clave/{usuarioId}/{preguntaId}', [RecuperarController::class, 'recuperarClave'])->name('recuperar.recuperarClave');
+ Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
 
+ // Ruta para cambiar la clave
+ Route::get('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
+ Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
     Route::middleware(['auth'])->group(function () {
 
         Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -63,6 +71,7 @@ Route::group(['middleware' => 'prevent-back-history'],function(){
 
         // Ruta para estadísticas de incidencias (solo admin)
         Route::get('/incidencias/chart', [IncidenciaController::class, 'showChart'])->name('estadisticas')->middleware('role:admin');
+        Route::post('/incidencias/buscar', [IncidenciaController::class, 'buscar'])->name('incidencias.buscar');
 
         // Rutas de líderes
         Route::resource('lideres', LiderController::class)->except('update','create');

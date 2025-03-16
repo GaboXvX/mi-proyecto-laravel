@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('estado_usuarios', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('parroquias', function (Blueprint $table) {
+            $table->foreign('id_municipio') ->references('id_municipio')  ->on('municipios')  ->onDelete('cascade');
+
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('estado_usuarios');
+        Schema::table('parroquias', function (Blueprint $table) {
+            //
+        });
     }
 };

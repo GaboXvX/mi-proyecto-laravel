@@ -31,19 +31,7 @@
                     <div class="card-body">
                         <form action="{{ route('guardarDireccion', $persona->id_persona) }}" method="POST">
                             @csrf
-                            <div class="mb-3">
-                                <label for="estado" class="form-label">Estado:</label>
-                                <select name="estado" id="estado" class="form-select" required>
-                                    <option value="Sucre" {{ old('estado') == 'Sucre' ? 'selected' : '' }}>Sucre</option>
-                                </select>
-                            </div>
                             
-                            <div class="mb-3">
-                                <label for="municipio" class="form-label">Municipio:</label>
-                                <select name="municipio" id="municipio" class="form-select" required>
-                                    <option value="Sucre" {{ old('municipio') == 'Sucre' ? 'selected' : '' }}>Sucre</option>
-                                </select>
-                            </div>
                             <livewire:dropdown-persona/>
                 
                             <div class="mb-3">

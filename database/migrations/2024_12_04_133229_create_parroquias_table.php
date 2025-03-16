@@ -10,7 +10,8 @@ class CreateParroquiasTable extends Migration
     public function up()
     {
         Schema::create('parroquias', function (Blueprint $table) {
-            $table->bigIncrements('id_parroquia');  // Se crea la columna id como clave primaria
+            $table->bigIncrements('id_parroquia'); // Se crea la columna id como clave primaria
+            $table->unsignedBigInteger('id_municipio'); 
             $table->string('nombre');  // Nombre de la parroquia
             $table->timestamps();  // Campos created_at y updated_at
         });

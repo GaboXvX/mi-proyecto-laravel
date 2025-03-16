@@ -185,8 +185,6 @@
 
             <div class="d-flex justify-content-between mb-3">
                 <a href="{{ route('personas.index') }}" class="btn btn-secondary btn-sm">Volver</a>
-                <a href="{{ route('personas.agregarDireccion', $persona->slug) }}" class="btn btn-secondary btn-sm">Añadir dirección</a>
-                <a href="{{ route('personas.modificarDireccion', $persona->slug) }}" class="btn btn-secondary btn-sm">Modificar dirección</a>
             </div>
             <br>
             

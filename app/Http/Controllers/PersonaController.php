@@ -145,13 +145,15 @@ class PersonaController extends Controller
 
     public function show($slug)
     {
+        $categorias = categoriaPersona::all();
+
         $persona = Persona::where('slug', $slug)->firstOrFail();
         if ($persona) {
             // Determinamos si la persona es líder comunitario en alguna de sus direcciones
             foreach ($persona->direccion as $direccion) {
                 $direccion->esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->where('estado', 1)->exists();
             }
-            return view('personas.persona', compact('persona'));
+            return view('personas.persona', compact('persona' ,'categorias'));
         } else {
             return redirect()->route('personas.index');
         }

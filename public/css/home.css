@@ -160,6 +160,30 @@ footer {
     color: #fff;
 }
 
+/*Entes similares*/
+.slider-container{
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(#00000034, #00000037);
+    margin-top: 20px;
+}
+
+.slider{
+    display: flex;
+    width: 200%;
+    animation: slide 10s infinite linear;
+}
+
+@keyframes slide{
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
 /*Responsive*/
 @media (max-width: 768px) {
     .container {

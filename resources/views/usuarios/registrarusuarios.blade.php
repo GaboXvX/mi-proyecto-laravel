@@ -1,6 +1,32 @@
 @extends('layouts.registrar')
 
 @section('content')
+
+<style>
+    label {
+        color: black;
+    }
+
+    h2, h3, h4, label {
+        color: black; /* Apply red color to headers and labels */
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
     <div class="container">
         <div class="content">
             <h2>Bienvenido al sistema de MinAguas!</h2>
@@ -84,10 +110,10 @@
             @endif
 
             @if ($errors->any())
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger">
                     <ul>
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <li style="text">{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
@@ -145,52 +171,5 @@
         });
     </script>
 
-    {{-- <style>
-        .form-content .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-content .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-content .form-group select,
-        .form-content .form-group input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .form-content .form-group select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-            color: #999; /* Cambiar el color del texto deshabilitado para hacerlo legible */
-        }
-
-        .form-content .form-group option:disabled {
-            color: #999; /* Cambiar el color del texto deshabilitado en las opciones */
-            background-color: #f0f0f0; /* Color de fondo más claro para las opciones deshabilitadas */
-        }
-
-        .form-content button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .form-content button:hover {
-            background-color: #45a049;
-        }
-
-        .form-content .row {
-            margin-bottom: 15px;
-        }
-    </style> --}}
+   
 @endsection

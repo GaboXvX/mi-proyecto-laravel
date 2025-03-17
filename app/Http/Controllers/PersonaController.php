@@ -144,22 +144,24 @@ class PersonaController extends Controller
     }
 
     public function show($slug)
-    {
-        $categorias = categoriaPersona::all();
+{
+    $categorias = categoriaPersona::all();
+    $persona = Persona::where('slug', $slug)->firstOrFail();
 
-        $persona = Persona::where('slug', $slug)->firstOrFail();
-        if ($persona) {
-            // Determinamos si la persona es líder comunitario en alguna de sus direcciones
-            foreach ($persona->direccion as $direccion) {
-                $direccion->esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->where('estado', 1)->exists();
-            }
-            $direcciones = $persona->direccion()->paginate(5); // Paginate with 10 items per page
+    if ($persona) {
+        // Paginate the addresses
+        $direcciones = $persona->direccion()->paginate(2);
 
-            return view('personas.persona', compact('persona' ,'categorias','direcciones'));
-        } else {
-            return redirect()->route('personas.index');
+        // Determine if the person is a leader in any of the paginated addresses
+        foreach ($direcciones as $direccion) {
+            $direccion->esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->where('estado', 1)->exists();
         }
+
+        return view('personas.persona', compact('persona', 'categorias', 'direcciones'));
+    } else {
+        return redirect()->route('personas.index');
     }
+}
 
    
     public function edit($slug)

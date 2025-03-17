@@ -260,18 +260,20 @@ class direccionController extends Controller
     {
         $direccionId = $request->input('id_direccion');
         $direccion = Direccion::find($direccionId);
-
+    
         if ($direccion) {
-            // Desmarcar cualquier otra dirección principal de la persona
-            Direccion::where('id_persona', $direccion->id_persona)->update(['es_principal' => 0]);
-
+            // Desmarcar solo la dirección principal actual de la persona
+            Direccion::where('id_persona', $direccion->id_persona)
+                ->where('es_principal', 1)
+                ->update(['es_principal' => 0]);
+    
             // Marcar la nueva dirección como principal
             $direccion->es_principal = 1;
             $direccion->save();
-
+    
             return redirect()->route('personas.show', ['slug' => $direccion->persona->slug])->with('success', 'La dirección se marcó como principal');
         }
-
+    
         return redirect()->back()->with('error', 'Dirección no encontrada');
     }
 }

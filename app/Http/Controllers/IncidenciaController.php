@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
+use App\Models\Direccion;
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
@@ -11,19 +12,21 @@ use App\Models\Persona;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
+
 
 class IncidenciaController extends Controller
 {
     
 
-    public function index(Request $request)
+    public function index(Request $request) 
     {
-        $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();;
+        // Cargar las incidencias junto con la relación 'lider'
+        $incidencias = Incidencia::with('lider')->orderBy('id_incidencia', 'desc')->get();
+        
+        // Retornar la vista con las incidencias
         return view('incidencias.listaincidencias', compact('incidencias'));
     }
-
+    
     public function crear($slug)
     {
 
@@ -55,34 +58,34 @@ class IncidenciaController extends Controller
     {
         try {
             $incidencia = new Incidencia;
-    
+
             // Generación del slug
             $slug = Str::slug($request->input('descripcion'));
             $originalSlug = $slug;
             $counter = 1;
-    
+
             while (Incidencia::where('slug', $slug)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
-    
+
             // Generación del código de incidencia
             $codigo = Str::random(8);
             while (Incidencia::where('cod_incidencia', $codigo)->exists()) {
                 $codigo = Str::random(8);
             }
-    
+
             $incidencia->slug = $slug;
             $persona = Persona::where('id_persona', $request->input('id_persona'))->first();
-    
-            // Buscar al líder según la comunidad de la persona y su estado activo
-            $lider = Lider_Comunitario::whereHas('comunidad', function ($query) use ($persona) {
-                // Asegúrate de que esté buscando la comunidad de la persona
-                $query->where('id_comunidad', $persona->direccion->first()->id_comunidad ?? null);
-            })
-            ->where('estado', 1) // Verificamos que el líder esté activo
-            ->first();
-    
+
+            // Obtener la dirección asociada a la incidencia
+            $direccion = Direccion::find($request->input('direccion'));
+
+            // Buscar al líder según la comunidad de la dirección y su estado activo
+            $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
+                ->where('estado', 1) // Verificamos que el líder esté activo
+                ->first();
+
             if ($lider) {
                 // Asignamos el líder a la incidencia
                 $incidencia->id_lider = $lider->id_lider;
@@ -90,9 +93,9 @@ class IncidenciaController extends Controller
                 // Si no hay un líder activo, asignamos NULL
                 $incidencia->id_lider = null;
             }
-    
+
             $id_persona = $request->input('id_persona');
-    
+
             // Asignar los valores a la incidencia
             $incidencia->id_persona = $id_persona;
             $incidencia->cod_incidencia = $codigo;
@@ -101,10 +104,10 @@ class IncidenciaController extends Controller
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
             $incidencia->estado = $request->input('estado');
             $incidencia->id_direccion = $request->input('direccion');
-    
+
             // Guardar la incidencia
             $incidencia->save();
-    
+
             if ($id_persona) {
                 $persona = Persona::findOrFail($id_persona);
                 return redirect()->route('incidencias.show', [
@@ -112,7 +115,7 @@ class IncidenciaController extends Controller
                     'incidencia_slug' => $incidencia->slug
                 ])->with('success', 'Incidencia registrada correctamente.');
             }
-    
+
             return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos.');
         } catch (\Exception $e) {
             return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
@@ -126,14 +129,18 @@ class IncidenciaController extends Controller
     
 
 
-    // public function descargar($slug)
-    // {
-    //     $incidencia = Incidencia::where('slug', $slug)->first();
-    //     $pdf = FacadePdf::loadView('incidencias.incidencia', compact('incidencia','lider'))
-    //                     ->setPaper('a4', 'portrait');  
+    public function descargar($slug)
+    {
+        $incidencia = Incidencia::where('slug', $slug)->first();
+        if (!$incidencia) {
+            return redirect()->route('incidencias.index')->with('error', 'Incidencia no encontrada.');
+        }
+
+        $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
+                        ->setPaper('a4', 'portrait');  
     
-    //     return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
-    // }
+        return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
+    }
     
 
 
@@ -171,75 +178,36 @@ class IncidenciaController extends Controller
         try {
             $incidencia = Incidencia::findOrFail($id);
 
+            // Obtener la dirección asociada a la incidencia
+            $direccion = Direccion::find($request->input('direccion'));
 
-            $camposAntiguos = [
-                'tipo_de_incidencia' => $incidencia->tipo_incidencia,
-                'descripcion' => $incidencia->descripcion,
-                'nivel_de_prioridad' => $incidencia->nivel_prioridad,
-                'estado' => $incidencia->estado,
-                'id_persona' => $incidencia->id_persona,
-                'id_lider' => $incidencia->id_lider,
-            ];
+            // Buscar al líder según la comunidad de la dirección y su estado activo
+            $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
+                ->where('estado', 1) // Verificamos que el líder esté activo
+                ->first();
 
-
-            $camposModificados = [];
-            if ($incidencia->tipo_incidencia !== $request->input('tipo_incidencia')) {
-                $camposModificados['tipo_de_incidencia'] = $request->input('tipo_incidencia');
-                $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
+            if ($lider) {
+                // Asignamos el líder a la incidencia
+                $incidencia->id_lider = $lider->id_lider;
+            } else {
+                // Si no hay un líder activo, asignamos NULL
+                $incidencia->id_lider = null;
             }
 
-            if ($incidencia->descripcion !== $request->input('descripcion')) {
-                $camposModificados['descripcion'] = $request->input('descripcion');
-                $incidencia->descripcion = $request->input('descripcion');
-            }
+            // Asignar los valores actualizados a la incidencia
+            $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
+            $incidencia->descripcion = $request->input('descripcion');
+            $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
+            $incidencia->estado = $request->input('estado');
+            $incidencia->id_direccion = $request->input('direccion');
 
-            if ($incidencia->nivel_prioridad != $request->input('nivel_prioridad')) {
-                $camposModificados['nivel_de_prioridad'] = $request->input('nivel_prioridad');
-                $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-            }
-
-            if ($incidencia->estado !== $request->input('estado')) {
-                $camposModificados['estado'] = $request->input('estado');
-                $incidencia->estado = $request->input('estado');
-            }
-
-
+            // Guardar la incidencia
             $incidencia->save();
 
-
-            if (!empty($camposModificados)) {
-                $movimiento = new Movimiento();
-
-                if (Auth::check()) {
-                    $movimiento->id_usuario = Auth::user()->id_usuario;
-                } else {
-                    return redirect()->route('login')->with('error', 'Debe estar autenticado para realizar esta acción.');
-                }
-
-
-                $movimiento->id_incidencia = $incidencia->id_incidencia;
-                $movimiento->accion = 'se ha actualizado un registro';
-                $movimiento->valor_nuevo = json_encode($camposModificados);  // Los valores actuales después de la actualización
-                $movimiento->valor_anterior = json_encode($camposAntiguos);  // Los valores antes de la actualización
-                $movimiento->id_persona = $incidencia->id_persona;
-                $movimiento->save();
-
-                if ($movimiento->save()) {
-                    if ($incidencia->id_lider) {
-                        return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
-                    } else {
-                        return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
-                    }
-                } else {
-                    return redirect()->route('personas.index')->with('error', 'Error al registrar el movimiento.');
-                }
+            if ($incidencia->id_lider) {
+                return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
             } else {
-
-                if ($incidencia->id_lider) {
-                    return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada sin cambios.');
-                } else {
-                    return redirect()->route('personas.index')->with('success', 'Incidencia actualizada sin cambios.');
-                }
+                return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
             }
         } catch (\Exception $e) {
             return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());

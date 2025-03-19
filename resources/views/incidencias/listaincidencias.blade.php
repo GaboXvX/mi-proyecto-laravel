@@ -331,6 +331,7 @@
                         <th>Creación</th>
                         <th>Registrado por</th>
                         <th>Líder</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="incidencias-tbody">
@@ -343,8 +344,7 @@
                                 <td>{{ $incidencia->nivel_prioridad }}</td>
                                 <td class="incidencia-status 
                                             @if($incidencia->estado == 'Por atender') status-pending 
-                                         
-                                           
+                                            @elseif($incidencia->estado == 'Atendido') status-resolved 
                                             @endif">
                                     {{ $incidencia->estado }}
                                 </td>
@@ -357,16 +357,25 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($incidencia->lider)
-                                        {{ $incidencia->lider->nombre }} {{ $incidencia->lider->apellido }}
+                                    @php
+                                        $lider = \App\Models\Lider_Comunitario::find($incidencia->id_lider);
+                                        $personaLider = $lider ? \App\Models\Persona::find($lider->id_persona) : null;
+                                    @endphp
+                                    @if($personaLider)
+                                       {{ $personaLider->nombre }} {{ $personaLider->apellido }}
                                     @else
                                         No asignado
                                     @endif
                                 </td>
+                                <td>
+                                    <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @else
                             <tr>
-                                <td colspan="8" class="text-center">No se encontró incidencia para este código</td>
+                                <td colspan="9" class="text-center">No se encontró incidencia para este código</td>
                             </tr>
                         @endif
                     @endforeach

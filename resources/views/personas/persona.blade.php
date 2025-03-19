@@ -285,7 +285,9 @@
                         <td>{{ $incidencia->estado }}</td>
                         <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
                         <td>
-                            <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}">Modificar incidencia</a>
+                            @if($incidencia->estado !== 'atendido')
+                                <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}" class="btn btn-primary btn-sm">Modificar incidencia</a>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

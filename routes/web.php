@@ -12,6 +12,7 @@ use App\Http\Controllers\PeticionController;
 use App\Http\Controllers\recuperarController;
 use App\Http\Controllers\seguridadController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RecuperarGetController;
 use App\Models\Direccion;
 use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'prevent-back-history'],function(){
@@ -27,6 +28,7 @@ Route::resource('peticiones', PeticionController::class)->except('index');
  // Rutas de recuperación de contraseña
  Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
  Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
+ Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
  Route::get('/recuperar-clave/{usuarioId}/{preguntaId}', [RecuperarController::class, 'recuperarClave'])->name('recuperar.recuperarClave');
  Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
  Route::get('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');

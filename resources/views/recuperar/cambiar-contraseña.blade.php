@@ -10,13 +10,13 @@
         <div class="form-content">
             <!-- Mensajes de éxito o error -->
             @if(session('success'))
-                <div class="alert alert-success">
+                <div class="alert alert-success" style="color:green">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="alert alert-danger">
+                <div class="alert alert-danger" >
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

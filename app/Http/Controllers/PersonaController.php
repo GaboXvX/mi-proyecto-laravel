@@ -203,13 +203,9 @@ class PersonaController extends Controller
 
     public function buscar(Request $request)
     {
-        $cedula = $request->input('buscar');
-        $persona = Persona::where('cedula', $cedula)->first();
+        $query = $request->input('query');
+        $personas = Persona::where('cedula', 'LIKE', "%{$query}%")->get();
 
-        if (!$persona) {
-            return redirect()->route('personas.index')->with('error', 'Persona no encontrada');
-        }
-
-        return view('personas.listapersonas')->with('personas', [$persona]);
+        return response()->json($personas);
     }
 }

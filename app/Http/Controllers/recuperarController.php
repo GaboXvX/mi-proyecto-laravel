@@ -91,10 +91,14 @@ class RecuperarController extends Controller
         // Verificar si la respuesta es correcta
         if ($respuestaCorrecta && $respuestaCorrecta === $request->respuesta) {
             // Redirigir al cambio de clave si la respuesta es correcta
-            return redirect()->route('cambiar-clave', ['usuarioId' => $request->usuario_id])->with('success', 'Respuesta correcta. Ahora puede cambiar su clave.');
-        } else {
+            return redirect()->route('cambiar-clave', ['usuarioId' => $request->usuario_id])
+            ->with('success', 'Respuesta correcta. Ahora puede cambiar su clave.');
+   } else {
             // Si la respuesta es incorrecta, redirigir de nuevo con un error
-            return redirect()->back()->withErrors(['respuesta' => 'Respuesta incorrecta. Inténtelo de nuevo.']);
+            return redirect()->route('recuperar.recuperarClave', [
+                'usuarioId' => $request->usuario_id,
+                'preguntaId' => $request->pregunta_id
+            ])->withErrors(['respuesta' => 'Respuesta incorrecta. Inténtelo de nuevo.'])->withInput();
         }
     }
 
@@ -108,23 +112,23 @@ class RecuperarController extends Controller
     }
 
     public function update(Request $request, $usuarioId)
-{
-    // Validar los datos enviados
-    $request->validate([
-        'password' => 'required|string|min:8|confirmed',  // Validar la contraseña con confirmación
-    ]);
+    {
+        // Validar los datos enviados
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',  // Validar la contraseña con confirmación
+        ]);
 
-    // Recuperar al usuario usando el ID proporcionado
-    $usuario = User::findOrFail($usuarioId);
+        // Recuperar al usuario usando el ID proporcionado
+        $usuario = User::findOrFail($usuarioId);
 
-    // Cambiar la contraseña del usuario
-    $usuario->password = Hash::make($request->password); // Usar Hash para almacenar la contraseña de manera segura
+        // Cambiar la contraseña del usuario
+        $usuario->password = Hash::make($request->password); // Usar Hash para almacenar la contraseña de manera segura
 
-    // Guardar el usuario con la nueva contraseña
-    $usuario->save();
+        // Guardar el usuario con la nueva contraseña
+        $usuario->save();
 
-    // Redirigir con un mensaje de éxito
-    return redirect()->route('login')->with('success', 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.');
-}
+        // Redirigir con un mensaje de éxito
+        return redirect()->route('login')->with('success', 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.');
+    }
 
 }

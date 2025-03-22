@@ -113,63 +113,88 @@
                 </div>
             </div>
 
-            <form action="{{ route('personas.buscar') }}" method="POST" class="mb-4">
-                @csrf
-                <input type="search" name="buscar" id="buscar" placeholder="Buscar por cédula" class="form-control d-inline-block" style="width: auto;">
-                <button type="submit" class="btn btn-primary ms-2">Buscar</button>
-            </form>
+            <div class="mb-4">
+                <input type="search" id="buscar" placeholder="Buscar por cédula" class="form-control d-inline-block" style="width: auto;">
+            </div>
 
-            @if (session('success'))
-                <div class="alert alert-success" role="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger" role="alert">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            @if (!empty($personas) && count($personas) > 0)
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Apellido</th>
-                                <th>Cédula</th>
-                                <th>Correo</th>
-                                <th>Teléfono</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($personas as $persona)
+            <div id="personas-lista">
+                @if (!empty($personas) && count($personas) > 0)
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
                                 <tr>
-                                    <td>{{ $persona->nombre }}</td>
-                                    <td>{{ $persona->apellido }}</td>
-                                    <td>{{ $persona->cedula }}</td>
-                                    <td>{{ $persona->correo }}</td>
-                                    <td>{{ $persona->telefono }}</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="{{ route('personas.show', $persona->slug) }}" class="btn btn-info btn-sm">Ver</a>
-                                            <a href="{{ route('incidencias.crear', $persona->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
-                                        </div>
-                                    </td>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Cédula</th>
+                                    <th>Correo</th>
+                                    <th>Teléfono</th>
+                                    <th>Acciones</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <p class="alert alert-warning">No se encontró ninguna persona con esa cédula.</p>
-            @endif
+                            </thead>
+                            <tbody id="personas-tbody">
+                                @foreach ($personas as $persona)
+                                    <tr>
+                                        <td>{{ $persona->nombre }}</td>
+                                        <td>{{ $persona->apellido }}</td>
+                                        <td>{{ $persona->cedula }}</td>
+                                        <td>{{ $persona->correo }}</td>
+                                        <td>{{ $persona->telefono }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ route('personas.show', $persona->slug) }}" class="btn btn-info btn-sm">Ver</a>
+                                                <a href="{{ route('incidencias.crear', $persona->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="alert alert-warning">No se encontró ninguna persona con esa cédula.</p>
+                @endif
+            </div>
         </div>
     </div>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script>
+        document.getElementById('buscar').addEventListener('input', async function() {
+            const query = this.value;
+
+            const response = await fetch('{{ route('personas.buscar') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            const personas = await response.json();
+
+            let resultadosHtml = '';
+            personas.forEach(persona => {
+                resultadosHtml += `
+                    <tr>
+                        <td>${persona.nombre}</td>
+                        <td>${persona.apellido}</td>
+                        <td>${persona.cedula}</td>
+                        <td>${persona.correo}</td>
+                        <td>${persona.telefono}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/persona/${persona.slug}" class="btn btn-info btn-sm">Ver</a>
+                                <a href="/persona/${persona.slug}/incidencias/create" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('personas-tbody').innerHTML = resultadosHtml;
+        });
+    </script>
 </body>
 
 </html>

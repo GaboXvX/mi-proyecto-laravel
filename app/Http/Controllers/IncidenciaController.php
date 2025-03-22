@@ -215,7 +215,7 @@ class IncidenciaController extends Controller
     }
 
 
-    public function destroy() {}
+   
     public function atender($slug)
     {
         $incidencia = incidencia::where('slug', $slug)->first();

@@ -130,5 +130,5 @@ class RecuperarController extends Controller
         // Redirigir con un mensaje de éxito
         return redirect()->route('login')->with('success', 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.');
     }
-
+ 
 }

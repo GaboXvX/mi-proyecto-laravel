@@ -10,6 +10,7 @@ use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class peticionController extends Controller
 {
@@ -20,123 +21,147 @@ class peticionController extends Controller
     }
    // UserController.php
    public function store(Request $request)
+{
+    // Validación de los datos
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'apellido' => 'required|string|max:255',
+        'nombre_usuario' => 'required|string|max:255',
+        'cedula' => [
+            'required',
+            'string',
+            'max:255',
+            'unique:users,cedula',
+            'regex:/^[0-9]{8,10}$/'  // Ejemplo de validación de cédula numérica entre 8 y 10 dígitos
+        ],
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:8',
+        'genero' => 'required|string',
+        'fecha_nacimiento' => 'required|date',
+        'altura' => 'required|numeric|min:0',
+        'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+        'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+        'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+        'respuesta_1' => 'required|string|max:255',
+        'respuesta_2' => 'required|string|max:255',
+        'respuesta_3' => 'required|string|max:255',
+        'rol' => 'required|exists:roles,id_rol',
+    ], [
+        'required' => 'El campo :attribute es obligatorio.',
+        'max' => 'El campo :attribute no puede tener más de :max caracteres.',
+        'email' => 'El :attribute debe ser una dirección de correo electrónico válida.',
+        'min' => 'El campo :attribute debe tener al menos :min caracteres.',
+        'exists' => 'La :attribute seleccionada no existe en nuestros registros.',
+        'unique' => 'El :attribute ya está registrado.',
+        'regex' => [
+            'cedula' => 'La cédula ingresada no es válida. Debe contener entre 8 y 10 dígitos numéricos.',
+        ],
+        'cedula.required' => 'La cédula es un campo obligatorio.',
+        'cedula.unique' => 'La cédula ingresada ya está registrada en nuestros registros.',
+        'cedula.regex' => 'La cédula debe contener entre 8 y 10 dígitos numéricos.',
+        'email.unique' => 'El correo electrónico ingresado ya está registrado.',
+        'email.required' => 'El correo electrónico es obligatorio.',
+    ]);
+
+    try {
+        // Generar un slug único para el usuario
+        $slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (User::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        // Crear el nuevo usuario
+        $user = new User;
+        $user->id_rol = $validated['rol'];
+        $user->slug = $slug;
+        $user->nombre = $validated['nombre'];
+        $user->apellido = $validated['apellido'];
+        $user->nombre_usuario = $validated['nombre_usuario'];
+        $user->cedula = $validated['cedula'];
+        $user->email = $validated['email'];
+        $user->password = bcrypt($validated['password']);
+        $user->genero = $validated['genero'];
+        $user->fecha_nacimiento = $validated['fecha_nacimiento'];
+        $user->altura = $validated['altura'];
+        $user->id_estado_usuario = 3; // Asignar estado "No verificado"
+        $user->save();
+
+        // Crear respuestas de seguridad
+        for ($i = 1; $i <= 3; $i++) {
+            $preguntaId = $validated['pregunta_' . $i];
+            $respuesta = $validated['respuesta_' . $i];
+
+            $respuestaSeguridad = new RespuestaDeSeguridad;
+            $respuestaSeguridad->id_usuario = $user->id_usuario;
+            $respuestaSeguridad->id_pregunta = $preguntaId;
+            $respuestaSeguridad->respuesta = $respuesta;
+            $respuestaSeguridad->save();
+        }
+
+        // Redirigir al login con mensaje de éxito
+        return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+    } catch (QueryException $e) {
+        if ($e->getCode() === '23000') { // Código de error para violación de restricción única
+            return redirect()->back()->withErrors('El nombre de usuario, correo electrónico o cédula ya está en uso.');
+        }
+
+        // Si ocurre otro error, lanzar la excepción
+        throw $e;
+    }
+}
+
+   
+   public function validarCampoAsincrono(Request $request)
    {
-       // Obtener la cédula del usuario
-       $cedula = $request->input('cedula');
-       
-       // Validación de los datos
-       $validated = $request->validate([
-           'nombre' => 'required|string|max:255',
-           'apellido' => 'required|string|max:255',
-           'nombre_usuario' => 'required|string|max:255',
-           'cedula' => 'required|string|max:255',
-           'email' => 'required|email',
-           'password' => 'required|string|min:8',
-           'genero' => 'required|string',
-           'fecha_nacimiento' => 'required|date',
-           'altura' => 'required|numeric|min:0',
-           'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-           'respuesta_1' => 'required|string|max:255',
-           'respuesta_2' => 'required|string|max:255',
-           'respuesta_3' => 'required|string|max:255',
-           'rol' => 'required|exists:roles,id_rol',
-       ], [
-           'required' => 'El campo :attribute es obligatorio.',
-           'max' => 'El campo :attribute no puede tener más de :max caracteres.',
-           'email' => 'El :attribute debe ser una dirección de correo electrónico válida.',
-           'min' => 'El campo :attribute debe tener al menos :min caracteres.',
-           'exists' => 'La :attribute seleccionada no existe en nuestros registros.',
-       ]);
+       $campo = $request->input('campo');
+       $valor = $request->input('valor');
+       $error = null;
    
-       // Verificar si el usuario existe por cédula
-       $existingUser = User::where('cedula', $validated['cedula'])->first();
+       switch ($campo) {
+           case 'cedula':
+               $usuarioPorCedula = User::where('cedula', $valor)->first();
+               if ($usuarioPorCedula && in_array($usuarioPorCedula->id_estado_usuario, [1, 2, 3])) {
+                   $error = 'La cédula ya está asociada a un usuario aceptado, desactivado o no verificado.';
+               }
+               break;
    
-       if ($existingUser) {
-           // Si el usuario ya existe, verificamos su estado
-           switch ($existingUser->id_estado_usuario) {
-               case 4: // Rechazado
-                   // Si el usuario está rechazado, renovamos la solicitud y cambiamos el estado a Aceptado (1)
-                   $existingUser->id_estado_usuario = 3;
-                   $existingUser->save();
-                   return redirect()->route('login')->with('success', 'Petición renovada.');
-               
-               case 2: // Desactivado
-                   // Si el usuario está desactivado, puedes mostrar un mensaje o decidir si permites la renovación
-                   return redirect()->back()->withErrors('Este usuario está desactivado y no puede hacer una nueva solicitud.');
-               
-               case 3: // No verificado
-                   // Si el usuario no está verificado, le indicamos que ya tiene una solicitud pendiente
-                   return redirect()->back()->withErrors('Este usuario tiene una petición pendiente.');
-               
-               case 1: // Aceptado
-                   // Si el usuario ya está aceptado, no realizamos ninguna acción
-                   return redirect()->back()->withErrors('Este usuario ya tiene una petición aceptada.');
-           }
+           case 'nombre_usuario':
+               $usuarioPorNombre = User::where('nombre_usuario', $valor)->first();
+               if ($usuarioPorNombre) {
+                   switch ($usuarioPorNombre->id_estado_usuario) {
+                       case 1: // Aceptado
+                       case 2: // Desactivado
+                           $error = 'El nombre de usuario ya está en uso.';
+                           break;
+                       case 3: // No verificado
+                           $error = 'El nombre de usuario ya ha sido escogido para una solicitud.';
+                           break;
+                       case 4: // Rechazado
+                           $error = 'El nombre de usuario ya ha sido rechazado.';
+                           break;
+                   }
+               }
+               break;
+   
+           case 'email':
+               $usuarioPorEmail = User::where('email', $valor)->first();
+               if ($usuarioPorEmail && in_array($usuarioPorEmail->id_estado_usuario, [1, 2, 3])) {
+                   $error = 'El correo electrónico ya está asociado a un usuario aceptado, desactivado o no verificado.';
+               }
+               break;
+   
+           default:
+               $error = 'Campo no válido para validación.';
+               break;
        }
    
-       // Generar un slug único para el usuario
-       $slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
-       $originalSlug = $slug;
-       $counter = 1;
-   
-       while (User::where('slug', $slug)->exists()) {
-           $slug = $originalSlug . '-' . $counter;
-           $counter++;
-       }
-   
-       // Crear el nuevo usuario
-       $user = new User;
-       $user->id_rol = $validated['rol'];
-       $user->slug = $slug;
-       $user->nombre = $validated['nombre'];
-       $user->apellido = $validated['apellido'];
-       $user->nombre_usuario = $validated['nombre_usuario'];
-       $user->cedula = $validated['cedula'];
-       $user->email = $validated['email'];
-       $user->password = bcrypt($validated['password']);
-       $user->genero = $validated['genero'];
-       $user->fecha_nacimiento = $validated['fecha_nacimiento'];
-       $user->altura = $validated['altura'];
-       $user->id_estado_usuario = 3; // Asignar estado "No verificado"
-       $user->save(); // Guardar el nuevo usuario
-   
-       // Crear respuestas de seguridad
-       for ($i = 1; $i <= 3; $i++) {
-           $preguntaId = $validated['pregunta_' . $i];
-           $respuesta = $validated['respuesta_' . $i];
-   
-           // Verificar si la pregunta existe
-           $pregunta = Pregunta::find($preguntaId);
-   
-           if ($pregunta) {
-               // Crear la respuesta de seguridad
-               $respuestaSeguridad = new RespuestaDeSeguridad;
-               $respuestaSeguridad->id_usuario = $user->id_usuario;
-               $respuestaSeguridad->id_pregunta = $preguntaId;
-               $respuestaSeguridad->respuesta = $respuesta;
-               $respuestaSeguridad->save(); // Guardar la respuesta
-           } else {
-               // Si la pregunta no existe, devolver un error
-               return redirect()->back()->withErrors("La pregunta de seguridad $i no existe.");
-           }
-       }
-   
-       // Redirigir al login con mensaje de éxito
-       return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+       return response()->json(['error' => $error]);
    }
    
-
-
-   
-   
-   
-   
-
-    
-
-    
     public function rechazar($id)
     {
 $peticion=user::where('id_usuario',$id)->first();
@@ -189,12 +214,5 @@ $peticion=user::where('id_usuario',$id)->first();
             return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
-    
-    
-
-    
-
-
-
     
 }

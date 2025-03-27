@@ -24,11 +24,6 @@ class peticionController extends Controller
        // Obtener la cédula del usuario
        $cedula = $request->input('cedula');
        
-       // Limpiar el nombre de usuario eliminando caracteres especiales
-       $request->merge([
-           'nombre_usuario' => preg_replace('/[^a-zA-Z0-9_]/', '', $request->input('nombre_usuario'))
-       ]);
-
        // Validación de los datos
        $validated = $request->validate([
            'nombre' => 'required|string|max:255',
@@ -55,18 +50,6 @@ class peticionController extends Controller
            'exists' => 'La :attribute seleccionada no existe en nuestros registros.',
        ]);
    
-       // Verificar si el correo electrónico ya existe
-       $existingEmail = User::where('email', $validated['email'])->first();
-       if ($existingEmail && $existingEmail->id_estado_usuario != 4) {
-           return redirect()->back()->withErrors('El correo electrónico ya está en uso.');
-       }
-
-       // Verificar si el nombre de usuario ya existe
-       $existingNombreUsuario = User::where('nombre_usuario', $validated['nombre_usuario'])->first();
-       if ($existingNombreUsuario) {
-           return redirect()->back()->withErrors('El nombre de usuario ya está en uso.');
-       }
-
        // Verificar si el usuario existe por cédula
        $existingUser = User::where('cedula', $validated['cedula'])->first();
    
@@ -144,64 +127,16 @@ class peticionController extends Controller
        return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
    }
    
-   public function validarCedulaYUsuario(Request $request)
-   {
-       $cedula = $request->input('cedula');
-       $nombreUsuario = $request->input('nombre_usuario');
-       $email = $request->input('email');
 
-       $errorCedula = null;
-       $errorNombreUsuario = null;
-       $errorEmail = null;
-   
-       // Validar cédula
-       if ($cedula) {
-           $usuarioPorCedula = User::where('cedula', $cedula)->first();
-           if ($usuarioPorCedula) {
-               if ($usuarioPorCedula->id_estado_usuario == 3) {
-                   $errorCedula = 'Esta cédula ya ha sido escogida para una solicitud.';
-               } elseif ($usuarioPorCedula->id_estado_usuario == 1) {
-                   $errorCedula = 'La cédula ya está asociada a un usuario aceptado.';
-               }
-           }
-       }
-   
-       // Validar nombre de usuario
-       if ($nombreUsuario) {
-           $regexCorreo = '/^[^\s@]+@[^\s@]+\.[^\s@]+$/';
-           if (preg_match($regexCorreo, $nombreUsuario)) {
-               $errorNombreUsuario = 'El nombre de usuario no puede ser un correo electrónico.';
-           } else {
-               $usuarioPorNombre = User::where('nombre_usuario', $nombreUsuario)->first();
-               if ($usuarioPorNombre) {
-                   if ($usuarioPorNombre->id_estado_usuario == 3) {
-                       $errorNombreUsuario = 'El nombre de usuario ya ha sido escogido para una solicitud.';
-                   } elseif (in_array($usuarioPorNombre->id_estado_usuario, [1, 2])) {
-                       $errorNombreUsuario = 'El nombre de usuario ya está en uso.';
-                   }
-               }
-           }
-       }
 
-       // Validar correo electrónico
-       if ($email) {
-           $usuarioPorEmail = User::where('email', $email)->first();
-           if ($usuarioPorEmail) {
-               if ($usuarioPorEmail->id_estado_usuario == 3) {
-                   $errorEmail = 'El correo electrónico ya ha sido escogido para una solicitud.';
-               } elseif ($usuarioPorEmail->id_estado_usuario != 4) {
-                   $errorEmail = 'El correo electrónico ya está en uso.';
-               }
-           }
-       }
    
-       return response()->json([
-           'error_cedula' => $errorCedula,
-           'error_nombre_usuario' => $errorNombreUsuario,
-           'error_email' => $errorEmail
-       ]);
-   }
    
+   
+   
+
+    
+
+    
     public function rechazar($id)
     {
 $peticion=user::where('id_usuario',$id)->first();
@@ -254,5 +189,12 @@ $peticion=user::where('id_usuario',$id)->first();
             return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
+    
+    
+
+    
+
+
+
     
 }

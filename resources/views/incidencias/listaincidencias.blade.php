@@ -385,82 +385,97 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('fecha_inicio').addEventListener('change', filtrarIncidencias);
-            document.getElementById('fecha_fin').addEventListener('change', filtrarIncidencias);
-            document.getElementById('estado').addEventListener('change', filtrarIncidencias);
+        class FiltroIncidencias {
+    constructor(fechaInicioId, fechaFinId, estadoId, resultadosId, tbodyId, url) {
+        this.fechaInicio = document.getElementById(fechaInicioId);
+        this.fechaFin = document.getElementById(fechaFinId);
+        this.estado = document.getElementById(estadoId);
+        this.resultados = document.getElementById(resultadosId);
+        this.tbody = document.getElementById(tbodyId);
+        this.url = url;
 
-            function filtrarIncidencias() {
-                let fechaInicio = document.getElementById('fecha_inicio').value;
-                let fechaFin = document.getElementById('fecha_fin').value;
-                let estado = document.getElementById('estado').value;
+        // Agregar event listeners a los filtros
+        this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
+        this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
+        this.estado.addEventListener('change', () => this.filtrarIncidencias());
+    }
 
-                if (fechaInicio && fechaFin) {
-                    fetch('/filtrar-incidencia', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            fecha_inicio: fechaInicio,
-                            fecha_fin: fechaFin,
-                            estado: estado  
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        let listaResultados = document.getElementById('resultados');
-                        listaResultados.innerHTML = '';
+    async filtrarIncidencias() {
+        const fechaInicio = this.fechaInicio.value;
+        const fechaFin = this.fechaFin.value;
+        const estado = this.estado.value;
 
-                        let tbody = document.getElementById('incidencias-tbody');
-                        tbody.innerHTML = '';
+        if (!fechaInicio || !fechaFin) {
+            return;
+        }
 
-                        if (data.incidencias && data.incidencias.length > 0) {
-                            data.incidencias.forEach(incidencia => {
-                                let tr = document.createElement('tr');
-                                let fecha = new Date(incidencia.created_at);
-                                let fechaFormateada = fecha.toLocaleString('es-ES', {
-                                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                                });
+        try {
+            const response = await fetch(this.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ fecha_inicio: fechaInicio, fecha_fin: fechaFin, estado })
+            });
 
-                                tr.innerHTML = `
-                                    <td>${incidencia.cod_incidencia}</td>
-                                    <td>${incidencia.tipo_incidencia}</td>
-                                    <td>${incidencia.descripcion}</td>
-                                    <td>${incidencia.nivel_prioridad}</td>
-                                    <td class="incidencia-status ${getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                                    <td>${fechaFormateada}</td>
-                                    <td>${incidencia.persona ? incidencia.persona.nombre + ' ' + incidencia.persona.apellido : 'No registrado'}</td>
-                                    <td>${incidencia.lider ? incidencia.lider.nombre + ' ' + incidencia.lider.apellido : 'No asignado'}</td>
-                                `;
+            const data = await response.json();
+            this.mostrarResultados(data.incidencias);
+        } catch (error) {
+            console.error('Error al filtrar incidencias:', error);
+        }
+    }
 
-                                tbody.appendChild(tr);
-                            });
-                        } else {
-                            let tr = document.createElement('tr');
-                            tr.innerHTML = '<td colspan="8" class="text-center">No se encontraron incidencias para el período y estado seleccionado.</td>';
-                            tbody.appendChild(tr);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                }
-            }
+    mostrarResultados(incidencias) {
+        this.tbody.innerHTML = '';
 
-            function getStatusClass(estado) {
-                switch (estado) {
-                    case 'Atendido':
-                        return 'status-resolved'; 
-                    case 'Por atender':
-                        return 'status-pending'; 
-                    default:
-                        return '';
-                }
-            }
-        });
+        if (incidencias && incidencias.length > 0) {
+            incidencias.forEach(incidencia => {
+                const tr = document.createElement('tr');
+                const fecha = new Date(incidencia.created_at);
+                const fechaFormateada = fecha.toLocaleString('es-ES', {
+                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+
+                tr.innerHTML = `
+                    <td>${incidencia.cod_incidencia}</td>
+                    <td>${incidencia.tipo_incidencia}</td>
+                    <td>${incidencia.descripcion}</td>
+                    <td>${incidencia.nivel_prioridad}</td>
+                    <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                    <td>${fechaFormateada}</td>
+                    <td>${incidencia.persona ? `${incidencia.persona.nombre} ${incidencia.persona.apellido}` : 'No registrado'}</td>
+                    <td>${incidencia.lider ? `${incidencia.lider.nombre} ${incidencia.lider.apellido}` : 'No asignado'}</td>
+                `;
+
+                this.tbody.appendChild(tr);
+            });
+        } else {
+            this.tbody.innerHTML = '<tr><td colspan="8" class="text-center">No se encontraron incidencias para el período y estado seleccionado.</td></tr>';
+        }
+    }
+
+    getStatusClass(estado) {
+        switch (estado) {
+            case 'Atendido': return 'status-resolved';
+            case 'Por atender': return 'status-pending';
+            default: return '';
+        }
+    }
+}
+
+// Inicializar la clase cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    new FiltroIncidencias(
+        'fecha_inicio',
+        'fecha_fin',
+        'estado',
+        'resultados',
+        'incidencias-tbody',
+        '/filtrar-incidencia'
+    );
+});
     </script>
      <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
      <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>

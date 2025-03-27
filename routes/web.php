@@ -33,8 +33,6 @@ Route::resource('peticiones', PeticionController::class)->except('index');
  Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
  Route::get('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
  Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
-Route::post('/validar-cedula-usuario', [PeticionController::class, 'validarCedulaYUsuario'])->name('validar.cedula.usuario');
-Route::post('/validar-campo-asincrono', [PeticionController::class, 'validarCampoAsincrono'])->name('validar.campo.asincrono');
 Route::middleware(['auth'])->group(function () {
 
 

@@ -10,12 +10,9 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-
 </head>
 
 <body>
-
             <!-- Mensajes de error o éxito -->
             @if (session('success'))
             <div class="alert alert-success" role="alert">
@@ -38,34 +35,29 @@
             </div>
             @endif
     <div class="container">
-        <div class="content text-center">
+        <div class="content">
             <h2>Bienvenido al sistema de MinAguas!</h2>
             <p>Tu plataforma confiable para el manejo de recursos hídricos.</p>
         </div>
         <hr>
-
-        <div class="form-content">
-            <h3>Iniciar Sesión</h3>
-
-
             <!-- Formulario de inicio de sesión -->
-            <form method="POST" action="{{ route('login.authenticate') }}">
+            <form method="POST" class="form-content" action="{{ route('login.authenticate') }}">
                 @csrf
-                <input type="email" class="form-control mb-3" name="email" placeholder="Correo electrónico" value="{{ old('email') }}" required>
+                <h3>Iniciar Sesión</h3>
+                <input type="email" name="email" placeholder="Correo electrónico" value="{{ old('email') }}" required>
 
-                <input type="password" class="form-control mb-3" name="password" placeholder="Contraseña" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
 
-                <a href="{{ route('recuperar.ingresarCedula') }}" class="d-block mb-3">¿Olvidaste tu contraseña?</a>
+                <a href="{{ route('recuperar.ingresarCedula') }}">¿Olvidaste tu contraseña?</a>
 
-                <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar sesión</button>
+                <button type="submit">Iniciar sesión</button>
 
                 <p>¿No tienes una cuenta? <a href="{{ route('usuarios.create') }}">Regístrate aquí</a></p>
             </form>
-        </div>
     </div>
 
     <!-- Iconos sociales -->
-    <div class="social-icons text-center mt-4">
+    <div class="social-icons">
         <a href="#"><i class="bi bi-facebook"></i></a>
         <a href="#"><i class="bi bi-instagram"></i></a>
         <a href="#"><i class="bi bi-whatsapp"></i></a>
@@ -73,7 +65,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="text-center mt-4">
+    <footer>
         <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
     </footer>
 

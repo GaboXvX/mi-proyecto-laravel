@@ -205,19 +205,22 @@
                 <label for="telefono" class="form-label">Teléfono:</label>
                 <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10>=11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
             </div>
-
             <div class="mb-3">
-                <label for="estado" class="form-label">Estado:</label>
-                <select name="estado" id="estado" class="form-select" required disabled>
-                    <option value="Sucre" {{ old('estado') == 'Sucre' ? 'selected' : '' }}>Sucre</option>
+                <label for="genero" class="form-label">Género:</label>
+                <select name="genero" id="genero" class="form-select" required>
+                    <option value="M" {{ old('genero') == 'M' ? 'selected' : '' }}>Masculino</option>
+                    <option value="F" {{ old('genero') == 'F' ? 'selected' : '' }}>Femenino</option>
                 </select>
             </div>
-            
+        
             <div class="mb-3">
-                <label for="municipio" class="form-label">Municipio:</label>
-                <select name="municipio" id="municipio" class="form-select" required disabled>
-                    <option value="Sucre" {{ old('municipio') == 'Sucre' ? 'selected' : '' }}>Sucre</option>
-                </select>
+                <label for="altura" class="form-label">Altura (cm):</label>
+                <input type="number" id="altura" name="altura" class="form-control" value="{{ old('altura') }}" required min="0" step="0.01">
+            </div>
+        
+            <div class="mb-3">
+                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
+                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento') }}" required>
             </div>
             <livewire:dropdown-persona/>
 

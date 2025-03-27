@@ -10,6 +10,7 @@ use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class peticionController extends Controller
 {
@@ -21,9 +22,6 @@ class peticionController extends Controller
    // UserController.php
    public function store(Request $request)
    {
-       // Obtener la cédula del usuario
-       $cedula = $request->input('cedula');
-       
        // Validación de los datos
        $validated = $request->validate([
            'nombre' => 'required|string|max:255',
@@ -52,28 +50,8 @@ class peticionController extends Controller
    
        // Verificar si el usuario existe por cédula
        $existingUser = User::where('cedula', $validated['cedula'])->first();
-   
        if ($existingUser) {
-           // Si el usuario ya existe, verificamos su estado
-           switch ($existingUser->id_estado_usuario) {
-               case 4: // Rechazado
-                   // Si el usuario está rechazado, renovamos la solicitud y cambiamos el estado a Aceptado (1)
-                   $existingUser->id_estado_usuario = 3;
-                   $existingUser->save();
-                   return redirect()->route('login')->with('success', 'Petición renovada.');
-               
-               case 2: // Desactivado
-                   // Si el usuario está desactivado, puedes mostrar un mensaje o decidir si permites la renovación
-                   return redirect()->back()->withErrors('Este usuario está desactivado y no puede hacer una nueva solicitud.');
-               
-               case 3: // No verificado
-                   // Si el usuario no está verificado, le indicamos que ya tiene una solicitud pendiente
-                   return redirect()->back()->withErrors('Este usuario tiene una petición pendiente.');
-               
-               case 1: // Aceptado
-                   // Si el usuario ya está aceptado, no realizamos ninguna acción
-                   return redirect()->back()->withErrors('Este usuario ya tiene una petición aceptada.');
-           }
+           return redirect()->back()->withErrors('La cédula ya está asociada a un usuario.');
        }
    
        // Generar un slug único para el usuario
@@ -86,57 +64,101 @@ class peticionController extends Controller
            $counter++;
        }
    
-       // Crear el nuevo usuario
-       $user = new User;
-       $user->id_rol = $validated['rol'];
-       $user->slug = $slug;
-       $user->nombre = $validated['nombre'];
-       $user->apellido = $validated['apellido'];
-       $user->nombre_usuario = $validated['nombre_usuario'];
-       $user->cedula = $validated['cedula'];
-       $user->email = $validated['email'];
-       $user->password = bcrypt($validated['password']);
-       $user->genero = $validated['genero'];
-       $user->fecha_nacimiento = $validated['fecha_nacimiento'];
-       $user->altura = $validated['altura'];
-       $user->id_estado_usuario = 3; // Asignar estado "No verificado"
-       $user->save(); // Guardar el nuevo usuario
+       try {
+           // Crear el nuevo usuario
+           $user = new User;
+           $user->id_rol = $validated['rol'];
+           $user->slug = $slug;
+           $user->nombre = $validated['nombre'];
+           $user->apellido = $validated['apellido'];
+           $user->nombre_usuario = $validated['nombre_usuario'];
+           $user->cedula = $validated['cedula'];
+           $user->email = $validated['email'];
+           $user->password = bcrypt($validated['password']);
+           $user->genero = $validated['genero'];
+           $user->fecha_nacimiento = $validated['fecha_nacimiento'];
+           $user->altura = $validated['altura'];
+           $user->id_estado_usuario = 3; // Asignar estado "No verificado"
+           $user->save(); // Guardar el nuevo usuario
    
-       // Crear respuestas de seguridad
-       for ($i = 1; $i <= 3; $i++) {
-           $preguntaId = $validated['pregunta_' . $i];
-           $respuesta = $validated['respuesta_' . $i];
+           // Crear respuestas de seguridad
+           for ($i = 1; $i <= 3; $i++) {
+               $preguntaId = $validated['pregunta_' . $i];
+               $respuesta = $validated['respuesta_' . $i];
    
-           // Verificar si la pregunta existe
-           $pregunta = Pregunta::find($preguntaId);
-   
-           if ($pregunta) {
-               // Crear la respuesta de seguridad
                $respuestaSeguridad = new RespuestaDeSeguridad;
                $respuestaSeguridad->id_usuario = $user->id_usuario;
                $respuestaSeguridad->id_pregunta = $preguntaId;
                $respuestaSeguridad->respuesta = $respuesta;
-               $respuestaSeguridad->save(); // Guardar la respuesta
-           } else {
-               // Si la pregunta no existe, devolver un error
-               return redirect()->back()->withErrors("La pregunta de seguridad $i no existe.");
+               $respuestaSeguridad->save();
            }
-       }
    
-       // Redirigir al login con mensaje de éxito
-       return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+           // Redirigir al login con mensaje de éxito
+           return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+       } catch (QueryException $e) {
+           if ($e->getCode() === '23000') { // Código de error para violación de restricción única
+               return redirect()->back()->withErrors('El nombre de usuario o correo electrónico ya existe o ya fue elegido.');
+           }
+   
+           // Si ocurre otro error, lanzar la excepción
+           throw $e;
+       }
    }
    
-
-
-   
-   
-   
-   
-
+    public function validarCampoAsincrono(Request $request)
+    {
+        $campo = $request->input('campo');
+        $valor = $request->input('valor');
+        $error = null;
     
-
+        switch ($campo) {
+            case 'cedula':
+                $usuarioPorCedula = User::where('cedula', $valor)->first();
+                if ($usuarioPorCedula && $usuarioPorCedula->id_estado_usuario == 1) {
+                    $error = 'La cédula ya está asociada a un usuario aceptado.';
+                }
+                break;
     
+            case 'nombre_usuario':
+                $usuarioPorNombre = User::where('nombre_usuario', $valor)->first();
+                if ($usuarioPorNombre) {
+                    switch ($usuarioPorNombre->id_estado_usuario) {
+                        case 1: // Aceptado
+                        case 2: // Desactivado
+                            $error = 'El nombre de usuario ya está en uso.';
+                            break;
+                        case 0: // No verificado
+                        case 3: // Rechazado
+                            $error = 'El nombre de usuario ya ha sido escogido.';
+                            break;
+                    }
+                }
+                break;
+
+            case 'email':
+                $usuarioPorEmail = User::where('email', $valor)->first();
+                if ($usuarioPorEmail) {
+                    switch ($usuarioPorEmail->id_estado_usuario) {
+                        case 1: // Aceptado
+                        case 2: // Desactivado
+                            $error = 'El correo electrónico ya está en uso.';
+                            break;
+                        case 0: // No verificado
+                        case 3: // Rechazado
+                            $error = 'El correo electrónico ya ha sido escogido.';
+                            break;
+                    }
+                }
+                break;
+    
+            default:
+                $error = 'Campo no válido para validación.';
+                break;
+        }
+    
+        return response()->json(['error' => $error]);
+    }
+
     public function rechazar($id)
     {
 $peticion=user::where('id_usuario',$id)->first();
@@ -189,12 +211,4 @@ $peticion=user::where('id_usuario',$id)->first();
             return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
-    
-    
-
-    
-
-
-
-    
 }

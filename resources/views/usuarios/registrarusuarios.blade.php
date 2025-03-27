@@ -26,6 +26,12 @@
         padding: 10px;
         border-radius: 5px;
     }
+
+    .error-message {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
 </style>
     <div class="container">
         <div class="content">
@@ -56,8 +62,11 @@
                     <input type="text" id="apellido" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}" required>
                 </div>
                 <input type="text" id="nombre_usuario" name="nombre_usuario" placeholder="Nombre de Usuario" value="{{ old('nombre_usuario') }}" required>
+                <span id="nombre_usuario_error" class="error-message"></span>
                 <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required>
+                <span id="cedula_error" class="error-message"></span>
                 <input type="email" id="email" name="email" placeholder="Correo Electrónico" value="{{ old('email') }}" required>
+                <span id="email_error" class="error-message"></span>
                 <input type="password" id="password" name="password" placeholder="Contraseña" required>
 
                 <!-- Nuevos campos adicionales -->
@@ -171,5 +180,64 @@
         });
     </script>
 
-   
+    <script>
+        async function validarCampo(campo, valor) {
+            try {
+                const response = await fetch('{{ route("validar.campo.asincrono") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ campo, valor })
+                });
+
+                const data = await response.json();
+                return data.error;
+            } catch (error) {
+                console.error('Error al validar:', error);
+            }
+        }
+
+        function mostrarError(inputId, mensaje) {
+            const input = document.getElementById(inputId);
+            const errorSpan = document.getElementById(`${inputId}_error`);
+
+            if (mensaje) {
+                input.classList.add('input-error');
+                input.classList.remove('input-success');
+                errorSpan.textContent = mensaje;
+            } else {
+                input.classList.remove('input-error');
+                input.classList.add('input-success');
+                errorSpan.textContent = '';
+            }
+        }
+
+        document.getElementById('cedula').addEventListener('blur', async function () {
+            const cedula = this.value;
+            const error = await validarCampo('cedula', cedula);
+            mostrarError('cedula', error);
+        });
+
+        document.getElementById('nombre_usuario').addEventListener('blur', async function () {
+            const nombreUsuario = this.value;
+            const error = await validarCampo('nombre_usuario', nombreUsuario);
+            mostrarError('nombre_usuario', error);
+        });
+
+        document.getElementById('email').addEventListener('blur', async function () {
+            const email = this.value;
+            const error = await validarCampo('email', email);
+            mostrarError('email', error);
+        });
+
+        // Función para eliminar caracteres especiales del nombre de usuario
+        function limpiarNombreUsuario() {
+            const nombreUsuarioInput = document.getElementById('nombre_usuario');
+            nombreUsuarioInput.value = nombreUsuarioInput.value.replace(/[^a-zA-Z0-9_]/g, '');
+        }
+
+        document.getElementById('nombre_usuario').addEventListener('input', limpiarNombreUsuario);
+    </script>
 @endsection

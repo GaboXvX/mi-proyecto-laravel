@@ -39,6 +39,8 @@ Route::post('/recuperar-clave', [RecuperarController::class, 'mostrarCambioClave
  Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
 Route::get('/cambiar-clave/{token}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
 Route::post('/validar-campo-asincrono', [PeticionController::class, 'validarCampoAsincrono'])->name('validar.campo.asincrono');
+Route::get('/peticiones/obtener', [PeticionController::class, 'obtenerPeticiones'])->name('peticiones.obtener');
+Route::get('/home/total-peticiones', [HomeController::class, 'obtenerTotalPeticiones'])->name('home.totalPeticiones');
 Route::middleware(['auth'])->group(function () {
 
 
@@ -53,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
     Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
     Route::resource('usuarios', UserController::class)->except('create', 'store', 'update')->middleware('role:admin');
+    Route::get('/api/usuarios', [UserController::class, 'getUsuarios'])->name('usuarios.getUsuarios');
+
     Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])->name('usuarios.desactivar')->middleware('role:admin');
     Route::post('/activar/{id}', [UserController::class, 'activar'])->name('usuarios.activar')->middleware('role:admin');
     Route::get('/incidencias', [IncidenciaController::class, 'index']);

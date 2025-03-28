@@ -2,12 +2,15 @@
 
 // database/seeders/DatabaseSeeder.php
 
+use Database\Seeders\CargoEmpleadosAutorizadosSeeder;
 use Database\Seeders\categoriaPersonaSeeder;
 use Database\Seeders\ParroquiaSeeder;
 use Database\Seeders\UrbanizacionSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\SectorSeeder;
 use Database\Seeders\ComunidadSeeder;
+use Database\Seeders\DepartamentosSeeder;
+use Database\Seeders\EmpleadosAutorizadosSeeder;
 use Database\Seeders\EstadoSeeder;
 use Database\Seeders\EstadosUsuariosSeeder;
 use Database\Seeders\MunicipioSeeder;
@@ -32,6 +35,10 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             categoriaPersonaSeeder::class,
             RespuestasSeeder::class,
+            DepartamentosSeeder::class,
+            CargoEmpleadosAutorizadosSeeder::class,
+            EmpleadosAutorizadosSeeder::class,
+
         ]);
     }
 }

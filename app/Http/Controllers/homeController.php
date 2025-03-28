@@ -11,7 +11,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $totalUsuarios = User::where('id_rol',2)->where('id_estado_usuario',1)->count();
+        $totalUsuarios = User::all()->count();
 
         // Contar el número total de incidencias
         $totalIncidencias = Incidencia::count();
@@ -24,5 +24,11 @@ class HomeController extends Controller
 
         // Pasar los valores a la vista
         return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas'));
+    }
+
+    public function obtenerTotalPeticiones()
+    {
+        $totalPeticiones = User::where('id_estado_usuario', 3)->count();
+        return response()->json(['totalPeticiones' => $totalPeticiones]);
     }
 }

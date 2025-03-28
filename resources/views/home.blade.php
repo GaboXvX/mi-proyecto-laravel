@@ -137,7 +137,7 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Peticiones</h5>
-                            <p class="card-text fs-3">{{ $totalPeticiones }}</p>
+                            <p class="card-text fs-3" id="totalPeticiones">{{ $totalPeticiones }}</p>
                             <a href="{{ route('peticiones.index') }}" class="text-decoration-none">Ver más</a>
                         </div>
                     </div>
@@ -149,5 +149,19 @@
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script>
+        async function actualizarTotalPeticiones() {
+            try {
+                const response = await fetch("{{ route('home.totalPeticiones') }}");
+                const data = await response.json();
+                document.getElementById("totalPeticiones").textContent = data.totalPeticiones;
+            } catch (error) {
+                console.error("Error al actualizar el total de peticiones:", error);
+            }
+        }
+
+        // Actualizar el total de peticiones cada 30 segundos
+        setInterval(actualizarTotalPeticiones, 30000);
+    </script>
 </body>
 </html>

@@ -13,14 +13,21 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-   public function index()
-{
-    $usuarios = User::where('id_estado_usuario', 1)
-                    ->orWhere('id_estado_usuario', 2)
-                    ->orderBy('id_usuario', 'desc')
-                    ->get();
-    return view('usuarios.listaUsuarios', compact('usuarios'));
-}
+    public function index()
+    {
+        // Obtener el usuario autenticado
+        $usuarioAutenticado = auth()->user();
+    
+        // Recuperar los usuarios con los estados 1 y 2
+        $usuarios = User::where('id_estado_usuario', 1)
+                        ->orWhere('id_estado_usuario', 2)
+                        ->orderBy('id_usuario', 'desc')
+                        ->get();
+    
+        // Pasar los usuarios y el usuario autenticado a la vista
+        return view('usuarios.listaUsuarios', compact('usuarios', 'usuarioAutenticado'));
+    }
+    
     public function create()
     {
         $preguntas=pregunta::all();
@@ -78,28 +85,44 @@ class UserController extends Controller
 }
 
    
-    public function desactivar($id)
-    {
-        try {
-            $usuario = User::where('id_usuario', $id)->first();
-            $usuario->id_estado_usuario = 2;
-            $usuario->save();
-            return redirect()->route('usuarios.index')->with('success', 'Usuario desactivado correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('usuarios.index')->with('error', 'Error al desactivar el usuario: ' . $e->getMessage());
+public function desactivar($id)
+{
+    try {
+        $usuario = User::where('id_usuario', $id)->first();
+        
+        // Verificar si el usuario autenticado es admin o si el usuario a desactivar es admin
+        if (auth()->user()->role->rol == 'admin' && $usuario->role->rol == 'admin') {
+            return redirect()->route('usuarios.index')->with('error', 'No se puede desactivar a otro administrador.');
         }
+
+        $usuario->id_estado_usuario = 2; // Estado desactivado
+        $usuario->save();
+
+        return redirect()->route('usuarios.index')->with('success', 'Usuario desactivado correctamente');
+    } catch (\Exception $e) {
+        return redirect()->route('usuarios.index')->with('error', 'Error al desactivar el usuario: ' . $e->getMessage());
     }
-    public function activar($id)
-    {
-        try {
-            $usuario = User::where('id_usuario', $id)->first();
-            $usuario->id_estado_usuario = 1;
-            $usuario->save();
-            return redirect()->route('usuarios.index')->with('success', 'Usuario activado correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('usuarios.index')->with('error', 'Error al activar el usuario: ' . $e->getMessage());
+}
+
+public function activar($id)
+{
+    try {
+        $usuario = User::where('id_usuario', $id)->first();
+
+        // Verificar si el usuario autenticado es admin o si el usuario a activar es admin
+        if (auth()->user()->role->rol == 'admin' && $usuario->role->rol == 'admin') {
+            return redirect()->route('usuarios.index')->with('error', 'No se puede activar a un administrador.');
         }
+
+        $usuario->id_estado_usuario = 1; // Estado activo
+        $usuario->save();
+
+        return redirect()->route('usuarios.index')->with('success', 'Usuario activado correctamente');
+    } catch (\Exception $e) {
+        return redirect()->route('usuarios.index')->with('error', 'Error al activar el usuario: ' . $e->getMessage());
     }
+}
+
    
 
 

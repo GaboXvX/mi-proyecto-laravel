@@ -14,9 +14,19 @@ use Illuminate\Database\QueryException;
 
 class peticionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $peticiones = user::all();
+        // Verificar si la solicitud es AJAX
+        if ($request->ajax()) {
+            $peticiones = User::where('id_estado_usuario', 3)->orwhere('id_estado_usuario', 4)->orwhere('id_estado_usuario', 1)
+                              ->with(['role', 'estadoUsuario'])
+                              ->get();
+
+            return response()->json($peticiones);
+        }
+
+        // Si no es AJAX, cargar la vista como de costumbre
+        $peticiones = User::where('id_estado_usuario', 3)->get();
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
    // UserController.php
@@ -202,17 +212,27 @@ $peticion=user::where('id_usuario',$id)->first();
                 
         
                 // Redirigir con un mensaje de éxito
-                return redirect()->route('usuarios.index')->with('success', 'Usuario aceptado correctamente');
+                return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
             }
         
             // Si el usuario no está en estado "No Verificado", mostrar un mensaje de error
-            return redirect()->route('usuarios.index')->with('error', 'Este usuario no está en estado No Verificado');
+            return redirect()->route('peticiones.index')->with('error', 'Este usuario no está en estado No Verificado');
             
         } catch (\Exception $e) {
             // En caso de error, revertir la transacción y mostrar el mensaje correspondiente
             DB::rollBack();
             return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
+    }
+
+    public function obtenerPeticiones()
+    {
+        // Asegúrate de cargar las relaciones necesarias
+        $peticiones = User::where('id_estado_usuario', 3)
+                          ->with(['role', 'estadoUsuario'])
+                          ->get();
+
+        return response()->json($peticiones);
     }
     
 }

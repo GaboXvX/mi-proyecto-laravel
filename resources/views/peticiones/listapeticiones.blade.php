@@ -164,7 +164,7 @@
             <div class="table-container">
                 <h2>Detalles de las Peticiones</h2>
 
-                <table class="table table-striped align-middle">
+                <table class="table table-striped align-middle" id="tablaPeticiones">
                     <thead>
                         <tr>
                             <th>Rol solicitado</th>
@@ -178,45 +178,69 @@
                         </tr>
                     </thead>
                     <tbody>
-    @foreach ($peticiones as $peticion)
-    <tr>
-        <!-- Mostrar el rol de la petición -->
-        <td>{{ $peticion->role->rol }}</td>
-        
-        <!-- Mostrar el estado de la petición -->
-        <td>{{ $peticion->estadoUsuario->nombre_estado }}</td>
-        
-        <td>{{ $peticion->nombre }}</td>
-        <td>{{ $peticion->apellido }}</td>
-        <td>{{ $peticion->cedula }}</td>
-        <td>{{ $peticion->email }}</td>
-        <td>{{ $peticion->nombre_usuario }}</td>
-
-        <!-- Mostrar botones de aceptar/rechazar solo si el estado es "No verificado" -->
-        <td>
-            @if($peticion->id_estado_usuario == 3)
-                <div>
-                    <!-- Botón de Aceptar -->
-                    <form action="{{ route('peticion.aceptar', $peticion->id_usuario) }}" method="post">
-                        @csrf
-                        <button type="submit" class="btn-custom btn-accept">Aceptar</button>
-                    </form>
-                    
-                    <!-- Botón de Rechazar -->
-                    <form action="{{ route('peticiones.rechazar', $peticion->id_usuario) }}" method="post">
-                        @csrf
-                        <button type="submit" class="btn-custom btn-reject">Rechazar</button>
-                    </form>
-                </div>
-            @endif
-        </td>
-    </tr>
-    @endforeach
-</tbody>
+                        <!-- Las filas se llenarán dinámicamente -->
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <script>
+        async function cargarPeticiones() {
+            try {
+                const response = await fetch("{{ route('peticiones.index') }}", {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest" // Indicar que es una solicitud AJAX
+                    }
+                });
+                const peticiones = await response.json();
+
+                const tablaBody = document.querySelector("#tablaPeticiones tbody");
+                tablaBody.innerHTML = ""; // Limpiar la tabla antes de llenarla
+
+                peticiones.forEach(peticion => {
+                    const fila = `
+                        <tr>
+                            <td>${peticion.role ? peticion.role.rol : 'N/A'}</td>
+                            <td>${peticion.estado_usuario ? peticion.estado_usuario.nombre_estado : 'N/A'}</td>
+                            <td>${peticion.nombre}</td>
+                            <td>${peticion.apellido}</td>
+                            <td>${peticion.cedula}</td>
+                            <td>${peticion.email}</td>
+                            <td>${peticion.nombre_usuario}</td>
+                            <td>
+                                <div>
+                                    ${
+                                        peticion.id_estado_usuario === 3
+                                        ? `
+                                            <form action="{{ route('peticion.aceptar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="btn-custom btn-accept">Aceptar</button>
+                                            </form>
+                                            <form action="{{ route('peticiones.rechazar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="btn-custom btn-reject">Rechazar</button>
+                                            </form>
+                                        `
+                                        : ''
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tablaBody.innerHTML += fila;
+                });
+            } catch (error) {
+                console.error("Error al cargar las peticiones:", error);
+            }
+        }
+
+        // Cargar las peticiones al cargar la página
+        document.addEventListener("DOMContentLoaded", cargarPeticiones);
+
+        // Opcional: Recargar las peticiones cada 30 segundos
+        setInterval(cargarPeticiones, 30000);
+    </script>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>

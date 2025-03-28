@@ -29,10 +29,15 @@ Route::resource('peticiones', PeticionController::class)->except('index');
  Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
  Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
  Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
- Route::get('/recuperar-clave/{usuarioId}/{preguntaId}', [RecuperarController::class, 'recuperarClave'])->name('recuperar.recuperarClave');
- Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
- Route::get('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
+ // Ruta para validar la respuesta de seguridad (POST)
+Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
+
+// Ruta para mostrar el cambio de contraseña (POST)
+Route::post('/recuperar-clave', [RecuperarController::class, 'mostrarCambioClave'])->name('recuperar.recuperarClave');
+
+ Route::post('/cambiar-clave', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
  Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
+Route::get('/cambiar-clave/{token}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
 Route::post('/validar-campo-asincrono', [PeticionController::class, 'validarCampoAsincrono'])->name('validar.campo.asincrono');
 Route::middleware(['auth'])->group(function () {
 

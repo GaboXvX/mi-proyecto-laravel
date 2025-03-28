@@ -7,6 +7,8 @@ use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class RecuperarController extends Controller
 {
@@ -32,7 +34,6 @@ class RecuperarController extends Controller
 
         // Verificar si el usuario está activo (estado 1)
         if ($usuario->id_estado_usuario != 1) {
-            // Si el usuario no está activo, redirigir con un mensaje de error
             return redirect()->back()->withErrors(['estado' => 'El usuario no está activo y no puede recuperar la contraseña.']);
         }
 
@@ -41,7 +42,6 @@ class RecuperarController extends Controller
                                                      ->with('pregunta')
                                                      ->get();
 
-        // Verificar si el usuario tiene preguntas de seguridad configuradas
         if ($respuestasDeSeguridad->isEmpty()) {
             return redirect()->back()->withErrors(['cedula' => 'El usuario no tiene preguntas de seguridad configuradas.']);
         }
@@ -57,78 +57,80 @@ class RecuperarController extends Controller
         ])->with('success', 'Pregunta seleccionada correctamente. Ahora, por favor, responde a la pregunta de seguridad.');
     }
 
-    // Método para mostrar la vista con la pregunta de seguridad
-    public function recuperarClave($usuarioId, $preguntaId)
-    {
-        // Obtener usuario y pregunta de la base de datos
-        $usuario = User::find($usuarioId);
-        $pregunta = Pregunta::find($preguntaId);
-
-        // Verificar que la pregunta y el usuario existen
-        if (!$usuario || !$pregunta) {
-            return redirect()->route('recuperar.ingresarCedula')->withErrors(['error' => 'Usuario o pregunta no encontrados.']);
-        }
-
-        return view('recuperar.recuperarClave', [
-            'usuario' => $usuario,
-            'pregunta' => $pregunta,
-        ]);
-    }
-
     // Método para validar la respuesta ingresada por el usuario
     public function validarRespuesta(Request $request)
     {
-        // Validar que la respuesta esté presente
         $request->validate([
             'respuesta' => 'required|string',
+            'usuario_id' => 'required|exists:users,id_usuario',
+            'pregunta_id' => 'required|exists:preguntas_de_seguridad,id_pregunta',
         ]);
 
-        // Obtener la respuesta correcta de la base de datos usando el id_usuario y id_pregunta
         $respuestaCorrecta = RespuestaDeSeguridad::where('id_usuario', $request->usuario_id)
                                                   ->where('id_pregunta', $request->pregunta_id)
                                                   ->value('respuesta');
 
-        // Verificar si la respuesta es correcta
         if ($respuestaCorrecta && $respuestaCorrecta === $request->respuesta) {
-            // Redirigir al cambio de clave si la respuesta es correcta
-            return redirect()->route('cambiar-clave', ['usuarioId' => $request->usuario_id])
-            ->with('success', 'Respuesta correcta. Ahora puede cambiar su clave.');
-   } else {
-            // Si la respuesta es incorrecta, redirigir de nuevo con un error
-            return redirect()->route('recuperar.recuperarClave', [
-                'usuarioId' => $request->usuario_id,
-                'preguntaId' => $request->pregunta_id
-            ])->withErrors(['respuesta' => 'Respuesta incorrecta. Inténtelo de nuevo.'])->withInput();
+            $token = Str::random(40);
+            session(['token_cambiar_clave' => $token, 'usuario_validado' => $request->usuario_id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Respuesta correcta. Redirigiendo...',
+                'redirect_url' => route('cambiar-clave', ['token' => $token])
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Respuesta incorrecta. Inténtelo de nuevo.'
+            ]);
         }
     }
 
-    public function mostrarCambioClave($usuarioId)
+    // Método para mostrar la vista de cambiar contraseña
+    public function mostrarCambioClave(Request $request, $token)
     {
-        // Obtener el usuario por su ID
-        $usuario = User::findOrFail($usuarioId);
+        // Validar el token
+        if ($token !== session('token_cambiar_clave')) {
+            return redirect()->route('recuperar.ingresarCedula')->with('error', 'Acceso no autorizado.');
+        }
 
-        // Verificar si el usuario existe
+        // Obtener el usuario por su ID almacenado en la sesión
+        $usuario = User::findOrFail(session('usuario_validado'));
+
         return view('recuperar.cambiar-contraseña', ['usuario' => $usuario]);
     }
 
+    // Método para actualizar la contraseña
     public function update(Request $request, $usuarioId)
     {
-        // Validar los datos enviados
-        $request->validate([
-            'password' => 'required|string|min:8|confirmed',  // Validar la contraseña con confirmación
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.string' => 'La contraseña debe ser una cadena de texto.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        // Recuperar al usuario usando el ID proporcionado
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
+
         $usuario = User::findOrFail($usuarioId);
-
-        // Cambiar la contraseña del usuario
-        $usuario->password = Hash::make($request->password); // Usar Hash para almacenar la contraseña de manera segura
-
-        // Guardar el usuario con la nueva contraseña
+        $usuario->password = Hash::make($request->password);
         $usuario->save();
 
-        // Redirigir con un mensaje de éxito
-        return redirect()->route('login')->with('success', 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.');
-    }
+        // Limpiar la sesión después de cambiar la contraseña
+        session()->forget(['token_cambiar_clave', 'usuario_validado']);
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.',
+            'redirect_url' => route('login'),
+        ]);
+    }
 }

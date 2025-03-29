@@ -16,26 +16,28 @@ class EmpleadosAutorizadosSeeder extends Seeder
     {
         DB::table('empleados_autorizados')->insert([
             [
-                'id_cargo' => 1, // Cambia según el id de cargo que desees
-                'id_departamento' => 1, // Cambia según el id de departamento que desees
+                'id_cargo' => 1,
+                'id_departamento' => 1,
                 'nombre' => 'Juan',
                 'apellido' => 'Pérez',
                 'cedula' => 12345678,
-                'genero' => 'Masculino',
+                'genero' => 'M',
+                'fecha_nacimiento' => '1985-05-15',
+                'altura' => '1,78cm', // Altura en centímetros
                 'telefono' => '1234567890',
-                'correo' => 'juan.perez@empresa.com',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'id_cargo' => 2, // Cambia según el id de cargo que desees
-                'id_departamento' => 2, // Cambia según el id de departamento que desees
+                'id_cargo' => 2,
+                'id_departamento' => 2,
                 'nombre' => 'Ana',
                 'apellido' => 'Gómez',
                 'cedula' => 23456789,
-                'genero' => 'Femenino',
+                'genero' => 'F',
+                'fecha_nacimiento' => '1990-08-20',
+                'altura' => '1,65cm', // Altura en centímetros
                 'telefono' => '0987654321',
-                'correo' => 'ana.gomez@empresa.com',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -46,8 +48,9 @@ class EmpleadosAutorizadosSeeder extends Seeder
                 'apellido' => 'Lopez',
                 'cedula' => 34567890,
                 'genero' => 'Masculino',
+                'fecha_nacimiento' => '1990-08-20',
+                'altura' => '1,65cm',
                 'telefono' => '1122334455',
-                'correo' => 'carlos.lopez@empresa.com',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

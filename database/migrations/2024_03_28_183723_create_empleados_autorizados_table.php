@@ -17,10 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_departamento');
             $table->string('nombre');
             $table->string('apellido');
-            $table->integer('cedula');
-            $table->string('genero');
-            $table->string('telefono');
-            $table->string('correo')->unique();
+            $table->biginteger('cedula');
+            $table->char('genero');
+            $table->date('fecha_nacimiento');
+            $table->String('altura'); // Cambiar a entero para almacenar en centímetros
+            $table->integer('telefono');
             $table->timestamps();
         });
     }

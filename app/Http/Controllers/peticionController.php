@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Http\Requests\storePeticionRequest;
+use App\Models\EmpleadoAutorizado;
 use App\Models\EstadoUsuario;
 use Illuminate\Support\Str;
 use App\Models\peticion;
@@ -10,7 +11,9 @@ use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log; 
 use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
 
 class peticionController extends Controller
 {
@@ -30,99 +33,121 @@ class peticionController extends Controller
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
    // UserController.php
-   public function store(Request $request)
+   
+   // filepath: c:\laragon\www\mi-proyecto-laravel-master\app\Http\Controllers\peticionController.php
+   public function buscarEmpleado(Request $request)
+   {
+       $request->validate(['cedula' => 'required|string']);
+   
+       $empleado = EmpleadoAutorizado::where('cedula', $request->cedula)->first();
+   
+       if (!$empleado) {
+           return response()->json(['error' => 'Empleado no encontrado'], 404);
+       }
+   
+       // Asegúrate que estos campos coincidan con tu BD
+       return response()->json([
+           'nombre' => $empleado->nombre,
+           'apellido' => $empleado->apellido,
+           'genero' => $empleado->genero,
+           'fecha_nacimiento' => $empleado->fecha_nacimiento,
+           'altura' => $empleado->altura
+       ]);
+   }
+
+ // Controlador Store corregido
+public function store(Request $request)
 {
-    // Validación de los datos
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255',
-        'apellido' => 'required|string|max:255',
-        'nombre_usuario' => 'required|string|max:255',
-        'cedula' => [
-            'required',
-            'string',
-            'max:255',
-            'unique:users,cedula',
-            'regex:/^[0-9]{8,10}$/'  // Ejemplo de validación de cédula numérica entre 8 y 10 dígitos
-        ],
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:8',
-        'genero' => 'required|string',
-        'fecha_nacimiento' => 'required|date',
-        'altura' => 'required|numeric|min:0',
-        'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-        'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-        'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-        'respuesta_1' => 'required|string|max:255',
-        'respuesta_2' => 'required|string|max:255',
-        'respuesta_3' => 'required|string|max:255',
-        'rol' => 'required|exists:roles,id_rol',
-    ], [
-        'required' => 'El campo :attribute es obligatorio.',
-        'max' => 'El campo :attribute no puede tener más de :max caracteres.',
-        'email' => 'El :attribute debe ser una dirección de correo electrónico válida.',
-        'min' => 'El campo :attribute debe tener al menos :min caracteres.',
-        'exists' => 'La :attribute seleccionada no existe en nuestros registros.',
-        'unique' => 'El :attribute ya está registrado.',
-        'regex' => [
-            'cedula' => 'La cédula ingresada no es válida. Debe contener entre 8 y 10 dígitos numéricos.',
-        ],
-        'cedula.required' => 'La cédula es un campo obligatorio.',
-        'cedula.unique' => 'La cédula ingresada ya está registrada en nuestros registros.',
-        'cedula.regex' => 'La cédula debe contener entre 8 y 10 dígitos numéricos.',
-        'email.unique' => 'El correo electrónico ingresado ya está registrado.',
-        'email.required' => 'El correo electrónico es obligatorio.',
-    ]);
-
     try {
-        // Generar un slug único para el usuario
-        $slug = Str::slug($validated['nombre'] . ' ' . $validated['apellido']);
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (User::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
+        // Validación de datos
+        $validated = $request->validate([
+            'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+            'respuesta_1' => 'required|string|max:255',
+            'respuesta_2' => 'required|string|max:255',
+            'respuesta_3' => 'required|string|max:255',
+            'rol' => 'required|exists:roles,id_rol',
+            'cedula' => 'required|string|max:10|regex:/^[0-9]{8,10}$/'
+        ], [
+            'nombre_usuario.required' => 'El nombre de usuario es obligatorio.',
+            'nombre_usuario.unique' => 'El nombre de usuario ya está en uso.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.unique' => 'El correo electrónico ya está registrado.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'pregunta_1.required' => 'Debe seleccionar la primera pregunta de seguridad.',
+            'pregunta_2.required' => 'Debe seleccionar la segunda pregunta de seguridad.',
+            'pregunta_3.required' => 'Debe seleccionar la tercera pregunta de seguridad.',
+            'respuesta_1.required' => 'Debe proporcionar una respuesta para la primera pregunta.',
+            'respuesta_2.required' => 'Debe proporcionar una respuesta para la segunda pregunta.',
+            'respuesta_3.required' => 'Debe proporcionar una respuesta para la tercera pregunta.',
+            'rol.required' => 'Debe seleccionar un rol.',
+            'rol.exists' => 'El rol seleccionado no es válido.',
+            'cedula.required' => 'La cédula es obligatoria.',
+            'cedula.regex' => 'La cédula debe contener entre 8 y 10 dígitos numéricos.',
+        ]);
+        // Buscar el empleado autorizado
+        $empleado = EmpleadoAutorizado::where('cedula', $validated['cedula'])->first();
+        if (!$empleado) {
+            return response()->json(['errors' => ['cedula' => ['El empleado no está autorizado para registrarse']]], 422);
         }
 
-        // Crear el nuevo usuario
-        $user = new User;
-        $user->id_rol = $validated['rol'];
-        $user->slug = $slug;
-        $user->nombre = $validated['nombre'];
-        $user->apellido = $validated['apellido'];
-        $user->nombre_usuario = $validated['nombre_usuario'];
-        $user->cedula = $validated['cedula'];
-        $user->email = $validated['email'];
-        $user->password = bcrypt($validated['password']);
-        $user->genero = $validated['genero'];
-        $user->fecha_nacimiento = $validated['fecha_nacimiento'];
-        $user->altura = $validated['altura'];
-        $user->id_estado_usuario = 3; // Asignar estado "No verificado"
-        $user->save();
-
-        // Crear respuestas de seguridad
-        for ($i = 1; $i <= 3; $i++) {
-            $preguntaId = $validated['pregunta_' . $i];
-            $respuesta = $validated['respuesta_' . $i];
-
-            $respuestaSeguridad = new RespuestaDeSeguridad;
-            $respuestaSeguridad->id_usuario = $user->id_usuario;
-            $respuestaSeguridad->id_pregunta = $preguntaId;
-            $respuestaSeguridad->respuesta = $respuesta;
-            $respuestaSeguridad->save();
+        // Verificar si ya está registrado en Users
+        if (User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists()) {
+            return response()->json(['errors' => ['cedula' => ['El empleado ya está registrado.']]], 422);
         }
 
-        // Redirigir al login con mensaje de éxito
-        return redirect()->route('login')->with('success', 'Usuario registrado exitosamente!');
+        // Crear usuario
+        $user = User::create([
+            'id_empleado_autorizado' => $empleado->id_empleado_autorizado,
+            'id_rol' => $validated['rol'],
+            'slug' => Str::slug($validated['nombre_usuario']),
+            'nombre_usuario' => $validated['nombre_usuario'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+            'id_estado_usuario' => 3, // No verificado
+        ]);
+
+        if (!$user) {
+            return response()->json(['errors' => ['general' => ['No se pudo crear el usuario. Inténtelo de nuevo.']]], 500);
+        }
+
+        // Guardar respuestas de seguridad
+        foreach (range(1, 3) as $i) {
+            RespuestaDeSeguridad::create([
+                'id_usuario' => $user->id_usuario,
+                'id_pregunta' => $validated["pregunta_$i"],
+                'respuesta' => $validated["respuesta_$i"],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario registrado exitosamente. Redirigiendo al login...',
+            'redirect' => route('login')
+        ]);
+
+    } catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+
     } catch (QueryException $e) {
-        if ($e->getCode() === '23000') { // Código de error para violación de restricción única
-            return redirect()->back()->withErrors('El nombre de usuario, correo electrónico o cédula ya está en uso.');
-        }
+        return response()->json([
+            'errors' => ['general' => ['Hubo un problema al guardar los datos. Inténtelo más tarde.']]
+        ], 500);
 
-        // Si ocurre otro error, lanzar la excepción
-        throw $e;
+    } catch (\Exception $e) {
+        return response()->json([
+            'errors' => ['general' => ['Ocurrió un problema. Recargue la página e intente de nuevo.']]
+        ], 500);
     }
 }
+
+
+   
 
    
    public function validarCampoAsincrono(Request $request)

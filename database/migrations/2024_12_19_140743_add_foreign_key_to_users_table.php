@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreign('id_rol')->nullable() ->references('id_rol')  ->on('roles')  ->onDelete('cascade');
             $table->foreign('id_estado_usuario')->nullable() ->references('id_estado_usuario')  ->on('estados_usuarios')  ->onDelete('cascade');
-
+            $table->foreign('id_empleado_autorizado')->nullable() ->references('id_empleado_autorizado')  ->on('empleados_autorizados')  ->onDelete('cascade');
         });
     }
 

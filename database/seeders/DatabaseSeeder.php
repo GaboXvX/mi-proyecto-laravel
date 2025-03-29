@@ -31,13 +31,13 @@ class DatabaseSeeder extends Seeder
             ComunidadSeeder::class,
             RolSeeder::class,
             PreguntaSeguridadSeeder::class,
+            DepartamentosSeeder::class,
             EstadosUsuariosSeeder::class,
+            CargoEmpleadosAutorizadosSeeder::class,
+            EmpleadosAutorizadosSeeder::class,
             UsuarioSeeder::class,
             categoriaPersonaSeeder::class,
             RespuestasSeeder::class,
-            DepartamentosSeeder::class,
-            CargoEmpleadosAutorizadosSeeder::class,
-            EmpleadosAutorizadosSeeder::class,
 
         ]);
     }

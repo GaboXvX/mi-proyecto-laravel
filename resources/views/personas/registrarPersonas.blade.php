@@ -86,12 +86,7 @@
                                 <span>Peticiones</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('movimientos.index') }}" class="nav-link px-3">
-                                <i class="bi bi-arrow-left-right"></i>
-                                <span>Movimientos</span>
-                            </a>
-                        </li>
+                       
                         @endrole
                     </ul>
                 </div>

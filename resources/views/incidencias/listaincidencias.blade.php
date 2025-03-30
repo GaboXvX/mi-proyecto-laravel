@@ -256,7 +256,7 @@
             </table>
         </div>
     </div>
-
+ 
     <script>
         class FiltroIncidencias {
     constructor(fechaInicioId, fechaFinId, estadoId, resultadosId, tbodyId, url) {

@@ -133,6 +133,7 @@
                         <th>Apellido</th>
                         <th>Cédula</th>
                         <th>Correo</th>
+                        <th>Rol</th> <!-- Nueva columna para el rol -->
                         <th>Estado</th>
                         <th>Creación</th>
                         <th>Acciones</th>
@@ -140,13 +141,21 @@
                 </thead>
                 <tbody>
                     @foreach ($usuarios as $usuario)
-                        @if($usuario->role->rol == 'registrador')
                         <tr>
                             <td>{{ $usuario->nombre }}</td>
                             <td>{{ $usuario->apellido }}</td>
                             <td>{{ $usuario->cedula }}</td>
                             <td>{{ $usuario->email }}</td>
-                            <td>{{ $usuario->estado }}</td>
+                            <td>{{ $usuario->role ? $usuario->role->rol : 'Sin rol' }}</td> <!-- Mostrar el rol -->
+                            <td>
+                                @if ($usuario->id_estado_usuario == 1)
+                                    Activo
+                                @elseif ($usuario->id_estado_usuario == 2)
+                                    Desactivado
+                                @else
+                                    Desconocido
+                                @endif
+                            </td>
                             <td>{{ $usuario->created_at }}</td>
                             <td>
                                 <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
@@ -154,21 +163,22 @@
                                     <button type="submit" class="btn btn-success btn-sm">Restaurar</button>
                                 </form>
 
-                                @if($usuario->id_estado_usuario==1)
-                                <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
-                                </form>
-                            @else
-                                <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success btn-sm">Activar</button>
-                                </form>
-                            @endif
-                            
+                                <!-- Mostrar el botón de desactivar solo si el usuario listado no es admin y el usuario autenticado no es admin -->
+                                @if ($usuario->id_rol==2 && $usuarioAutenticado->id_rol == 1)
+                                    @if ($usuario->id_estado_usuario == 1)
+                                        <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm">Activar</button>
+                                        </form>
+                                    @endif
+                                @endif
                             </td>
                         </tr>
-                        @endif
                     @endforeach
                 </tbody>
             </table>

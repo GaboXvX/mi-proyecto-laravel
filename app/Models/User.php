@@ -14,18 +14,13 @@ class User extends Authenticatable
     protected $primaryKey = 'id_usuario';
 
     protected $fillable = [
-        'id_usuario',
-        'id_rol',    
-        'nombre', 
+        'id_empleado_autorizado',
+        'id_rol',
+        'slug',
+        'nombre_usuario',
         'email',
         'password',
-        'slug',
-        'apellido',
-        'cedula',
-        'nombre_usuario',
-        'estado',
-        'altura', 
-        'fecha_nacimiento',
+        'id_estado_usuario',
     ];
 
     protected $hidden = [
@@ -67,10 +62,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(RespuestaDeSeguridad::class, 'id_usuario');
     }
-    // En el modelo User
-public function estadoUsuario()
-{
-    return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
-}
 
+    // En el modelo User
+    public function estadoUsuario()
+    {
+        return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
+    }
+
+   
+
+    public function empleadoAutorizado()
+    {
+        return $this->belongsTo(EmpleadoAutorizado::class, 'id_empleado_autorizado'); // Relación con el modelo EmpleadoAutorizado
+    }
 }

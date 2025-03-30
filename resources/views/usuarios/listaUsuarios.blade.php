@@ -108,9 +108,9 @@
         </div>
     </div>
 
-    <div class="container">
-        <h1>Lista de Usuarios</h1>
-        <a href="{{ route('home') }}" class="btn btn-outline-primary mb-3">Volver</a>
+    <!-- Contenido -->
+    <div class="table-container">
+        <h2>Lista de Usuarios</h2>
 
         @if (session('success'))
             <div class="alert alert-success">
@@ -124,8 +124,9 @@
             </div>
         @endif
 
+        <!-- tabla -->
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped align-middle">
                 <thead>
                     <tr>
                         <th>Nombre</th>

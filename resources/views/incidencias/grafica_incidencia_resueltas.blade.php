@@ -129,19 +129,20 @@
             </div>
         </div>
     
-        <div class="filter-container">
-            <form action="{{ route('estadisticas') }}" method="GET">
+        <div class="container">
+            <!-- filtrado -->
+            <form class="card p-4 m-4">
                 <div class="row g-3 align-items-end filter-section">
                     <div class="col-md-4">
                         <label class="form-label">Fecha de inicio:</label>
                         <input type="date" id="start_date" name="start_date" value="{{ $startDate->toDateString() }}" class="form-control">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Fecha de fin:</label>
+                        <label for="" class="form-label">Fecha de fin:</label>
                         <input type="date" id="end_date" name="end_date" value="{{ $endDate->toDateString() }}" class="form-control">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Tipo de incidencia:</label>
+                        <label for="" class="form-label">Tipo de incidencia:</label>
                         <select id="tipo_incidencia" name="tipo_incidencia" class="form-select">
                             <option value="" {{ $tipoIncidencia == '' ? 'selected' : '' }}>Todos</option>
                             <option value="agua potable" {{ $tipoIncidencia == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
@@ -149,16 +150,24 @@
                         </select>
                     </div>
                 </div>
-                <div class="text-end mt-3">
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Filtrar</type=>
                 </div>
             </form>
         </div>
 
-        <div style="width: 80%; margin: 0 auto;">
-            <canvas id="myChart" width="600" height="300"></canvas>
+        <!-- grafica -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body" style="width: 80%; margin: 0 auto;">
+                        <h3 class="card-title text-center">Grafica</h3>
+                        <canvas id="myChart" width="600" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
-
+        
         <button class="download-btn" id="downloadPdfBtn">Descargar PDF</button>
 
         <script>

@@ -10,44 +10,6 @@
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
      <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
      <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.875rem;
-        }
-
-        .table-container {
-            margin: 10px auto;
-            max-width: 1000px;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .table th,
-        .table td {
-            text-align: center;
-            vertical-align: middle;
-            font-size: 0.875rem;
-        }
-
-        .table thead {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .table tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background-color: #ffffff;
-        }
-
-        .table .incidencia-status {
-            font-weight: bold;
-        }
 
         .status-pending {
             color: orange;
@@ -59,63 +21,6 @@
 
         .status-closed {
             color: red;
-        }
-
-        .btn-custom {
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.875rem;
-        }
-
-        .btn-custom:hover {
-            background-color: #218838;
-        }
-
-        .btn-back {
-            background-color: #007bff;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 15px;
-            font-size: 0.875rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-back:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-download {
-            background-color: #17a2b8;
-            color: white;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 15px;
-            font-size: 0.875rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-download:hover {
-            background-color: #138496;
-        }
-
-        .form-control {
-            border-radius: 6px;
-            font-size: 0.875rem;
         }
 
         .alert {
@@ -131,43 +36,6 @@
         .alert-danger {
             background-color: #dc3545;
             color: white;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            font-weight: bold;
-            font-size: 0.875rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .table-container h1 {
-            font-size: 1.25rem;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .btn-atendido {
-            background-color: #ffc107;
-            color: white;
-            font-weight: bold;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-size: 0.875rem;
-        }
-
-        .btn-atendido:hover {
-            background-color: #e0a800;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
         }
 
     </style>
@@ -281,46 +149,51 @@
         </div>
     @endif
 
-    <div class="container table-container">
-        <a href="{{ route('home') }}" class="btn-back">Volver</a>
-        <h1 class="text-center">Lista de Incidencias</h1>
-
-        @role('admin')
-        <a href="{{ route('incidencias.gestionar') }}" class="btn-custom mb-3">Cambiar Estado</a>
-        @endrole
-
+    <!-- Contenido -->
+    <div class="table-container">
+        <div class="d-flex justify-content-between align-item-center mb-3">
+            <h2>Lista de Incidencias</h2>
+            <div class="gen-pdf">
+                @role('admin')
+                <a href="{{ route('incidencias.gestionar') }}" class="btn btn-success me-2">Cambiar Estado</a>
+                <button type="submit" class="btn btn-primary">Generar PDF</button>
+                @endrole
+            </div>
+        </div>
        
-        <form action="{{ route('incidencias.buscar') }}" method="post">
-            <input type="search" name="buscar" placeholder="Ingrese un código">
-            @csrf
-            <button type="submit">Buscar</button>
-        </form>
-
-        <form action="{{ route('incidencias.download') }}" method="POST" class="form-group">
+        <!-- Filters -->
+        <div class="d-flex filters-container gap-2">
+            <form action="{{ route('incidencias.buscar') }}" method="post" class="input-group input-group-sm">
+                <button class="input-group-text btn btn-primary" id="basic-addon1">
+                    <i class="bi bi-search"></i>
+                </button>
+                <input type="text" class="form-control form-control-sm" placeholder="Ingrese un código">
+                @csrf
+            </form>
+            <form action="{{ route('incidencias.download') }}" method="POST">
             @csrf
             <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
-            <div class="d-flex">
-                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control mr-2" />
-                <span>hasta</span>
-                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2" />
-            </div>
-
-           
-            <label for="estado" class="form-label mt-2">Estado de la incidencia:</label>
-            <select name="estado" id="estado" class="form-control">
-                <option value="Todos">Todos</option>
-                <option value="Atendido">Atendido</option>
-                <option value="Por atender">Por atender</option>
-            </select>
-            @role('admin')
-            <button type="submit" class="btn-download mt-2">Descargar Listado</button>
-            @endrole
-        </form>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex">
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control mr-2 mb-3" />
+                        <span class="m-2">hasta</span>
+                        <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2 mb-3" />
+                    </div>
+                    <select class="form-select form-select-sm w-50 m-2" aria-label="Select status" name="estado" id="estado">
+                        <option selected>Estado de la incidencia:</option>
+                        <option value="Todos">Todos</option>
+                        <option value="Atendido">Atendido</option>
+                        <option value="Por atender">Por atender</option>
+                    </select>
+                </div>
+            </form>
+        </div>
 
         <div id="resultados" class="mt-3"></div>
 
-        <div class="table-responsive mt-3">
-            <table class="table table-bordered table-striped">
+        <!-- Tabla -->
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
                 <thead>
                     <tr>
                         <th>Código de incidencia</th>

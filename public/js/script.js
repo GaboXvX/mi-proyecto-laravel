@@ -31,3 +31,28 @@ const chartConfig = {
 
 // Inicializar gráficos
 new Chart(document.getElementById('chart1'), chartConfig);
+
+//limitar caracteres
+document.getElementById('cedula').addEventListener('input', function(e) {
+  if (this.value.length > 8) {
+      this.value = this.value.slice(0, 8); 
+  }
+});
+
+document.getElementById('nombreUsuario').addEventListener('input', function(e) {
+  if (this.value.length > 20) {
+      this.value = this.value.slice(0, 20);
+  }
+});
+
+document.getElementById('nombre').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});
+
+document.getElementById('apellido').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});

@@ -75,14 +75,14 @@
                     </option>
                 @endforeach
             </select>
+
+            <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required maxlength="8">
+
             <div class="row">
-                <input type="text" id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}" required>
-                <input type="text" id="apellido" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}" required>
+                <input type="text" id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}" required maxlength="11">
+                <input type="text" id="apellido" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}" required maxlength="11">
             </div>
             <input type="text" id="nombre_usuario" name="nombre_usuario" placeholder="Nombre de Usuario" value="{{ old('nombre_usuario') }}" required>
-            <span id="nombre_usuario_error" class="error-message"></span>
-            <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required>
-            <span id="cedula_error" class="error-message"></span>
             <input type="email" id="email" name="email" placeholder="Correo Electrónico" value="{{ old('email') }}" required>
             <span id="email_error" class="error-message"></span>
             <input type="password" id="password" name="password" placeholder="Contraseña" required>
@@ -98,8 +98,7 @@
                 <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ old('fecha_nacimiento') }}" required max="{{ date('Y-m-d') }}">
             </div>
 
-            <input type="number" id="altura" name="altura" placeholder="Altura" value="{{ old('altura') }}" required min="0" step="0.01" oninput="validarAltura()">
-
+            <input type="number" id="altura" name="altura" placeholder="Altura" value="{{ old('altura') }}" required min="0" step="0.01" oninput="validarAltura()" maxlength="4">
 
             <!-- Campo de estado (activo o inactivo) -->
             <input type="hidden" name="estado" value="activo">
@@ -107,11 +106,10 @@
             <!-- Selección de Preguntas de Seguridad -->
             <span>Selecciona 3 Preguntas de Seguridad:</span>
 
-            <div class="row">
+            
                 
                     @for ($i = 1; $i <= 3; $i++)
                     
-                    <div class="form-group">
                         <label for="pregunta_{{ $i }}">Pregunta {{ $i }}:</label>
                         <select name="pregunta_{{ $i }}" id="pregunta_{{ $i }}" required onchange="updateSelects()">
                             <option value="">Selecciona una pregunta</option>
@@ -122,9 +120,7 @@
                             @endforeach
                         </select>
                         <input type="text" name="respuesta_{{ $i }}" placeholder="Respuesta" required>
-                    </div>
                 @endfor
-            </div>
 
             <button type="submit">Registrar Usuario</button>
             <p>¿Ya tienes cuenta? <a href="{{ route('login') }}">Iniciar Sesión</a></p>
@@ -194,64 +190,5 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateSelects();
         });
-
-        async function validarCampo(campo, valor) {
-            try {
-                const response = await fetch('{{ route("validar.campo.asincrono") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ campo, valor })
-                });
-
-                const data = await response.json();
-                return data.error;
-            } catch (error) {
-                console.error('Error al validar:', error);
-            }
-        }
-
-        function mostrarError(inputId, mensaje) {
-            const input = document.getElementById(inputId);
-            const errorSpan = document.getElementById(`${inputId}_error`);
-
-            if (mensaje) {
-                input.classList.add('input-error');
-                input.classList.remove('input-success');
-                errorSpan.textContent = mensaje;
-            } else {
-                input.classList.remove('input-error');
-                input.classList.add('input-success');
-                errorSpan.textContent = '';
-            }
-        }
-
-        document.getElementById('cedula').addEventListener('blur', async function () {
-            const cedula = this.value;
-            const error = await validarCampo('cedula', cedula);
-            mostrarError('cedula', error);
-        });
-
-        document.getElementById('nombre_usuario').addEventListener('blur', async function () {
-            const nombreUsuario = this.value;
-            const error = await validarCampo('nombre_usuario', nombreUsuario);
-            mostrarError('nombre_usuario', error);
-        });
-
-        document.getElementById('email').addEventListener('blur', async function () {
-            const email = this.value;
-            const error = await validarCampo('email', email);
-            mostrarError('email', error);
-        });
-
-        // Función para eliminar caracteres especiales del nombre de usuario
-        function limpiarNombreUsuario() {
-            const nombreUsuarioInput = document.getElementById('nombre_usuario');
-            nombreUsuarioInput.value = nombreUsuarioInput.value.replace(/[^a-zA-Z0-9_]/g, '');
-        }
-
-        document.getElementById('nombre_usuario').addEventListener('input', limpiarNombreUsuario);
     </script>
 @endsection

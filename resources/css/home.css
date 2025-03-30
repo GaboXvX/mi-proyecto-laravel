@@ -95,6 +95,12 @@ body {
     box-shadow: 0 0 5px rgba(92, 110, 248, 0.5);
 }
 
+/* Estilo cuando se detecta un carácter especial */
+.form-content input.error {
+    border: 1px solid red;
+    background-color: #ffcccc;
+}
+
 .form-content button {
     background-color: #5c6ef8;
     color: #fff;

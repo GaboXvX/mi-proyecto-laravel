@@ -10,7 +10,7 @@ class incidencia extends Model
     protected $table = 'incidencias';
     protected $primaryKey = 'id_incidencia';
     protected $fillable = [
-        'id_persona', 'id_lider', 'id_direccion', // Added id_direccion to fillable
+        'id_persona', 'id_lider', 'id_direccion', 'id_usuario', // Agregado id_usuario
         'slug',
         'tipo_incidencia',
         'descripcion',
@@ -36,5 +36,9 @@ class incidencia extends Model
     public function direccion()
     {
         return $this->belongsTo(Direccion::class, 'id_direccion');
+    }
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
     }
 }

@@ -14,7 +14,6 @@ class EmpleadoAutorizado extends Model
     protected $fillable = [
         'id_empleado_autorizado',
         'id_cargo',
-        'id_departamento',
         'nombre',
         'apellido',
         'cedula',
@@ -26,6 +25,6 @@ class EmpleadoAutorizado extends Model
 
     public function usuarios()
     {
-        return $this->hasMany(User::class, 'id_empleado_autorizado'); // Relación con el modelo User
+        return $this->hasOne(User::class, 'id_empleado_autorizado'); // Relación con el modelo User
     }
 }

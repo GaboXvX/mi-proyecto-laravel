@@ -105,6 +105,9 @@ class IncidenciaController extends Controller
             $incidencia->estado = $request->input('estado');
             $incidencia->id_direccion = $request->input('direccion');
 
+            // Asignar el id_usuario (usuario autenticado)
+            $incidencia->id_usuario = auth()->id();
+
             // Guardar la incidencia
             $incidencia->save();
 
@@ -131,15 +134,20 @@ class IncidenciaController extends Controller
 
     public function descargar($slug)
     {
-        $incidencia = Incidencia::where('slug', $slug)->first();
+        // Buscar la incidencia por el slug
+        $incidencia = Incidencia::with(['persona', 'direccion', 'lider.personas'])->where('slug', $slug)->first();
+
+        // Verificar si la incidencia existe
         if (!$incidencia) {
-            return redirect()->route('incidencias.index')->with('error', 'Incidencia no encontrada.');
+            abort(404, 'Incidencia no encontrada.');
         }
 
+        // Generar el PDF con el formato individual
         $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
-                        ->setPaper('a4', 'portrait');  
-    
-        return $pdf->download('incidencia-' . $incidencia->slug . '.pdf');
+                        ->setPaper('a4', 'portrait');
+
+        // Descargar el PDF con el código de incidencia como nombre
+        return $pdf->download('incidencia-' . $incidencia->cod_incidencia . '.pdf');
     }
     
 
@@ -227,52 +235,70 @@ class IncidenciaController extends Controller
 
     public function filtrar(Request $request)
     {
-
         $validated = $request->validate([
+            'codigo' => 'nullable|string',
             'fecha_inicio' => 'nullable|date',
             'fecha_fin' => 'nullable|date',
-            'estado' => 'required|string|in:Atendido,Por atender,Todos',
+            'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
         ]);
 
-
+        $codigo = $request->input('codigo');
         $fechaInicio = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
-        $estado = $request->input('estado');
+        $estado = $request->input('estado', 'Todos');
 
+        $query = Incidencia::with(['persona', 'lider.personas']); // Incluir lider.personas
 
-        if (!$fechaInicio) {
-            $fechaInicio = Carbon::now()->startOfYear()->toDateString();
+        if ($codigo) {
+            $query->where('cod_incidencia', 'like', "%$codigo%");
         }
 
-
-        if (!$fechaFin) {
-            $fechaFin = Carbon::now()->endOfMonth()->toDateString();
+        if ($fechaInicio && $fechaFin) {
+            $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
         }
-
-
-        $query = Incidencia::with(['persona', 'lider'])
-            ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
-
 
         if ($estado !== 'Todos') {
-            if ($estado === 'Por atender') {
-                $query->where('estado', 'Por atender');
-            } else {
-                $query->where('estado', $estado);
-            }
+            $query->where('estado', $estado);
         }
 
-
         $incidencias = $query->get();
-
 
         return response()->json([
             'incidencias' => $incidencias
         ]);
     }
 
+    public function generarPDF(Request $request)
+    {
+        // Obtener las fechas del request con valores por defecto (todas las incidencias si no se especifican fechas)
+        $fechaInicio = $request->input('fecha_inicio') ?: Incidencia::min('created_at');
+        $fechaFin = $request->input('fecha_fin') ?: Incidencia::max('created_at');
+        $estado = $request->input('estado', 'Todos');
 
+        // Validar las fechas
+        if (!$fechaInicio || !$fechaFin) {
+            return back()->withErrors(['error' => 'Debe seleccionar un rango de fechas válido.']);
+        }
 
+        // Construir la consulta para filtrar las incidencias
+        $query = Incidencia::with(['persona', 'lider'])->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+
+        if ($estado !== 'Todos') {
+            $query->where('estado', $estado);
+        }
+
+        $incidencias = $query->get();
+
+        // Verificar si hay incidencias para generar el PDF
+        if ($incidencias->isEmpty()) {
+            return back()->withErrors(['error' => 'No se encontraron incidencias para el rango de fechas seleccionado.']);
+        }
+
+        // Generar el PDF con la tabla completa
+        $pdf = FacadePdf::loadView('incidencias.pdf_table', compact('incidencias', 'fechaInicio', 'fechaFin'));
+
+        return $pdf->download('reporte_incidencias.pdf');
+    }
 
     public function show($slug, $incidencia_slug)
     {
@@ -297,35 +323,35 @@ class IncidenciaController extends Controller
 
 
 
-   public function download(Request $request)
-{
-    $validated = $request->validate([
-        'fecha_inicio' => 'nullable|date',
-        'fecha_fin' => 'nullable|date',
-        'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
-    ]);
+//    public function download(Request $request)
+// {
+//     $validated = $request->validate([
+//         'fecha_inicio' => 'nullable|date',
+//         'fecha_fin' => 'nullable|date',
+//         'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
+//     ]);
 
-    $fechaInicio = $request->input('fecha_inicio') ?: Carbon::now()->startOfYear()->toDateString();
-    $fechaFin = $request->input('fecha_fin') ?: Carbon::now()->endOfMonth()->toDateString();
-    $estado = $request->input('estado', 'Todos');
+//     $fechaInicio = $request->input('fecha_inicio') ?: Carbon::now()->startOfYear()->toDateString();
+//     $fechaFin = $request->input('fecha_fin') ?: Carbon::now()->endOfMonth()->toDateString();
+//     $estado = $request->input('estado', 'Todos');
 
-    $query = Incidencia::with(['persona', 'lider'])
-        ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+//     $query = Incidencia::with(['persona', 'lider'])
+//         ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
 
-    if ($estado != 'Todos') {
-        $query->where('estado', $estado == 'Por atender' ? 'Por atender' : $estado);
-    }
+//     if ($estado != 'Todos') {
+//         $query->where('estado', $estado == 'Por atender' ? 'Por atender' : $estado);
+//     }
 
-    $incidencias = $query->get();
+//     $incidencias = $query->get();
 
-    if ($incidencias->isEmpty()) {
-        return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
-    }
+//     if ($incidencias->isEmpty()) {
+//         return response()->json(['message' => 'No se encontraron incidencias en este periodo.'], 404);
+//     }
 
-    $pdf = FacadePdf::loadView('incidencias.pdf_table', compact('incidencias', 'fechaInicio', 'fechaFin'));
+//     $pdf = FacadePdf::loadView('incidencias.pdf_table', compact('incidencias', 'fechaInicio', 'fechaFin'));
 
-    return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
-}
+//     return $pdf->download('incidencias-' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
+// }
 
 
 

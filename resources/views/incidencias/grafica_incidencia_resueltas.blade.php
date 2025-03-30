@@ -160,9 +160,9 @@
         <div class="row">
             <div class="col-lg-6 mb-4">
                 <div class="card">
-                    <div class="card-body" style="width: 80%; margin: 0 auto;">
-                        <h3 class="card-title text-center">Grafica</h3>
-                        <canvas id="myChart" width="600" height="300"></canvas>
+                    <div class="card-body" style="width: 100%; height: 400px; margin: 0 auto;"> <!-- Ajustar altura fija -->
+                        <h3 class="card-title text-center">Gráfica</h3>
+                        <canvas id="myChart"></canvas> <!-- Eliminar width y height inline -->
                     </div>
                 </div>
             </div>
@@ -197,7 +197,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true, // Mantener la relación de aspecto
                     scales: {
                         y: {
                             beginAtZero: true,

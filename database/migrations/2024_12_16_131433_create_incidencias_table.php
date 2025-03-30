@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('incidencias', function (Blueprint $table) {
             $table->bigIncrements('id_incidencia');
+            $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_direccion')->nullable();
             $table->unsignedBigInteger('id_lider')->nullable();

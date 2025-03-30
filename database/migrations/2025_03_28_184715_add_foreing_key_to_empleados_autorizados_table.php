@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('empleados_autorizados', function (Blueprint $table) {
             $table->foreign('id_cargo')->references('id_cargo')->on('cargo_empleados_autorizados')->onDelete('cascade');
-            $table->foreign('id_departamento')->references('id_departamento')->on('departamentos')->onDelete('cascade');
         });
     }
 

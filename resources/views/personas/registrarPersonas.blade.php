@@ -132,6 +132,8 @@
     <div class="container my-5 p-4 bg-white rounded shadow-sm">
         <h1 class="mb-4 text-center">Formulario de Captura de Datos</h1>
 
+        <div id="alert-container"></div> <!-- Para mostrar errores o mensajes de éxito -->
+
         @if (session('success'))
             <div class="alert alert-success mb-3">
                 {{ session('success') }}
@@ -174,26 +176,31 @@
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre') }}" required>
+                <div class="invalid-feedback" id="error-nombre"></div>
             </div>
 
             <div class="mb-3">
                 <label for="apellido" class="form-label">Apellido:</label>
                 <input type="text" id="apellido" name="apellido" class="form-control" value="{{ old('apellido') }}" required>
+                <div class="invalid-feedback" id="error-apellido"></div>
             </div>
 
             <div class="mb-3">
                 <label for="cedula" class="form-label">Cédula:</label>
                 <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula') }}" required>
+                <div class="invalid-feedback" id="error-cedula"></div>
             </div>
 
             <div class="mb-3">
                 <label for="correo" class="form-label">Correo Electrónico:</label>
                 <input type="email" id="correo" name="correo" class="form-control" value="{{ old('correo') }}" required>
+                <div class="invalid-feedback" id="error-correo"></div>
             </div>
 
             <div class="mb-3">
                 <label for="telefono" class="form-label">Teléfono:</label>
                 <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10>=11}" placeholder="Ej: 1234567890" value="{{ old('telefono') }}" required>
+                <div class="invalid-feedback" id="error-telefono"></div>
             </div>
             <div class="mb-3">
                 <label for="genero" class="form-label">Género:</label>
@@ -248,16 +255,46 @@
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                document.querySelectorAll('.alert').forEach(function(alert) {
-                    alert.style.display = 'none';
+        $(document).ready(function() {
+            $('#form').on('submit', function(event) {
+                event.preventDefault(); // Evitar la recarga de la página
+
+                $.ajax({
+                    url: "{{ route('personas.store') }}",
+                    method: "POST",
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        // Mostrar mensaje de éxito
+                        $('#alert-container').html('<div class="alert alert-success">Datos guardados correctamente.</div>');
+                        
+                        // Limpiar el formulario y remover errores
+                        $('#form')[0].reset();
+                        $('.form-control').removeClass('is-invalid');
+                        $('.invalid-feedback').text('');
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON.messages;
+
+                        // Limpiar mensajes previos
+                        $('.form-control').removeClass('is-invalid');
+                        $('.invalid-feedback').text('');
+
+                        // Mostrar errores en los campos correspondientes
+                        for (let field in errors) {
+                            let errorMessage = errors[field][0]; // Obtener el primer mensaje de error
+                            $(`#${field}`).addClass('is-invalid');
+                            $(`#error-${field}`).text(errorMessage);
+                        }
+
+                        // Mostrar mensaje de error general
+                        $('#alert-container').html('<div class="alert alert-danger">Revisa los campos marcados.</div>');
+                    }
                 });
-            }, 2000);
+            });
         });
     </script>
-    <!-- Ensure this is included for dropdown and collapse functionality -->
 </body>
 
 </html>

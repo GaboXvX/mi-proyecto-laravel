@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('calle');
             $table->string('manzana');
             $table->string('bloque')->nullable();
-            $table->integer('numero_de_vivienda');
+            $table->string('numero_de_vivienda');
             $table->boolean('es_principal');
             $table->timestamps();
        

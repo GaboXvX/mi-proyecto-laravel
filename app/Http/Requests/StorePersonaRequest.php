@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StorePersonaRequest extends FormRequest
 {
@@ -30,6 +32,12 @@ class StorePersonaRequest extends FormRequest
             // 'estado' => 'required|max:13'
         ];
     }
+
+    /**
+     * Get custom error messages for validation rules.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
@@ -43,8 +51,22 @@ class StorePersonaRequest extends FormRequest
             'correo.unique' => 'Este correo electrónico ya está registrado.',
             'telefono.required' => 'El número de teléfono es obligatorio.',
             'telefono.digits' => 'El número de teléfono debe tener exactamente 11 dígitos.',
-            // 'estado.required' => 'el estado es obligatorio',
-            // 'estado.max' => 'el estado debe contener maximo 8 caracteres',
+            // 'estado.required' => 'El estado es obligatorio',
+            // 'estado.max' => 'El estado debe contener máximo 8 caracteres',
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     *
+     * @param  Validator  $validator
+     * @throws HttpResponseException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json([
+            'error' => 'Error de validación',
+            'messages' => $validator->errors()
+        ], 422));
     }
 }

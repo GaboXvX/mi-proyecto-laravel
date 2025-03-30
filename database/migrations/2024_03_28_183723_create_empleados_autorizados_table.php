@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('empleados_autorizados', function (Blueprint $table) {
             $table->bigIncrements('id_empleado_autorizado');
             $table->unsignedBigInteger('id_cargo');
-            $table->unsignedBigInteger('id_departamento');
             $table->string('nombre');
             $table->string('apellido');
             $table->biginteger('cedula');

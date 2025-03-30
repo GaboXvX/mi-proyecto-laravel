@@ -166,6 +166,21 @@
                                         @endif
             </div>
         @endif
+       
+        <div class="details-section">
+            <p><strong>Registrado por:</strong> 
+                @if($incidencia->usuario)
+                    @if($incidencia->usuario->empleadoAutorizado)
+                        {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                        <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
+                    @else
+                        <em>Empleado autorizado no asignado</em>
+                    @endif
+                @else
+                    <em>Usuario no asignado</em>
+                @endif
+            </p>
+        </div>
         </div>
 
         <div class="footer">

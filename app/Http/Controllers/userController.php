@@ -13,21 +13,23 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener el usuario autenticado
-        $usuarioAutenticado = auth()->user();
-    
-        // Recuperar los usuarios con los estados 1 y 2
-        $usuarios = User::where('id_estado_usuario', 1)
-                        ->orWhere('id_estado_usuario', 2)
-                        ->orderBy('id_usuario', 'desc')
-                        ->get();
-    
-        // Pasar los usuarios y el usuario autenticado a la vista
-        return view('usuarios.listaUsuarios', compact('usuarios', 'usuarioAutenticado'));
+        // Verificar si la solicitud es AJAX
+        if ($request->ajax()) {
+            $peticiones = User::where('id_estado_usuario', 3)
+                              ->orWhere('id_estado_usuario', 4)
+                              ->orWhere('id_estado_usuario', 1)
+                              ->with(['role', 'estadoUsuario', 'empleadoAutorizado']) // Cargar relaciones necesarias
+                              ->get();
+
+            return response()->json($peticiones);
+        }
+
+        // Si no es AJAX, cargar la vista como de costumbre
+        $usuarios = User::with(['empleadoAutorizado', 'role'])->get(); // Cargar relaciones necesarias
+        return view('usuarios.listaUsuarios', compact('usuarios'));
     }
-    
     public function create()
     {
         $preguntas=pregunta::all();

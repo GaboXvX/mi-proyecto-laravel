@@ -24,7 +24,7 @@ class Lider_Comunitario extends Model
     }
     public function personas()
     {
-        return $this->belongsTo(Persona::class, 'id_persona');
+        return $this->belongsTo(Persona::class, 'id_persona'); // Relación con el modelo Persona
     }
 public function comunidad()
 {

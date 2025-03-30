@@ -67,7 +67,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/filtrar-incidencia', [IncidenciaController::class, 'filtrar'])->name('filtrar.incidencia');
     Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atender'])->name('incidencias.atender');
     Route::post('/incidencias/download', [IncidenciaController::class, 'download'])->name('incidencias.download');
-    Route::get('/incidencias/{slug}/download', [IncidenciaController::class, 'descargar'])->name('incidencias.descargar');
+    Route::get('/incidencias/descargar/{slug}', [IncidenciaController::class, 'descargar'])
+    ->name('incidencias.descargar');
     Route::post('/filtrar-incidencias-por-fechas', [IncidenciaController::class, 'filtrarPorFechas'])->name('filtrar.incidencias.fechas');
     Route::get('/persona/{slug}/incidencias/create', [IncidenciaController::class, 'crear'])->name('incidencias.crear');
     Route::get('persona/{slug}/incidencia/{incidencia_slug}', [IncidenciaController::class, 'show'])->name('incidencias.show');
@@ -90,5 +91,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
     Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
     Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);
+    Route::post('/incidencias/generar-pdf', [IncidenciaController::class, 'generarPDF'])->name('incidencias.generarPDF');
 });
  });

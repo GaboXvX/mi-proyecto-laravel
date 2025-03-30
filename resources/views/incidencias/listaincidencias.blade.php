@@ -156,23 +156,28 @@
             <div class="gen-pdf">
                 @role('admin')
                 <a href="{{ route('incidencias.gestionar') }}" class="btn btn-success me-2">Cambiar Estado</a>
-                <button type="submit" class="btn btn-primary">Generar PDF</button>
+                <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
+                    <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
+                    <input type="hidden" id="pdf-estado" name="estado">
+                    <button type="submit" class="btn btn-primary">Generar PDF</button>
+                </form>
                 @endrole
             </div>
         </div>
        
         <!-- Filters -->
         <div class="d-flex filters-container gap-2">
-            <form action="{{ route('incidencias.buscar') }}" method="post" class="input-group input-group-sm">
-                <button class="input-group-text btn btn-primary" id="basic-addon1">
+            <form id="busqueda-codigo-form" class="input-group input-group-sm">
+                <button class="input-group-text btn btn-primary" id="basic-addon1" type="button">
                     <i class="bi bi-search"></i>
                 </button>
-                <input type="text" class="form-control form-control-sm" placeholder="Ingrese un código">
-                @csrf
+                <input type="text" id="codigo-busqueda" class="form-control form-control-sm" placeholder="Ingrese un código">
             </form>
-            <form action="{{ route('incidencias.download') }}" method="POST">
-            @csrf
-            <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
+            <form id="filtros-form">
+                @csrf
+                <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex">
                         <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control mr-2 mb-3" />
@@ -180,8 +185,7 @@
                         <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2 mb-3" />
                     </div>
                     <select class="form-select form-select-sm w-50 m-2" aria-label="Select status" name="estado" id="estado">
-                        <option selected>Estado de la incidencia:</option>
-                        <option value="Todos">Todos</option>
+                        <option value="Todos" selected>Todos</option>
                         <option value="Atendido">Atendido</option>
                         <option value="Por atender">Por atender</option>
                     </select>
@@ -209,150 +213,188 @@
                 </thead>
                 <tbody id="incidencias-tbody">
                     @foreach ($incidencias as $incidencia)
-                        @if($incidencia && $incidencia->cod_incidencia)
-                            <tr>
-                                <td>{{ $incidencia->cod_incidencia }}</td>
-                                <td>{{ $incidencia->tipo_incidencia }}</td>
-                                <td>{{ $incidencia->descripcion }}</td>
-                                <td>{{ $incidencia->nivel_prioridad }}</td>
-                                <td class="incidencia-status 
-                                            @if($incidencia->estado == 'Por atender') status-pending 
-                                            @elseif($incidencia->estado == 'Atendido') status-resolved 
-                                            @endif">
-                                    {{ $incidencia->estado }}
-                                </td>
-                                <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
-                                <td>
-                                    @if($incidencia->persona)
-                                        {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
+                        <tr>
+                            <td>{{ $incidencia->cod_incidencia }}</td>
+                            <td>{{ $incidencia->tipo_incidencia }}</td>
+                            <td>{{ $incidencia->descripcion }}</td>
+                            <td>{{ $incidencia->nivel_prioridad }}</td>
+                            <td class="incidencia-status 
+                                        @if($incidencia->estado == 'Por atender') status-pending 
+                                        @elseif($incidencia->estado == 'Atendido') status-resolved 
+                                        @endif">
+                                {{ $incidencia->estado }}
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
+                            <td>
+                                @if($incidencia->usuario)
+                                    @if($incidencia->usuario->empleadoAutorizado)
+                                        {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                                        <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                                     @else
-                                        No registrado
+                                        <em>Empleado autorizado no asignado</em>
                                     @endif
-                                </td>
-                                <td>
-                                    @php
-                                        $lider = \App\Models\Lider_Comunitario::find($incidencia->id_lider);
-                                        $personaLider = $lider ? \App\Models\Persona::find($lider->id_persona) : null;
-                                    @endphp
-                                    @if($personaLider)
-                                       {{ $personaLider->nombre }} {{ $personaLider->apellido }}
-                                    @else
-                                        No asignado
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary">
-                                        <i class="bi bi-download"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        @else
-                            <tr>
-                                <td colspan="9" class="text-center">No se encontró incidencia para este código</td>
-                            </tr>
-                        @endif
+                                @else
+                                    <em>Usuario no asignado</em>
+                                @endif
+                            </td>
+                            <td>
+                                @if($incidencia->lider && $incidencia->lider->personas)
+                                    {{ $incidencia->lider->personas->nombre ?? 'Nombre no disponible' }} 
+                                    {{ $incidencia->lider->personas->apellido ?? 'Apellido no disponible' }} 
+                                    <strong>V-</strong>{{ $incidencia->lider->personas->cedula ?? 'Cédula no disponible' }}
+                                @else
+                                    <em>No tiene un líder asignado</em>
+                                @endif
+                            </td>
+                            <td>
+                                <!-- Botón para descargar el PDF individual -->
+                                <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-primary">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
- 
+
     <script>
         class FiltroIncidencias {
-    constructor(fechaInicioId, fechaFinId, estadoId, resultadosId, tbodyId, url) {
-        this.fechaInicio = document.getElementById(fechaInicioId);
-        this.fechaFin = document.getElementById(fechaFinId);
-        this.estado = document.getElementById(estadoId);
-        this.resultados = document.getElementById(resultadosId);
-        this.tbody = document.getElementById(tbodyId);
-        this.url = url;
+            constructor(codigoInputId, fechaInicioId, fechaFinId, estadoId, tbodyId, url) {
+                this.codigoInput = document.getElementById(codigoInputId);
+                this.fechaInicio = document.getElementById(fechaInicioId);
+                this.fechaFin = document.getElementById(fechaFinId);
+                this.estado = document.getElementById(estadoId);
+                this.tbody = document.getElementById(tbodyId);
+                this.url = url;
 
-        // Agregar event listeners a los filtros
-        this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
-        this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
-        this.estado.addEventListener('change', () => this.filtrarIncidencias());
-    }
+                // Event listeners
+                this.codigoInput.addEventListener('input', () => this.buscarPorCodigo());
+                this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
+                this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
+                this.estado.addEventListener('change', () => this.filtrarIncidencias());
+            }
 
-    async filtrarIncidencias() {
-        const fechaInicio = this.fechaInicio.value;
-        const fechaFin = this.fechaFin.value;
-        const estado = this.estado.value;
+            async buscarPorCodigo() {
+                const codigo = this.codigoInput.value;
 
-        if (!fechaInicio || !fechaFin) {
-            return;
+                // Activar búsqueda incluso con un solo carácter
+                if (codigo.length === 0) {
+                    this.mostrarResultados([]);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(this.url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ codigo })
+                    });
+
+                    const data = await response.json();
+                    this.mostrarResultados(data.incidencias);
+                } catch (error) {
+                    console.error('Error al buscar por código:', error);
+                }
+            }
+
+            async filtrarIncidencias() {
+                const fechaInicio = this.fechaInicio.value;
+                const fechaFin = this.fechaFin.value;
+                const estado = this.estado.value;
+
+                try {
+                    const response = await fetch(this.url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ fecha_inicio: fechaInicio, fecha_fin: fechaFin, estado })
+                    });
+
+                    const data = await response.json();
+                    this.mostrarResultados(data.incidencias);
+                } catch (error) {
+                    console.error('Error al filtrar incidencias:', error);
+                }
+            }
+
+            mostrarResultados(incidencias) {
+                this.tbody.innerHTML = '';
+
+                if (incidencias && incidencias.length > 0) {
+                    incidencias.forEach(incidencia => {
+                        const tr = document.createElement('tr');
+                        const fecha = new Date(incidencia.created_at);
+                        const fechaFormateada = fecha.toLocaleString('es-ES', {
+                            weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        });
+
+                        tr.innerHTML = `
+                            <td>${incidencia.cod_incidencia}</td>
+                            <td>${incidencia.tipo_incidencia}</td>
+                            <td>${incidencia.descripcion}</td>
+                            <td>${incidencia.nivel_prioridad}</td>
+                            <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                            <td>${fechaFormateada}</td>
+                            <td>${incidencia.persona ? `${incidencia.persona.nombre} ${incidencia.persona.apellido}` : 'No registrado'}</td>
+                            <td>${incidencia.lider ? `${incidencia.lider.nombre} ${incidencia.lider.apellido}` : 'No asignado'}</td>
+                            <td>
+                                <a href="/incidencias/descargar/${incidencia.slug}" class="btn btn-primary">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </td>
+                        `;
+
+                        this.tbody.appendChild(tr);
+                    });
+                } else {
+                    this.tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron incidencias para los filtros seleccionados.</td></tr>';
+                }
+            }
+
+            getStatusClass(estado) {
+                switch (estado) {
+                    case 'Atendido': return 'status-resolved';
+                    case 'Por atender': return 'status-pending';
+                    default: return '';
+                }
+            }
         }
 
-        try {
-            const response = await fetch(this.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ fecha_inicio: fechaInicio, fecha_fin: fechaFin, estado })
-            });
+        // Inicializar la clase cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            new FiltroIncidencias(
+                'codigo-busqueda',
+                'fecha_inicio',
+                'fecha_fin',
+                'estado',
+                'incidencias-tbody',
+                '/filtrar-incidencia'
+            );
+        });
 
-            const data = await response.json();
-            this.mostrarResultados(data.incidencias);
-        } catch (error) {
-            console.error('Error al filtrar incidencias:', error);
-        }
-    }
+        document.getElementById('generar-pdf-form').addEventListener('submit', function (e) {
+            // Obtener valores de los filtros
+            const fechaInicio = document.getElementById('fecha_inicio').value || '';
+            const fechaFin = document.getElementById('fecha_fin').value || '';
+            const estado = document.getElementById('estado').value || 'Todos';
 
-    mostrarResultados(incidencias) {
-        this.tbody.innerHTML = '';
-
-        if (incidencias && incidencias.length > 0) {
-            incidencias.forEach(incidencia => {
-                const tr = document.createElement('tr');
-                const fecha = new Date(incidencia.created_at);
-                const fechaFormateada = fecha.toLocaleString('es-ES', {
-                    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                });
-
-                tr.innerHTML = `
-                    <td>${incidencia.cod_incidencia}</td>
-                    <td>${incidencia.tipo_incidencia}</td>
-                    <td>${incidencia.descripcion}</td>
-                    <td>${incidencia.nivel_prioridad}</td>
-                    <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                    <td>${fechaFormateada}</td>
-                    <td>${incidencia.persona ? `${incidencia.persona.nombre} ${incidencia.persona.apellido}` : 'No registrado'}</td>
-                    <td>${incidencia.lider ? `${incidencia.lider.nombre} ${incidencia.lider.apellido}` : 'No asignado'}</td>
-                `;
-
-                this.tbody.appendChild(tr);
-            });
-        } else {
-            this.tbody.innerHTML = '<tr><td colspan="8" class="text-center">No se encontraron incidencias para el período y estado seleccionado.</td></tr>';
-        }
-    }
-
-    getStatusClass(estado) {
-        switch (estado) {
-            case 'Atendido': return 'status-resolved';
-            case 'Por atender': return 'status-pending';
-            default: return '';
-        }
-    }
-}
-
-// Inicializar la clase cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    new FiltroIncidencias(
-        'fecha_inicio',
-        'fecha_fin',
-        'estado',
-        'resultados',
-        'incidencias-tbody',
-        '/filtrar-incidencia'
-    );
-});
+            // Asignar valores a los campos ocultos del formulario
+            document.getElementById('pdf-fecha-inicio').value = fechaInicio;
+            document.getElementById('pdf-fecha-fin').value = fechaFin;
+            document.getElementById('pdf-estado').value = estado;
+        });
     </script>
-     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
-     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
-     <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
+    <script src="{{ asset('js/script.js') }}"></script>
 </body>
 
 </html>

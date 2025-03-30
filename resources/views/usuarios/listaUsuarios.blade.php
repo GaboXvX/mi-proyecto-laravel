@@ -142,9 +142,9 @@
                 <tbody>
                     @foreach ($usuarios as $usuario)
                         <tr>
-                            <td>{{ $usuario->nombre }}</td>
-                            <td>{{ $usuario->apellido }}</td>
-                            <td>{{ $usuario->cedula }}</td>
+                            <td>{{ $usuario->empleadoAutorizado->nombre }}</td>
+                            <td>{{ $usuario->empleadoAutorizado->apellido }}</td>
+                            <td>{{ $usuario->empleadoAutorizado->cedula }}</td>
                             <td>{{ $usuario->email }}</td>
                             <td>{{ $usuario->role ? $usuario->role->rol : 'Sin rol' }}</td> <!-- Mostrar el rol -->
                             <td>

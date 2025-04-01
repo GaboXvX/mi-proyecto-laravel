@@ -120,7 +120,7 @@
         <div >
             <div class="card-body">
                 <h2 class="text-center text-primary mb-3">Configuración de Cuenta</h2>
-
+                
                 @if (session('success'))
                     <div class="alert alert-success mb-3">
                         {{ session('success') }}
@@ -143,46 +143,54 @@
                     </div>
                 @endif
                 
-                <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST">
+                <!-- Mostrar datos del usuario -->
+                <table class="profile-table table table-bordered">
+                    <tr>
+                        <th>Nombre:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->nombre }}</td>
+                    </tr>
+                    <tr>
+                        <th>Apellido:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->apellido }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cédula:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->cedula }}</td>
+                    </tr>
+                    <tr>
+                        <th>Género:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de Nacimiento:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
+                    </tr>
+                    <tr>
+                        <th>Altura:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
+                    </tr>
+                    <tr>
+                        <th>Teléfono:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>
+                    </tr>
+                    <tr>
+                        <th>Cargo:</th>
+                        <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre }}</td>
+                    </tr>
+                </table>
+
+                <hr>
+
+                <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
                     @csrf
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputNombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control form-control-sm" id="inputNombre"
-                                    name="nombre" value="{{ old('nombre', $usuario->nombre) }}"
-                                    placeholder="Ingrese su nombre" required>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputApellido" class="form-label">Apellido</label>
-                                <input type="text" class="form-control form-control-sm" id="inputApellido"
-                                    name="apellido" value="{{ old('apellido', $usuario->apellido) }}"
-                                    placeholder="Ingrese su apellido" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputCedula" class="form-label">Cédula</label>
-                                <input type="text" class="form-control form-control-sm" id="inputCedula"
-                                    name="cedula" value="{{ $usuario->cedula }}" placeholder="Ingrese su cédula"
-                                    readonly>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputCorreo" class="form-label">Correo Electrónico</label>
-                                <input type="email" class="form-control form-control-sm" id="inputCorreo"
-                                    name="email" value="{{ old('email', $usuario->email) }}"
-                                    placeholder="Ingrese su correo electrónico" required>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputCorreo" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control form-control-sm" id="inputCorreo"
+                                name="email" value="{{ old('email', $usuario->email) }}"
+                                placeholder="Ingrese su correo electrónico" required>
+                            <small id="correoFeedback" class="text-muted"></small>
                         </div>
                     </div>
 
@@ -194,53 +202,21 @@
                                     name="nombre_usuario"
                                     value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
                                     placeholder="Ingrese su nombre de usuario" required>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputContraseña" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                    name="contraseña" placeholder="Ingrese su nueva contraseña">
+                                <small id="usuarioFeedback" class="text-muted"></small>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Campos adicionales -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputGenero" class="form-label">Género</label>
-                                <select class="form-control form-control-sm" id="inputGenero" name="genero" required>
-                                    <option value="M" {{ old('genero', $usuario->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
-                                    <option value="F" {{ old('genero', $usuario->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputFechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control form-control-sm" id="inputFechaNacimiento"
-                                    name="fecha_nacimiento" value="{{ old('fecha_nacimiento', $usuario->fecha_nacimiento) }}"
-                                    required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="inputAltura" class="form-label">Altura (cm)</label>
-                                <input type="number" class="form-control form-control-sm" id="inputAltura"
-                                    name="altura" value="{{ old('altura', $usuario->altura) }}" min="0" step="0.01"
-                                    placeholder="Ingrese su altura" required>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputContraseña" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control form-control-sm" id="inputContraseña"
+                                name="contraseña" placeholder="Ingrese su nueva contraseña">
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-center mt-3">
-                        <button type="submit" class="btn btn-success btn-sm px-4">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-success btn-sm px-4" id="submitButton" disabled>Guardar Cambios</button>
                     </div>
                 </form>
             </div>
@@ -250,6 +226,90 @@
 
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
+
+<script>
+    const correoInput = document.getElementById('inputCorreo');
+    const usuarioInput = document.getElementById('inputUsuario');
+    const submitButton = document.getElementById('submitButton');
+    let correoDisponible = true;
+    let usuarioDisponible = true;
+
+    function validarFormulario() {
+        submitButton.disabled = !(correoDisponible && usuarioDisponible);
+    }
+
+    correoInput.addEventListener('input', function () {
+        const correo = this.value;
+        const feedback = document.getElementById('correoFeedback');
+
+        if (correo.trim() === '') {
+            feedback.textContent = '';
+            correoDisponible = true;
+            validarFormulario();
+            return;
+        }
+
+        fetch(`/validar-correo/${correo}?excluir={{ $usuario->id_usuario }}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.disponible) {
+                    feedback.textContent = '¡Correo disponible!';
+                    feedback.classList.remove('text-danger');
+                    feedback.classList.add('text-success');
+                    correoDisponible = true;
+                } else {
+                    feedback.textContent = 'El correo ya está en uso.';
+                    feedback.classList.remove('text-success');
+                    feedback.classList.add('text-danger');
+                    correoDisponible = false;
+                }
+                validarFormulario();
+            })
+            .catch(() => {
+                feedback.textContent = 'Error al validar el correo.';
+                feedback.classList.remove('text-success');
+                feedback.classList.add('text-danger');
+                correoDisponible = false;
+                validarFormulario();
+            });
+    });
+
+    usuarioInput.addEventListener('input', function () {
+        const nombreUsuario = this.value;
+        const feedback = document.getElementById('usuarioFeedback');
+
+        if (nombreUsuario.trim() === '') {
+            feedback.textContent = '';
+            usuarioDisponible = true;
+            validarFormulario();
+            return;
+        }
+
+        fetch(`/validar-usuario/${nombreUsuario}?excluir={{ $usuario->id_usuario }}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.disponible) {
+                    feedback.textContent = '¡Nombre de usuario disponible!';
+                    feedback.classList.remove('text-danger');
+                    feedback.classList.add('text-success');
+                    usuarioDisponible = true;
+                } else {
+                    feedback.textContent = 'El nombre de usuario ya está en uso.';
+                    feedback.classList.remove('text-success');
+                    feedback.classList.add('text-danger');
+                    usuarioDisponible = false;
+                }
+                validarFormulario();
+            })
+            .catch(() => {
+                feedback.textContent = 'Error al validar el nombre de usuario.';
+                feedback.classList.remove('text-success');
+                feedback.classList.add('text-danger');
+                usuarioDisponible = false;
+                validarFormulario();
+            });
+    });
+</script>
 </body>
 
 </html>

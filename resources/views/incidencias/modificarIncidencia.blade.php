@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Modificación de Incidencia</title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
-
+@extends('layouts.app')
+@section('content')
     <style>
         body {
             background-color: #f8f9fa;
@@ -97,7 +89,7 @@
             text-decoration: none;
         }
     </style>
-</head>
+
 
 <body>
     <div class="form-container">
@@ -129,7 +121,7 @@
             @csrf
             @method('PUT') 
 
-            <input type="hidden" name="id_persona" value="{{ $incidencia->id_persona }}" class="form-control mb-3" > 
+            <input type="hidden" name="id_persona" value="{{ $incidencia->id_persona }}" class="form-control mb-3">
 
             <div class="mb-3">
                 <label for="tipo_incidencia" class="form-label">Tipo de incidencia:</label>
@@ -158,6 +150,18 @@
             </div>
 
             <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección:</label>
+                <select id="direccion" name="direccion" class="form-select" required>
+                    <option value="" disabled selected>--Seleccione--</option>
+                    @foreach ($persona->direccion as $direccion)
+                        <option value="{{ $direccion->id_direccion }}">
+                            Parroquia: {{ $direccion->parroquia->nombre }} - Urbanización: {{ $direccion->urbanizacion->nombre }} - Sector: {{ $direccion->sector->nombre }} - Comunidad: {{ $direccion->comunidad->nombre }} - Calle: {{ $direccion->calle }} Manzana: {{ $direccion->manzana }} Número de Casa: {{ $direccion->numero_de_vivienda }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="mb-3">
                 <label for="estado" class="form-label">Estado:</label>
                 <input type="text" id="estado" name="estado" value="{{ old('estado', $incidencia->estado) }}" class="form-control" readonly>
             </div>
@@ -172,5 +176,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+@endsection
 
-</html>

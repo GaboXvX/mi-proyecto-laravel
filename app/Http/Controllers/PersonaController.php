@@ -111,11 +111,10 @@ class PersonaController extends Controller
             $liderComunitario->save();
         }
 
-        // Respuesta exitosa en JSON
-        return response()->json(['success' => 'Datos enviados correctamente.'], 200);
-        
+        // Respuesta de éxito con redirección
+        return response()->json(['success' => true, 'redirect' => route('personas.index')]);
     } catch (\Exception $e) {
-        // Respuesta de error en JSON
+        // Respuesta de error
         return response()->json(['error' => 'Error al enviar los datos: ' . $e->getMessage()], 500);
     }
 }

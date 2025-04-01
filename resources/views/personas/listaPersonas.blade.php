@@ -160,62 +160,77 @@
     <script src="{{ asset('js/script.js') }}"></script>
     <script>
         class BuscadorPersonas {
-    constructor(inputId, tbodyId, url) {
-        this.input = document.getElementById(inputId);
-        this.tbody = document.getElementById(tbodyId);
-        this.url = url;
+            constructor(inputId, tbodyId, url, originalData) {
+                this.input = document.getElementById(inputId);
+                this.tbody = document.getElementById(tbodyId);
+                this.url = url;
+                this.originalData = originalData;
 
-        // Agregar event listener al campo de búsqueda
-        this.input.addEventListener('input', () => this.buscarPersonas());
-    }
+                // Agregar event listener al campo de búsqueda
+                this.input.addEventListener('input', () => this.buscarPersonas());
+            }
 
-    async buscarPersonas() {
-        const query = this.input.value.trim();
-        if (!query) {
-            this.tbody.innerHTML = ''; // Limpiar si no hay consulta
-            return;
+            async buscarPersonas() {
+                const query = this.input.value.trim();
+
+                // Si el campo está vacío, restaurar la lista original
+                if (!query) {
+                    this.mostrarResultados(this.originalData);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(this.url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ query })
+                    });
+
+                    const personas = await response.json();
+                    this.mostrarResultados(personas);
+                } catch (error) {
+                    console.error('Error al buscar personas:', error);
+                }
+            }
+
+            mostrarResultados(personas) {
+                this.tbody.innerHTML = personas.map(persona => `
+                    <tr>
+                        <td>${persona.nombre}</td>
+                        <td>${persona.apellido}</td>
+                        <td>${persona.cedula}</td>
+                        <td>${persona.correo}</td>
+                        <td>${persona.telefono}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/persona/${persona.slug}" class="btn btn-info btn-sm">Ver</a>
+                                <a href="/persona/${persona.slug}/incidencias/create" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
         }
 
-        try {
-            const response = await fetch(this.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ query })
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalData = @json($personas->items()); // Obtener los datos originales desde el servidor
+            new BuscadorPersonas('buscar', 'personas-tbody', '{{ route('personas.buscar') }}', originalData);
 
-            const personas = await response.json();
-            this.mostrarResultados(personas);
-        } catch (error) {
-            console.error('Error al buscar personas:', error);
-        }
-    }
+            // Mostrar mensaje de éxito si está presente en la sesión
+            const successMessage = "{{ session('success') }}";
+            if (successMessage) {
+                const alertContainer = document.createElement('div');
+                alertContainer.className = 'alert alert-success';
+                alertContainer.textContent = successMessage;
+                document.querySelector('.table-container').prepend(alertContainer);
 
-    mostrarResultados(personas) {
-        this.tbody.innerHTML = personas.map(persona => `
-            <tr>
-                <td>${persona.nombre}</td>
-                <td>${persona.apellido}</td>
-                <td>${persona.cedula}</td>
-                <td>${persona.correo}</td>
-                <td>${persona.telefono}</td>
-                <td>
-                    <div class="btn-group">
-                        <a href="/persona/${persona.slug}" class="btn btn-info btn-sm">Ver</a>
-                        <a href="/persona/${persona.slug}/incidencias/create" class="btn btn-success btn-sm">Añadir Incidencia</a>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
-}
-
-    // Inicializar la clase con los elementos del DOM y la URL del backend
-    document.addEventListener('DOMContentLoaded', () => {
-        new BuscadorPersonas('buscar', 'personas-tbody', '{{ route('personas.buscar') }}');
-    });
+                // Ocultar el mensaje después de unos segundos
+                setTimeout(() => alertContainer.remove(), 5000);
+            }
+        });
     </script>
 </body>
 

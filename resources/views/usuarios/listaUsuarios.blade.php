@@ -149,28 +149,33 @@
                             <td>{{ $usuario->role ? $usuario->role->rol : 'Sin rol' }}</td> <!-- Mostrar el rol -->
                             <td>
                                 @if ($usuario->id_estado_usuario == 1)
-                                    Activo
+                                    Aceptado
                                 @elseif ($usuario->id_estado_usuario == 2)
                                     Desactivado
+                                @elseif ($usuario->id_estado_usuario == 3)
+                                    No Verificado
+                                @elseif ($usuario->id_estado_usuario == 4)
+                                    Rechazado
                                 @else
                                     Desconocido
                                 @endif
                             </td>
                             <td>{{ $usuario->created_at }}</td>
                             <td>
-                                <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success btn-sm">Restaurar</button>
-                                </form>
+                                @if (in_array($usuario->id_estado_usuario, [1, 2]))
+                                    <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm">Restaurar</button>
+                                    </form>
+                                @endif
 
-                                <!-- Mostrar el botón de desactivar solo si el usuario listado no es admin y el usuario autenticado no es admin -->
-                                @if ($usuario->id_rol==2 && $usuarioAutenticado->id_rol == 1)
+                                @if ($usuario->id_rol == 2 && $usuarioAutenticado->id_rol == 1)
                                     @if ($usuario->id_estado_usuario == 1)
                                         <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
                                         </form>
-                                    @else
+                                    @elseif ($usuario->id_estado_usuario == 2)
                                         <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-sm">Activar</button>

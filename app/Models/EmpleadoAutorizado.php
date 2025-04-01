@@ -21,10 +21,16 @@ class EmpleadoAutorizado extends Model
         'fecha_nacimiento',
         'altura',
         'telefono',
+        'email',
     ];
 
     public function usuarios()
     {
         return $this->hasOne(User::class, 'id_empleado_autorizado'); // Relación con el modelo User
+    }
+
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class, 'id_cargo');
     }
 }

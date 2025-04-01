@@ -20,8 +20,19 @@ class IncidenciaController extends Controller
 
     public function index(Request $request) 
     {
-        // Cargar las incidencias junto con la relación 'lider'
-        $incidencias = Incidencia::with('lider')->orderBy('id_incidencia', 'desc')->get();
+        // Cargar las incidencias junto con las relaciones necesarias
+        $incidencias = Incidencia::with(['usuario.empleadoAutorizado', 'lider.personas']) // Incluir usuario.empleadoAutorizado y lider.personas
+            ->when($request->codigo, function ($query, $codigo) {
+                return $query->where('cod_incidencia', 'like', "%$codigo%");
+            })
+            ->when($request->fecha_inicio && $request->fecha_fin, function ($query) use ($request) {
+                return $query->whereBetween('created_at', [$request->fecha_inicio, $request->fecha_fin]);
+            })
+            ->when($request->estado && $request->estado !== 'Todos', function ($query, $estado) {
+                return $query->where('estado', $estado);
+            })
+            ->orderBy('id_incidencia', 'desc')
+            ->get();
         
         // Retornar la vista con las incidencias
         return view('incidencias.listaincidencias', compact('incidencias'));
@@ -160,47 +171,44 @@ class IncidenciaController extends Controller
 
     public function edit($slug, $persona_slug = null)
     {
-
         $incidencia = Incidencia::where('slug', $slug)->firstOrFail();
-
-
         $persona = null;
-
-
+    
         if ($persona_slug) {
-
             $persona = Persona::where('slug', $persona_slug)->first();
+        } else {
+            $persona = Persona::find($incidencia->id_persona);
         }
-
-
+    
+        // Obtener las direcciones asociadas a la persona o un array vacío si no hay direcciones
+        $direcciones = $persona ? $persona->direcciones ?? collect() : collect();
+    
         if (!$persona) {
-            return view('incidencias.modificarincidencialider', compact('incidencia'));
+            return view('incidencias.modificarincidencialider', compact('incidencia', 'direcciones'));
         }
-
-
-        return view('incidencias.modificarincidencia', compact('incidencia', 'persona'));
+    
+        return view('incidencias.modificarincidencia', compact('incidencia', 'persona', 'direcciones'));
     }
+    
 
     public function update(StoreIncidenciaRequest $request, $id)
     {
         try {
             $incidencia = Incidencia::findOrFail($id);
 
-            // Obtener la dirección asociada a la incidencia
+            // Validar si la dirección existe
             $direccion = Direccion::find($request->input('direccion'));
+            if (!$direccion) {
+                return redirect()->route('personas.index')->with('error', 'La dirección seleccionada no existe.');
+            }
 
             // Buscar al líder según la comunidad de la dirección y su estado activo
             $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
                 ->where('estado', 1) // Verificamos que el líder esté activo
                 ->first();
 
-            if ($lider) {
-                // Asignamos el líder a la incidencia
-                $incidencia->id_lider = $lider->id_lider;
-            } else {
-                // Si no hay un líder activo, asignamos NULL
-                $incidencia->id_lider = null;
-            }
+            // Asignar el líder o NULL si no hay uno activo
+            $incidencia->id_lider = $lider ? $lider->id_lider : null;
 
             // Asignar los valores actualizados a la incidencia
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
@@ -212,11 +220,8 @@ class IncidenciaController extends Controller
             // Guardar la incidencia
             $incidencia->save();
 
-            if ($incidencia->id_lider) {
-                return redirect()->route('lideres.index')->with('success', 'Incidencia actualizada correctamente.');
-            } else {
-                return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
-            }
+            // Redirigir siempre a personas.index
+            return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
         } catch (\Exception $e) {
             return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
         }
@@ -234,39 +239,62 @@ class IncidenciaController extends Controller
 
 
     public function filtrar(Request $request)
-    {
-        $validated = $request->validate([
-            'codigo' => 'nullable|string',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date',
-            'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
-        ]);
+{
+    $validated = $request->validate([
+        'codigo' => 'nullable|string',
+        'fecha_inicio' => 'nullable|date',
+        'fecha_fin' => 'nullable|date',
+        'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
+    ]);
 
-        $codigo = $request->input('codigo');
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin = $request->input('fecha_fin');
-        $estado = $request->input('estado', 'Todos');
+    $query = Incidencia::with([
+        'usuario.empleadoAutorizado', 
+        'lider.personas'
+    ]);
 
-        $query = Incidencia::with(['persona', 'lider.personas']); // Incluir lider.personas
+    if ($request->codigo) {
+        $query->where('cod_incidencia', 'like', "%{$request->codigo}%");
+    }
 
-        if ($codigo) {
-            $query->where('cod_incidencia', 'like', "%$codigo%");
-        }
-
-        if ($fechaInicio && $fechaFin) {
-            $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
-        }
-
-        if ($estado !== 'Todos') {
-            $query->where('estado', $estado);
-        }
-
-        $incidencias = $query->get();
-
-        return response()->json([
-            'incidencias' => $incidencias
+    if ($request->fecha_inicio && $request->fecha_fin) {
+        $query->whereBetween('created_at', [
+            Carbon::parse($request->fecha_inicio)->startOfDay(),
+            Carbon::parse($request->fecha_fin)->endOfDay()
         ]);
     }
+
+    if ($request->estado && $request->estado !== 'Todos') {
+        $query->where('estado', $request->estado);
+    }
+
+    $incidencias = $query->get()->map(function ($incidencia) {
+        return [
+            'cod_incidencia' => $incidencia->cod_incidencia,
+            'tipo_incidencia' => $incidencia->tipo_incidencia,
+            'descripcion' => $incidencia->descripcion,
+            'nivel_prioridad' => $incidencia->nivel_prioridad,
+            'estado' => $incidencia->estado,
+            'created_at' => $incidencia->created_at,
+            'slug' => $incidencia->slug,
+            'usuario' => $incidencia->usuario ? [
+                'empleado_autorizado' => $incidencia->usuario->empleadoAutorizado ? [
+                    'nombre' => $incidencia->usuario->empleadoAutorizado->nombre,
+                    'apellido' => $incidencia->usuario->empleadoAutorizado->apellido,
+                    'cedula' => $incidencia->usuario->empleadoAutorizado->cedula
+                ] : null
+            ] : null,
+            'lider' => $incidencia->lider ? [
+                'personas' => $incidencia->lider->personas ? [
+                    'nombre' => $incidencia->lider->personas->nombre,
+                    'apellido' => $incidencia->lider->personas->apellido,
+                    'cedula' => $incidencia->lider->personas->cedula
+                ] : null
+            ] : null
+        ];
+    });
+
+    return response()->json(['incidencias' => $incidencias]);
+}
 
     public function generarPDF(Request $request)
     {

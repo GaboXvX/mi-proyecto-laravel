@@ -187,7 +187,7 @@
 
             <div class="mb-3">
                 <label for="cedula" class="form-label">Cédula:</label>
-                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula') }}" required>
+                <input type="number" id="cedula" name="cedula" class="form-control" value="{{ old('cedula') }}" required>
                 <div class="invalid-feedback" id="error-cedula"></div>
             </div>
 
@@ -266,30 +266,27 @@
                     method: "POST",
                     data: $(this).serialize(),
                     success: function(response) {
-                        // Mostrar mensaje de éxito
-                        $('#alert-container').html('<div class="alert alert-success">Datos guardados correctamente.</div>');
-                        
-                        // Limpiar el formulario y remover errores
-                        $('#form')[0].reset();
-                        $('.form-control').removeClass('is-invalid');
-                        $('.invalid-feedback').text('');
+                        if (response.success) {
+                            window.location.href = response.redirect; // Redirigir en caso de éxito
+                        }
                     },
                     error: function(xhr) {
-                        let errors = xhr.responseJSON.messages;
+                        let errors = xhr.responseJSON.error || xhr.responseJSON.messages;
 
                         // Limpiar mensajes previos
                         $('.form-control').removeClass('is-invalid');
                         $('.invalid-feedback').text('');
 
                         // Mostrar errores en los campos correspondientes
-                        for (let field in errors) {
-                            let errorMessage = errors[field][0]; // Obtener el primer mensaje de error
-                            $(`#${field}`).addClass('is-invalid');
-                            $(`#error-${field}`).text(errorMessage);
+                        if (typeof errors === 'object') {
+                            for (let field in errors) {
+                                let errorMessage = errors[field][0]; // Obtener el primer mensaje de error
+                                $(`#${field}`).addClass('is-invalid');
+                                $(`#error-${field}`).text(errorMessage);
+                            }
+                        } else {
+                            $('#alert-container').html(`<div class="alert alert-danger">${errors}</div>`);
                         }
-
-                        // Mostrar mensaje de error general
-                        $('#alert-container').html('<div class="alert alert-danger">Revisa los campos marcados.</div>');
                     }
                 });
             });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pregunta;
 use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
+use App\Models\EmpleadoAutorizado; // Importar el modelo de empleados autorizados
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,11 +26,18 @@ class RecuperarController extends Controller
             'cedula' => 'required|numeric',
         ]);
 
-        // Buscar el usuario por la cédula
-        $usuario = User::where('cedula', $request->cedula)->first();
+        // Buscar el empleado autorizado por la cédula
+        $empleado = EmpleadoAutorizado::where('cedula', $request->cedula)->first();
+
+        if (!$empleado) {
+            return redirect()->back()->withErrors(['cedula' => 'No se encontró un empleado con esa cédula.']);
+        }
+
+        // Buscar el usuario asociado al empleado autorizado
+        $usuario = User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->first();
 
         if (!$usuario) {
-            return redirect()->back()->withErrors(['cedula' => 'No se encontró un usuario con esa cédula.']);
+            return redirect()->back()->withErrors(['cedula' => 'No se encontró un usuario asociado a este empleado.']);
         }
 
         // Verificar si el usuario está activo (estado 1)

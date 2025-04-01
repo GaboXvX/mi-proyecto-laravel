@@ -14,10 +14,10 @@ use App\Http\Controllers\seguridadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RecuperarGetController;
 use App\Http\Controllers\UsuarioValidacionController;
+use App\Http\Controllers\UsuarioController;
 use App\Models\Direccion;
 use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'prevent-back-history'],function(){
-    Route::get('/validar-usuario', [UsuarioValidacionController::class, 'validarUsuario']);
 
 Route::get('/buscar-empleado', [PeticionController::class, 'buscarEmpleado'])->name('buscar.empleado');
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -28,9 +28,9 @@ Route::get('registrar', [UserController::class, 'create'])->name('usuarios.creat
 Route::post('aceptar/{id}', [PeticionController::class, 'aceptar'])->name('peticion.aceptar');
 Route::resource('peticiones', PeticionController::class)->except('index');
  // Rutas de recuperación de contraseña
- Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
+ Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula')->middleware('guest');
  Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
- Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
+ Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave')->middleware('guest');
  // Ruta para validar la respuesta de seguridad (POST)
 Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
 
@@ -43,6 +43,8 @@ Route::get('/cambiar-clave/{token}', [RecuperarController::class, 'mostrarCambio
 Route::post('/validar-campo-asincrono', [PeticionController::class, 'validarCampoAsincrono'])->name('validar.campo.asincrono');
 Route::get('/peticiones/obtener', [PeticionController::class, 'obtenerPeticiones'])->name('peticiones.obtener');
 Route::get('/home/total-peticiones', [HomeController::class, 'obtenerTotalPeticiones'])->name('home.totalPeticiones');
+Route::get('/validar-usuario/{nombre_usuario}/{excluir?}', [UsuarioController::class, 'validarUsuario']);
+Route::get('/validar-correo/{email}/{excluir?}', [UsuarioController::class, 'validarCorreo']);
 Route::middleware(['auth'])->group(function () {
 
 

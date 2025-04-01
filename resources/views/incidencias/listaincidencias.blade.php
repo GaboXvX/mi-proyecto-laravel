@@ -250,15 +250,11 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
                             <td>
-                                @if($incidencia->usuario)
-                                    @if($incidencia->usuario->empleadoAutorizado)
-                                        {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                        <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                                    @else
-                                        <em>Empleado autorizado no asignado</em>
-                                    @endif
+                                @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                                    {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                                    <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                                 @else
-                                    <em>Usuario no asignado</em>
+                                    <em>No registrado</em>
                                 @endif
                             </td>
                             <td>
@@ -303,9 +299,9 @@
             async buscarPorCodigo() {
                 const codigo = this.codigoInput.value;
 
-                // Activar búsqueda incluso con un solo carácter
                 if (codigo.length === 0) {
-                    this.mostrarResultados([]);
+                    // Restaurar la tabla con las incidencias originales
+                    await this.filtrarIncidencias();
                     return;
                 }
 
@@ -349,39 +345,50 @@
             }
 
             mostrarResultados(incidencias) {
-                this.tbody.innerHTML = '';
+    this.tbody.innerHTML = '';
 
-                if (incidencias && incidencias.length > 0) {
-                    incidencias.forEach(incidencia => {
-                        const tr = document.createElement('tr');
-                        const fecha = new Date(incidencia.created_at);
-                        const fechaFormateada = fecha.toLocaleString('es-ES', {
-                            weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
-                            hour: '2-digit', minute: '2-digit', second: '2-digit'
-                        });
+    if (incidencias && incidencias.length > 0) {
+        incidencias.forEach(incidencia => {
+            const fecha = new Date(incidencia.created_at);
+            const fechaFormateada = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getFullYear()} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
 
-                        tr.innerHTML = `
-                            <td>${incidencia.cod_incidencia}</td>
-                            <td>${incidencia.tipo_incidencia}</td>
-                            <td>${incidencia.descripcion}</td>
-                            <td>${incidencia.nivel_prioridad}</td>
-                            <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                            <td>${fechaFormateada}</td>
-                            <td>${incidencia.persona ? `${incidencia.persona.nombre} ${incidencia.persona.apellido}` : 'No registrado'}</td>
-                            <td>${incidencia.lider ? `${incidencia.lider.nombre} ${incidencia.lider.apellido}` : 'No asignado'}</td>
-                            <td>
-                                <a href="/incidencias/descargar/${incidencia.slug}" class="btn btn-primary">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </td>
-                        `;
+            // Manejo seguro de las relaciones
+            const usuario = incidencia.usuario || {};
+            const empleado = usuario.empleado_autorizado || {};
+            const lider = incidencia.lider || {};
+            const persona = lider.personas || {};
 
-                        this.tbody.appendChild(tr);
-                    });
-                } else {
-                    this.tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron incidencias para los filtros seleccionados.</td></tr>';
-                }
-            }
+            const registradoPor = empleado.nombre 
+                ? `${empleado.nombre} ${empleado.apellido} <strong>V-</strong>${empleado.cedula}`
+                : '<em>No registrado</em>';
+
+            const liderInfo = persona.nombre 
+                ? `${persona.nombre} ${persona.apellido} <strong>V-</strong>${persona.cedula}`
+                : '<em>No tiene un líder asignado</em>';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${incidencia.cod_incidencia}</td>
+                <td>${incidencia.tipo_incidencia}</td>
+                <td>${incidencia.descripcion}</td>
+                <td>${incidencia.nivel_prioridad}</td>
+                <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
+                <td>${fechaFormateada}</td>
+                <td>${registradoPor}</td>
+                <td>${liderInfo}</td>
+                <td>
+                    <a href="/incidencias/descargar/${incidencia.slug}" class="btn btn-primary">
+                        <i class="bi bi-download"></i>
+                    </a>
+                </td>
+            `;
+
+            this.tbody.appendChild(tr);
+        });
+    } else {
+        this.tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron incidencias para los filtros seleccionados.</td></tr>';
+    }
+}
 
             getStatusClass(estado) {
                 switch (estado) {
@@ -402,18 +409,16 @@
                 'incidencias-tbody',
                 '/filtrar-incidencia'
             );
-        });
 
-        document.getElementById('generar-pdf-form').addEventListener('submit', function (e) {
-            // Obtener valores de los filtros
-            const fechaInicio = document.getElementById('fecha_inicio').value || '';
-            const fechaFin = document.getElementById('fecha_fin').value || '';
-            const estado = document.getElementById('estado').value || 'Todos';
+            document.getElementById('generar-pdf-form').addEventListener('submit', function (e) {
+                const fechaInicio = document.getElementById('fecha_inicio').value || '';
+                const fechaFin = document.getElementById('fecha_fin').value || '';
+                const estado = document.getElementById('estado').value || 'Todos';
 
-            // Asignar valores a los campos ocultos del formulario
-            document.getElementById('pdf-fecha-inicio').value = fechaInicio;
-            document.getElementById('pdf-fecha-fin').value = fechaFin;
-            document.getElementById('pdf-estado').value = estado;
+                document.getElementById('pdf-fecha-inicio').value = fechaInicio;
+                document.getElementById('pdf-fecha-fin').value = fechaFin;
+                document.getElementById('pdf-estado').value = estado;
+            });
         });
     </script>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>

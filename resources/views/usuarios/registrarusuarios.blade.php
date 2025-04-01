@@ -119,9 +119,8 @@
 
     <span>Selecciona 3 Preguntas de Seguridad:</span>
 
-    <div class="row">
+ 
         @for ($i = 1; $i <= 3; $i++)
-            <div class="form-group">
                 <label for="pregunta_{{ $i }}">Pregunta {{ $i }}:</label>
                 <select name="pregunta_{{ $i }}" id="pregunta_{{ $i }}" required onchange="updateSelects()">
                     <option value="">Selecciona una pregunta</option>
@@ -132,9 +131,8 @@
                     @endforeach
                 </select>
                 <input type="text" name="respuesta_{{ $i }}" placeholder="Respuesta" required>
-            </div>
-        @endfor
-    </div>
+                @endfor
+
 
     <button type="submit">Registrar Usuario</button>
     <p>¿Ya tienes cuenta? <a href="{{ route('login') }}">Iniciar Sesión</a></p>

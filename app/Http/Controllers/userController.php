@@ -53,30 +53,12 @@ class UserController extends Controller
 
     try {
         // Verificar si el nombre o apellido ha cambiado para actualizar el slug
-        $nombre = $request->input('nombre');
-        $apellido = $request->input('apellido');
-        if ($usuario->nombre !== $nombre || $usuario->apellido !== $apellido) {
-            $slug = Str::slug($nombre . ' ' . $apellido);
-            $originalSlug = $slug;
-            $counter = 1;
-
-            while (User::where('slug', $slug)->where('id_usuario', '!=', $id_usuario)->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
-
-            $usuario->slug = $slug;
-        }
-
+       
         // Actualizar los campos del usuario
-        $usuario->nombre = $nombre;
-        $usuario->apellido = $apellido;
+      
         $usuario->email = $request->input('email');
         $usuario->nombre_usuario = $request->input('nombre_usuario');
         $usuario->password = bcrypt($request->input('contraseña'));
-        $usuario->genero = $request->input('genero'); // Procesar género
-        $usuario->fecha_nacimiento = $request->input('fecha_nacimiento'); // Procesar fecha de nacimiento
-        $usuario->altura = $request->input('altura'); // Procesar altura
 
         $usuario->save();
 

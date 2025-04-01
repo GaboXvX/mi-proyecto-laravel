@@ -14,7 +14,7 @@ class CargoEmpleadosAutorizadosSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('cargo_empleados_autorizados')->insert([
+        DB::table('cargos_empleados_autorizados')->insert([
             [
                 'nombre_cargo' => 'Gerente',
                 'created_at' => now(),

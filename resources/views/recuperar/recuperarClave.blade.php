@@ -1,20 +1,25 @@
 <!-- RecuperarClave.blade.php -->
 @extends('layouts.registrar')
 <style>
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-        padding: 10px;
-        border-radius: 5px;
+    .alert-danger{
+        margin-bottom: 8px;
+        background-color: #f53b3b;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px); /* Efecto de desenfoque */
     }
 
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        padding: 10px;
-        border-radius: 5px;
+    .alert-success{
+        margin-bottom: 8px;
+        background-color: green;
+        color: white;
+        padding: 10px 15px;
+        background-color: #00c066;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px); /* Efecto de desenfoque */
     }
 </style>
 @section('content')

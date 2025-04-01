@@ -50,7 +50,7 @@
                     <input type="text" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required>
                 </div>
 
-                <button type="submit">Continuar</button>
+                <button type="submit" style="margin-top: 5px;">Continuar</button>
             </form>
 
             <a href="{{ route('login') }}">Volver al inicio de sesión</a>

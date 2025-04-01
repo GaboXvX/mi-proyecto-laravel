@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\EmpleadoAutorizado;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -16,7 +18,6 @@ class User extends Authenticatable
     protected $fillable = [
         'id_empleado_autorizado',
         'id_rol',
-        'slug',
         'nombre_usuario',
         'email',
         'password',
@@ -31,6 +32,29 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($user) {
+            $user->slug = Str::slug($user->nombre_usuario);
+
+            // Validar unicidad del correo excluyendo el usuario actual
+            if (\App\Models\User::where('email', $user->email)
+                ->where('id_usuario', '!=', $user->id_usuario)
+                ->exists()) {
+                throw new \Exception('El correo ya está en uso.');
+            }
+
+            // Validar unicidad del nombre de usuario excluyendo el usuario actual
+            if (\App\Models\User::where('nombre_usuario', $user->nombre_usuario)
+                ->where('id_usuario', '!=', $user->id_usuario)
+                ->exists()) {
+                throw new \Exception('El nombre de usuario ya está en uso.');
+            }
+        });
+    }
 
     public function role()
     {
@@ -69,7 +93,10 @@ class User extends Authenticatable
         return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
     }
 
-   
+    public function incidencias()
+    {
+        return $this->hasMany(Incidencia::class, 'id_usuario', 'id_usuario'); // Relación con el modelo Incidencia
+    }
 
     public function empleadoAutorizado()
     {

@@ -64,9 +64,9 @@ class StorePersonaRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json([
-            'error' => 'Error de validación',
-            'messages' => $validator->errors()
-        ], 422));
+        // Redirigir a la vista anterior con los errores de validación
+        throw new HttpResponseException(
+            redirect()->back()->withErrors($validator)->withInput()
+        );
     }
 }

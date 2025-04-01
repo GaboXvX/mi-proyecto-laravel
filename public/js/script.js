@@ -78,7 +78,7 @@ document.getElementById("fecha_inicio").addEventListener("change", function() {
       this.value = "";
   }
 });
-
+//no permite que la fecha de fin sea menor que la fecha de inicio
 document.getElementById("fecha_fin").addEventListener("change", function() {
   let fecha_inicio = new Date(document.getElementById("fecha_inicio").value);
   let fecha_fin = new Date(this.value);

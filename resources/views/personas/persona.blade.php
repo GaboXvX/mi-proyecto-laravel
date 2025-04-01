@@ -24,9 +24,6 @@
         @endif
 
         <h2 class="text-center">Datos de la Persona</h2>
-        <div class="mt-3">
-            <a href="{{ route('personas.index') }}" class="btn btn-primary fw-bold">Volver</a>
-        </div>
 
         <div class="card mt-4">
             <div class="card-header">

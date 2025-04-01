@@ -205,6 +205,32 @@ footer {
     animation: slide 10s infinite linear;
 }
 
+.toggle-password {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.password-container input {
+    width: 100%;
+    padding-right: 40px;
+}
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
 @keyframes slide{
     0% {
         transform: translateX(0);

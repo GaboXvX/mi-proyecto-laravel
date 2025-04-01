@@ -31,12 +31,17 @@ body {
     align-items: center;
 }
 
+.sidebar .nav-link.active{
+    background-color: #193a5e;
+    color: #fff;
+}
+
 .sidebar .nav-link:hover {
     background-color: #2d5988;
     color: #fff;
 }
 
-.sidebar .nav-link i {
+.sidebar .nav-link svg{
     margin-right: 10px;
     transition: all 0.3s ease;
 }

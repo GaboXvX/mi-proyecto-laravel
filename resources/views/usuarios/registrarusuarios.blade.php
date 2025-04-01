@@ -88,6 +88,9 @@
         @endforeach
     </select>
 
+    <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
+    <span id="cedula_error" class="error-message"></span>
+
     <div class="row">
         <input type="text" id="nombre" name="nombre" placeholder="Nombre" value="{{ old('nombre') }}" required readonly>
         <input type="text" id="apellido" name="apellido" placeholder="Apellido" value="{{ old('apellido') }}" required readonly>
@@ -96,14 +99,15 @@
     <input type="text" id="nombre_usuario" name="nombre_usuario" placeholder="Nombre de Usuario" value="{{ old('nombre_usuario') }}" required>
     <span id="nombre_usuario_error" class="error-message"></span>
 
-    <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
-    <span id="cedula_error" class="error-message"></span>
-
     <input type="email" id="email" name="email" placeholder="Correo Electrónico" value="{{ old('email') }}" required>
     <span id="email_error" class="error-message"></span>
 
-    <input type="password" id="password" name="password" placeholder="Contraseña" required>
-    <span id="password_error" class="error-message"></span>
+    <div class="password-container">
+        <input type="password" id="password" name="password" placeholder="Contraseña" required oninput="showEye()">
+        <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
+        <span id="password_error" class="error-message"></span>
+    </div>
+    
 
     <input type="text" id="genero" name="genero" placeholder="Género" value="{{ old('genero') }}" required readonly>
 
@@ -204,6 +208,7 @@ function showToast(message, type) {
     <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
 </footer>
 
+<script src="{{ asset('js/home.js') }}"></script>>
 <script>
     function validarAltura() {
         let alturaInput = document.getElementById('altura');

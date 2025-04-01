@@ -33,7 +33,7 @@
     </style>
 </head>
 
-<body class="bg-light">
+<body>
    
     <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column p-3" id="sidebar">
@@ -63,7 +63,7 @@
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                                 <i class="bi bi-people"></i>
-                                <span>Usuarios</span>
+                                <span>Empleados</span>
                             </a>
                         </li>
                         @endrole
@@ -130,7 +130,7 @@
         </div>
 
     <div class="container my-5 p-4 bg-white rounded shadow-sm">
-        <h1 class="mb-4 text-center">Formulario de Captura de Datos</h1>
+        <h2 class="text-center">Datos de la Persona</h2>
 
         <div id="alert-container"></div> <!-- Para mostrar errores o mensajes de éxito -->
 
@@ -155,11 +155,6 @@
                 </ul>
             </div>
         @endif
-
-        <div class="d-flex justify-content-between mb-3">
-            <a href="{{ route('personas.index') }}" class="btn btn-secondary btn-sm">Volver</a>
-            
-        </div>
 
         <form action="{{ route('personas.store') }}" method="POST" id="form">
             @csrf

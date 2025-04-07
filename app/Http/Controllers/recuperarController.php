@@ -141,4 +141,47 @@ class RecuperarController extends Controller
             'redirect_url' => route('login'),
         ]);
     }
+
+    // Método para actualizar el correo electrónico
+    public function actualizarCorreo(Request $request, $usuarioId)
+{
+    $usuario = User::findOrFail($usuarioId);
+
+    // Validar el correo electrónico
+    $validator = Validator::make($request->all(), [
+        'email' => [
+            'required',
+            'email',
+            'confirmed',
+            function ($attribute, $value, $fail) use ($usuario) {
+                if ($value === $usuario->email) {
+                    $fail('El correo ingresado es el mismo que el actual.');
+                }
+            },
+            'unique:users,email',
+        ],
+    ], [
+        'email.required' => 'El correo electrónico es obligatorio.',
+        'email.email' => 'El correo electrónico debe ser válido.',
+        'email.confirmed' => 'Los correos electrónicos no coinciden.',
+        'email.unique' => 'El correo electrónico ya está en uso.',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'errors' => $validator->errors(),
+        ]);
+    }
+
+    $usuario->email = $request->email;
+    $usuario->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Correo electrónico actualizado correctamente.',
+        'redirect_url' => route('login'),
+    ]);
+}
+
 }

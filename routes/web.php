@@ -33,6 +33,7 @@ Route::resource('peticiones', PeticionController::class)->except('index');
  Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave')->middleware('guest');
  // Ruta para validar la respuesta de seguridad (POST)
 Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
+Route::post('/cambiar-email/{usuarioId}', [RecuperarController::class, 'actualizarCorreo'])->name('cambiar.email');
 
 // Ruta para mostrar el cambio de contraseña (POST)
 Route::post('/recuperar-clave', [RecuperarController::class, 'mostrarCambioClave'])->name('recuperar.recuperarClave');

@@ -73,7 +73,7 @@
                     <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
                 </div>
 
-                <a href="{{ route('recuperar.ingresarCedula') }}">¿Olvidaste tu contraseña?</a>
+                <a href="{{ route('recuperar.ingresarCedula') }}">¿Olvidaste tu contraseña o correo electrónico?</a>
 
                 <button type="submit">Iniciar sesión</button>
 

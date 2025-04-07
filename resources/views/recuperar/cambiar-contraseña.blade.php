@@ -9,7 +9,7 @@
         <hr>
         <div class="form-content">
             <!-- Mensajes de éxito o error -->
-            <div id="mensaje" style="margin-top: 20px;"></div>
+            <div id="mensaje" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
 
             <!-- Formulario de cambio de contraseña -->
             <form id="cambiarClaveForm">

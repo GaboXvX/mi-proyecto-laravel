@@ -199,7 +199,7 @@
                     </tr>
                     <tr>
                         <th>Cargo:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre }}</td>
+                        <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre_cargo }}</td>
                     </tr>
                 </table>
 

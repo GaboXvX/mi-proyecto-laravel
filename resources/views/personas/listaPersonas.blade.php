@@ -131,12 +131,12 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Lista de Personas</h2>
                 <div>
-                    <a href="{{ route('personas.create') }}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
-                        <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-                        <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
-                    </svg>
-                    </a>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroPersonaModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+                            <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                            <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -183,24 +183,290 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="registroPersonaModal" tabindex="-1" aria-labelledby="registroPersonaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registroPersonaModalLabel">Registrar Persona</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="global-alerts" class="alert d-none"></div>
+                        <div class="mb-3">
+                            <label for="categoria" class="form-label">Categoría:</label>
+                            <select name="categoria" id="categoria" class="form-select" required>
+                                @foreach($categorias as $categoria)
+                                    <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" required maxlength="11">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellido" class="form-label">Apellido:</label>
+                            <input type="text" id="apellido" name="apellido" class="form-control" required maxlength="11">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cedula" class="form-label">Cédula:</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" required maxlength="8">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="correo" class="form-label">Correo Electrónico:</label>
+                            <input type="email" id="correo" name="correo" class="form-control" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono:</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10,11}" placeholder="Ej: 1234567890" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="genero" class="form-label">Género:</label>
+                            <select name="genero" id="genero" class="form-select" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="altura" class="form-label">Altura (cm):</label>
+                            <input type="number" id="altura" name="altura" class="form-control" required  step="0.01" 
+                            min="0.1"   
+                            placeholder="Ej: 1.75" >
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
+                            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <livewire:dropdown-persona/>
+                        <div class="mb-3">
+                            <label for="calle" class="form-label">Calle:</label>
+                            <input type="text" id="calle" name="calle" class="form-control" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manzana" class="form-label">Manzana:</label>
+                            <input type="text" id="manzana" name="manzana" class="form-control" required>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
+                            <input type="text" id="bloque" name="bloque" class="form-control">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                            <input type="number" id="num_vivienda" name="num_vivienda" class="form-control" required min="1" step="1">
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
+                            <select name="es_principal" id="es_principal" class="form-select" required>
+                                <option value="1">Sí</option>
+                                <option value="0">No</option>
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary" id="submitRegistroPersona">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuración del buscador de personas
+            const originalData = @json($personas->items());
+            new BuscadorPersonas('buscar', 'personas-tbody', '{{ route('personas.buscar') }}', originalData);
+
+            // Mostrar mensaje de éxito si está presente en la sesión
+            const successMessage = "{{ session('success') }}";
+            if (successMessage) {
+                const alertContainer = document.createElement('div');
+                alertContainer.className = 'alert alert-success';
+                alertContainer.textContent = successMessage;
+                document.querySelector('.table-container').prepend(alertContainer);
+                setTimeout(() => alertContainer.remove(), 5000);
+            }
+
+            // Validación en tiempo real para cédula
+            document.getElementById('cedula').addEventListener('blur', async function() {
+                const cedula = this.value.trim();
+                const errorElement = this.nextElementSibling;
+                
+                if (cedula.length < 6) return;
+                
+                try {
+                    const response = await fetch('{{ route('personas.validar-cedula') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ cedula })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.exists) {
+                        this.classList.add('is-invalid');
+                        errorElement.textContent = 'Esta cédula ya está registrada';
+                    } else {
+                        this.classList.remove('is-invalid');
+                        errorElement.textContent = '';
+                    }
+                } catch (error) {
+                    console.error('Error al validar cédula:', error);
+                }
+            });
+
+            // Validación en tiempo real para correo
+            document.getElementById('correo').addEventListener('blur', async function() {
+                const correo = this.value.trim();
+                const errorElement = this.nextElementSibling;
+                
+                if (correo.length === 0 || !correo.includes('@')) return;
+                
+                try {
+                    const response = await fetch('{{ route('personas.validar-correo') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ correo })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.exists) {
+                        this.classList.add('is-invalid');
+                        errorElement.textContent = 'Este correo ya está registrado';
+                    } else {
+                        this.classList.remove('is-invalid');
+                        errorElement.textContent = '';
+                    }
+                } catch (error) {
+                    console.error('Error al validar correo:', error);
+                }
+            });
+
+            // Manejo del submit del formulario
+            document.getElementById('registroPersonaForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const form = event.target;
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const globalAlerts = document.getElementById('global-alerts');
+                
+                // Limpiar errores previos
+                globalAlerts.classList.add('d-none');
+                globalAlerts.innerHTML = '';
+                form.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                    const feedback = el.nextElementSibling;
+                    if (feedback) feedback.textContent = '';
+                });
+
+                // Mostrar estado de carga
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Procesando...
+                `;
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        // Mostrar errores de campo específico
+                        if (data.errors) {
+                            Object.entries(data.errors).forEach(([field, messages]) => {
+                                const input = form.querySelector(`[name="${field}"]`);
+                                const errorElement = input?.nextElementSibling;
+                                
+                                if (input && errorElement) {
+                                    input.classList.add('is-invalid');
+                                    errorElement.textContent = messages[0];
+                                }
+                            });
+                        }
+                        
+                        // Mostrar mensaje global si existe
+                        if (data.message) {
+                            globalAlerts.classList.remove('d-none');
+                            globalAlerts.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            globalAlerts.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    } else {
+                        // Éxito - cerrar modal y recargar
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('registroPersonaModal'));
+                        modal.hide();
+                        
+                        // Mostrar mensaje de éxito
+                        const successAlert = document.createElement('div');
+                        successAlert.className = 'alert alert-success';
+                        successAlert.textContent = data.message || 'Registro exitoso';
+                        document.querySelector('.table-container').prepend(successAlert);
+                        setTimeout(() => successAlert.remove(), 5000);
+                        
+                        // Recargar la página
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    globalAlerts.classList.remove('d-none');
+                    globalAlerts.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error de conexión. Por favor intente nuevamente.
+                        </div>
+                    `;
+                    globalAlerts.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Registrar';
+                }
+            });
+        });
+
         class BuscadorPersonas {
             constructor(inputId, tbodyId, url, originalData) {
                 this.input = document.getElementById(inputId);
                 this.tbody = document.getElementById(tbodyId);
                 this.url = url;
                 this.originalData = originalData;
-
-                // Agregar event listener al campo de búsqueda
                 this.input.addEventListener('input', () => this.buscarPersonas());
             }
 
             async buscarPersonas() {
                 const query = this.input.value.trim();
-
-                // Si el campo está vacío, restaurar la lista original
                 if (!query) {
                     this.mostrarResultados(this.originalData);
                     return;
@@ -215,7 +481,6 @@
                         },
                         body: JSON.stringify({ query })
                     });
-
                     const personas = await response.json();
                     this.mostrarResultados(personas);
                 } catch (error) {
@@ -241,23 +506,6 @@
                 `).join('');
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const originalData = @json($personas->items()); // Obtener los datos originales desde el servidor
-            new BuscadorPersonas('buscar', 'personas-tbody', '{{ route('personas.buscar') }}', originalData);
-
-            // Mostrar mensaje de éxito si está presente en la sesión
-            const successMessage = "{{ session('success') }}";
-            if (successMessage) {
-                const alertContainer = document.createElement('div');
-                alertContainer.className = 'alert alert-success';
-                alertContainer.textContent = successMessage;
-                document.querySelector('.table-container').prepend(alertContainer);
-
-                // Ocultar el mensaje después de unos segundos
-                setTimeout(() => alertContainer.remove(), 5000);
-            }
-        });
     </script>
 </body>
 

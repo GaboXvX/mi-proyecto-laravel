@@ -164,6 +164,44 @@ body {
     color: #24476c;
 }
 
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.is-invalid + .invalid-feedback {
+    color: #dc3545;
+    display: block;
+}
+
+.is-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+#global-alerts {
+    display: none;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+#global-alerts.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+#global-alerts.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+#modalErrorContainer {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
     .sidebar {

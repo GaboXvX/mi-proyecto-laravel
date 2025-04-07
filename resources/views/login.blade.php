@@ -126,5 +126,4 @@
         }, 3000); // 3000 ms = 3 segundos
     </script>
 </body>
-
 </html>

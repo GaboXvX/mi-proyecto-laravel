@@ -5,13 +5,14 @@
         <div class="content">
             <h2>Cambiar Contraseña</h2>
             <p>Ingresa una nueva contraseña para tu cuenta.</p>
+                     <!-- Mensajes de éxito o error -->
         </div>
         <hr>
 
             <!-- Formulario de cambio de contraseña -->
             <form id="cambiarClaveForm" class="form-content">
-                <!-- Mensajes de éxito o error -->
-                <div id="mensaje" style="margin-top: 20px; color: #000"></div>
+            <div id="mensaje" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
+
                 @csrf
                 <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required>
                 <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar Contraseña" required>

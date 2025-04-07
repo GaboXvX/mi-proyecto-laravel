@@ -21,15 +21,32 @@ class peticionController extends Controller
     {
         // Verificar si la solicitud es AJAX
         if ($request->ajax()) {
-            $peticiones = User::where('id_estado_usuario', 3)->orwhere('id_estado_usuario', 4)->orwhere('id_estado_usuario', 1)
-                              ->with(['role', 'estadoUsuario'])
-                              ->get();
+            $peticiones = User::where('id_estado_usuario', 3)
+                              ->orWhere('id_estado_usuario', 4)
+                              ->orWhere('id_estado_usuario', 1)
+                              ->with(['role', 'estadoUsuario', 'empleadoAutorizado']) // Cargar relaciones necesarias
+                              ->get()
+                              ->map(function ($user) {
+                                  return [
+                                      'id_usuario' => $user->id_usuario,
+                                      'role' => $user->role ? $user->role->rol : 'Sin rol', // Asegurar que el rol sea visible
+                                      'estado_usuario' => $user->estadoUsuario ? $user->estadoUsuario->nombre_estado : 'Desconocido', // Asegurar que el estado sea visible
+                                      'nombre' => $user->empleadoAutorizado ? $user->empleadoAutorizado->nombre : 'N/A',
+                                      'apellido' => $user->empleadoAutorizado ? $user->empleadoAutorizado->apellido : 'N/A',
+                                      'cedula' => $user->empleadoAutorizado ? $user->empleadoAutorizado->cedula : 'N/A',
+                                      'email' => $user->email,
+                                      'nombre_usuario' => $user->nombre_usuario,
+                                      'id_estado_usuario' => $user->id_estado_usuario,
+                                  ];
+                              });
 
             return response()->json($peticiones);
         }
 
         // Si no es AJAX, cargar la vista como de costumbre
-        $peticiones = User::where('id_estado_usuario', 3)->get();
+        $peticiones = User::where('id_estado_usuario', 3)
+                          ->with(['role', 'estadoUsuario', 'empleadoAutorizado']) // Cargar relaciones necesarias
+                          ->get();
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
    // UserController.php

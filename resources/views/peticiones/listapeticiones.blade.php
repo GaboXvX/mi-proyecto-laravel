@@ -154,7 +154,7 @@
                 </svg>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
+                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
@@ -225,8 +225,8 @@
                 peticiones.forEach(peticion => {
                     const fila = `
                         <tr>
-                            <td>${peticion.role ? peticion.role.rol : 'N/A'}</td>
-                            <td>${peticion.estado_usuario ? peticion.estado_usuario.nombre_estado : 'N/A'}</td>
+                            <td>${peticion.role}</td>
+                            <td>${peticion.estado_usuario }</td>
                             <td>${peticion.nombre}</td>
                             <td>${peticion.apellido}</td>
                             <td>${peticion.cedula}</td>

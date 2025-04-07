@@ -54,8 +54,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/peticion/{id}', [PeticionController::class, 'rechazar'])->name('peticiones.rechazar')->middleware('role:admin');
 
 
-    Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug']);
-
+    Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug'])->except('create');
+    Route::post('/personas/validar-cedula', [PersonaController::class, 'validarCedula'])->name('personas.validar-cedula');
+    Route::post('/personas/validar-correo', [PersonaController::class, 'validarCorreo'])->name('personas.validar-correo');
     Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
     Route::resource('usuarios', UserController::class)->except('create', 'store', 'update')->middleware('role:admin');

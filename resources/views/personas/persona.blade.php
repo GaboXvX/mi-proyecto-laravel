@@ -28,7 +28,9 @@
         <div class="card mt-4">
             <div class="card-header">
                 Información Personal                                            
-                <a href="{{ route('personas.edit', $persona->slug) }}" class="btn btn-warning btn-sm">Editar</a>
+                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPersonaModal">
+                    Editar
+                </button>
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-striped">
@@ -54,9 +56,22 @@
                             <td>{{ $persona->telefono }}</td>
                         </tr>
                         <tr>
-                            <th>Responsable:</th>
-                            <td>{{ $persona->user->nombre }} {{ $persona->user->apellido }}</td>
+                            <th>Género:</th>
+                            <td>{{ $persona->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
                         </tr>
+                        <tr>
+                            <th>Altura:</th>
+                            <td>{{ $persona->altura }}</td>
+                            <tr>
+                                <th>Responsable:</th>
+                                <td>
+                                    @if($persona->user && $persona->user->empleadoAutorizado)
+                                        {{ $persona->user->empleadoAutorizado->nombre }} {{ $persona->user->empleadoAutorizado->apellido }}
+                                    @else
+                                        No asignado
+                                    @endif
+                                </td>
+                            </tr>
                         <tr>
                             <th>Creado en:</th>
                             <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
@@ -69,7 +84,7 @@
         <div class="card mt-4">
             <div class="card-header">
                 Direcciones
-                <a href="{{ route('personas.agregarDireccion', $persona->slug) }}" class="btn btn-secondary btn-sm float-end">Añadir dirección</a>
+                <button type="button" class="btn btn-secondary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addDireccionModal">Añadir dirección</button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -110,8 +125,13 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="{{ $direccion->esLider ? 'text-success' : 'text-danger' }}">
-                                            {{ $direccion->esLider ? 'Sí' : 'No' }}
+                                        @php
+                                            $lider = \App\Models\Lider_Comunitario::where('id_persona', $persona->id_persona)
+                                                ->where('id_comunidad', $direccion->id_comunidad)
+                                                ->first();
+                                        @endphp
+                                        <span class="{{ $lider && $lider->estado == 1 ? 'text-success' : 'text-danger' }}">
+                                            {{ $lider && $lider->estado == 1 ? 'Sí' : 'No' }}
                                         </span>
                                     </td>
                                     <td>
@@ -201,6 +221,136 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal para añadir dirección -->
+        <div class="modal fade" id="addDireccionModal" tabindex="-1" aria-labelledby="addDireccionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addDireccionModalLabel">Agregar Dirección</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="addDireccionErrorContainer" class="alert alert-danger d-none"></div>
+                        <form id="addDireccionForm">
+                            @csrf
+                            <livewire:dropdown-persona />
+                            
+                            <div class="mb-3">
+                                <label for="calle" class="form-label">Calle:</label>
+                                <input type="text" id="calle" name="calle" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="manzana" class="form-label">Manzana:</label>
+                                <input type="text" id="manzana" name="manzana" class="form-control" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
+                                <input type="text" id="bloque" name="bloque" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
+                                <input type="number" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required min="1" step="1">
+                            </div>
+
+                            <div class="mb-3" id="categoria-container">
+                                <label for="categoria" class="form-label">Categoría:</label>
+                                <select id="categoria" name="categoria" class="form-select" required>
+                                    <option value="" disabled selected>--Seleccione--</option>
+                                    @foreach($categorias as $categoria)
+                                        <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
+                                <select name="es_principal" id="es_principal" class="form-select" required>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para editar persona -->
+        <div class="modal fade" id="editPersonaModal" tabindex="-1" aria-labelledby="editPersonaModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editPersonaModalLabel">Editar Persona</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('personas.update', $persona->slug) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" id="nombre" name="nombre" class="form-control"
+                                    value="{{ old('nombre', $persona->nombre) }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="apellido" class="form-label">Apellido:</label>
+                                <input type="text" id="apellido" name="apellido" class="form-control"
+                                    value="{{ old('apellido', $persona->apellido) }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cedula" class="form-label">Cédula:</label>
+                                <input type="number" id="cedula" name="cedula" class="form-control"
+                                    value="{{ old('cedula', $persona->cedula) }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="correo" class="form-label">Correo Electrónico:</label>
+                                <input type="email" id="correo" name="correo" class="form-control"
+                                    value="{{ old('correo', $persona->correo) }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono:</label>
+                                <input type="tel" id="telefono" name="telefono" class="form-control"
+                                    value="{{ old('telefono', $persona->telefono) }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="genero" class="form-label">Género:</label>
+                                <select name="genero" id="genero" class="form-select" required>
+                                    <option value="M" {{ old('genero', $persona->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="F" {{ old('genero', $persona->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="altura" class="form-label">Altura (cm):</label>
+                                <input type="number" id="altura" name="altura" class="form-control"
+                                    value="{{ old('altura', $persona->altura) }}" required min="0" step="0.01">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
+                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control"
+                                    value="{{ old('fecha_nacimiento', $persona->fecha_nacimiento) }}" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Actualizar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -245,6 +395,22 @@
                 });
             });
         });
+
+        const editPersonaModal = document.getElementById('editPersonaModal');
+        
+        editPersonaModal.addEventListener('show.bs.modal', function (event) {
+            const modalContent = document.getElementById('modalEditPersonaContent');
+            modalContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+            
+            fetch(`{{ route('personas.edit', $persona->slug) }}`)
+                .then(response => response.text())
+                .then(html => {
+                    modalContent.innerHTML = html;
+                })
+                .catch(error => {
+                    modalContent.innerHTML = '<div class="alert alert-danger">Error al cargar el formulario de edición</div>';
+                });
+        });
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -253,6 +419,80 @@
                     alert.style.display = 'none';
                 });
             }, 2000);
+        });
+    </script>
+
+    <script>
+        document.getElementById('addDireccionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const errorContainer = document.getElementById('addDireccionErrorContainer');
+            errorContainer.classList.add('d-none');
+            errorContainer.innerHTML = '';
+
+            fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                let errorHtml = '<ul>';
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                    if (error.error) {
+                        errorHtml += `<li>${error.error}</li>`;
+                    }
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+                errorHtml += '</ul>';
+                errorContainer.innerHTML = errorHtml;
+                errorContainer.classList.remove('d-none');
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        document.getElementById('comunidad').addEventListener('change', function() {
+            const comunidadId = this.value;
+            const personaId = {{ $persona->id_persona }};
+            
+            fetch(`/check-lider-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ comunidad_id: comunidadId, persona_id: personaId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.esLider) {
+                    document.getElementById('categoria-container').style.display = 'block';
+                } else {
+                    document.getElementById('categoria-container').style.display = 'none';
+                }
+            });
         });
     </script>
 

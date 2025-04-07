@@ -179,7 +179,7 @@ class direccionController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad o la persona ya es líder de otra comunidad.'])->withInput();
             } elseif ($esLider) {
                 return redirect()->back()->withErrors(['error' => 'Esta persona ya es líder de una comunidad.'])->withInput();
-            } elseif ($otroLider) {
+            } elseif ($otroLider && $request->input('categoria') != 1) {
                 return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad.'])->withInput();
             }
         }

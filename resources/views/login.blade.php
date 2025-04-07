@@ -37,7 +37,7 @@
 <body>
             <!-- Mensajes de error o éxito -->
             @if (session('success'))
-            <div class="alert alert-success" role="alert">
+            <div class="alert alert-success fade show" role="alert" id="success-alert">
                 {{ session('success') }}
             </div>
             @endif
@@ -110,7 +110,21 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/home.js') }}"></script>>
+    <script src="{{ asset('js/home.js') }}"></script>
+    <script>
+        // Espera 3 segundos y luego oculta la alerta
+        setTimeout(function () {
+            const alert = document.getElementById('success-alert');
+            if (alert) {
+                // Con Bootstrap 5: usar la clase 'fade' y luego quitarla
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+
+                // Después de la animación (500ms), quitarlo completamente del DOM si quieres
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 3000); // 3000 ms = 3 segundos
+    </script>
 </body>
 
 </html>

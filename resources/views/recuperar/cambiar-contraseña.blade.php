@@ -7,18 +7,16 @@
             <p>Ingresa una nueva contraseña para tu cuenta.</p>
         </div>
         <hr>
-        <div class="form-content">
-            <!-- Mensajes de éxito o error -->
-            <div id="mensaje" style="margin-top: 20px;"></div>
 
             <!-- Formulario de cambio de contraseña -->
-            <form id="cambiarClaveForm">
+            <form id="cambiarClaveForm" class="form-content">
+                <!-- Mensajes de éxito o error -->
+                <div id="mensaje" style="margin-top: 20px; color: #000"></div>
                 @csrf
                 <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required>
                 <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar Contraseña" required>
                 <button type="submit">Cambiar Contraseña</button>
             </form>
-        </div>
     </div>
 
     <script>

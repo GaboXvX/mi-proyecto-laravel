@@ -206,7 +206,7 @@ function showToast(message, type) {
     <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
 </footer>
 
-<script src="{{ asset('js/home.js') }}"></script>>
+<script src="{{ asset('js/home.js') }}"></script>
 <script>
     function validarAltura() {
         let alturaInput = document.getElementById('altura');

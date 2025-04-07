@@ -10,7 +10,7 @@ body {
     width: 100vw;
     overflow: auto; /* Permite el desplazamiento */
     display: block; /* Evita problemas con flex */
-    background-color: #f3f8fd;
+    background-color: #f0f5fd;
 }
 
 .sidebar {

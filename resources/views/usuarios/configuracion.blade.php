@@ -128,7 +128,7 @@
                 </svg>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
+                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
@@ -139,114 +139,114 @@
                 </ul>
             </div>
         </div>
-  <div class="form-container">
-    <div class="container py-4">
-        <div >
-            <div class="card-body">
-                <h2 class="text-center text-primary mb-3">Configuración de Cuenta</h2>
-                
-                @if (session('success'))
-                    <div class="alert alert-success mb-3">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger mb-3">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="alert alert-danger mb-3">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                
-                <!-- Mostrar datos del usuario -->
-                <table class="profile-table table table-bordered">
-                    <tr>
-                        <th>Nombre:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->nombre }}</td>
-                    </tr>
-                    <tr>
-                        <th>Apellido:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->apellido }}</td>
-                    </tr>
-                    <tr>
-                        <th>Cédula:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->cedula }}</td>
-                    </tr>
-                    <tr>
-                        <th>Género:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Fecha de Nacimiento:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
-                    </tr>
-                    <tr>
-                        <th>Altura:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
-                    </tr>
-                    <tr>
-                        <th>Teléfono:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>
-                    </tr>
-                    <tr>
-                        <th>Cargo:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre }}</td>
-                    </tr>
-                </table>
-
-                <hr>
-
-                <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
-                    @csrf
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="inputCorreo" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control form-control-sm" id="inputCorreo"
-                                name="email" value="{{ old('email', $usuario->email) }}"
-                                placeholder="Ingrese su correo electrónico" required>
-                            <small id="correoFeedback" class="text-muted"></small>
+    <main class="form-container">
+        <div class="container py-4">
+            <div >
+                <div class="card-body">
+                    <h2 class="text-center text-primary mb-3">Configuración de Cuenta</h2>
+                    
+                    @if (session('success'))
+                        <div class="alert alert-success mb-3">
+                            {{ session('success') }}
                         </div>
-                    </div>
+                    @endif
 
-                    <div class="row mb-3">
+                    @if (session('error'))
+                        <div class="alert alert-danger mb-3">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-3">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
+                    <!-- Mostrar datos del usuario -->
+                    <table class="profile-table table table-bordered">
+                        <tr>
+                            <th>Nombre:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->nombre }}</td>
+                        </tr>
+                        <tr>
+                            <th>Apellido:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->apellido }}</td>
+                        </tr>
+                        <tr>
+                            <th>Cédula:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->cedula }}</td>
+                        </tr>
+                        <tr>
+                            <th>Género:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Fecha de Nacimiento:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
+                        </tr>
+                        <tr>
+                            <th>Altura:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
+                        </tr>
+                        <tr>
+                            <th>Teléfono:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>
+                        </tr>
+                        <tr>
+                            <th>Cargo:</th>
+                            <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre }}</td>
+                        </tr>
+                    </table>
+
+                    <hr>
+
+                    <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
+                        @csrf
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="inputUsuario" class="form-label">Nombre de Usuario</label>
-                                <input type="text" class="form-control form-control-sm" id="inputUsuario"
-                                    name="nombre_usuario"
-                                    value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
-                                    placeholder="Ingrese su nombre de usuario" required>
-                                <small id="usuarioFeedback" class="text-muted"></small>
+                                <label for="inputCorreo" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control form-control-sm" id="inputCorreo"
+                                    name="email" value="{{ old('email', $usuario->email) }}"
+                                    placeholder="Ingrese su correo electrónico" required>
+                                <small id="correoFeedback" class="text-muted"></small>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="inputUsuario" class="form-label">Nombre de Usuario</label>
+                                    <input type="text" class="form-control form-control-sm" id="inputUsuario"
+                                        name="nombre_usuario"
+                                        value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
+                                        placeholder="Ingrese su nombre de usuario" required>
+                                    <small id="usuarioFeedback" class="text-muted"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inputContraseña" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control form-control-sm" id="inputContraseña"
+                                    name="contraseña" placeholder="Ingrese su nueva contraseña">
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="inputContraseña" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                name="contraseña" placeholder="Ingrese su nueva contraseña">
+                        <div class="d-flex justify-content-center mt-3">
+                            <button type="submit" class="btn btn-success btn-sm px-4" id="submitButton" disabled>Guardar Cambios</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-                    <div class="d-flex justify-content-center mt-3">
-                        <button type="submit" class="btn btn-success btn-sm px-4" id="submitButton" disabled>Guardar Cambios</button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
-</div>
+    </main>
 
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>

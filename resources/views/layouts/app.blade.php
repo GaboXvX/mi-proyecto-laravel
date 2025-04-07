@@ -93,7 +93,7 @@
         <hr class="text-secondary">
     </aside>
     
-    <div class="main-content">
+    <main class="main-content">
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -106,7 +106,7 @@
                     <i class="bi bi-person-circle"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
+                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
@@ -122,6 +122,6 @@
         </div>
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/script.js') }}"></script>
-    </div>
+    </main>
 </body>
 </html>

@@ -27,12 +27,12 @@
         <div class="content">
             <h2>Recuperar Contraseña</h2>
             <p>Por favor, responda la siguiente pregunta de seguridad:</p>
-
-            <!-- Mostrar la pregunta -->
-            <label for="respuesta" class="form-label" style="color: #000000;">{{ $pregunta->pregunta }}</label>
+        </div>
 
             <!-- Formulario de respuesta -->
-            <form id="respuestaForm">
+            <form id="respuestaForm" class="form-content">
+            <!-- Mostrar la pregunta -->
+            <label for="respuesta" class="form-label" style="color: #000000;">{{ $pregunta->pregunta }}</label>
                 @csrf
                 <input type="hidden" name="usuario_id" value="{{ $usuario->id_usuario }}">
                 <input type="hidden" name="pregunta_id" value="{{ $pregunta->id_pregunta }}">
@@ -42,7 +42,6 @@
 
             <!-- Mensajes de error o éxito -->
             <div id="mensaje" style="margin-top: 20px;"></div>
-        </div>
     </div>
 
     <script>

@@ -119,7 +119,7 @@
         <hr class="text-secondary">
     </aside>
     
-    <div class="main-content">
+    <main class="main-content">
         <!-- Topbar -->
         <div class="topbar d-flex align-items-center justify-content-between">
             <button class="btn btn-light burger-btn" id="menuToggle">
@@ -140,7 +140,7 @@
                 </svg>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Configuración</a></li>
+                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
@@ -239,7 +239,6 @@
             <div class="mb-3">
                 <label for="altura" class="form-label">Altura (cm):</label>
                 <input type="text" id="altura" name="altura" maxlength="4" class="form-control" value="{{ old('altura') }}" required min="0" step="0.01">
-                <small id="error-msg" style="color: red; display: none;">La altura debe estar entre 1.50 m y 1.99 m.</small>
             </div>
         
             <div class="mb-3">

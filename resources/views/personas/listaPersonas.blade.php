@@ -205,6 +205,7 @@
                                         <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-md-6">
                                 <label for="genero" class="form-label">Género:</label>
@@ -230,10 +231,14 @@
                             <div class="col-md-6">
                                 <label for="cedula" class="form-label">Cédula:</label>
                                 <input type="text" id="cedula" name="cedula" class="form-control" required maxlength="8">
+                                <div class="invalid-feedback"></div>
+
                             </div>
                             <div class="col-md-6">
                                 <label for="correo" class="form-label">Correo Electrónico:</label>
                                 <input type="email" id="correo" name="correo" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+
                             </div>
                         </div>
 

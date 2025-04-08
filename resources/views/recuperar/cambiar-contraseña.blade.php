@@ -6,31 +6,38 @@
             <h2>Cambiar Contraseña o Correo</h2>
             <p>Selecciona qué deseas cambiar y completa el formulario correspondiente.</p>
             <!-- Mensajes de éxito o error -->
+
+            <!-- Selector para alternar entre formularios -->
+            <div class="cambio-select">
+                <label for="accionSelector">¿Qué deseas cambiar?</label>
+                <select id="accionSelector">
+                    <option value="password">Contraseña</option>
+                    <option value="email">Correo Electrónico</option>
+                </select>
+            </div>
         </div>
         <hr>
 
-        <!-- Selector para alternar entre formularios -->
-        <div style="margin-bottom: 20px;">
-            <label for="accionSelector">¿Qué deseas cambiar?</label>
-            <select id="accionSelector">
-                <option value="password">Contraseña</option>
-                <option value="email">Correo Electrónico</option>
-            </select>
-        </div>
-
         <!-- Formulario para cambiar contraseña -->
-        <form id="cambiarPasswordForm" class="form-content" style="margin-top: 20px;">
+        <form id="cambiarPasswordForm" class="form-content">
             <h3>Cambiar Contraseña</h3>
             <div id="mensajePassword" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
 
             @csrf
-            <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required>
-            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar Contraseña" required>
+            <div class="password-container">
+                <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required oninput="showEye()">
+                <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
+            </div>
+            
+            <div class="password-container">
+                <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirmar Contraseña" required oninput="showEye()">
+                <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
+            </div>
             <button type="submit">Actualizar Contraseña</button>
         </form>
 
         <!-- Formulario para cambiar correo -->
-        <form id="cambiarEmailForm" class="form-content" style="margin-top: 20px; display: none;">
+        <form id="cambiarEmailForm" class="form-content" style="display: none;">
             <h3>Cambiar Correo Electrónico</h3>
             <div id="mensajeEmail" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
 
@@ -41,6 +48,7 @@
         </form>
     </div>
 
+    <script src="{{ asset('js/home.js') }}"></script>
     <script>
         // Alternar entre formularios según el selector
         document.getElementById('accionSelector').addEventListener('change', function () {

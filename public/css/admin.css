@@ -31,9 +31,10 @@ body {
     align-items: center;
 }
 
-.sidebar .nav-link.active{
+.sidebar .nav-item.active{
     background-color: #193a5e;
     color: #fff;
+    border-radius: 8px;
 }
 
 .sidebar .nav-link:hover {
@@ -67,30 +68,13 @@ body {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px 20px;
-    position: relative;
+    position: sticky;
     top: 0;
     z-index: 1000;
 }
 
-.logout-container {
-    margin-top: auto;
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-}
-
-.log-out {
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 25px;
-    color: #072a50;
+.topbar button:hover {
     background-color: #2d5988;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-.log-out:hover {
-    background-color: #072a50;
     color: #fff;
 }
 
@@ -100,11 +84,6 @@ body {
     border-radius: 8px;
     background-color: #f1f1f1;
     transition: all 0.3s ease;
-}
-
-.burger-btn:hover {
-    background-color: #2d5988;
-    color: #fff;
 }
 
 /* Contenedor del formulario */

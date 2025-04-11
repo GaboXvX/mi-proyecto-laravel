@@ -18,6 +18,8 @@ class RolSeeder extends Seeder
                 'rol' => 'registrador',
                 'id_rol' => 2
             ],
+           
+           
         ];
 
         foreach ($roles as $rol) {

@@ -290,27 +290,11 @@
         </div>
 
         <div class="button-container">
-            <button class="btn btn-download" id="downloadPdfBtn">Descargar PDF</button>
+            <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-download">Descargar PDF</a>
             <a href="{{ route('personas.index') }}" class="btn btn-back">Volver</a>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
-    <script>
-        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            const element = document.getElementById('comprobante-container');
-            
-            document.querySelector('.button-container').style.display = 'none';
-
-            html2pdf()
-                .from(element)
-                .save('comprobante_incidencia.pdf')
-                .finally(() => {
-                    document.querySelector('.button-container').style.display = 'block';
-                });
-        });
-    </script>
 </html>

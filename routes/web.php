@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/personas/validar-correo', [PersonaController::class, 'validarCorreo'])->name('personas.validar-correo');
     Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
     Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
+    Route::get('/personas/{slug}/incidencias', [PersonaController::class, 'verIncidencias'])->name('personas.incidencias');
     Route::resource('usuarios', UserController::class)->except('create', 'store', 'update')->middleware('role:admin');
     Route::get('/api/usuarios', [UserController::class, 'getUsuarios'])->name('usuarios.getUsuarios');
     Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])->name('usuarios.desactivar')->middleware('role:admin');

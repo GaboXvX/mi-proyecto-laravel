@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; 
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 
 class peticionController extends Controller
 {
@@ -24,13 +25,12 @@ class peticionController extends Controller
             $peticiones = User::where('id_estado_usuario', 3)
                               ->orWhere('id_estado_usuario', 4)
                               ->orWhere('id_estado_usuario', 1)
-                              ->with(['role', 'estadoUsuario', 'empleadoAutorizado']) // Cargar relaciones necesarias
+                              ->with(['estadoUsuario', 'empleadoAutorizado']) // Eliminar relación 'role'
                               ->get()
                               ->map(function ($user) {
                                   return [
                                       'id_usuario' => $user->id_usuario,
-                                      'role' => $user->role ? $user->role->rol : 'Sin rol', // Asegurar que el rol sea visible
-                                      'estado_usuario' => $user->estadoUsuario ? $user->estadoUsuario->nombre_estado : 'Desconocido', // Asegurar que el estado sea visible
+                                      'estado_usuario' => $user->estadoUsuario ? $user->estadoUsuario->nombre_estado : 'Desconocido',
                                       'nombre' => $user->empleadoAutorizado ? $user->empleadoAutorizado->nombre : 'N/A',
                                       'apellido' => $user->empleadoAutorizado ? $user->empleadoAutorizado->apellido : 'N/A',
                                       'cedula' => $user->empleadoAutorizado ? $user->empleadoAutorizado->cedula : 'N/A',
@@ -45,7 +45,7 @@ class peticionController extends Controller
 
         // Si no es AJAX, cargar la vista como de costumbre
         $peticiones = User::where('id_estado_usuario', 3)
-                          ->with(['role', 'estadoUsuario', 'empleadoAutorizado']) // Cargar relaciones necesarias
+                          ->with(['estadoUsuario', 'empleadoAutorizado']) // Eliminar relación 'role'
                           ->get();
         return view('peticiones.listapeticiones', compact('peticiones'));
     }
@@ -87,7 +87,6 @@ public function store(Request $request)
             'respuesta_1' => 'required|string|max:255',
             'respuesta_2' => 'required|string|max:255',
             'respuesta_3' => 'required|string|max:255',
-            'rol' => 'required|exists:roles,id_rol',
             'cedula' => 'required|string|max:10|regex:/^[0-9]{8,10}$/'
         ], [
             'nombre_usuario.required' => 'El nombre de usuario es obligatorio.',
@@ -121,7 +120,6 @@ public function store(Request $request)
         // Crear usuario
         $user = User::create([
             'id_empleado_autorizado' => $empleado->id_empleado_autorizado,
-            'id_rol' => $validated['rol'],
             'slug' => Str::slug($validated['nombre_usuario']),
             'nombre_usuario' => $validated['nombre_usuario'],
             'email' => $validated['email'],
@@ -131,6 +129,12 @@ public function store(Request $request)
 
         if (!$user) {
             return response()->json(['errors' => ['general' => ['No se pudo crear el usuario. Inténtelo de nuevo.']]], 500);
+        }
+
+        // Asignar rol "registrador" al usuario recién creado
+        $registradorRole = Role::where('name', 'registrador')->first();
+        if ($registradorRole) {
+            $user->assignRole($registradorRole);
         }
 
         // Guardar respuestas de seguridad
@@ -271,7 +275,7 @@ $peticion=user::where('id_usuario',$id)->first();
     {
         // Asegúrate de cargar las relaciones necesarias
         $peticiones = User::where('id_estado_usuario', 3)
-                          ->with(['role', 'estadoUsuario'])
+                          ->with(['estadoUsuario'])
                           ->get();
 
         return response()->json($peticiones);

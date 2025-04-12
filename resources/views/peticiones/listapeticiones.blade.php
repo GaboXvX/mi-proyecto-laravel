@@ -9,11 +9,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
     <style>
-      
         .status-pending {
             color: orange;
         }
 
+        .status-accepted {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-not-verified {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            color: red;
+            font-weight: bold;
+        }
 
         .btn-custom {
             padding: 6px 12px;
@@ -77,7 +90,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @role('admin')
+                       @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
@@ -86,7 +99,7 @@
                                 <span>Empleados</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
                         <li>
                             <a href="{{ route('personas.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -105,7 +118,7 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        @role('admin')
+                       
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
@@ -115,11 +128,11 @@
                             </a>
                         </li>
                      
-                        @endrole
+                        
                     </ul>
                 </div>
             </li>
-            @role('admin')
+           @can('ver grafica incidencia')
             <li class="nav-item">
                 <a href="{{ route('estadisticas') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -128,7 +141,7 @@
                     <span>Estadísticas</span>
                 </a>
             </li>
-            @endrole
+            @endcan
         </ul>
         <hr class="text-secondary">
     </aside>
@@ -191,7 +204,6 @@
                 <table class="table table-striped align-middle" id="tablaPeticiones">
                     <thead>
                         <tr>
-                            <th>Rol solicitado</th>
                             <th>Estado de Petición</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
@@ -223,10 +235,18 @@
                 tablaBody.innerHTML = ""; // Limpiar la tabla antes de llenarla
 
                 peticiones.forEach(peticion => {
+                    let estadoClass = '';
+                    if (peticion.id_estado_usuario === 1) {
+                        estadoClass = 'status-accepted';
+                    } else if (peticion.id_estado_usuario === 3) {
+                        estadoClass = 'status-not-verified';
+                    } else if (peticion.id_estado_usuario === 4) {
+                        estadoClass = 'status-rejected';
+                    }
+
                     const fila = `
                         <tr>
-                            <td>${peticion.role}</td>
-                            <td>${peticion.estado_usuario }</td>
+                            <td class="${estadoClass}">${peticion.estado_usuario}</td>
                             <td>${peticion.nombre}</td>
                             <td>${peticion.apellido}</td>
                             <td>${peticion.cedula}</td>

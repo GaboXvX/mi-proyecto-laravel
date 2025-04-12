@@ -8,10 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\EmpleadoAutorizado;
 use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use HasRoles;
 
     protected $primaryKey = 'id_usuario';
 
@@ -56,21 +58,14 @@ class User extends Authenticatable
         });
     }
 
-    public function role()
-    {
-        return $this->belongsTo(roles::class, 'id_rol', 'id_rol'); 
-    }
+   
 
     public function lideres()
     {
         return $this->hasMany(Lider_Comunitario::class, 'id_usuario');
     }
 
-    public function hasRole($role)
-    {
-        return $this->role->rol === $role;
-    }
-
+    
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_usuario');
@@ -102,4 +97,5 @@ class User extends Authenticatable
     {
         return $this->belongsTo(EmpleadoAutorizado::class, 'id_empleado_autorizado'); // Relación con el modelo EmpleadoAutorizado
     }
+    
 }

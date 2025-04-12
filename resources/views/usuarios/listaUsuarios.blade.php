@@ -10,7 +10,19 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
+<style>
+    .dropdown-menu {
+    max-height: none !important;
+    overflow: visible !important;
+    position: absolute !important;
+    z-index: 1050 !important;
+}
 
+/* Opcional: para evitar que el contenedor principal haga scroll */
+.table-container {
+    overflow: visible !important;
+}
+</style>
 </head>
 
 <body>
@@ -42,7 +54,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @role('admin')
+                       @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
@@ -51,7 +63,7 @@
                                 <span>Empleados</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
                         <li>
                             <a href="{{ route('personas.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -70,7 +82,7 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        @role('admin')
+                       
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
@@ -80,11 +92,11 @@
                             </a>
                         </li>
                      
-                        @endrole
+                        
                     </ul>
                 </div>
             </li>
-            @role('admin')
+           @can('ver grafica incidencia')
             <li class="nav-item">
                 <a href="{{ route('estadisticas') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -93,7 +105,7 @@
                     <span>Estadísticas</span>
                 </a>
             </li>
-            @endrole
+            @endcan
         </ul>
         <hr class="text-secondary">
     </aside>
@@ -157,7 +169,6 @@
                         <th>Apellido</th>
                         <th>Cédula</th>
                         <th>Correo</th>
-                        <th>Rol</th> <!-- Nueva columna para el rol -->
                         <th>Estado</th>
                         <th>Creación</th>
                         <th>Acciones</th>
@@ -170,7 +181,6 @@
                             <td>{{ $usuario->empleadoAutorizado->apellido }}</td>
                             <td>{{ $usuario->empleadoAutorizado->cedula }}</td>
                             <td>{{ $usuario->email }}</td>
-                            <td>{{ $usuario->role ? $usuario->role->rol : 'Sin rol' }}</td> <!-- Mostrar el rol -->
                             <td>
                                 @if ($usuario->id_estado_usuario == 1)
                                     Aceptado
@@ -184,27 +194,58 @@
                                     Desconocido
                                 @endif
                             </td>
+                           
                             <td>{{ $usuario->created_at }}</td>
                             <td>
-                                @if (in_array($usuario->id_estado_usuario, [1, 2]))
-                                    <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                @can('desactivar empleados')
+                                @if ($usuario->id_estado_usuario == 1)
+                                    <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Restaurar</button>
+                                        <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
                                     </form>
                                 @endif
+                                @endcan
 
-                                @if ($usuario->id_rol == 2 && $usuarioAutenticado->id_rol == 1)
-                                    @if ($usuario->id_estado_usuario == 1)
-                                        <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
-                                        </form>
-                                    @elseif ($usuario->id_estado_usuario == 2)
-                                        <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success btn-sm">Activar</button>
-                                        </form>
-                                    @endif
+                                @can('habilitar empleados')
+                                @if ($usuario->id_estado_usuario == 2)
+                                    <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm">Activar</button>
+                                    </form>
+                                @endif
+                                @endcan
+
+                                @can('restaurar empleados')
+                                <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-sm">Restaurar</button>
+                                </form>
+                                @endcan
+
+                                @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownPermisos{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Permisos
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownPermisos{{ $usuario->id_usuario }}">
+                                            @foreach ($permisos as $permiso)
+                                                <li>
+                                                    <form action="{{ route('usuarios.togglePermiso', $usuario->id_usuario) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        <input type="hidden" name="permiso" value="{{ $permiso->name }}">
+                                                        <button type="submit" class="dropdown-item">
+                                                            {{ $permiso->name }}
+                                                            @if ($usuario->hasPermissionTo($permiso->name))
+                                                                <i class="bi bi-check text-success"></i>
+                                                            @else
+                                                                <i class="bi bi-x text-danger"></i>
+                                                            @endif
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 @endif
                             </td>
                         </tr>

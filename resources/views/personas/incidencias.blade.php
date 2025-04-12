@@ -27,9 +27,11 @@
                         <td>{{ $incidencia->estado }}</td>
                         <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
                         <td>
+                            @can('cambiar estado de incidencias')
                             @if($incidencia->estado !== 'atendido')
                                 <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}" class="btn btn-primary btn-sm">Modificar incidencia</a>
                             @endif
+                            @endcan
                         </td>
                     </tr>
                 @endforeach

@@ -134,14 +134,14 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @role('admin')
+                        @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                                 <i class="bi bi-people"></i>
                                 <span>Usuarios</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
                         <li>
                             <a href="{{ route('personas.index') }}" class="nav-link px-3">
                                 <i class="bi bi-person-circle"></i>
@@ -154,7 +154,7 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        @role('admin')
+                        
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                                 <i class="bi bi-envelope"></i>
@@ -162,18 +162,18 @@
                             </a>
                         </li>
                        
-                        @endrole
+                        
                     </ul>
                 </div>
             </li>
-            @role('admin')
+            @can('ver grafica incidencia')
             <li class="nav-item">
                 <a href="{{ route('estadisticas') }}" class="nav-link">
                     <i class="bi bi-bar-chart-line"></i>
                     <span>Estadísticas</span>
                 </a>
             </li>
-            @endrole
+        @endcan
         </ul>
         <hr class="text-secondary">
     </nav>

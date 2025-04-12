@@ -66,6 +66,7 @@ class direccionController extends Controller
                 ->where('id_urbanizacion', $request->input('urbanizacion'))
                 ->where('id_sector', $request->input('sector'))
                 ->where('id_comunidad', $request->input('comunidad'))
+                ->where('bloque', $request->input('bloque'))
                 ->where('calle', $request->input('calle'))
                 ->where('manzana', $request->input('manzana'))
                 ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))

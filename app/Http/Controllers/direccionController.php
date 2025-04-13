@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\categoriaPersona;
 use App\Models\Direccion;
 use App\Models\Lider_Comunitario;
+use App\Models\movimiento;
 use App\Models\Persona;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
@@ -97,7 +98,12 @@ class direccionController extends Controller
             $direccion->bloque = $request->input('bloque');
             $direccion->es_principal = $request->input('es_principal');
             $direccion->save();
-    
+            $movimiento = new movimiento();
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->id_persona = $persona->id_persona;
+            $movimiento->descripcion = 'se añadio una nueva dirección';
+            $movimiento->id_direccion = $direccion->id_direccion; // Guardamos el id de la dirección
+            $movimiento->save();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Dirección guardada correctamente'
@@ -227,7 +233,12 @@ class direccionController extends Controller
         $direccion->id_municipio = $request->input('municipio'); // Asignamos el municipio
 
         $direccion->save();
-
+        $movimiento = new movimiento();
+        $movimiento->id_usuario = auth()->user()->id_usuario;
+        $movimiento->id_persona = $persona->id_persona;
+        $movimiento->descripcion = 'se modifico una dirección';
+        $movimiento->id_direccion = $direccion->id_direccion; // Guardamos el id de la dirección
+        $movimiento->save();
         return redirect()->route('personas.show', ['slug' => $persona->slug])->with('success', 'Dirección actualizada exitosamente');
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\storePeticionRequest;
 use App\Models\EmpleadoAutorizado;
 use App\Models\EstadoUsuario;
+use App\Models\movimiento;
 use Illuminate\Support\Str;
 use App\Models\peticion;
 use App\Models\pregunta;
@@ -120,8 +121,8 @@ public function store(Request $request)
         // Crear usuario
         $user = User::create([
             'id_empleado_autorizado' => $empleado->id_empleado_autorizado,
-            'slug' => Str::slug($validated['nombre_usuario']),
-            'nombre_usuario' => $validated['nombre_usuario'],
+            'slug' => Str::slug(Str::lower($validated['nombre_usuario'])),
+            'nombre_usuario' =>Str::lower($validated['nombre_usuario']) ,
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'id_estado_usuario' => 3, // No verificado
@@ -151,7 +152,7 @@ public function store(Request $request)
             'message' => 'Usuario registrado exitosamente. Redirigiendo al login...',
             'redirect' => route('login')
         ]);
-
+        
     } catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
 
@@ -227,6 +228,11 @@ $peticion=user::where('id_usuario',$id)->first();
 
         $peticion->id_estado_usuario = 4;
         $peticion->save();
+        $movimiento = new movimiento();
+        $movimiento->id_usuario = auth()->user()->id_usuario;
+        $movimiento->id_usuario_afectado = $peticion->id_usuario;
+        $movimiento->descripcion = 'se rechazo una petición';
+        $movimiento->save();
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
  
@@ -256,7 +262,11 @@ $peticion=user::where('id_usuario',$id)->first();
         
                 // Confirmar la transacción
                 
-        
+                $movimiento = new movimiento();
+                $movimiento->id_usuario = auth()->user()->id_usuario;
+                $movimiento->id_usuario_afectado = $peticion->id_usuario;
+                $movimiento->descripcion = 'se acepto una petición';
+                $movimiento->save();
                 // Redirigir con un mensaje de éxito
                 return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
             }

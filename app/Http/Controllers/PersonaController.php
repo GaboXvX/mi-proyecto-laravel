@@ -79,8 +79,8 @@ class PersonaController extends Controller
             }
 
             $persona->slug = $slug;
-            $persona->nombre = $request->input('nombre');
-            $persona->apellido = $request->input('apellido');
+            $persona->nombre = Str::lower( $request->input('nombre'));
+            $persona->apellido =Str::lower( $request->input('apellido'));
             $persona->cedula = $request->input('cedula');
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
@@ -114,8 +114,17 @@ class PersonaController extends Controller
                 $liderComunitario->id_comunidad = $request->input('comunidad');
                 $liderComunitario->estado = 1;
                 $liderComunitario->save();
+                $movimiento = new movimiento();
+                $movimiento->id_persona = $persona->id_persona;
+                $movimiento->id_usuario = auth()->user()->id_usuario;
+                $movimiento->descripcion = 'se registro como lider comunitario';
+                $movimiento->save();
             }
-
+            $movimiento = new movimiento();
+                $movimiento->id_persona = $persona->id_persona;
+                $movimiento->id_usuario = auth()->user()->id_usuario;
+                $movimiento->descripcion = 'se registro una persona';
+                $movimiento->save();
             return response()->json([
                 'status' => 'success',
                 'message' => 'Persona registrada exitosamente',
@@ -132,6 +141,7 @@ class PersonaController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+        
     }
 
     public function index()
@@ -184,8 +194,8 @@ class PersonaController extends Controller
                     ->with('error', 'Persona no encontrada con el slug: ' . $slug);
             }
 
-            $persona->nombre = $request->input('nombre');
-            $persona->apellido = $request->input('apellido');
+            $persona->nombre = Str::lower($request->input('nombre')) ;
+            $persona->apellido = Str::lower($request->input('apellido')) ;
             $persona->cedula = $request->input('cedula');
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
@@ -193,7 +203,11 @@ class PersonaController extends Controller
             $persona->fecha_nacimiento = $request->input('fecha_nacimiento');
             $persona->altura = $request->input('altura') . " cm";
             $persona->save();
-
+            $movimiento = new movimiento();
+            $movimiento->id_persona = $persona->id_persona;
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->descripcion = 'se modifico una persona';
+            $movimiento->save();
             return redirect()->route('personas.show', ['slug' => $slug])
                 ->with('success', 'Persona actualizada con éxito.');
         } catch (\Exception $e) {

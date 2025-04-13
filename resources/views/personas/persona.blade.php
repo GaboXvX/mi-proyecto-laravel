@@ -28,11 +28,11 @@
         <div class="card mt-4">
             <div class="card-header">
                 Información Personal                                            
-                @can('editar personas')
+                
                 <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPersonaModal">
                     Editar
                 </button>
-                @endcan
+                
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-striped">
@@ -86,11 +86,11 @@
         <div class="card mt-4">
             <div class="card-header">
                 Direcciones
-                @can('editar direcciones')
+                
                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDireccionModal">
                     Añadir Dirección
                 </button>
-                @endcan
+                
             </div>
             <div class="card-body">
                 <div class="table-responsive">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use App\Http\Requests\updateUserRequest;
+use App\Models\movimiento;
 use App\Models\pregunta;
 use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
@@ -63,7 +64,10 @@ class UserController extends Controller
             $usuario->password = bcrypt($request->input('contraseña'));
 
             $usuario->save();
-
+            $movimiento = new movimiento();
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->descripcion = 'se actualizo un usuario';
+            $movimiento->save();
             return redirect()->route('usuarios.configuracion')->with('success', 'Datos actualizados correctamente');
         } catch (\Exception $e) {
             return redirect()->route('usuarios.configuracion')->with('error', 'Error al actualizar los datos: ' . $e->getMessage());
@@ -78,7 +82,11 @@ class UserController extends Controller
             // Eliminar verificación de roles
             $usuario->id_estado_usuario = 2; // Estado desactivado
             $usuario->save();
-
+            $movimiento = new movimiento();
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->id_usuario_afectado = $usuario->id_usuario;
+            $movimiento->descripcion = 'se desactivo un usuario';
+            $movimiento->save();
             return redirect()->route('usuarios.index')->with('success', 'Usuario desactivado correctamente');
         } catch (\Exception $e) {
             return redirect()->route('usuarios.index')->with('error', 'Error al desactivar el usuario: ' . $e->getMessage());
@@ -93,7 +101,11 @@ class UserController extends Controller
             // Eliminar verificación de roles
             $usuario->id_estado_usuario = 1; // Estado activo
             $usuario->save();
-
+            $movimiento = new movimiento();
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->id_usuario_afectado = $usuario->id_usuario;
+            $movimiento->descripcion = 'se activo un usuario';
+            $movimiento->save();
             return redirect()->route('usuarios.index')->with('success', 'Usuario activado correctamente');
         } catch (\Exception $e) {
             return redirect()->route('usuarios.index')->with('error', 'Error al activar el usuario: ' . $e->getMessage());

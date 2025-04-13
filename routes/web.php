@@ -64,13 +64,13 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/personas/{slug}/incidencias', [PersonaController::class, 'verIncidencias'])->name('personas.incidencias');
         Route::resource('usuarios', UserController::class)
             ->except('create', 'store', 'update')
-            ->middleware('can:ver usuarios');
+            ->middleware('can:ver empleados');
         Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])
             ->name('usuarios.desactivar')
-            ->middleware('can:desactivar usuarios');
+            ->middleware('can:desactivar empleados');
         Route::post('/activar/{id}', [UserController::class, 'activar'])
             ->name('usuarios.activar')
-            ->middleware('can:habilitar usuarios');
+            ->middleware('can:habilitar empleados');
         Route::post('/usuarios/{id}/asignar-permiso', [UserController::class, 'asignarPermiso'])
             ->name('usuarios.asignarPermiso');
         Route::post('/usuarios/{usuario}/toggle-permiso', [UserController::class, 'togglePermiso'])
@@ -119,7 +119,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
         Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
-        Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar');
+        Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar')->middleware('can:restaurar empleados');
         Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);
         Route::post('/incidencias/generar-pdf', [IncidenciaController::class, 'generarPDF'])->name('incidencias.generarPDF');
     });

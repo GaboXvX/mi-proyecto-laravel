@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\movimiento;
 use App\Models\User;
 use App\Models\Pregunta;  // Asumimos que la clase Pregunta ya está creada.
 use Illuminate\Http\Request;
@@ -52,7 +53,10 @@ class LoginController extends Controller
         // Autenticación exitosa
         Auth::login($user);
         $request->session()->regenerate();
-
+        $movimiento = new movimiento();
+        $movimiento->id_usuario = auth()->user()->id_usuario;
+        $movimiento->descripcion = 'ha iniciado sesión';
+        $movimiento->save();
         // Redirigir al home o página de inicio
         return redirect()->route('home')->with('success', 'Inicio de sesión exitoso');
     }
@@ -70,9 +74,14 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+         $movimiento = new movimiento();
+        $movimiento->id_usuario = auth()->user()->id_usuario;
+        $movimiento->descripcion = 'ha cerrado sesión';
+        $movimiento->save();
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+       
         return redirect()->route('login')->with('success', 'Has cerrado sesión correctamente');
     }
 

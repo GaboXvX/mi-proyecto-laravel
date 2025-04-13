@@ -6,6 +6,7 @@ use App\Models\Pregunta;
 use App\Models\RespuestaDeSeguridad;
 use App\Models\User;
 use App\Models\EmpleadoAutorizado; // Importar el modelo de empleados autorizados
+use App\Models\movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -134,7 +135,11 @@ class RecuperarController extends Controller
 
         // Limpiar la sesión después de cambiar la contraseña
         session()->forget(['token_cambiar_clave', 'usuario_validado']);
-
+        $movimiento = new movimiento();
+        $movimiento->id_usuario = auth()->user()->id_usuario;
+        $movimiento->id_empleado_autorizado = $usuario->id_empleado_autorizado;
+        $movimiento->descripcion = 'se actualizo la contraseña';
+        $movimiento->save();
         return response()->json([
             'success' => true,
             'message' => 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.',
@@ -176,7 +181,11 @@ class RecuperarController extends Controller
 
     $usuario->email = $request->email;
     $usuario->save();
-
+    $movimiento = new movimiento();
+    $movimiento->id_usuario = auth()->user()->id_usuario;
+    $movimiento->id_usuario_afectado = $usuario->id_usuario;
+    $movimiento->descripcion = 'se actualizo el correo electrónico';
+    $movimiento->save();
     return response()->json([
         'success' => true,
         'message' => 'Correo electrónico actualizado correctamente.',

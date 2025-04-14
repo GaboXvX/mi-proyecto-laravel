@@ -64,21 +64,23 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/personas/{slug}/incidencias', [PersonaController::class, 'verIncidencias'])->name('personas.incidencias');
         Route::resource('usuarios', UserController::class)
             ->except('create', 'store', 'update')
-            ->middleware('can:ver empleados');
+            ->middleware('can:ver usuarios');
+            Route::get('/usuarios/{slug}/movimientos', [UserController::class, 'movimientos'])->name('usuarios.movimientos');
         Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])
             ->name('usuarios.desactivar')
-            ->middleware('can:desactivar empleados');
+            ->middleware('can:desactivar usuarios');
+            Route::get('/mis-movimientos', function () {
+                return redirect()->route('usuarios.movimientos', auth()->user()->slug);
+            })->name('mis.movimientos')->middleware('auth');
         Route::post('/activar/{id}', [UserController::class, 'activar'])
             ->name('usuarios.activar')
-            ->middleware('can:habilitar empleados');
+            ->middleware('can:habilitar usuarios');
         Route::post('/usuarios/{id}/asignar-permiso', [UserController::class, 'asignarPermiso'])
             ->name('usuarios.asignarPermiso');
         Route::post('/usuarios/{usuario}/toggle-permiso', [UserController::class, 'togglePermiso'])
             ->name('usuarios.togglePermiso');
         Route::get('/incidencias', [IncidenciaController::class, 'index']);
-        Route::get('/gestionar-incidencias', [IncidenciaController::class, 'gestionar'])
-            ->name('incidencias.gestionar')
-            ->middleware('can:cambiar estado de incidencias');
+       
         Route::resource('incidencias', IncidenciaController::class)
             ->except(['show', 'create', 'edit'])
             ->parameters(['incidencias' => 'slug']);
@@ -87,8 +89,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             ->middleware('can:cambiar estado de incidencias');
         Route::post('/filtrar-incidencia', [IncidenciaController::class, 'filtrar'])
             ->name('filtrar.incidencia');
-        Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atender'])
+            Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atender'])
             ->name('incidencias.atender');
+            
         Route::post('/incidencias/download', [IncidenciaController::class, 'download'])
             ->name('incidencias.download');
         Route::get('/incidencias/descargar/{slug}', [IncidenciaController::class, 'descargar'])
@@ -119,7 +122,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
         Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
-        Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar')->middleware('can:restaurar empleados');
+        Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar')->middleware('can:restaurar usuarios');
         Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);
         Route::post('/incidencias/generar-pdf', [IncidenciaController::class, 'generarPDF'])->name('incidencias.generarPDF');
     });

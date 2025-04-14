@@ -154,4 +154,48 @@ class UserController extends Controller
 
     return redirect()->route('usuarios.index')->with('success', $mensaje);
 }
+
+
+public function movimientos($slug)
+{
+    // Buscar el usuario por el slug
+    $usuario = User::where('slug', $slug)->first();
+
+    if (!$usuario) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+
+    // Verificación de permisos
+    if (!auth()->user()->can('ver_movimientos') && auth()->id() != $usuario->id_usuario && !auth()->user()->hasRole('admin')) {
+        return response()->json(['error' => 'No autorizado'], 403);
+    }
+
+    // Obtener los movimientos relacionados con el usuario
+    $movimientos = Movimiento::where('id_usuario', $usuario->id_usuario)
+                    ->select([
+                        'id_movimiento',
+                        'id_usuario',
+                        'id_usuario_afectado',
+                        'id_persona',
+                        'id_direccion',
+                        'id_incidencia',
+                        'descripcion',
+                        'created_at'
+                    ])
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+
+    // Si la solicitud es AJAX o JSON, devolver una respuesta JSON
+    if (request()->wantsJson() || request()->ajax()) {
+        return response()->json([
+            'html' => view('usuarios.partials.movimientos_rows', compact('movimientos'))->render(),
+            'pagination' => $movimientos->links()->toHtml(),
+            'current_count' => $movimientos->count(),
+            'total_count' => $movimientos->total()
+        ]);
+    }
+
+    // Devolver la vista con los movimientos
+    return view('usuarios.movimientos', compact('usuario', 'movimientos'));
+}
 }

@@ -37,7 +37,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @can('ver empleados')
+                        @can('ver usuarios')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
@@ -75,7 +75,13 @@
                             </a>
                         </li>
                      
-                        
+                        @auth
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('mis.movimientos') }}">
+            <i class="bi bi-clock-history me-2"></i>Mis Movimientos
+        </a>
+    </li>
+@endauth
                     </ul>
                 </div>
             </li>

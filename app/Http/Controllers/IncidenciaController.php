@@ -169,11 +169,7 @@ class IncidenciaController extends Controller
     
 
 
-    public function gestionar(Request $request)
-    {
-        $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();
-        return view('incidencias.gestionincidencias', compact('incidencias'));
-    }
+   
 
     public function edit($slug, $persona_slug = null)
     {
@@ -242,10 +238,43 @@ class IncidenciaController extends Controller
    
     public function atender($slug)
     {
-        $incidencia = incidencia::where('slug', $slug)->first();
-        $incidencia->estado = 'atendido';
-        $incidencia->save();
-        return redirect()->route('incidencias.gestionar')->with('success', 'marcado como atendido');
+        try {
+            $incidencia = Incidencia::where('slug', $slug)->firstOrFail();
+            
+            // Verificar permisos
+            if (!auth()->user()->can('cambiar estado de incidencias')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permisos para realizar esta acción'
+                ], 403);
+            }
+    
+            // Cambiar el estado
+            $incidencia->estado = 'Atendido';
+            $incidencia->save();
+    
+            // Registrar movimiento
+            $movimiento = new Movimiento();
+            $movimiento->id_incidencia = $incidencia->id_incidencia;
+            $movimiento->id_usuario = auth()->id();
+            $movimiento->descripcion = 'Incidencia marcada como atendida';
+            $movimiento->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia marcada como atendida correctamente',
+                'incidencia' => [
+                    'slug' => $incidencia->slug,
+                    'estado' => $incidencia->estado
+                ]
+            ]);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al atender la incidencia: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 

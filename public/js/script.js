@@ -1,10 +1,15 @@
-const sidebar = document.querySelector('.sidebar');
-const toggleSidebarBtn = document.getElementById('menuToggle');
+//ocultar y ver la sidebar
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const content = document.querySelector('main.content');
 
-toggleSidebarBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    sidebar.classList.toggle('active');
-});
+    // Alternar la visibilidad de la sidebar
+    sidebar.classList.toggle('hidden');
+
+    // Alternar la expansión del contenido
+    content.classList.toggle('expanded');
+    content.classList.toggle('with-sidebar');
+}
 
 //graficos
 const chartConfig = {
@@ -60,6 +65,18 @@ document.getElementById('cedula').addEventListener('input', function(e) {
   }
 });
 
+document.getElementById('nombre').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});
+
+document.getElementById('apellido').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});
+
 document.getElementById('cedula').addEventListener('blur', async function () {
     const cedula = this.value.trim();
     if (cedula.length < 8) return;
@@ -112,18 +129,6 @@ document.getElementById('correo').addEventListener('blur', async function () {
     } catch (error) {
         console.error('Error de validación:', error);
     }
-});
-
-document.getElementById('nombre').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
-});
-
-document.getElementById('apellido').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {

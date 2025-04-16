@@ -253,86 +253,103 @@
 
 <script>
     const correoInput = document.getElementById('inputCorreo');
-    const usuarioInput = document.getElementById('inputUsuario');
-    const submitButton = document.getElementById('submitButton');
-    let correoDisponible = true;
-    let usuarioDisponible = true;
+const usuarioInput = document.getElementById('inputUsuario');
+const passwordInput = document.getElementById('inputContraseña');
+const submitButton = document.getElementById('submitButton');
 
-    function validarFormulario() {
-        submitButton.disabled = !(correoDisponible && usuarioDisponible);
+let correoOriginal = correoInput.value;
+let usuarioOriginal = usuarioInput.value;
+
+let correoDisponible = true;
+let usuarioDisponible = true;
+
+function hayCambios() {
+    const correoCambio = correoInput.value !== correoOriginal;
+    const usuarioCambio = usuarioInput.value !== usuarioOriginal;
+    const passwordIngresado = passwordInput.value.trim() !== '';
+    return correoCambio || usuarioCambio || passwordIngresado;
+}
+
+function validarFormulario() {
+    const cambios = hayCambios();
+    const validacionesOk = correoDisponible && usuarioDisponible;
+    submitButton.disabled = !(cambios && validacionesOk);
+}
+
+correoInput.addEventListener('input', function () {
+    const correo = this.value;
+    const feedback = document.getElementById('correoFeedback');
+
+    if (correo.trim() === '') {
+        feedback.textContent = '';
+        correoDisponible = true;
+        validarFormulario();
+        return;
     }
 
-    correoInput.addEventListener('input', function () {
-        const correo = this.value;
-        const feedback = document.getElementById('correoFeedback');
-
-        if (correo.trim() === '') {
-            feedback.textContent = '';
-            correoDisponible = true;
-            validarFormulario();
-            return;
-        }
-
-        fetch(`/validar-correo/${correo}?excluir={{ $usuario->id_usuario }}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.disponible) {
-                    feedback.textContent = '¡Correo disponible!';
-                    feedback.classList.remove('text-danger');
-                    feedback.classList.add('text-success');
-                    correoDisponible = true;
-                } else {
-                    feedback.textContent = 'El correo ya está en uso.';
-                    feedback.classList.remove('text-success');
-                    feedback.classList.add('text-danger');
-                    correoDisponible = false;
-                }
-                validarFormulario();
-            })
-            .catch(() => {
-                feedback.textContent = 'Error al validar el correo.';
+    fetch(`/validar-correo/${correo}?excluir={{ $usuario->id_usuario }}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.disponible) {
+                feedback.textContent = '¡Correo disponible!';
+                feedback.classList.remove('text-danger');
+                feedback.classList.add('text-success');
+                correoDisponible = true;
+            } else {
+                feedback.textContent = 'El correo ya está en uso.';
                 feedback.classList.remove('text-success');
                 feedback.classList.add('text-danger');
                 correoDisponible = false;
-                validarFormulario();
-            });
-    });
-
-    usuarioInput.addEventListener('input', function () {
-        const nombreUsuario = this.value;
-        const feedback = document.getElementById('usuarioFeedback');
-
-        if (nombreUsuario.trim() === '') {
-            feedback.textContent = '';
-            usuarioDisponible = true;
+            }
             validarFormulario();
-            return;
-        }
+        })
+        .catch(() => {
+            feedback.textContent = 'Error al validar el correo.';
+            feedback.classList.remove('text-success');
+            feedback.classList.add('text-danger');
+            correoDisponible = false;
+            validarFormulario();
+        });
+});
 
-        fetch(`/validar-usuario/${nombreUsuario}?excluir={{ $usuario->id_usuario }}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.disponible) {
-                    feedback.textContent = '¡Nombre de usuario disponible!';
-                    feedback.classList.remove('text-danger');
-                    feedback.classList.add('text-success');
-                    usuarioDisponible = true;
-                } else {
-                    feedback.textContent = 'El nombre de usuario ya está en uso.';
-                    feedback.classList.remove('text-success');
-                    feedback.classList.add('text-danger');
-                    usuarioDisponible = false;
-                }
-                validarFormulario();
-            })
-            .catch(() => {
-                feedback.textContent = 'Error al validar el nombre de usuario.';
+usuarioInput.addEventListener('input', function () {
+    const nombreUsuario = this.value;
+    const feedback = document.getElementById('usuarioFeedback');
+
+    if (nombreUsuario.trim() === '') {
+        feedback.textContent = '';
+        usuarioDisponible = true;
+        validarFormulario();
+        return;
+    }
+
+    fetch(`/validar-usuario/${nombreUsuario}?excluir={{ $usuario->id_usuario }}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.disponible) {
+                feedback.textContent = '¡Nombre de usuario disponible!';
+                feedback.classList.remove('text-danger');
+                feedback.classList.add('text-success');
+                usuarioDisponible = true;
+            } else {
+                feedback.textContent = 'El nombre de usuario ya está en uso.';
                 feedback.classList.remove('text-success');
                 feedback.classList.add('text-danger');
                 usuarioDisponible = false;
-                validarFormulario();
-            });
-    });
+            }
+            validarFormulario();
+        })
+        .catch(() => {
+            feedback.textContent = 'Error al validar el nombre de usuario.';
+            feedback.classList.remove('text-success');
+            feedback.classList.add('text-danger');
+            usuarioDisponible = false;
+            validarFormulario();
+        });
+});
+
+passwordInput.addEventListener('input', validarFormulario);
+
 </script>
 </body>
 

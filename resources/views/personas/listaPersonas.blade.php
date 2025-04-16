@@ -170,6 +170,7 @@
                                             <div class="btn-group">
                                                 <a href="{{ route('personas.show', $persona->slug) }}" class="btn btn-info btn-sm">Ver</a>
                                                 <a href="{{ route('incidencias.crear', $persona->slug) }}" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                                                <a href="{{ route('personas.incidencias', $persona->slug) }}" class="btn btn-warning btn-sm">Ver Incidencias</a>
                                             </div>
                                         </td>
                                     </tr>
@@ -510,6 +511,7 @@
                             <div class="btn-group">
                                 <a href="/persona/${persona.slug}" class="btn btn-info btn-sm">Ver</a>
                                 <a href="/persona/${persona.slug}/incidencias/create" class="btn btn-success btn-sm">Añadir Incidencia</a>
+                                <a href="/persona/${persona.slug}/incidencias" class="btn btn-warning btn-sm">Ver Incidencias</a>
                             </div>
                         </td>
                     </tr>

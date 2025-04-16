@@ -226,4 +226,10 @@ class PersonaController extends Controller
         $persona = Persona::where('slug', $slug)->firstOrFail();
         return response()->json($persona);
     }
+
+    public function verIncidencias($slug)
+    {
+        $persona = Persona::where('slug', $slug)->with('incidencias')->firstOrFail();
+        return view('personas.incidencias', compact('persona'));
+    }
 }

@@ -12,7 +12,7 @@ use App\Models\Persona;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Log;
 
 class IncidenciaController extends Controller
 {
@@ -68,35 +68,53 @@ class IncidenciaController extends Controller
     public function store(StoreIncidenciaRequest $request)
     {
         try {
+            Log::info('Datos recibidos para registrar incidencia:', $request->all());
+    
+            // Crear una nueva incidencia
             $incidencia = new Incidencia;
-
-            // Generación del slug
+    
+            // Generar un slug único
             $slug = Str::slug(Str::lower($request->input('descripcion')));
             $originalSlug = $slug;
             $counter = 1;
-
+    
             while (Incidencia::where('slug', $slug)->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }
-
-            // Generación del código de incidencia
+    
+            // Generar un código único para la incidencia
             $codigo = Str::random(8);
             while (Incidencia::where('cod_incidencia', $codigo)->exists()) {
                 $codigo = Str::random(8);
             }
-
+    
             $incidencia->slug = $slug;
-            $persona = Persona::where('id_persona', $request->input('id_persona'))->first();
-
+            $incidencia->cod_incidencia = $codigo;
+    
+            // Validar y obtener la persona asociada
+            $persona = Persona::find($request->input('id_persona'));
+            if (!$persona) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La persona seleccionada no existe.',
+                ], 400);
+            }
+    
             // Obtener la dirección asociada a la incidencia
             $direccion = Direccion::find($request->input('direccion'));
-
+            if (!$direccion) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La dirección seleccionada no existe.',
+                ], 400);
+            }
+    
             // Buscar al líder según la comunidad de la dirección y su estado activo
             $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
                 ->where('estado', 1) // Verificamos que el líder esté activo
                 ->first();
-
+    
             if ($lider) {
                 // Asignamos el líder a la incidencia
                 $incidencia->id_lider = $lider->id_lider;
@@ -104,51 +122,47 @@ class IncidenciaController extends Controller
                 // Si no hay un líder activo, asignamos NULL
                 $incidencia->id_lider = null;
             }
-
-            $id_persona = $request->input('id_persona');
-
+    
             // Asignar los valores a la incidencia
-            $incidencia->id_persona = $id_persona;
-            $incidencia->cod_incidencia = $codigo;
+            $incidencia->id_persona = $persona->id_persona; // Asociar la persona
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-            $incidencia->descripcion =Str::lower($request->input('descripcion'));
+            $incidencia->descripcion = Str::lower($request->input('descripcion'));
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-            $incidencia->estado = $request->input('estado');
-            $incidencia->id_direccion = $request->input('direccion');
-
-            // Asignar el id_usuario (usuario autenticado)
-            $incidencia->id_usuario = auth()->id();
-
+            $incidencia->estado = 'Por atender'; // Estado inicial
+            $incidencia->id_direccion = $direccion->id_direccion; // Asociar la dirección
+            $incidencia->id_usuario = auth()->id(); // Usuario autenticado
+    
             // Guardar la incidencia
             $incidencia->save();
-
-            if ($id_persona) {
-                $persona = Persona::findOrFail($id_persona);
-                $movimiento = new movimiento();
-                $movimiento->id_incidencia = $incidencia->id_incidencia;
-                $movimiento->id_usuario = auth()->user()->id_usuario;
-                $movimiento->descripcion = 'se registro una incidencia';
-                $movimiento->save();
-                return redirect()->route('incidencias.show', [
-                    'slug' => $persona->slug,
-                    'incidencia_slug' => $incidencia->slug
-                ])->with('success', 'Incidencia registrada correctamente.');
-               
+    
+            // Depuración: Verifica si los datos se guardaron
+            if (!$incidencia->exists) {
+                throw new \Exception('La incidencia no se guardó correctamente.');
             }
-            
-            return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos.');
+    
+            Log::info('Incidencia registrada correctamente:', $incidencia->toArray());
+    
+            // Registrar movimiento
+            $movimiento = new movimiento();
+            $movimiento->id_incidencia = $incidencia->id_incidencia;
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->descripcion = 'Se registró una incidencia';
+            $movimiento->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia registrada correctamente.',
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
+            Log::error('Error al registrar incidencia:', ['error' => $e->getMessage()]);
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar la incidencia: ' . $e->getMessage(),
+            ], 500);
         }
     }
     
-
-    
-
-    
-    
-
-
     public function descargar($slug)
     {
         // Buscar la incidencia por el slug

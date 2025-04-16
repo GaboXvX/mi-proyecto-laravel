@@ -183,7 +183,19 @@ class PersonaController extends Controller
             return redirect()->route('personas.index');
         }
     }
+    public function obtenerDirecciones($id)
+{
+    $persona = Persona::with([
+        'direccion.estado',
+        'direccion.municipio',
+        'direccion.parroquia',
+        'direccion.urbanizacion',
+        'direccion.sector',
+        'direccion.comunidad'
+    ])->findOrFail($id);
 
+    return response()->json($persona->direccion);
+}
     public function update(UpdatePersonaRequest $request, $slug)
     {
         try {
@@ -242,8 +254,12 @@ class PersonaController extends Controller
     }
 
     public function verIncidencias($slug)
-    {
-        $persona = Persona::where('slug', $slug)->with('incidencias')->firstOrFail();
-        return view('personas.incidencias', compact('persona'));
-    }
+{
+    $persona = Persona::where('slug', $slug)->firstOrFail();
+
+    // Cargar incidencias con paginación
+    $incidencias = $persona->incidencias()->orderBy('created_at', 'desc')->paginate(10);
+
+    return view('personas.incidencias', compact('persona', 'incidencias'));
+}
 }

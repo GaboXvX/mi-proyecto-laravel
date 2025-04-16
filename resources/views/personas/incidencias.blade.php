@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <h2 class="text-center">Incidencias de {{ $persona->nombre }} {{ $persona->apellido }}</h2>
 
-    @if($persona->incidencias->isEmpty())
+    @if($incidencias->isEmpty())
         <p class="alert alert-warning">No hay incidencias registradas para esta persona.</p>
     @else
         <table class="table table-striped">
@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($persona->incidencias as $incidencia)
+                @foreach($incidencias as $incidencia)
                     <tr>
                         <td>{{ $incidencia->tipo_incidencia }}</td>
                         <td>{{ $incidencia->descripcion }}</td>
@@ -27,16 +27,20 @@
                         <td>{{ $incidencia->estado }}</td>
                         <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
                         <td>
-                            @can('cambiar estado de incidencias')
                             @if($incidencia->estado !== 'atendido')
                                 <a href="{{ route('incidencias.edit', ['slug' => $incidencia->slug, 'persona_slug' => $persona->slug]) }}" class="btn btn-primary btn-sm">Modificar incidencia</a>
                             @endif
-                            @endcan
+                            
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-center">
+            {{ $incidencias->links() }}
+        </div>
     @endif
 </div>
 @endsection

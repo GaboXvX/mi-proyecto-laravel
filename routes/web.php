@@ -62,23 +62,26 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::Post('/personas/buscar', [PersonaController::class, 'buscar'])->name('personas.buscar');
         Route::get('/persona/{slug}', [PersonaController::class, 'show'])->name('personas.show');
         Route::get('/personas/{slug}/incidencias', [PersonaController::class, 'verIncidencias'])->name('personas.incidencias');
+        Route::get('/api/personas/{id}/direcciones', [PersonaController::class, 'obtenerDirecciones']);
         Route::resource('usuarios', UserController::class)
             ->except('create', 'store', 'update')
-            ->middleware('can:ver usuarios');
+            ->middleware('can:ver empleados');
             Route::get('/usuarios/{slug}/movimientos', [UserController::class, 'movimientos'])->name('usuarios.movimientos');
         Route::post('/desactivar/{id}', [UserController::class, 'desactivar'])
             ->name('usuarios.desactivar')
-            ->middleware('can:desactivar usuarios');
+            ->middleware('can:desactivar empleados');
             Route::get('/mis-movimientos', function () {
                 return redirect()->route('usuarios.movimientos', auth()->user()->slug);
             })->name('mis.movimientos')->middleware('auth');
         Route::post('/activar/{id}', [UserController::class, 'activar'])
             ->name('usuarios.activar')
-            ->middleware('can:habilitar usuarios');
+            ->middleware('can:habilitar empleados');
         Route::post('/usuarios/{id}/asignar-permiso', [UserController::class, 'asignarPermiso'])
             ->name('usuarios.asignarPermiso');
         Route::post('/usuarios/{usuario}/toggle-permiso', [UserController::class, 'togglePermiso'])
             ->name('usuarios.togglePermiso');
+        Route::get('/usuarios/{id_usuario}/asignar-permisos', [UserController::class, 'asignarPermisosVista'])->name('usuarios.asignarPermisos');
+        Route::post('/usuarios/toggle-permiso-ajax', [UserController::class, 'togglePermisoAjax'])->name('usuarios.togglePermisoAjax');
         Route::get('/incidencias', [IncidenciaController::class, 'index']);
        
         Route::resource('incidencias', IncidenciaController::class)

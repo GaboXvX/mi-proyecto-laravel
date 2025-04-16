@@ -65,7 +65,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @can('ver usuarios')
+                        @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">

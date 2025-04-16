@@ -27,7 +27,7 @@ class StoreIncidenciaRequest extends FormRequest
             'tipo_incidencia' => 'required|string|max:255',
             'descripcion' => 'required|string|max:1500',
             'nivel_prioridad' => 'required|integer', 
-            'estado' => 'required|string|max:255',
+          
         ];
     }
 

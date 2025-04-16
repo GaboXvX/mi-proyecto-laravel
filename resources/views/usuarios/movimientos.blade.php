@@ -86,7 +86,7 @@
                                 @elseif($mov->id_incidencia)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
-                                        Incidencia #{{ $mov->id_incidencia }}
+                                        Incidencia #{{ $mov->incidencia->cod_incidencia }}
                                     </span>
                                 @else
                                     -

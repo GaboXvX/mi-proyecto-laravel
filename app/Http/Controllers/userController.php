@@ -128,74 +128,103 @@ class UserController extends Controller
         return redirect()->route('usuarios.index')->with('success', 'Permiso asignado correctamente.');
     }
     public function togglePermiso(Request $request, $id_usuario)
-{
-    // Validar que el usuario que hace la petición sea admin
-    
+    {
+        // Validar que el usuario que hace la petición sea admin
+        
 
-    $usuario = User::findOrFail($id_usuario);
-    $permisoNombre = $request->input('permiso');
+        $usuario = User::findOrFail($id_usuario);
+        $permisoNombre = $request->input('permiso');
 
-    // Validar que el permiso exista
-    $permiso = ModelsPermission::where('name', $permisoNombre)->first();
-    
-    if (!$permiso) {
-        return redirect()->route('usuarios.index')
-               ->with('error', 'El permiso especificado no existe');
+        // Validar que el permiso exista
+        $permiso = ModelsPermission::where('name', $permisoNombre)->first();
+        
+        if (!$permiso) {
+            return redirect()->route('usuarios.index')
+                ->with('error', 'El permiso especificado no existe');
+        }
+
+        // Toggle del permiso (asignar si no lo tiene, revocar si lo tiene)
+        if ($usuario->hasPermissionTo($permiso)) {
+            $usuario->revokePermissionTo($permiso);
+            $mensaje = "Permiso {$permiso->name} revocado correctamente";
+        } else {
+            $usuario->givePermissionTo($permiso);
+            $mensaje = "Permiso {$permiso->name} asignado correctamente";
+        }
+
+        return redirect()->route('usuarios.index')->with('success', $mensaje);
     }
 
-    // Toggle del permiso (asignar si no lo tiene, revocar si lo tiene)
-    if ($usuario->hasPermissionTo($permiso)) {
-        $usuario->revokePermissionTo($permiso);
-        $mensaje = "Permiso {$permiso->name} revocado correctamente";
-    } else {
-        $usuario->givePermissionTo($permiso);
-        $mensaje = "Permiso {$permiso->name} asignado correctamente";
+    public function asignarPermisosVista($id_usuario)
+    {
+        $usuario = User::findOrFail($id_usuario);
+        $permisos = ModelsPermission::all();
+
+        return view('usuarios.asignarPermisos', compact('usuario', 'permisos'));
     }
 
-    return redirect()->route('usuarios.index')->with('success', $mensaje);
-}
+    public function togglePermisoAjax(Request $request)
+    {
+        $usuario = User::findOrFail($request->input('id_usuario'));
+        $permisoNombre = $request->input('permiso');
 
+        $permiso = ModelsPermission::where('name', $permisoNombre)->first();
 
-public function movimientos($slug)
-{
-    // Buscar el usuario por el slug
-    $usuario = User::where('slug', $slug)->first();
+        if (!$permiso) {
+            return response()->json(['message' => 'El permiso especificado no existe'], 400);
+        }
 
-    if (!$usuario) {
-        return response()->json(['error' => 'Usuario no encontrado'], 404);
+        if ($usuario->hasPermissionTo($permiso)) {
+            $usuario->revokePermissionTo($permiso);
+            $mensaje = "Permiso {$permiso->name} revocado correctamente.";
+        } else {
+            $usuario->givePermissionTo($permiso);
+            $mensaje = "Permiso {$permiso->name} asignado correctamente.";
+        }
+
+        return response()->json(['message' => $mensaje]);
     }
 
-    // Verificación de permisos
-    if (!auth()->user()->can('ver_movimientos') && auth()->id() != $usuario->id_usuario && !auth()->user()->hasRole('admin')) {
-        return response()->json(['error' => 'No autorizado'], 403);
+    public function movimientos($slug)
+    {
+        // Buscar el usuario por el slug
+        $usuario = User::where('slug', $slug)->first();
+
+        if (!$usuario) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        // Verificación de permisos
+        if (!auth()->user()->can('ver_movimientos') && auth()->id() != $usuario->id_usuario && !auth()->user()->hasRole('admin')) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        // Obtener los movimientos relacionados con el usuario
+        $movimientos = Movimiento::where('id_usuario', $usuario->id_usuario)
+                        ->select([
+                            'id_movimiento',
+                            'id_usuario',
+                            'id_usuario_afectado',
+                            'id_persona',
+                            'id_direccion',
+                            'id_incidencia',
+                            'descripcion',
+                            'created_at'
+                        ])
+                        ->orderBy('created_at', 'desc')
+                        ->paginate(10);
+
+        // Si la solicitud es AJAX o JSON, devolver una respuesta JSON
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'html' => view('usuarios.partials.movimientos_rows', compact('movimientos'))->render(),
+                'pagination' => $movimientos->links()->toHtml(),
+                'current_count' => $movimientos->count(),
+                'total_count' => $movimientos->total()
+            ]);
+        }
+
+        // Devolver la vista con los movimientos
+        return view('usuarios.movimientos', compact('usuario', 'movimientos'));
     }
-
-    // Obtener los movimientos relacionados con el usuario
-    $movimientos = Movimiento::where('id_usuario', $usuario->id_usuario)
-                    ->select([
-                        'id_movimiento',
-                        'id_usuario',
-                        'id_usuario_afectado',
-                        'id_persona',
-                        'id_direccion',
-                        'id_incidencia',
-                        'descripcion',
-                        'created_at'
-                    ])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10);
-
-    // Si la solicitud es AJAX o JSON, devolver una respuesta JSON
-    if (request()->wantsJson() || request()->ajax()) {
-        return response()->json([
-            'html' => view('usuarios.partials.movimientos_rows', compact('movimientos'))->render(),
-            'pagination' => $movimientos->links()->toHtml(),
-            'current_count' => $movimientos->count(),
-            'total_count' => $movimientos->total()
-        ]);
-    }
-
-    // Devolver la vista con los movimientos
-    return view('usuarios.movimientos', compact('usuario', 'movimientos'));
-}
 }

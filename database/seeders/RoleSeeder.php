@@ -16,11 +16,11 @@ class RoleSeeder extends Seeder
     {
         $role1=Role::create(['name' => 'admin']);
         $role2=Role::create(['name' => 'registrador']);
-        permission::create(['name' => 'desactivar usuarios'])->assignRole($role1);
-        permission::create(['name' => 'ver usuarios'])->assignRole($role1);
-        permission::create(['name' => 'habilitar usuarios'])->assignRole($role1);
-        permission::create(['name' => 'restaurar usuarios'])->assignRole($role1);
-        permission::create(['name' => 'ver movimientos usuarios'])->assignRole($role1);
+        permission::create(['name' => 'desactivar empleados'])->assignRole($role1);
+        permission::create(['name' => 'ver empleados'])->assignRole($role1);
+        permission::create(['name' => 'habilitar empleados'])->assignRole($role1);
+        permission::create(['name' => 'restaurar empleados'])->assignRole($role1);
+        permission::create(['name' => 'ver movimientos empleados'])->assignRole($role1);
         permission::create(['name' => 'ver grafica incidencia'])->assignRole($role1);
         permission::create(['name' => 'cambiar estado de incidencias'])->assignRole($role1);
         permission::create(['name' => 'descargar grafica incidencia'])->assignRole($role1);

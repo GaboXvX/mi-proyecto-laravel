@@ -134,7 +134,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @can('ver usuarios')
+                        @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                                 <i class="bi bi-people"></i>

@@ -56,7 +56,7 @@
                             <td>
                                 <!-- Botón "Inspeccionar" (excluye al admin) -->
                                 @unless ($usuario->hasRole('admin'))
-                                @can('ver movimientos usuarios')
+                                @can('ver movimientos empleados')
                                     <a href="{{ route('usuarios.movimientos', $usuario->slug) }}" 
                                        class="btn btn-warning btn-sm" 
                                        title="Ver movimientos">
@@ -91,29 +91,11 @@
                                 @endcan
 
                                 @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
-                                    <div class="dropdown d-inline">
-                                        <button class="btn btn-info btn-sm dropdown-toggle" type="button" id="dropdownPermisos{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Permisos
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownPermisos{{ $usuario->id_usuario }}">
-                                            @foreach ($permisos as $permiso)
-                                                <li>
-                                                    <form action="{{ route('usuarios.togglePermiso', $usuario->id_usuario) }}" method="POST" style="display:inline;">
-                                                        @csrf
-                                                        <input type="hidden" name="permiso" value="{{ $permiso->name }}">
-                                                        <button type="submit" class="dropdown-item">
-                                                            {{ $permiso->name }}
-                                                            @if ($usuario->hasPermissionTo($permiso->name))
-                                                                <i class="bi bi-check text-success"></i>
-                                                            @else
-                                                                <i class="bi bi-x text-danger"></i>
-                                                            @endif
-                                                        </button>
-                                                    </form>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
+                                    <a href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}" 
+                                       class="btn btn-info btn-sm" 
+                                       title="Asignar Permisos">
+                                        <i class="bi bi-shield-lock"></i> Permisos
+                                    </a>
                                 @endif
                             </td>
                         </tr>

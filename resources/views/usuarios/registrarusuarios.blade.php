@@ -85,15 +85,6 @@
 
     <h3>Registrarse</h3>
 
-    <select name="rol" id="rol" required>
-        <option value="">Selecciona un rol</option>
-        @foreach ($roles as $rol)
-            <option value="{{ $rol->id_rol }}" {{ old('rol') == $rol->id_rol ? 'selected' : '' }}>
-                {{ $rol->rol }}
-            </option>
-        @endforeach
-    </select>
-
     <input type="text" id="cedula" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
     <span id="cedula_error" class="error-message"></span>
 

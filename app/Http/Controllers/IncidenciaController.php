@@ -71,7 +71,7 @@ class IncidenciaController extends Controller
             $incidencia = new Incidencia;
 
             // Generación del slug
-            $slug = Str::slug($request->input('descripcion'));
+            $slug = Str::slug(Str::lower($request->input('descripcion')));
             $originalSlug = $slug;
             $counter = 1;
 
@@ -111,7 +111,7 @@ class IncidenciaController extends Controller
             $incidencia->id_persona = $id_persona;
             $incidencia->cod_incidencia = $codigo;
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-            $incidencia->descripcion = $request->input('descripcion');
+            $incidencia->descripcion =Str::lower($request->input('descripcion'));
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
             $incidencia->estado = $request->input('estado');
             $incidencia->id_direccion = $request->input('direccion');
@@ -124,12 +124,18 @@ class IncidenciaController extends Controller
 
             if ($id_persona) {
                 $persona = Persona::findOrFail($id_persona);
+                $movimiento = new movimiento();
+                $movimiento->id_incidencia = $incidencia->id_incidencia;
+                $movimiento->id_usuario = auth()->user()->id_usuario;
+                $movimiento->descripcion = 'se registro una incidencia';
+                $movimiento->save();
                 return redirect()->route('incidencias.show', [
                     'slug' => $persona->slug,
                     'incidencia_slug' => $incidencia->slug
                 ])->with('success', 'Incidencia registrada correctamente.');
+               
             }
-
+            
             return redirect()->route('incidencias.index')->with('error', 'No se pudo registrar la incidencia. Faltan datos.');
         } catch (\Exception $e) {
             return redirect()->route('personas.index')->with('error', 'Error al enviar los datos: ' . $e->getMessage());
@@ -163,11 +169,7 @@ class IncidenciaController extends Controller
     
 
 
-    public function gestionar(Request $request)
-    {
-        $incidencias = incidencia::orderBy('id_incidencia', 'desc')->get();
-        return view('incidencias.gestionincidencias', compact('incidencias'));
-    }
+   
 
     public function edit($slug, $persona_slug = null)
     {
@@ -195,6 +197,7 @@ class IncidenciaController extends Controller
     {
         try {
             $incidencia = Incidencia::findOrFail($id);
+            $slug = Str::slug(Str::lower($request->input('descripcion')));
 
             // Validar si la dirección existe
             $direccion = Direccion::find($request->input('direccion'));
@@ -209,17 +212,21 @@ class IncidenciaController extends Controller
 
             // Asignar el líder o NULL si no hay uno activo
             $incidencia->id_lider = $lider ? $lider->id_lider : null;
-
+            $incidencia->slug = $slug;
             // Asignar los valores actualizados a la incidencia
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
-            $incidencia->descripcion = $request->input('descripcion');
+            $incidencia->descripcion = Str::lower($request->input('descripcion'));
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
             $incidencia->estado = $request->input('estado');
             $incidencia->id_direccion = $request->input('direccion');
 
             // Guardar la incidencia
             $incidencia->save();
-
+            $movimiento = new movimiento();
+                $movimiento->id_incidencia = $incidencia->id_incidencia;
+                $movimiento->id_usuario = auth()->user()->id_usuario;
+                $movimiento->descripcion = 'se registro una incidencia';
+                $movimiento->save();
             // Redirigir siempre a personas.index
             return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
         } catch (\Exception $e) {
@@ -231,10 +238,43 @@ class IncidenciaController extends Controller
    
     public function atender($slug)
     {
-        $incidencia = incidencia::where('slug', $slug)->first();
-        $incidencia->estado = 'atendido';
-        $incidencia->save();
-        return redirect()->route('incidencias.gestionar')->with('success', 'marcado como atendido');
+        try {
+            $incidencia = Incidencia::where('slug', $slug)->firstOrFail();
+            
+            // Verificar permisos
+            if (!auth()->user()->can('cambiar estado de incidencias')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permisos para realizar esta acción'
+                ], 403);
+            }
+    
+            // Cambiar el estado
+            $incidencia->estado = 'Atendido';
+            $incidencia->save();
+    
+            // Registrar movimiento
+            $movimiento = new Movimiento();
+            $movimiento->id_incidencia = $incidencia->id_incidencia;
+            $movimiento->id_usuario = auth()->id();
+            $movimiento->descripcion = 'Incidencia marcada como atendida';
+            $movimiento->save();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Incidencia marcada como atendida correctamente',
+                'incidencia' => [
+                    'slug' => $incidencia->slug,
+                    'estado' => $incidencia->estado
+                ]
+            ]);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al atender la incidencia: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
 

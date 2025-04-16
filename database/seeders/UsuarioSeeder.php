@@ -15,14 +15,13 @@ class UsuarioSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'password' => bcrypt('12345678'),
                 'id_estado_usuario' => 1, // Aceptado
-                'id_rol' => 1, // Rol de administrador
                 'id_empleado_autorizado' => 1, // Relación con empleados_autorizados
                 'slug' => 'admin',
             ],
         ];
 
         foreach ($usuarios as $usuario) {
-            User::create($usuario);
+            User::create($usuario)->assignRole('admin');
         }
     }
 }

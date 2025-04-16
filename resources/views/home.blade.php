@@ -37,7 +37,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @role('admin')
+                        @can('ver usuarios')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
@@ -46,7 +46,7 @@
                                 <span>Empleados</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
                         <li>
                             <a href="{{ route('personas.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -65,7 +65,7 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        @role('admin')
+                        
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
@@ -75,20 +75,23 @@
                             </a>
                         </li>
                      
-                        @endrole
+                        
                     </ul>
                 </div>
             </li>
-            @role('admin')
-            <li class="nav-item">
+            
+           
+            <li>
+                @can('ver grafica incidencia')
                 <a href="{{ route('estadisticas') }}" class="nav-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                    <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
-                </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
+                    </svg>
                     <span>Estadísticas</span>
                 </a>
+                @endcan
             </li>
-            @endrole
+            
         </ul>
         <hr class="text-secondary">
     </aside>

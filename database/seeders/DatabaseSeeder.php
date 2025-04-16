@@ -14,22 +14,22 @@ use Database\Seeders\EmpleadosAutorizadosSeeder;
 use Database\Seeders\EstadoSeeder;
 use Database\Seeders\EstadosUsuariosSeeder;
 use Database\Seeders\MunicipioSeeder;
-use Database\Seeders\RolSeeder;
 use Database\Seeders\PreguntaSeguridadSeeder;
 use Database\Seeders\RespuestasSeeder;
+use Database\Seeders\RoleSeeder;
 use Database\Seeders\UsuarioSeeder;
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
         $this->call([
+            RoleSeeder::class,
             EstadoSeeder::class,
             MunicipioSeeder::class,
             ParroquiaSeeder::class,
             UrbanizacionSeeder::class,
             SectorSeeder::class,
             ComunidadSeeder::class,
-            RolSeeder::class,
             PreguntaSeguridadSeeder::class,
             EstadosUsuariosSeeder::class,
             CargoEmpleadosAutorizadosSeeder::class,

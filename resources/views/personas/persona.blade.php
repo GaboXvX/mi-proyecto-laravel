@@ -28,9 +28,11 @@
         <div class="card mt-4">
             <div class="card-header">
                 Información Personal                                            
+                
                 <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editPersonaModal">
                     Editar
                 </button>
+                
             </div>
             <div class="card-body">
                 <table class="table table-bordered table-striped">
@@ -84,7 +86,11 @@
         <div class="card mt-4">
             <div class="card-header">
                 Direcciones
-                <button type="button" class="btn btn-secondary btn-sm float-end" data-bs-toggle="modal" data-bs-target="#addDireccionModal">Añadir dirección</button>
+                
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDireccionModal">
+                    Añadir Dirección
+                </button>
+                
             </div>
             <div class="card-body">
                 <div class="table-responsive">

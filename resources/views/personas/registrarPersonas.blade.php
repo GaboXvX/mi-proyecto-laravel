@@ -63,7 +63,7 @@
                 </a>
                 <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3">
-                        @role('admin')
+                        @can('ver usuarios')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
@@ -72,7 +72,7 @@
                                 <span>Empleados</span>
                             </a>
                         </li>
-                        @endrole
+                        @endcan
                         <li>
                             <a href="{{ route('personas.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -91,7 +91,7 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        @role('admin')
+                        
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
@@ -101,11 +101,11 @@
                             </a>
                         </li>
                      
-                        @endrole
+                        
                     </ul>
                 </div>
             </li>
-            @role('admin')
+            
             <li class="nav-item">
                 <a href="{{ route('estadisticas') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -114,7 +114,7 @@
                     <span>Estadísticas</span>
                 </a>
             </li>
-            @endrole
+            
         </ul>
         <hr class="text-secondary">
     </aside>

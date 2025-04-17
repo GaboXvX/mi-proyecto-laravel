@@ -1,15 +1,18 @@
 //ocultar y ver la sidebar
-function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const content = document.querySelector('main.content');
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
 
-    // Alternar la visibilidad de la sidebar
-    sidebar.classList.toggle('hidden');
-
-    // Alternar la expansión del contenido
-    content.classList.toggle('expanded');
-    content.classList.toggle('with-sidebar');
-}
+    menuToggle.addEventListener("click", function () {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle("active");  // Para movil
+        } else {
+            sidebar.classList.toggle("collapsed");  // Para escritorio
+            mainContent.classList.toggle("collapsed");
+        }
+    });
+});
 
 //graficos
 const chartConfig = {

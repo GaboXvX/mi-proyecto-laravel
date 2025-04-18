@@ -31,7 +31,7 @@ body {
     align-items: center;
 }
 
-.sidebar .nav-item.active{
+.sidebar .nav-link.active {
     background-color: #193a5e;
     color: #fff;
     border-radius: 8px;

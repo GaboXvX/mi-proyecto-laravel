@@ -18,6 +18,53 @@
         </div>
 
         <div class="card-body p-0">
+            <div class="p-3 border-bottom bg-light">
+                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="filtro_rango" class="form-label">Filtrar por rango</label>
+                        <select class="form-select" name="rango" id="filtro_rango">
+                            <option value="">-- Selecciona --</option>
+                            <option value="ultimos_25" {{ request('rango') == 'ultimos_25' ? 'selected' : '' }}>Últimos 25</option>
+                            <option value="mes_actual" {{ request('rango') == 'mes_actual' ? 'selected' : '' }}>Este mes</option>
+                            <option value="mes_pasado" {{ request('rango') == 'mes_pasado' ? 'selected' : '' }}>Mes pasado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tipo_movimiento" class="form-label">Filtrar por tipo</label>
+                        <select class="form-select" name="tipo" id="tipo_movimiento">
+                            <option value="">-- Todos --</option>
+                            <option value="usuario" {{ request('tipo') == 'usuario' ? 'selected' : '' }}>Usuario</option>
+                            <option value="persona" {{ request('tipo') == 'persona' ? 'selected' : '' }}>Persona</option>
+                            <option value="direccion" {{ request('tipo') == 'direccion' ? 'selected' : '' }}>Dirección</option>
+                            <option value="incidencia" {{ request('tipo') == 'incidencia' ? 'selected' : '' }}>Incidencia</option>
+                            <option value="sistema" {{ request('tipo') == 'sistema' ? 'selected' : '' }}>Sistema</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="fecha_inicio" class="form-label">Desde</label>
+                        <input type="date" class="form-control" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
+                    </div>
+            
+                    <div class="col-md-3">
+                        <label for="fecha_fin" class="form-label">Hasta</label>
+                        <input type="date" class="form-control" name="fecha_fin" value="{{ request('fecha_fin') }}">
+                    </div>
+            
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel me-1"></i> Filtrar
+                        </button>
+                    </div>
+            
+                    <div class="col-md-3 mt-2 d-flex gap-2">
+                        <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success w-100">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">

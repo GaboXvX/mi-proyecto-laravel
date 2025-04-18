@@ -8,6 +8,7 @@ use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PeticionController;
 use App\Http\Controllers\recuperarController;
 use App\Http\Controllers\seguridadController;
@@ -128,5 +129,15 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar')->middleware('can:restaurar usuarios');
         Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);
         Route::post('/incidencias/generar-pdf', [IncidenciaController::class, 'generarPDF'])->name('incidencias.generarPDF');
+        Route::prefix('notificaciones')->middleware('auth')->group(function() {
+            Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
+            Route::get('/marcar-leida/{id}', [NotificacionController::class, 'marcarComoLeida'])->name('notificaciones.marcar-leida');
+            Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('notificaciones.marcar-todas-leidas');
+            Route::get('/contador', [NotificacionController::class, 'getContadorNoLeidas'])->name('notificaciones.contador');
+        });
+        Route::get('/mis-movimientos', [MovimientoController::class, 'index'])->name('mis.movimientos');
+Route::get('/mis-movimientos/exportar', [MovimientoController::class, 'exportar'])->name('movimientos.exportar');
+Route::get('/mis-movimientos/descargar/{id}', [MovimientoController::class, 'descargar'])->name('movimientos.descargar');
+
     });
 });

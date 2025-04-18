@@ -5,6 +5,7 @@ use App\Http\Requests\storePeticionRequest;
 use App\Models\EmpleadoAutorizado;
 use App\Models\EstadoUsuario;
 use App\Models\movimiento;
+use App\Models\Notificacion;
 use Illuminate\Support\Str;
 use App\Models\peticion;
 use App\Models\pregunta;
@@ -146,7 +147,11 @@ public function store(Request $request)
                 'respuesta' => $validated["respuesta_$i"],
             ]);
         }
-
+       notificacion::create([
+            'id_usuario' => $user->id_usuario,
+            'tipo_notificacion' => 'peticion_registrada',
+            'mensaje' => 'alguien realizo una peticion de registro .',
+        ]);
         return response()->json([
             'success' => true,
             'message' => 'Usuario registrado exitosamente. Redirigiendo al login...',
@@ -233,6 +238,11 @@ $peticion=user::where('id_usuario',$id)->first();
         $movimiento->id_usuario_afectado = $peticion->id_usuario;
         $movimiento->descripcion = 'se rechazo una petición';
         $movimiento->save();
+        Notificacion::create([
+            'id_usuario' => $peticion->id_usuario,
+            'tipo_notificacion' => 'peticion_rechazada',
+            'mensaje' => 'Su petición ha sido rechazada.',
+        ]);
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
  
@@ -267,6 +277,11 @@ $peticion=user::where('id_usuario',$id)->first();
                 $movimiento->id_usuario_afectado = $peticion->id_usuario;
                 $movimiento->descripcion = 'se acepto una petición';
                 $movimiento->save();
+                Notificacion::create([
+                    'id_usuario' => $peticion->id_usuario,
+                    'tipo_notificacion' => 'peticion_aceptada',
+                    'mensaje' => 'Su petición ha sido aceptada.',
+                ]);
                 // Redirigir con un mensaje de éxito
                 return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
             }

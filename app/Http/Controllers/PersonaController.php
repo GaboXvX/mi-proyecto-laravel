@@ -9,6 +9,7 @@ use App\Models\Comunidad;
 use App\Models\Direccion;
 use App\Models\Lider_Comunitario;
 use App\Models\movimiento;
+use App\Models\Notificacion;
 use App\Models\Parroquia;
 use App\Models\Persona;
 use App\Models\Sector;
@@ -119,12 +120,28 @@ class PersonaController extends Controller
                 $movimiento->id_usuario = auth()->user()->id_usuario;
                 $movimiento->descripcion = 'se registro como lider comunitario';
                 $movimiento->save();
+                Notificacion::create([
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'id_persona' => $persona->id_persona,
+                    'tipo_notificacion' => 'nuevo_lider',
+                    'titulo' => 'Nuevo líder comunitario registrado',
+                    'mensaje' => 'Se ha registrado a '.$persona->nombre.' '.$persona->apellido.' como líder comunitario en el sistema',
+                    'leido' => false
+                ]);
             }
             $movimiento = new movimiento();
                 $movimiento->id_persona = $persona->id_persona;
                 $movimiento->id_usuario = auth()->user()->id_usuario;
                 $movimiento->descripcion = 'se registro una persona';
                 $movimiento->save();
+                Notificacion::create([
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'id_persona' => $persona->id_persona,
+                    'tipo_notificacion' => 'nueva_persona',
+                    'titulo' => 'Nueva persona registrada',
+                    'mensaje' => 'Se ha registrado a '.$persona->nombre.' '.$persona->apellido.' en el sistema',
+                    'leido' => false
+                ]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Persona registrada exitosamente',
@@ -220,6 +237,14 @@ class PersonaController extends Controller
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->descripcion = 'se modifico una persona';
             $movimiento->save();
+            Notificacion::create([
+                'id_usuario' => Auth::user()->id_usuario,
+                'id_persona' => $persona->id_persona,
+                'tipo_notificacion' => 'modificar_persona',
+                'titulo' => 'Persona modificada',
+                'mensaje' => 'Se ha modificado a '.$persona->nombre.' '.$persona->apellido.' en el sistema',
+                'leido' => false
+            ]);
             return redirect()->route('personas.show', ['slug' => $slug])
                 ->with('success', 'Persona actualizada con éxito.');
         } catch (\Exception $e) {

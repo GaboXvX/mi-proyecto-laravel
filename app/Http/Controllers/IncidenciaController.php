@@ -8,6 +8,7 @@ use App\Models\Direccion;
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
+use App\Models\Notificacion;
 use App\Models\Persona;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
@@ -148,7 +149,14 @@ class IncidenciaController extends Controller
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->descripcion = 'Se registró una incidencia';
             $movimiento->save();
-    
+            Notificacion::create([
+                'id_usuario' => auth()->user()->id_usuario,
+                'id_incidencia' => $incidencia->id_incidencia,
+                'titulo' => 'Nueva Incidencia',
+                'tipo_notificacion' => 'incidencia',
+                'mensaje' => 'Se ha registrado una nueva incidencia con el código: ' . $codigo,
+                'estado' => 0,
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Incidencia registrada correctamente.',
@@ -210,43 +218,59 @@ class IncidenciaController extends Controller
     public function update(StoreIncidenciaRequest $request, $id)
     {
         try {
+            // Buscar la incidencia
             $incidencia = Incidencia::findOrFail($id);
             $slug = Str::slug(Str::lower($request->input('descripcion')));
-
-            // Validar si la dirección existe
+    
+            // Validar la dirección
             $direccion = Direccion::find($request->input('direccion'));
             if (!$direccion) {
-                return redirect()->route('personas.index')->with('error', 'La dirección seleccionada no existe.');
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ La dirección seleccionada no existe.',
+                ], 400);
             }
-
-            // Buscar al líder según la comunidad de la dirección y su estado activo
+    
+            // Buscar al líder de la comunidad asociada
             $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
-                ->where('estado', 1) // Verificamos que el líder esté activo
+                ->where('estado', 1)
                 ->first();
-
-            // Asignar el líder o NULL si no hay uno activo
+    
+            // Asignar el líder si existe, de lo contrario, dejarlo como null
             $incidencia->id_lider = $lider ? $lider->id_lider : null;
             $incidencia->slug = $slug;
-            // Asignar los valores actualizados a la incidencia
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
             $incidencia->descripcion = Str::lower($request->input('descripcion'));
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
             $incidencia->estado = $request->input('estado');
             $incidencia->id_direccion = $request->input('direccion');
-
-            // Guardar la incidencia
+            
+            // Guardar los cambios en la incidencia
             $incidencia->save();
+    
+            // Registrar el movimiento
             $movimiento = new movimiento();
-                $movimiento->id_incidencia = $incidencia->id_incidencia;
-                $movimiento->id_usuario = auth()->user()->id_usuario;
-                $movimiento->descripcion = 'se registro una incidencia';
-                $movimiento->save();
-            // Redirigir siempre a personas.index
-            return redirect()->route('personas.index')->with('success', 'Incidencia actualizada correctamente.');
+            $movimiento->id_incidencia = $incidencia->id_incidencia;
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->descripcion = 'Se actualizó una incidencia';
+            $movimiento->save();
+         
+            // Retornar respuesta de éxito
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Incidencia actualizada correctamente.',
+            ], 200);
+    
         } catch (\Exception $e) {
-            return redirect()->route('personas.index')->with('error', 'Error al actualizar la incidencia: ' . $e->getMessage());
+            // Manejo de errores
+            return response()->json([
+                'success' => false,
+                'message' => '⚠️ Error al actualizar la incidencia: ' . $e->getMessage(),
+            ], 500);
         }
     }
+    
+
 
 
    

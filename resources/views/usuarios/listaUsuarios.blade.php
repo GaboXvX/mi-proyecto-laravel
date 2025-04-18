@@ -64,16 +64,17 @@
                                     </a>
                                     @endcan
                                 @endunless
-
+                                @unless ($usuario->hasRole('admin'))
                                 @can('desactivar empleados')
                                 @if ($usuario->id_estado_usuario == 1)
                                     <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-secondary btn-sm">Deshabilitar</button>
+                                        <button type="submit" class="btn btn-secondary btn-sm" title="deshabilitar">Deshabilitar</button>
                                     </form>
                                 @endif
                                 @endcan
-
+                                    @endunless
+                                    @unless ($usuario->hasRole('admin'))
                                 @can('habilitar empleados')
                                 @if ($usuario->id_estado_usuario == 2)
                                     <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
@@ -82,14 +83,15 @@
                                     </form>
                                 @endif
                                 @endcan
-
+                                @endunless
+                                @unless ($usuario->hasRole('admin'))
                                 @can('restaurar empleados')
                                 <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                     @csrf
                                     <button type="submit" class="btn btn-primary btn-sm">Restaurar</button>
                                 </form>
                                 @endcan
-
+                                @endunless
                                 @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
                                     <a href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}" 
                                        class="btn btn-info btn-sm" 

@@ -97,5 +97,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(EmpleadoAutorizado::class, 'id_empleado_autorizado'); // Relación con el modelo EmpleadoAutorizado
     }
-    
+    // app/Models/User.php
+public function notificaciones()
+{
+    return $this->hasMany(Notificacion::class, 'id_usuario', 'id_usuario');
+}
+
+public function notificacionesNoLeidas()
+{
+    return $this->notificaciones()->where('leido', false);
+}
 }

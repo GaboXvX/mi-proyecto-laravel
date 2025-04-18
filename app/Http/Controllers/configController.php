@@ -22,7 +22,7 @@ class configController extends Controller
     {
         try {
             $usuario = User::where('id_usuario', $id_usuario)->first();
-            $usuario->password = bcrypt('12345678');
+            $usuario->password = bcrypt($usuario->cedula);
             $usuario->save();
             $movimiento = new movimiento();
             $movimiento->id_usuario = auth()->user()->id_usuario;

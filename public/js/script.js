@@ -1,9 +1,17 @@
-const sidebar = document.querySelector('.sidebar');
-const toggleSidebarBtn = document.getElementById('menuToggle');
+//ocultar y ver la sidebar
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
 
-toggleSidebarBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    sidebar.classList.toggle('active');
+    menuToggle.addEventListener("click", function () {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle("active");  // Para movil
+        } else {
+            sidebar.classList.toggle("collapsed");  // Para escritorio
+            mainContent.classList.toggle("collapsed");
+        }
+    });
 });
 
 //graficos
@@ -60,6 +68,18 @@ document.getElementById('cedula').addEventListener('input', function(e) {
   }
 });
 
+document.getElementById('nombre').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});
+
+document.getElementById('apellido').addEventListener('input', function(e) {
+  if (this.value.length > 11) {
+      this.value = this.value.slice(0, 11); 
+  }
+});
+
 document.getElementById('cedula').addEventListener('blur', async function () {
     const cedula = this.value.trim();
     if (cedula.length < 8) return;
@@ -112,18 +132,6 @@ document.getElementById('correo').addEventListener('blur', async function () {
     } catch (error) {
         console.error('Error de validación:', error);
     }
-});
-
-document.getElementById('nombre').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
-});
-
-document.getElementById('apellido').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {

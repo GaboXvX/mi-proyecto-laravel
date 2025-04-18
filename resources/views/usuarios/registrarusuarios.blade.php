@@ -57,8 +57,14 @@
 
     .error-message {
         color: red !important;
-        font-size: 0.9em;
+        font-size: 12px;
         margin-top: 5px;
+        display: none;
+    }
+
+    .error-message.active{
+        display: block;
+        color: red !important;
     }
 </style>
 
@@ -233,6 +239,7 @@ function showToast(message, type) {
         document.getElementById(id).value = '';
     });
     cedulaError.textContent = '';
+    cedulaError.classList.remove('active');
     
     // Si no hay cédula, salir sin hacer petición
     if (!cedula) {
@@ -242,6 +249,7 @@ function showToast(message, type) {
     // Mostrar estado de búsqueda
     cedulaError.textContent = 'Buscando...';
     cedulaError.style.color = 'blue';
+    cedulaError.classList.add('active');
 
     fetch(`/buscar-empleado?cedula=${encodeURIComponent(cedula)}`, {
         headers: {
@@ -271,11 +279,13 @@ function showToast(message, type) {
         document.getElementById('altura').value = data.altura || '';
         
         cedulaError.textContent = '';
+        cedulaError.classList.remove = 'active';
     })
     .catch(error => {
         console.error("Error:", error);
         cedulaError.textContent = error.message;
         cedulaError.style.color = 'red';
+        cedulaError.classList.add('active');
         
         // Asegurar que los campos estén vacíos
         ['nombre', 'apellido', 'genero', 'fecha_nacimiento', 'altura'].forEach(id => {
@@ -359,6 +369,5 @@ function limpiarNombreUsuario() {
         });
     });
 </script>
-
 
 @endsection

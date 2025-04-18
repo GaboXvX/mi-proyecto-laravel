@@ -18,7 +18,8 @@ class Notificacion extends Model
         'tipo_notificacion',
         'titulo',
         'mensaje',
-        'leido'
+        'leido',
+        'oculta',
     ];
 
     protected $casts = [

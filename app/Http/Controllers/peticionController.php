@@ -75,103 +75,118 @@ class peticionController extends Controller
    }
 
  // Controlador Store corregido
-public function store(Request $request)
-{
-    try {
-        // Validación de datos
-        $validated = $request->validate([
-            'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-            'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-            'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
-            'respuesta_1' => 'required|string|max:255',
-            'respuesta_2' => 'required|string|max:255',
-            'respuesta_3' => 'required|string|max:255',
-            'cedula' => 'required|string|max:10|regex:/^[0-9]{8,10}$/'
-        ], [
-            'nombre_usuario.required' => 'El nombre de usuario es obligatorio.',
-            'nombre_usuario.unique' => 'El nombre de usuario ya está en uso.',
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.unique' => 'El correo electrónico ya está registrado.',
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'pregunta_1.required' => 'Debe seleccionar la primera pregunta de seguridad.',
-            'pregunta_2.required' => 'Debe seleccionar la segunda pregunta de seguridad.',
-            'pregunta_3.required' => 'Debe seleccionar la tercera pregunta de seguridad.',
-            'respuesta_1.required' => 'Debe proporcionar una respuesta para la primera pregunta.',
-            'respuesta_2.required' => 'Debe proporcionar una respuesta para la segunda pregunta.',
-            'respuesta_3.required' => 'Debe proporcionar una respuesta para la tercera pregunta.',
-            'rol.required' => 'Debe seleccionar un rol.',
-            'rol.exists' => 'El rol seleccionado no es válido.',
-            'cedula.required' => 'La cédula es obligatoria.',
-            'cedula.regex' => 'La cédula debe contener entre 8 y 10 dígitos numéricos.',
-        ]);
-        // Buscar el empleado autorizado
-        $empleado = EmpleadoAutorizado::where('cedula', $validated['cedula'])->first();
-        if (!$empleado) {
-            return response()->json(['errors' => ['cedula' => ['El empleado no está autorizado para registrarse']]], 422);
-        }
-
-        // Verificar si ya está registrado en Users
-        if (User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists()) {
-            return response()->json(['errors' => ['cedula' => ['El empleado ya está registrado.']]], 422);
-        }
-
-        // Crear usuario
-        $user = User::create([
-            'id_empleado_autorizado' => $empleado->id_empleado_autorizado,
-            'slug' => Str::slug(Str::lower($validated['nombre_usuario'])),
-            'nombre_usuario' =>Str::lower($validated['nombre_usuario']) ,
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-            'id_estado_usuario' => 3, // No verificado
-        ]);
-
-        if (!$user) {
-            return response()->json(['errors' => ['general' => ['No se pudo crear el usuario. Inténtelo de nuevo.']]], 500);
-        }
-
-        // Asignar rol "registrador" al usuario recién creado
-        $registradorRole = Role::where('name', 'registrador')->first();
-        if ($registradorRole) {
-            $user->assignRole($registradorRole);
-        }
-
-        // Guardar respuestas de seguridad
-        foreach (range(1, 3) as $i) {
-            RespuestaDeSeguridad::create([
-                'id_usuario' => $user->id_usuario,
-                'id_pregunta' => $validated["pregunta_$i"],
-                'respuesta' => $validated["respuesta_$i"],
-            ]);
-        }
-       notificacion::create([
-            'id_usuario' => $user->id_usuario,
-            'tipo_notificacion' => 'peticion_registrada',
-            'mensaje' => 'alguien realizo una peticion de registro .',
-        ]);
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario registrado exitosamente. Redirigiendo al login...',
-            'redirect' => route('login')
-        ]);
-        
-    } catch (ValidationException $e) {
-        return response()->json(['errors' => $e->errors()], 422);
-
-    } catch (QueryException $e) {
-        return response()->json([
-            'errors' => ['general' => ['Hubo un problema al guardar los datos. Inténtelo más tarde.']]
-        ], 500);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'errors' => ['general' => ['Ocurrió un problema. Recargue la página e intente de nuevo.']]
-        ], 500);
-    }
-}
+ public function store(Request $request)
+ {
+     DB::beginTransaction();
+     
+     try {
+         // Validación de datos
+         $validated = $request->validate([
+             'nombre_usuario' => 'required|string|max:255|unique:users,nombre_usuario',
+             'email' => 'required|email|unique:users,email',
+             'password' => 'required|string|min:8',
+             'pregunta_1' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+             'pregunta_2' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+             'pregunta_3' => 'required|integer|exists:preguntas_de_seguridad,id_pregunta',
+             'respuesta_1' => 'required|string|max:255',
+             'respuesta_2' => 'required|string|max:255',
+             'respuesta_3' => 'required|string|max:255',
+             'cedula' => 'required|string|max:10|regex:/^[0-9]{8,10}$/'
+         ], [
+             'nombre_usuario.required' => 'El nombre de usuario es obligatorio.',
+             'nombre_usuario.unique' => 'El nombre de usuario ya está en uso.',
+             'email.required' => 'El correo electrónico es obligatorio.',
+             'email.unique' => 'El correo electrónico ya está registrado.',
+             'password.required' => 'La contraseña es obligatoria.',
+             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+             'pregunta_1.required' => 'Debe seleccionar la primera pregunta de seguridad.',
+             'pregunta_2.required' => 'Debe seleccionar la segunda pregunta de seguridad.',
+             'pregunta_3.required' => 'Debe seleccionar la tercera pregunta de seguridad.',
+             'respuesta_1.required' => 'Debe proporcionar una respuesta para la primera pregunta.',
+             'respuesta_2.required' => 'Debe proporcionar una respuesta para la segunda pregunta.',
+             'respuesta_3.required' => 'Debe proporcionar una respuesta para la tercera pregunta.',
+             'cedula.required' => 'La cédula es obligatoria.',
+             'cedula.regex' => 'La cédula debe contener entre 8 y 10 dígitos numéricos.',
+         ]);
+ 
+         // Buscar el empleado autorizado
+         $empleado = EmpleadoAutorizado::where('cedula', $validated['cedula'])->first();
+         if (!$empleado) {
+             return response()->json([
+                 'success' => false,
+                 'errors' => ['cedula' => ['El empleado no está autorizado para registrarse']]
+             ], 422);
+         }
+ 
+         // Verificar si ya está registrado en Users
+         if (User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists()) {
+             return response()->json([
+                 'success' => false,
+                 'errors' => ['cedula' => ['El empleado ya está registrado.']]
+             ], 422);
+         }
+ 
+         // Crear usuario
+         $user = User::create([
+             'id_empleado_autorizado' => $empleado->id_empleado_autorizado,
+             'slug' => Str::slug(Str::lower($validated['nombre_usuario'])),
+             'nombre_usuario' => Str::lower($validated['nombre_usuario']),
+             'email' => $validated['email'],
+             'password' => bcrypt($validated['password']),
+             'id_estado_usuario' => 3, // No verificado
+         ]);
+ 
+         if (!$user) {
+             throw new \Exception('No se pudo crear el usuario. Inténtelo de nuevo.');
+         }
+ 
+         // Asignar rol "registrador" al usuario recién creado
+         $registradorRole = Role::where('name', 'registrador')->first();
+         if ($registradorRole) {
+             $user->assignRole($registradorRole);
+         }
+ 
+         // Guardar respuestas de seguridad
+         foreach (range(1, 3) as $i) {
+             RespuestaDeSeguridad::create([
+                 'id_usuario' => $user->id_usuario,
+                 'id_pregunta' => $validated["pregunta_$i"],
+                 'respuesta' => $validated["respuesta_$i"],
+             ]);
+         }
+ 
+         // Crear notificación
+         Notificacion::create([
+             'id_usuario' => $user->id_usuario,
+                'titulo' => 'Petición de Registro',
+             'tipo_notificacion' => 'peticion_registrada',
+             'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
+         ]);
+ 
+         DB::commit();
+ 
+         return response()->json([
+             'success' => true,
+             'message' => 'Usuario registrado exitosamente. Redirigiendo al login...',
+             'redirect' => route('login')
+         ], 200); // Asegurarse de devolver código 200 para éxito
+         
+     } catch (ValidationException $e) {
+         DB::rollBack();
+         return response()->json([
+             'success' => false,
+             'errors' => $e->errors(),
+             'message' => 'Por favor corrige los errores en el formulario.'
+         ], 422);
+ 
+     } catch (\Exception $e) {
+         DB::rollBack();
+         return response()->json([
+             'success' => false,
+             'message' => 'Ocurrió un error: ' . $e->getMessage()
+         ], 500);
+     }
+ }
 
 
    
@@ -239,9 +254,10 @@ $peticion=user::where('id_usuario',$id)->first();
         $movimiento->descripcion = 'se rechazo una petición';
         $movimiento->save();
         Notificacion::create([
-            'id_usuario' => $peticion->id_usuario,
+            'id_usuario' => auth()->user()->id_usuario,
+            'titulo' => 'Petición Rechazada',
             'tipo_notificacion' => 'peticion_rechazada',
-            'mensaje' => 'Su petición ha sido rechazada.',
+            'mensaje' => 'se rechazo la peticion de ingreso de '.$peticion->nombre_usuario,
         ]);
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
@@ -278,9 +294,10 @@ $peticion=user::where('id_usuario',$id)->first();
                 $movimiento->descripcion = 'se acepto una petición';
                 $movimiento->save();
                 Notificacion::create([
-                    'id_usuario' => $peticion->id_usuario,
+                    'id_usuario' => auth()->user()->id_usuario,
+                    'titulo' => 'Petición Aceptada',
                     'tipo_notificacion' => 'peticion_aceptada',
-                    'mensaje' => 'Su petición ha sido aceptada.',
+                    'mensaje' => 'Se ha aceptado la peticion de ingreso de '.$peticion->nombre_usuario,
                 ]);
                 // Redirigir con un mensaje de éxito
                 return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
@@ -292,7 +309,7 @@ $peticion=user::where('id_usuario',$id)->first();
         } catch (\Exception $e) {
             // En caso de error, revertir la transacción y mostrar el mensaje correspondiente
             DB::rollBack();
-            return redirect()->route('usuarios.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
+            return redirect()->route('peticiones.index')->with('error', 'Error al procesar la solicitud: ' . $e->getMessage());
         }
     }
 

@@ -133,8 +133,6 @@ h2, h3, h4, label {
     <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
 </footer>
 
-<script src="{{ asset('js/home.js') }}"></script>
-
 <script>
 function showToast(message, type) {
     const toast = document.getElementById("toastMessage");
@@ -249,13 +247,20 @@ document.getElementById('registroForm').addEventListener('submit', function (eve
     const form = event.target;
     const formData = new FormData(form);
 
+    // Limpiar todos los mensajes de error antes de enviar
     document.querySelectorAll('.error-message').forEach(el => {
         el.textContent = '';
         el.classList.remove('active');
         el.style.display = 'none';
     });
 
-    fetch("{{ route('peticiones.store') }}", {
+    // Mostrar loader o indicador de carga si es necesario
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Procesando...';
+
+    fetch(form.action, {
         method: "POST",
         body: formData,
         headers: {
@@ -263,37 +268,66 @@ document.getElementById('registroForm').addEventListener('submit', function (eve
             "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
         }
     })
-    .then(response => response.json())
+    .then(async response => {
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Respuesta no válida del servidor");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Si la respuesta no es OK, lanzar error con los datos
+            const error = new Error(data.message || 'Error en la solicitud');
+            error.data = data;
+            throw error;
+        }
+
+        return data;
+    })
     .then(data => {
         if (data.success) {
-            showToast("✅ ¡Registro exitoso! Serás redirigido en unos segundos.", "success");
+            // Mostrar mensaje de éxito y redirigir
+            showToast(data.message || "✅ ¡Registro exitoso! Serás redirigido al login.", "success");
             setTimeout(() => {
-                window.location.href = data.redirect;
+                window.location.href = data.redirect || "{{ route('login') }}";
             }, 2000);
-        } else if (data.errors) {
-            showToast("⚠️ Por favor, revisa los errores en el formulario.", "error");
-            for (const field in data.errors) {
+        } else {
+            // Si no hay éxito pero tampoco hay errores específicos
+            throw new Error(data.message || 'Error desconocido al procesar la solicitud');
+        }
+    })
+    .catch(error => {
+        console.error("Error en el registro:", error);
+        
+        // Restaurar botón
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+
+        // Manejar diferentes tipos de errores
+        if (error.data && error.data.errors) {
+            // Mostrar errores de validación del servidor
+            showToast("⚠️ Por favor corrige los errores en el formulario", "error");
+            
+            for (const field in error.data.errors) {
                 const errorElement = document.getElementById(field + '_error');
                 if (errorElement) {
-                    let errorText = data.errors[field][0];
+                    let errorText = error.data.errors[field][0];
+                    // Traducir mensajes de error comunes
                     if (errorText.includes("has already been taken")) {
                         if (field === "nombre_usuario") errorText = "El nombre de usuario ya está en uso.";
                         if (field === "cedula") errorText = "La cédula ya está registrada.";
                         if (field === "email") errorText = "El correo electrónico ya está registrado.";
                     }
-                    if (errorText.includes("is required")) errorText = "Este campo es obligatorio.";
                     errorElement.textContent = errorText;
                     errorElement.classList.add('active');
                     errorElement.style.display = 'block';
                 }
             }
         } else {
-            showToast("❌ Ocurrió un error inesperado.", "error");
+            // Mostrar mensaje de error genérico
+            showToast(error.message || "❌ Error al procesar la solicitud. Inténtalo nuevamente.", "error");
         }
-    })
-    .catch(error => {
-        showToast("❌ Error en la solicitud.", "error");
-        console.error("Error:", error);
     });
 });
 </script>

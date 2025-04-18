@@ -126,7 +126,7 @@
                                     {{ $notificacion->tipo_notificacion == 'nueva_incidencia' ? 'bg-info' : '' }}
                                     {{ $notificacion->tipo_notificacion == 'nueva_persona' ? 'bg-success' : '' }}">
                                     {{ $notificacion->tipo_notificacion == 'nueva_incidencia' ? 'Incidencia' : '' }}
-                                    {{ $notificacion->tipo_notificacion == 'nueva_persona' ? 'Persona' : '' }}
+                                  
                                 </span>
                                 @endif
                             </a>
@@ -137,7 +137,7 @@
                         @endauth
                         <li class="dropdown-divider"></li>
                         <li class="text-center py-2">
-                            <a href="#" class="text-decoration-none">Ver todas</a>
+                            <a href="{{route('notificaciones.index')}}" class="text-decoration-none">Ver todas</a>
                         </li>
                     </ul>
                 </div>

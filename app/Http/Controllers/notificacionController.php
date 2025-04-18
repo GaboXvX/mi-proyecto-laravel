@@ -13,7 +13,7 @@ class NotificacionController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
             
-        return view('notificaciones.index', compact('notificaciones'));
+        return view('notificaciones.notificaciones', compact('notificaciones'));
     }
 
     public function marcarComoLeida($id)

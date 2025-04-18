@@ -33,8 +33,10 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+         'intentos_renovacion' => 'integer',
+        'ultima_renovacion_en' => 'datetime'
     ];
-
+    
     protected static function boot()
     {
         parent::boot();
@@ -65,7 +67,24 @@ class User extends Authenticatable
         return $this->hasMany(Lider_Comunitario::class, 'id_usuario');
     }
 
-    
+    // app/Models/User.php
+
+
+
+public function puedeRenovar()
+{
+    // Solo puede renovar si está rechazado (id_estado_usuario == 4)
+    // y no ha excedido el límite de 3 intentos
+    return $this->id_estado_usuario == 4 && 
+           $this->intentos_renovacion < 3;
+}
+
+public function incrementarIntentosRenovacion()
+{
+    $this->increment('intentos_renovacion');
+    $this->ultima_renovacion_en = now();
+    $this->save();
+}
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_usuario');

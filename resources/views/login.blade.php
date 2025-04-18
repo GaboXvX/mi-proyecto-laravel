@@ -35,7 +35,7 @@
 </style>
 
 <body>
-            <!-- Mensajes de error o éxito -->
+        <!-- Mensajes de error o éxito -->
             @if (session('success'))
             <div class="alert alert-success fade show" role="alert" id="success-alert">
                 {{ session('success') }}

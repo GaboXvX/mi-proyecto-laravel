@@ -38,13 +38,13 @@
     </style>
 </head>    
 <body>
-<aside class="sidebar d-flex flex-column p-3" id="sidebar">
+    <aside class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
         </a>
         <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column">
+        <ul class="nav nav-pills flex-column gap-2">
             <li class="nav-item">
                 <a href="{{ route('home') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">

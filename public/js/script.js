@@ -251,3 +251,30 @@ document.getElementById('registroPersonaForm').addEventListener('submit', async 
         submitBtn.textContent = 'Registrar';
     }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+    navLinks.forEach(link => {
+      // Reset classes
+      link.classList.remove('active');
+
+      // Check if link matches current path
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
+
+        // Si el link está dentro del submenú, abrir el submenú
+        const submenu = link.closest('#consultarSubmenu');
+        if (submenu) {
+          const collapse = bootstrap.Collapse.getOrCreateInstance(submenu, { toggle: false });
+          collapse.show(); // Abre el submenú
+        } else {
+          // Si estamos fuera del submenu, cerrarlo si está abierto
+          const submenuEl = document.getElementById('consultarSubmenu');
+          const collapse = bootstrap.Collapse.getOrCreateInstance(submenuEl, { toggle: false });
+          collapse.hide();
+        }
+      }
+    });
+  });

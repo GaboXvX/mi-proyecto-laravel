@@ -10,16 +10,21 @@
     <title>Minaguas</title>
 </head>
 <body>
+<<<<<<< HEAD
 <div class="d-flex">
     <!-- Sidebar -->
     <aside class="sidebar d-flex flex-column p-3" id="sidebar">
         <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
+=======
+    <aside class="sidebar d-flex flex-column p-3" id="sidebar">
+        <div class="d-flex align-items-center mb-3 text-decoration-none text-white">
+>>>>>>> origin/newbran
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
-        </a>
+        </div>
         <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
+        <ul class="nav nav-pills flex-column gap-2">
+            <li class="nav-item active">
                 <a href="{{ route('home') }}" class="nav-link">
                     <i class="bi bi-speedometer2 me-2"></i>
                     <span>Panel</span>
@@ -60,6 +65,7 @@
                                 Peticiones
                             </a>
                         </li>
+<<<<<<< HEAD
                         @auth
                         <li>
                             <a class="nav-link px-3" href="{{ route('mis.movimientos') }}">
@@ -68,21 +74,46 @@
                             </a>
                         </li>
                         @endauth
+=======
+                     
+                        
+>>>>>>> origin/newbran
                     </ul>
                 </div>
             </li>
 
+<<<<<<< HEAD
             @can('ver grafica incidencia')
             <li class="nav-item">
                 <a href="{{ route('estadisticas') }}" class="nav-link">
                     <i class="bi bi-bar-chart-line me-2"></i>
                     Estadísticas
+=======
+            @auth
+    <li class="nav-item">
+            <a class="nav-link" href="{{ route('mis.movimientos') }}">
+                <i class="bi bi-clock-history me-2"></i>Mis Movimientos
+            </a>
+        </li>
+    @endauth
+            
+           
+            <li>
+                @can('ver grafica incidencia')
+                <a href="{{ route('estadisticas') }}" class="nav-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
+                    </svg>
+                    <span>Estadísticas</span>
+>>>>>>> origin/newbran
                 </a>
+                @endcan
             </li>
-            @endcan
+            
         </ul>
         <hr class="text-secondary">
     </aside>
+<<<<<<< HEAD
 
     <!-- Main content -->
     <main class="main-content flex-fill">
@@ -166,6 +197,14 @@
         <div class="container py-4">
             @yield('content')
         </div>
+=======
+    
+    <main class="main-content">
+        @yield('content')
+        <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('js/script.js') }}"></script>
+        <script src="{{ asset('js/popper.js')}}"></script>
+>>>>>>> origin/newbran
     </main>
 </div>
 

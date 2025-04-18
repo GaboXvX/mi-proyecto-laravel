@@ -11,12 +11,12 @@
 </head>    
 <body>
     <aside class="sidebar d-flex flex-column p-3" id="sidebar">
-        <div class="d-flex align-items-center mb-3 text-decoration-none text-white">
+        <div class="d-flex align-items-center text-decoration-none text-white mb-3">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
-            <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
+            <span class="fs-5 fw-bold ms-2">MinAguas</span>
         </div>
         <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column">
+        <ul class="nav nav-pills flex-column gap-2">
             <li class="nav-item active">
                 <a href="{{ route('home') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
@@ -28,15 +28,15 @@
             </li>
            
             <li class="nav-item">
-                <a href="#layouts" class="nav-link" data-bs-toggle="collapse">
+                <a href="#subMenu" class="nav-link" data-bs-toggle="collapse">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
                 </svg>
                     <span class="nav-name">Consultar</span>
                     <span class="right-icon px-2"><i class="bi bi-chevron-down"></i></span>
                 </a>
-                <div class="collapse" id="layouts">
-                    <ul class="navbar-nav ps-3">
+                <div class="collapse ps-3" id="subMenu">
+                    <ul class="navbar-nav mt-2 gap-1">
                         @can('ver usuarios')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3">

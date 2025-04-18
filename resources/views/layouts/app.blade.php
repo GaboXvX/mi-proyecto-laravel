@@ -10,14 +10,14 @@
     <title>Minaguas</title>
 </head>    
 <body>
-<aside class="sidebar d-flex flex-column p-3" id="sidebar">
-        <a href="{{route('home')}}" class="d-flex align-items-center mb-3 text-decoration-none text-white">
+    <aside class="sidebar d-flex flex-column p-3" id="sidebar">
+        <div class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
             <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
-        </a>
+        </div>
         <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
+        <ul class="nav nav-pills flex-column gap-2">
+            <li class="nav-item active">
                 <a href="{{ route('home') }}" class="nav-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
                     <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
@@ -75,59 +75,40 @@
                             </a>
                         </li>
                      
-                        @auth
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('mis.movimientos') }}">
-            <i class="bi bi-clock-history me-2"></i>Mis Movimientos
-        </a>
-    </li>
-@endauth
+                        
                     </ul>
                 </div>
             </li>
-            @can('ver grafica incidencia')
-            <li class="nav-item">
+
+            @auth
+    <li class="nav-item">
+            <a class="nav-link" href="{{ route('mis.movimientos') }}">
+                <i class="bi bi-clock-history me-2"></i>Mis Movimientos
+            </a>
+        </li>
+    @endauth
+            
+           
+            <li>
+                @can('ver grafica incidencia')
                 <a href="{{ route('estadisticas') }}" class="nav-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                    <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
-                </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
+                    </svg>
                     <span>Estadísticas</span>
                 </a>
+                @endcan
             </li>
-            @endcan
+            
         </ul>
         <hr class="text-secondary">
     </aside>
     
     <main class="main-content">
-        <div class="topbar d-flex align-items-center justify-content-between">
-            <button class="btn btn-light burger-btn" id="menuToggle">
-                <i class="bi bi-list"></i>
-            </button>
-            <div>
-                <button class="btn btn-light me-2">
-                    <i class="bi bi-bell"></i>
-                </button>
-                <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="dropdown-item">Cerrar sesión</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="container">
-            @yield('content')
-        </div>
+        @yield('content')
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/script.js') }}"></script>
+        <script src="{{ asset('js/popper.js')}}"></script>
     </main>
 </body>
 </html>

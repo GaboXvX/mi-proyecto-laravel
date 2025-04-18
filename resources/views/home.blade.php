@@ -5,13 +5,12 @@
         </h3>
     
         <div class="card-access">
-            @role('admin')
             <div class="item">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 14.0619V20H13V14.0619C16.9463 14.554 20 17.9204 20 22H4C4 17.9204 7.05369 14.554 11 14.0619ZM12 13C8.685 13 6 10.315 6 7C6 3.685 8.685 1 12 1C15.315 1 18 3.685 18 7C18 10.315 15.315 13 12 13Z"></path></svg>
                 <h5>Empleados</h5>
                 <p>{{ $totalUsuarios }}</p>
             </div>
-            @endrole
+            
             <div class="item">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4H5V20H19V8H15V4ZM3 2.9918C3 2.44405 3.44749 2 3.9985 2H16L20.9997 7L21 20.9925C21 21.5489 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5447 3 21.0082V2.9918ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg>
                 <h5>Incidencias</h5>
@@ -22,17 +21,14 @@
                 <h5>Personas</h5>
                 <p>{{ $totalPersonas }}</p>
             </div>
-            @role('admin')
             <div class="item">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM7 6V10H11V6H7ZM7 12V14H17V12H7ZM7 16V18H17V16H7ZM13 7V9H17V7H13Z"></path></svg>
                 <h5>Peticiones</h5>
                 <p>{{ $totalPeticiones }}</p>
             </div>
-            @endrole
         </div>
     </main>
 
-   
     <script>
         async function actualizarTotalPeticiones() {
             try {

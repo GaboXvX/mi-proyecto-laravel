@@ -78,7 +78,11 @@
                 <button type="submit">Iniciar sesión</button>
 
                 <p>¿No tienes una cuenta? <a href="{{ route('usuarios.create') }}">Regístrate aquí</a></p>
+<<<<<<< HEAD
                 <p>¿Tienes una peticion Rechazada? <a href="{{route('renovacion.mostrar')}}">Renuevala</a> </p>
+=======
+                <p>¿tienes una peticion rechazada?<a href="{{route('renovacion.mostrar')}}">Renuevala</a></p>
+>>>>>>> cambios-minaguas
             </form>
     </div>
 

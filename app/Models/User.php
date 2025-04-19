@@ -34,11 +34,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
          'intentos_renovacion' => 'integer',
-<<<<<<< HEAD
-        'ultima_renovacion_en' => 'datetime'
-=======
     'ultima_renovacion_en' => 'datetime'
->>>>>>> cambios-minaguas
     ];
     
     protected static function boot()
@@ -75,20 +71,9 @@ class User extends Authenticatable
 
 
 
-public function puedeRenovar()
-{
-    // Solo puede renovar si está rechazado (id_estado_usuario == 4)
-    // y no ha excedido el límite de 3 intentos
-    return $this->id_estado_usuario == 4 && 
-           $this->intentos_renovacion < 3;
-}
 
-public function incrementarIntentosRenovacion()
-{
-    $this->increment('intentos_renovacion');
-    $this->ultima_renovacion_en = now();
-    $this->save();
-}
+
+
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_usuario');

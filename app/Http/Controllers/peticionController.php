@@ -156,29 +156,14 @@ class peticionController extends Controller
          }
  
          // Crear notificación
-<<<<<<< HEAD
-         Notificacion::create([
-             'id_usuario' => $user->id_usuario,
-                'titulo' => 'Petición de Registro',
-             'tipo_notificacion' => 'peticion_registrada',
-             'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
-<<<<<<< HEAD
-=======
-                'leido' => false,
-                'mostrar_a_todos' => true, // Mostrar a todos los usuarios
->>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
-         ]);
-=======
         //  Notificacion::create([
-        //     'titulo' => 'Petición de Registro',
-        //     'tipo_notificacion' => 'peticion_registrada',
-        //     'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
-        //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
-        //     // Los demás campos según tu estructura actual
-        //      // Opcional: usuario que generó la notificación
-        //     'leido' => false // Este campo ahora sería para el estado general
-        // ]);
->>>>>>> cambios-minaguas
+        //      'id_usuario' => $user->id_usuario,
+        //         'titulo' => 'Petición de Registro',
+        //      'tipo_notificacion' => 'peticion_registrada',
+        //      'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
+        //         'leido' => false,
+        //         'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+        //  ]);
  
          DB::commit();
  
@@ -270,19 +255,6 @@ $peticion=user::where('id_usuario',$id)->first();
         $movimiento->id_usuario_afectado = $peticion->id_usuario;
         $movimiento->descripcion = 'se rechazo una petición';
         $movimiento->save();
-<<<<<<< HEAD
-        Notificacion::create([
-            'id_usuario' => auth()->user()->id_usuario,
-            'titulo' => 'Petición Rechazada',
-            'tipo_notificacion' => 'peticion_rechazada',
-            'mensaje' => 'se rechazo la peticion de ingreso de '.$peticion->nombre_usuario,
-<<<<<<< HEAD
-=======
-            'leido' => false,
-            'mostrar_a_todos' => true, // Mostrar a todos los usuarios
->>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
-        ]);
-=======
         // Notificacion::create([
         //     'id_usuario' => auth()->user()->id_usuario,
         //     'titulo' => 'Petición Rechazada',
@@ -291,7 +263,6 @@ $peticion=user::where('id_usuario',$id)->first();
         //     'leido' => false,
         //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
         // ]);
->>>>>>> cambios-minaguas
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
  
@@ -326,17 +297,14 @@ $peticion=user::where('id_usuario',$id)->first();
                 $movimiento->id_usuario_afectado = $peticion->id_usuario;
                 $movimiento->descripcion = 'se acepto una petición';
                 $movimiento->save();
-                Notificacion::create([
-                    'id_usuario' => auth()->user()->id_usuario,
-                    'titulo' => 'Petición Aceptada',
-                    'tipo_notificacion' => 'peticion_aceptada',
-                    'mensaje' => 'Se ha aceptado la peticion de ingreso de '.$peticion->nombre_usuario,
-<<<<<<< HEAD
-=======
-                    'leido' => false,
-                    'mostrar_a_todos' => true, // Mostrar a todos los usuarios
->>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
-                ]);
+                // Notificacion::create([
+                //     'id_usuario' => auth()->user()->id_usuario,
+                //     'titulo' => 'Petición Aceptada',
+                //     'tipo_notificacion' => 'peticion_aceptada',
+                //     'mensaje' => 'Se ha aceptado la peticion de ingreso de '.$peticion->nombre_usuario,
+                //     'leido' => false,
+                //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+                // ]);
                 // Redirigir con un mensaje de éxito
                 return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
             }

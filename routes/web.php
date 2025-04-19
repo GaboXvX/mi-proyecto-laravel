@@ -22,10 +22,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // routes/web.php
-<<<<<<< HEAD
-
-=======
->>>>>>> cambios-minaguas
     Route::controller(RenovacionController::class)->group(function () {
         Route::get('/renovar-solicitud', 'mostrarFormulario')->name('renovacion.mostrar');
         Route::post('/renovar-solicitud', 'procesarFormulario')->name('renovacion.procesar');

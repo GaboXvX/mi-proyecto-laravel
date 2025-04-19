@@ -1,29 +1,16 @@
 <?php
-<<<<<<< HEAD
-
-namespace App\Http\Controllers;
-
-use App\Models\Notificacion;
-use Illuminate\Http\Request;
-use App\Models\User;
-=======
 namespace App\Http\Controllers;
 
 use App\Models\Notificacion;
 use App\Models\User;
 use Illuminate\Http\Request;
->>>>>>> cambios-minaguas
 use Illuminate\Support\Facades\Validator;
 
 class RenovacionController extends Controller
 {
     public function mostrarFormulario()
     {
-<<<<<<< HEAD
-        return view('renovacion.formularioRenovacionP');
-=======
         return view('recuperacion.FormularioRecuperacionPt');
->>>>>>> cambios-minaguas
     }
 
     public function procesarFormulario(Request $request)
@@ -68,8 +55,4 @@ class RenovacionController extends Controller
         return redirect()->route('login')
             ->with('success', 'Solicitud renovada con éxito. Será revisada nuevamente.');
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> cambios-minaguas

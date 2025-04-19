@@ -25,15 +25,14 @@
     }
     .btn-atender {
         background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
+        color: #fff;
         cursor: pointer;
+        font-size: 12px;
         transition: background-color 0.3s;
     }
     .btn-atender:hover {
         background-color: #218838;
+        color: #fff;
     }
     .btn-atender:disabled {
         background-color: #6c757d;
@@ -145,21 +144,30 @@
                             @endif
                         </td>
                         <td>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex align-items-center gap-2">
                                 @can('descargar grafica incidencia')
                                 <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-download"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                                    </svg>
                                 </a>
                                 @endcan
                                 
                                 @can('cambiar estado de incidencias')
                                 @if($incidencia->estado == 'Por atender')
                                 <button class="btn btn-atender btn-sm" onclick="atenderIncidencia('{{ $incidencia->slug }}')">
-                                    <i class="bi bi-check-circle"></i> Atender
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                                        <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
+                                        <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
+                                    </svg>  Atender
                                 </button>
                                 @else
                                 <button class="btn btn-atender btn-sm" disabled>
-                                    <i class="bi bi-check-circle"></i> Atendido
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                                        <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
+                                        <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
+                                    </svg> Atendido
                                 </button>
                                 @endif
                                 @endcan

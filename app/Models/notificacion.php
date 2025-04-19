@@ -11,15 +11,15 @@ class Notificacion extends Model
     protected $table = 'notificaciones';
     protected $primaryKey = 'id_notificacion';
 
-    protected $fillable = [
-        'id_usuario',
-        'id_persona',
-        'id_incidencia',
-        'tipo_notificacion',
-        'titulo',
-        'mensaje',
-        'leido'
-    ];
+   // En tu modelo Notificacion
+protected $fillable = [
+    'id_usuario',
+    'titulo',
+    'mensaje',
+    'tipo_notificacion',
+    'leido',
+    'mostrar_a_todos'
+];
 
     protected $casts = [
         'leido' => 'boolean',

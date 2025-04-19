@@ -7,14 +7,17 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificacionController extends Controller
 {
-    public function index()
-    {
-        $notificaciones = Auth::user()->notificaciones()
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-            
-        return view('notificaciones.index', compact('notificaciones'));
-    }
+    // En tu controlador de notificaciones
+public function index()
+{
+    // Obtener todas las notificaciones importantes para mostrar a todos
+    $notificaciones = Notificacion::where('mostrar_a_todos', true)
+        ->orWhere('id_usuario', auth()->id())
+        ->latest()
+        ->paginate(10);
+
+    return view('notificaciones.notificaciones', compact('notificaciones'));
+}
 
     public function marcarComoLeida($id)
     {

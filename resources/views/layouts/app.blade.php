@@ -17,57 +17,50 @@
         </div>
         <hr class="text-secondary">
         <ul class="nav nav-pills flex-column gap-2">
-            <li class="nav-item">
-                <a href="{{ route('home') }}" class="nav-link {{ Route::is('home') ? 'active' : '' }}">
+            <li class="nav-item active">
+                <a href="{{ route('home') }}" class="nav-link">
                     <i class="bi bi-speedometer2 me-2"></i>
                     <span>Panel</span>
                 </a>
             </li>
 
-            @php
-                // Verificamos si alguna ruta del submenu "Consultar" está activa
-                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'incidencias.index', 'peticiones.index', 'mis.movimientos');
-            @endphp
-
             <li class="nav-item">
-                <a href="#layouts" class="nav-link {{ $consultarActivo ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="{{ $consultarActivo ? 'true' : 'false' }}">
+                <a href="#layouts" class="nav-link" data-bs-toggle="collapse">
                     <i class="bi bi-search me-2"></i>
                     <span>Consultar</span>
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="collapse {{ $consultarActivo ? 'show' : '' }}" id="layouts">
-                    <ul class="navbar-nav ps-3 mt-2">
+                <div class="collapse" id="layouts">
+                    <ul class="navbar-nav ps-3">
                         @can('ver empleados')
                         <li>
-                            <a href="{{ route('usuarios.index') }}" class="nav-link px-3 {{ Route::is('usuarios.index') ? 'active' : '' }}">
+                            <a href="{{ route('usuarios.index') }}" class="nav-link px-3">
                                 <i class="bi bi-people me-2"></i>
                                 Empleados
                             </a>
                         </li>
                         @endcan
-
                         <li>
-                            <a href="{{ route('personas.index') }}" class="nav-link px-3 {{ Route::is('personas.index') ? 'active' : '' }}">
+                            <a href="{{ route('personas.index') }}" class="nav-link px-3">
                                 <i class="bi bi-person-circle me-2"></i>
                                 Personas
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
+                            <a href="{{ route('incidencias.index') }}" class="nav-link px-3">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Incidencias
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
+                            <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                                 <i class="bi bi-envelope me-2"></i>
                                 Peticiones
                             </a>
                         </li>
-
                         @auth
                         <li>
-                            <a href="{{ route('mis.movimientos') }}" class="nav-link px-3 {{ Route::is('mis.movimientos') ? 'active' : '' }}">
+                            <a class="nav-link px-3" href="{{ route('mis.movimientos') }}">
                                 <i class="bi bi-clock-history me-2"></i>
                                 Mis Movimientos
                             </a>
@@ -79,16 +72,16 @@
 
             @can('ver grafica incidencia')
             <li class="nav-item">
-                <a href="{{ route('estadisticas') }}" class="nav-link {{ Route::is('estadisticas') ? 'active' : '' }}">
+                <a href="{{ route('estadisticas') }}" class="nav-link">
                     <i class="bi bi-bar-chart-line me-2"></i>
                     Estadísticas
                 </a>
+                @endcan
             </li>
-            @endcan
+            
         </ul>
         <hr class="text-secondary">
     </aside>
-
 
     <!-- Main content -->
     <main class="main-content flex-fill">

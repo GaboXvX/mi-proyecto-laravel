@@ -11,7 +11,12 @@ class movimiento extends Model
     use HasFactory;
     protected $table='movimientos';
     protected $primaryKey='id_movimiento';
-
+    protected $fillable = [
+        'id_usuario',
+        'id_usuario_afectado',
+        'descripcion',
+        // Agrega aquí otros campos que necesites asignar masivamente
+    ];
     public function lider(){
         return $this->belongsTo(Lider_Comunitario::class,'id_lider');
     }

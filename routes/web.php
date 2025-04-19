@@ -125,6 +125,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
 
         Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');
+        Route::post('/usuarios/{usuario}/cambiar', [ConfigController::class, 'actualizar'])->name('usuarios.cambiar');
+        Route::post('/usuarios/{usuario}/cambiar-preguntas', [ConfigController::class, 'cambiarPreguntas'])->name('usuarios.cambiar-preguntas');
         Route::post('/usuarios/cambiar/{id_usuario}', [UserController::class, 'update'])->name('usuarios.cambiar');
         Route::post('/usuarios/restaurar/{id_usuario}', [configController::class, 'restaurar'])->name('usuarios.restaurar')->middleware('can:restaurar usuarios');
         Route::post('/check-lider-status', [direccionController::class, 'checkLiderStatus']);

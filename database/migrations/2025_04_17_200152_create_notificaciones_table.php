@@ -13,16 +13,14 @@ return new class extends Migration
     {
         Schema::create('notificaciones', function (Blueprint $table) {
             $table->bigIncrements('id_notificacion');
-            $table->unsignedBigInteger('id_usuario')->nullable();
+            $table->unsignedBigInteger('id_usuario')->nullable(); // Quien genera la notificación
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('id_persona')->nullable();
-            $table->foreign('id_persona')->references('id_persona')->on('personas')->onDelete('cascade');
-            $table->unsignedBigInteger('id_incidencia')->nullable();
-            $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
             $table->string('tipo_notificacion');
             $table->string('titulo');
             $table->string('mensaje');
-            $table->boolean('leido')->default(false);
+            $table->boolean('mostrar_a_todos')->default(false);
+            $table->unsignedBigInteger('id_incidencia')->nullable();
+            $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
             $table->timestamps();
         });
     }

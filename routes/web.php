@@ -14,13 +14,18 @@ use App\Http\Controllers\recuperarController;
 use App\Http\Controllers\seguridadController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RecuperarGetController;
+use App\Http\Controllers\RenovacionController;
 use App\Http\Controllers\UsuarioValidacionController;
 use App\Http\Controllers\UsuarioController;
 use App\Models\Direccion;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
-
+    // routes/web.php
+    Route::controller(RenovacionController::class)->group(function () {
+        Route::get('/renovar-solicitud', 'mostrarFormulario')->name('renovacion.mostrar');
+        Route::post('/renovar-solicitud', 'procesarFormulario')->name('renovacion.procesar');
+    });
     Route::get('/buscar-empleado', [PeticionController::class, 'buscarEmpleado'])->name('buscar.empleado');
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');

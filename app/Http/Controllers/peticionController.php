@@ -156,14 +156,15 @@ class peticionController extends Controller
          }
  
          // Crear notificación
-         Notificacion::create([
-             'id_usuario' => $user->id_usuario,
-                'titulo' => 'Petición de Registro',
-             'tipo_notificacion' => 'peticion_registrada',
-             'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
-                'leido' => false,
-                'mostrar_a_todos' => true, // Mostrar a todos los usuarios
-         ]);
+        //  Notificacion::create([
+        //     'titulo' => 'Petición de Registro',
+        //     'tipo_notificacion' => 'peticion_registrada',
+        //     'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
+        //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+        //     // Los demás campos según tu estructura actual
+        //      // Opcional: usuario que generó la notificación
+        //     'leido' => false // Este campo ahora sería para el estado general
+        // ]);
  
          DB::commit();
  
@@ -255,14 +256,14 @@ $peticion=user::where('id_usuario',$id)->first();
         $movimiento->id_usuario_afectado = $peticion->id_usuario;
         $movimiento->descripcion = 'se rechazo una petición';
         $movimiento->save();
-        Notificacion::create([
-            'id_usuario' => auth()->user()->id_usuario,
-            'titulo' => 'Petición Rechazada',
-            'tipo_notificacion' => 'peticion_rechazada',
-            'mensaje' => 'se rechazo la peticion de ingreso de '.$peticion->nombre_usuario,
-            'leido' => false,
-            'mostrar_a_todos' => true, // Mostrar a todos los usuarios
-        ]);
+        // Notificacion::create([
+        //     'id_usuario' => auth()->user()->id_usuario,
+        //     'titulo' => 'Petición Rechazada',
+        //     'tipo_notificacion' => 'peticion_rechazada',
+        //     'mensaje' => 'se rechazo la peticion de ingreso de '.$peticion->nombre_usuario,
+        //     'leido' => false,
+        //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+        // ]);
         return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
     }
  

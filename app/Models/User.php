@@ -33,6 +33,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+         'intentos_renovacion' => 'integer',
+    'ultima_renovacion_en' => 'datetime'
     ];
 
     protected static function boot()
@@ -98,13 +100,39 @@ class User extends Authenticatable
         return $this->belongsTo(EmpleadoAutorizado::class, 'id_empleado_autorizado'); // Relación con el modelo EmpleadoAutorizado
     }
     // app/Models/User.php
+
+
+// app/Models/User.php
 public function notificaciones()
 {
-    return $this->hasMany(Notificacion::class, 'id_usuario', 'id_usuario');
+    return $this->belongsToMany(Notificacion::class, 'notificacion_usuario', 'id_usuario', 'id_notificacion')
+                ->withPivot('leido', 'fecha_leido', 'created_at', 'updated_at')
+                ->orderBy('notificaciones.created_at', 'desc'); // Cambiar aquí si es necesario
 }
+
 
 public function notificacionesNoLeidas()
 {
-    return $this->notificaciones()->where('leido', false);
+    return $this->notificaciones()->wherePivot('leido', false);
+}
+public function notificacionesUsuario()
+{
+    return $this->belongsToMany(Notificacion::class, 'notificacion_usuario', 'id_usuario', 'id_notificacion')
+                ->withPivot('leido', 'fecha_leido')
+                ->withTimestamps();
+}
+public function puedeRenovar()
+{
+    // Solo puede renovar si está rechazado (id_estado_usuario == 4)
+    // y no ha excedido el límite de 3 intentos
+    return $this->id_estado_usuario == 4 && 
+           $this->intentos_renovacion < 3;
+}
+
+public function incrementarIntentosRenovacion()
+{
+    $this->increment('intentos_renovacion');
+    $this->ultima_renovacion_en = now();
+    $this->save();
 }
 }

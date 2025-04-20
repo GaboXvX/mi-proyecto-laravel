@@ -36,7 +36,7 @@ class User extends Authenticatable
          'intentos_renovacion' => 'integer',
     'ultima_renovacion_en' => 'datetime'
     ];
-
+    
     protected static function boot()
     {
         parent::boot();
@@ -67,7 +67,13 @@ class User extends Authenticatable
         return $this->hasMany(Lider_Comunitario::class, 'id_usuario');
     }
 
-    
+    // app/Models/User.php
+
+
+
+
+
+
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_usuario');

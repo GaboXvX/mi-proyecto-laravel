@@ -147,4 +147,6 @@ Route::get('/mis-movimientos/exportar', [MovimientoController::class, 'exportar'
 Route::get('/mis-movimientos/descargar/{id}', [MovimientoController::class, 'descargar'])->name('movimientos.descargar');
 
     });
+    // Para ocultar individual
+
 });

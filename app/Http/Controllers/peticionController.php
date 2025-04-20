@@ -157,14 +157,13 @@ class peticionController extends Controller
  
          // Crear notificación
         //  Notificacion::create([
-        //     'titulo' => 'Petición de Registro',
-        //     'tipo_notificacion' => 'peticion_registrada',
-        //     'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
-        //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
-        //     // Los demás campos según tu estructura actual
-        //      // Opcional: usuario que generó la notificación
-        //     'leido' => false // Este campo ahora sería para el estado general
-        // ]);
+        //      'id_usuario' => $user->id_usuario,
+        //         'titulo' => 'Petición de Registro',
+        //      'tipo_notificacion' => 'peticion_registrada',
+        //      'mensaje' => 'Se ha realizado una petición de registro para el usuario '.$user->nombre_usuario,
+        //         'leido' => false,
+        //         'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+        //  ]);
  
          DB::commit();
  

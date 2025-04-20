@@ -149,14 +149,7 @@ class IncidenciaController extends Controller
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->descripcion = 'Se registró una incidencia';
             $movimiento->save();
-            Notificacion::create([
-                'id_usuario' => auth()->user()->id_usuario,
-                'id_incidencia' => $incidencia->id_incidencia,
-                'titulo' => 'Nueva Incidencia',
-                'tipo_notificacion' => 'incidencia',
-                'mensaje' => 'Se ha registrado una nueva incidencia con el código: ' . $codigo,
-                'estado' => 0,
-            ]);
+           
             return response()->json([
                 'success' => true,
                 'message' => 'Incidencia registrada correctamente.',

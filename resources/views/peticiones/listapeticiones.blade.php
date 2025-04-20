@@ -52,7 +52,10 @@
     </style>
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
 
         <!-- Alertas de éxito y errores -->
         @if (session('success'))
@@ -111,11 +114,11 @@
 
                 peticiones.forEach(peticion => {
                     let estadoClass = '';
-                    if (peticion.id_estado_usuario === 1) {
+                    if (peticion.id_estado_usuario == 1) {
                         estadoClass = 'status-accepted';
-                    } else if (peticion.id_estado_usuario === 3) {
+                    } else if (peticion.id_estado_usuario == 3) {
                         estadoClass = 'status-not-verified';
-                    } else if (peticion.id_estado_usuario === 4) {
+                    } else if (peticion.id_estado_usuario == 4) {
                         estadoClass = 'status-rejected';
                     }
 
@@ -130,7 +133,7 @@
                             <td>
                                 <div>
                                     ${
-                                        peticion.id_estado_usuario === 3
+                                        peticion.id_estado_usuario == 3
                                         ? `
                                             <form action="{{ route('peticion.aceptar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
                                                 @csrf
@@ -160,4 +163,8 @@
         // Opcional: Recargar las peticiones cada 30 segundos
         setInterval(cargarPeticiones, 30000);
     </script>
+<<<<<<< HEAD
+
+=======
+>>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
 @endsection

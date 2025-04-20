@@ -133,7 +133,7 @@
                                     {{ $notificacion->tipo_notificacion == 'nueva_incidencia' ? 'bg-info' : '' }}
                                     {{ $notificacion->tipo_notificacion == 'nueva_persona' ? 'bg-success' : '' }}">
                                     {{ $notificacion->tipo_notificacion == 'nueva_incidencia' ? 'Incidencia' : '' }}
-                                    {{ $notificacion->tipo_notificacion == 'nueva_persona' ? 'Persona' : '' }}
+                                  
                                 </span>
                                 @endif
                             </a>

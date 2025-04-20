@@ -226,81 +226,52 @@
         
         <!-- Paso 1: Datos Básicos -->
         <div class="form-step active" id="step1">
-            <div class="form-group">
-                <label for="cedula">Cédula</label>
-                <input type="text" id="cedula" name="cedula" class="form-control" 
-                       placeholder="Ingrese su cédula" value="{{ old('cedula') }}" 
-                       required onblur="buscarEmpleado()">
+            <div class="password-container">
+                <input type="text" id="cedula" name="cedula" class="form-control" placeholder="Ingrese su cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
                 <span id="cedula_error" class="error-message"></span>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" 
-                           placeholder="Nombre" value="{{ old('nombre') }}" required readonly>
-                </div>
-                <div class="col-md-6 form-group">
-                    <label for="apellido">Apellido</label>
-                    <input type="text" id="apellido" name="apellido" class="form-control" 
-                           placeholder="Apellido" value="{{ old('apellido') }}" required readonly>
+                <div class="form-group">
+                    <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre" value="{{ old('nombre') }}" required readonly>
+                
+                    <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Apellido" value="{{ old('apellido') }}" required readonly>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="nombre_usuario">Nombre de Usuario</label>
-                    <input type="text" id="nombre_usuario" name="nombre_usuario" class="form-control" 
-                           placeholder="Nombre de usuario" value="{{ old('nombre_usuario') }}" required
-                           oninput="limpiarNombreUsuario(this)">
+                <div class="form-group">
+                    <input type="text" id="nombre_usuario" name="nombre_usuario" class="form-control" placeholder="Nombre de usuario" value="{{ old('nombre_usuario') }}" required oninput="limpiarNombreUsuario(this)">
                     <span id="nombre_usuario_error" class="error-message"></span>
-                </div>
-                <div class="col-md-6 form-group">
-                    <label for="email">Correo Electrónico</label>
-                    <input type="email" id="email" name="email" class="form-control" 
-                           placeholder="correo@ejemplo.com" value="{{ old('email') }}" required>
+
+                    <input type="email" id="email" name="email" class="form-control" placeholder="correo electrónico" value="{{ old('email') }}" required>
                     <span id="email_error" class="error-message"></span>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="password">Contraseña</label>
-                    <div class="password-container">
-                        <input type="password" id="password" name="password" class="form-control" 
-                               placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
-                        <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
-                        <span id="password_error" class="error-message"></span>
-                    </div>
-                </div>
-                <div class="col-md-6 form-group">
-                    <label for="genero">Género</label>
-                    <input type="text" id="genero" name="genero" class="form-control" 
-                           value="{{ old('genero') }}" required readonly>
-                </div>
+            <div class="password-container">
+                <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
+                <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
+                <span id="password_error" class="error-message"></span>
             </div>
 
             <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" 
-                           value="{{ old('fecha_nacimiento') }}" required max="{{ date('Y-m-d') }}" readonly>
+                <div class="form-group">
+                    <input type="text" id="altura" name="altura" class="form-control" placeholder="Altura" value="{{ old('altura') }}" required readonly>
+
+                    <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
                 </div>
-                <div class="col-md-6 form-group">
-                    <label for="altura">Altura (cm)</label>
-                    <input type="text" id="altura" name="altura" class="form-control" 
-                           placeholder="Altura" value="{{ old('altura') }}" 
-                           required readonly>
-                </div>
+            </div>
+
+            <div class="password-container">
+                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento') }}" required max="{{ date('Y-m-d') }}" readonly>
             </div>
 
             <input type="hidden" name="estado" value="activo">
 
-            <div class="d-flex justify-content-end mt-4">
-                <button type="button" class="btn btn-action btn-next" onclick="validarYAvanzar()">
-                    Siguiente <i class="bi bi-arrow-right"></i>
-                </button>
-            </div>
+            <button type="button" class="btn btn-action btn-next" onclick="validarYAvanzar()">
+                Siguiente <i class="bi bi-arrow-right"></i>
+            </button>
         </div>
 
         <!-- Paso 2: Preguntas de Seguridad -->
@@ -324,8 +295,7 @@
                     </div>
                     <div class="form-group">
                         <label for="respuesta_{{ $i }}">Respuesta</label>
-                        <input type="text" name="respuesta_{{ $i }}" id="respuesta_{{ $i }}" 
-                               class="form-control" placeholder="Su respuesta" required disabled>
+                        <input type="text" name="respuesta_{{ $i }}" id="respuesta_{{ $i }}" class="form-control" placeholder="Su respuesta" required disabled>
                     </div>
                 </div>
             @endfor

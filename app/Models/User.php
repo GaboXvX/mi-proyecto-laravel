@@ -105,7 +105,7 @@ class User extends Authenticatable
 // app/Models/User.php
 public function notificaciones()
 {
-    return $this->belongsToMany(Notificacion::class, 'notificacion_usuario', 'id_usuario', 'id_notificacion')
+    return $this->belongsToMany(Notificacion::class, 'notificaciones_usuarios', 'id_usuario', 'id_notificacion')
                 ->withPivot('leido', 'fecha_leido', 'created_at', 'updated_at')
                 ->orderBy('notificaciones.created_at', 'desc'); // Cambiar aquí si es necesario
 }

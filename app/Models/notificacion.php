@@ -26,10 +26,13 @@ protected $fillable = [
     ];
 
     // Relación con usuario
-    public function usuario()
-    {
-        return $this->belongsTo(User::class, 'id_usuario', 'id_usuario');
-    }
+    public function usuarios()
+{
+    return $this->belongsToMany(User::class, 'notificaciones_usuarios', 'id_notificacion', 'id_usuario')
+        ->withPivot('leido', 'fecha_leido')
+        ->withTimestamps();
+}
+
 
     // Relación con persona (si aplica)
     public function persona()

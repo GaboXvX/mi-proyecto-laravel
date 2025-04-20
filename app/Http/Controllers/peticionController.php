@@ -242,30 +242,39 @@ class peticionController extends Controller
        return response()->json(['error' => $error]);
    }
    
-    public function rechazar($id)
-    {
-$peticion=user::where('id_usuario',$id)->first();
-        if (!$peticion) {
-            return redirect()->route('peticiones.index')->with('error', 'Petición no encontrada');;
-        }
-
-        $peticion->id_estado_usuario = 4;
-        $peticion->save();
-        $movimiento = new movimiento();
-        $movimiento->id_usuario = auth()->user()->id_usuario;
-        $movimiento->id_usuario_afectado = $peticion->id_usuario;
-        $movimiento->descripcion = 'se rechazo una petición';
-        $movimiento->save();
-        // Notificacion::create([
-        //     'id_usuario' => auth()->user()->id_usuario,
-        //     'titulo' => 'Petición Rechazada',
-        //     'tipo_notificacion' => 'peticion_rechazada',
-        //     'mensaje' => 'se rechazo la peticion de ingreso de '.$peticion->nombre_usuario,
-        //     'leido' => false,
-        //     'mostrar_a_todos' => true, // Mostrar a todos los usuarios
-        // ]);
-        return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
-    }
+   public function rechazar($id)
+   {
+       $peticion = User::where('id_usuario', $id)->first();
+   
+       if (!$peticion) {
+           return redirect()->route('peticiones.index')->with('error', 'Petición no encontrada');
+       }
+   
+       // Cambiar estado del usuario
+       $peticion->id_estado_usuario = 4;
+       $peticion->save();
+   
+       // Registrar movimiento
+       $movimiento = new Movimiento();
+       $movimiento->id_usuario = auth()->user()->id_usuario;
+       $movimiento->id_usuario_afectado = $peticion->id_usuario;
+       $movimiento->descripcion = 'Se rechazó una petición';
+       $movimiento->save();
+   
+       // Crear notificación general
+       $notificacion = Notificacion::create([
+           'titulo' => 'Petición Rechazada',
+           'mensaje' => 'Se rechazó la petición de ingreso de ' . $peticion->nombre_usuario,
+           'tipo_notificacion' => 'peticion_rechazada',
+           'mostrar_a_todos' => true,
+       ]);
+   
+       // Adjuntar la notificación a todos los usuarios excepto el que fue rechazado (opcional)
+       $usuarios = User::where('id_usuario', '!=', $peticion->id_usuario)->pluck('id_usuario');
+       $notificacion->usuarios()->attach($usuarios);
+   
+       return redirect()->route('peticiones.index')->with('success', 'Petición rechazada con éxito');
+   }
  
     
     public function aceptar($id)
@@ -298,14 +307,17 @@ $peticion=user::where('id_usuario',$id)->first();
                 $movimiento->id_usuario_afectado = $peticion->id_usuario;
                 $movimiento->descripcion = 'se acepto una petición';
                 $movimiento->save();
-                Notificacion::create([
+                $notificacion = Notificacion::create([
                     'id_usuario' => auth()->user()->id_usuario,
                     'titulo' => 'Petición Aceptada',
                     'tipo_notificacion' => 'peticion_aceptada',
-                    'mensaje' => 'Se ha aceptado la peticion de ingreso de '.$peticion->nombre_usuario,
-                    'leido' => false,
-                    'mostrar_a_todos' => true, // Mostrar a todos los usuarios
+                    'mensaje' => 'Se ha aceptado la petición de ingreso de '.$peticion->nombre_usuario,
                 ]);
+                
+                // Enviar a todos los usuarios (excepto quien generó la acción, si querés)
+                $usuarios = User::where('id_estado_usuario', 1)->pluck('id_usuario');
+                $notificacion->usuarios()->attach($usuarios);
+                
                 // Redirigir con un mensaje de éxito
                 return redirect()->route('peticiones.index')->with('success', 'Usuario aceptado correctamente');
             }

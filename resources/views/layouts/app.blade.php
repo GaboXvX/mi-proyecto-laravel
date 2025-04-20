@@ -144,11 +144,7 @@
                         @endauth
                         <li class="dropdown-divider"></li>
                         <li class="text-center py-2">
-<<<<<<< HEAD
-                            <a href="{{route('notificaciones.index')}}" class="text-decoration-none">Ver todas</a>
-=======
                             <a href="{{ route('notificaciones.index') }}" class="text-decoration-none">Ver todas</a>
->>>>>>> cambios-minaguas
                         </li>
                     </ul>
                 </div>

@@ -3,36 +3,39 @@
 @section('content')
 <style>
     .card {
+        background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         border: none;
-        margin-top: 2rem;
+        margin-top: 20px;
     }
 
     .card-header {
         background-color: #2c3e50;
-        color: white;
+        color: #fff;
         font-weight: bold;
         border-radius: 10px 10px 0 0 !important;
-        padding: 1.2rem;
-        font-size: 1.2rem;
+        padding: 20px;
+        font-size: 20px;
     }
 
     .card-body {
-        padding: 2rem;
+        padding: 25px;
     }
 
     .btn-primary {
         background-color: #3498db;
-        border-color: #3498db;
+        border: none;
         padding: 0.5rem 2rem;
         font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #fff;
         transition: all 0.3s ease;
     }
 
     .btn-primary:hover {
         background-color: #2980b9;
-        border-color: #2980b9;
         transform: translateY(-2px);
     }
 
@@ -44,8 +47,9 @@
     }
 
     .form-control:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        outline: none;
+        border-color: #5c6ef8;
+        box-shadow: 0 0 5px rgba(92, 110, 248, 0.5);
     }
 
     .alert-danger {
@@ -62,12 +66,15 @@
         margin-top: 0.5rem;
     }
 
-    .container {
-        max-width: 900px;
+    .form-group {
+        margin-bottom: 18px;
     }
 
-    .form-group {
-        margin-bottom: 1.5rem;
+    .notice{
+        color: #fff;
+        padding: 10px;
+        border-radius: 8px;
+        background: #a0bacc;
     }
 
     label {
@@ -76,11 +83,10 @@
     }
 </style>
 
-<div class="container">
-    <div class="row justify-content-center">
+   
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header text-center">
+                <div class="card-header">
                     <i class="bi bi-arrow-repeat" style="margin-right: 8px;"></i>
                     Renovar Solicitud Rechazada
                 </div>
@@ -97,7 +103,7 @@
                     <form method="POST" action="{{ route('renovacion.procesar') }}">
                         @csrf
 
-                        <div class="form-group row">
+                        <div class="form-group">
                             <label for="correo" class="col-md-4 col-form-label text-md-right">
                                 <i class="bi bi-envelope" style="margin-right: 8px;"></i>
                                 Correo Electrónico
@@ -126,8 +132,8 @@
                         </div>
                     </form>
 
-                    <div class="text-center mt-4">
-                        <p class="text-muted">
+                    <div class="notice">
+                        <p>
                             <i class="bi bi-info-circle" style="margin-right: 5px;"></i>
                             Puedes renovar tu solicitud hasta 3 veces si ha sido rechazada.
                         </p>
@@ -135,8 +141,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
 <!-- Asegúrate de tener Bootstrap Icons en tu layout -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">

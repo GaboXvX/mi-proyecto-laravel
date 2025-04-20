@@ -51,12 +51,6 @@
         }
     </style>
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> e822bfd70272d7eb9ea0ea59d3021ff6f6771c31
-
         <!-- Alertas de éxito y errores -->
         @if (session('success'))
         <div class="alert alert-success" role="alert">

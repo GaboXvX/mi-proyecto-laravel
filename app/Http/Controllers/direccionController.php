@@ -85,19 +85,26 @@ class direccionController extends Controller
 
             // Manejar el estado de líder comunitario
             $categoria = $request->input('categoria');
+
             if ($categoria == 2) {
-                // Verificar si ya existe un registro de líder comunitario para esta persona y comunidad
-                $liderExistente = Lider_Comunitario::where('id_persona', $id)
+                // Verificar si la persona ya es líder en cualquier comunidad activa
+                $liderExistente = Lider_Comunitario::where('id_persona', $persona->id_persona)
+                    ->where('estado', 1) // Solo líderes activos
+                    ->exists();
+
+                if ($liderExistente) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Esta persona ya es líder en otra comunidad activa.'
+                    ], 422);
+                }
+
+                // Verificar si ya existe un registro de líder comunitario para esta comunidad
+                $liderActual = Lider_Comunitario::where('id_persona', $persona->id_persona)
                     ->where('id_comunidad', $request->input('comunidad'))
                     ->first();
 
-                if ($liderExistente) {
-                    if ($liderExistente->estado == 0) {
-                        // Reactivar el estado de líder si estaba desactivado
-                        $liderExistente->estado = 1;
-                        $liderExistente->save();
-                    }
-                } else {
+                if (!$liderActual) {
                     // Registrar como líder comunitario si no existe
                     $persona->id_categoriaPersona = 2;
                     $persona->save();
@@ -107,7 +114,16 @@ class direccionController extends Controller
                     $liderComunitario->id_comunidad = $request->input('comunidad');
                     $liderComunitario->estado = 1;
                     $liderComunitario->save();
+                } elseif ($liderActual->estado == 0) {
+                    // Reactivar el estado de líder si estaba desactivado
+                    $liderActual->estado = 1;
+                    $liderActual->save();
                 }
+            } elseif ($categoria == 1) {
+                // Si la categoría cambia a regular, desactivar el estado de líder
+                $persona->id_categoriaPersona = 1;
+                $persona->lider_Comunitario()->where('id_comunidad', $request->input('comunidad'))->update(['estado' => 0]);
+                $persona->save();
             }
 
             // Crear la dirección

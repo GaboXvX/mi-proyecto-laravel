@@ -392,23 +392,7 @@
             });
 
             // Consultamos si es líder para mostrar u ocultar categoría
-            fetch(`/check-lider-status`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ comunidad_id: comunidad, persona_id: idPersona })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const categoriaContainer = document.getElementById('categoria-container');
-                if (data.esLider) {
-                    categoriaContainer.style.display = 'none';
-                } else {
-                    categoriaContainer.style.display = 'block';
-                }
-            });
+           
         });
     });
 
@@ -498,26 +482,66 @@
         }
     });
 
-        document.getElementById('comunidad').addEventListener('change', function() {
-            const comunidadId = this.value;
-            const personaId = {{ $persona->id_persona }};
-            
-            fetch(`/check-lider-status`, {
+       
+    </script>
+    <script>
+        document.getElementById('editDireccionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch(this.action, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ comunidad_id: comunidadId, persona_id: personaId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.esLider) {
-                    document.getElementById('categoria-container').style.display = 'block';
-                } else {
-                    document.getElementById('categoria-container').style.display = 'none';
-                }
+                body: formData
             });
-        });
-    </script>
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+
+            if (data.status === 'success') {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    confirmButtonText: 'Aceptar'
+                });
+                location.reload();
+            }
+
+        } catch (error) {
+            let errorHtml = '<ul>';
+
+            if (error.errors) {
+                Object.values(error.errors).forEach(messages => {
+                    messages.forEach(message => {
+                        errorHtml += `<li>${message}</li>`;
+                    });
+                });
+            } else if (error.message) {
+                errorHtml += `<li>${error.message}</li>`;
+                if (error.error) {
+                    errorHtml += `<li>${error.error}</li>`;
+                }
+            } else {
+                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+            }
+
+            errorHtml += '</ul>';
+
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error al actualizar',
+                html: errorHtml,
+                confirmButtonText: 'Cerrar'
+            });
+        }
+    });
+</script>
 @endsection

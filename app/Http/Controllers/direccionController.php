@@ -40,8 +40,9 @@ class direccionController extends Controller
             'numero_de_vivienda' => 'required|string|max:255',
             'bloque' => 'nullable|string|max:255',
             'es_principal' => 'required|boolean',
+            'categoria' => 'required|integer|exists:categorias_personas,id_categoriaPersona',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'validation_error',
@@ -49,17 +50,19 @@ class direccionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         try {
             $persona = Persona::findOrFail($id);
-    
+
+            // Verificar si ya existe una dirección principal
             if ($request->input('es_principal') && Direccion::where('id_persona', $id)->where('es_principal', 1)->exists()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Ya existe una dirección marcada como principal para esta persona.'
                 ], 422);
             }
-    
+
+            // Verificar si la dirección ya está registrada
             $direccionExistente = Direccion::where('id_persona', $id)
                 ->where('id_estado', $request->input('estado'))
                 ->where('id_municipio', $request->input('municipio'))
@@ -67,23 +70,47 @@ class direccionController extends Controller
                 ->where('id_urbanizacion', $request->input('urbanizacion'))
                 ->where('id_sector', $request->input('sector'))
                 ->where('id_comunidad', $request->input('comunidad'))
-                ->where('bloque', $request->input('bloque'))
                 ->where('calle', $request->input('calle'))
                 ->where('manzana', $request->input('manzana'))
+                ->where('bloque', $request->input('bloque'))
                 ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))
                 ->first();
-    
+
             if ($direccionExistente) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'La dirección ya está registrada para esta persona.'
                 ], 422);
             }
-    
-            if ($request->input('es_principal')) {
-                Direccion::where('id_persona', $id)->update(['es_principal' => 0]);
+
+            // Manejar el estado de líder comunitario
+            $categoria = $request->input('categoria');
+            if ($categoria == 2) {
+                // Verificar si ya existe un registro de líder comunitario para esta persona y comunidad
+                $liderExistente = Lider_Comunitario::where('id_persona', $id)
+                    ->where('id_comunidad', $request->input('comunidad'))
+                    ->first();
+
+                if ($liderExistente) {
+                    if ($liderExistente->estado == 0) {
+                        // Reactivar el estado de líder si estaba desactivado
+                        $liderExistente->estado = 1;
+                        $liderExistente->save();
+                    }
+                } else {
+                    // Registrar como líder comunitario si no existe
+                    $persona->id_categoriaPersona = 2;
+                    $persona->save();
+
+                    $liderComunitario = new Lider_Comunitario();
+                    $liderComunitario->id_persona = $persona->id_persona;
+                    $liderComunitario->id_comunidad = $request->input('comunidad');
+                    $liderComunitario->estado = 1;
+                    $liderComunitario->save();
+                }
             }
-    
+
+            // Crear la dirección
             $direccion = new Direccion();
             $direccion->id_persona = $id;
             $direccion->id_estado = $request->input('estado');
@@ -98,12 +125,15 @@ class direccionController extends Controller
             $direccion->bloque = $request->input('bloque');
             $direccion->es_principal = $request->input('es_principal');
             $direccion->save();
+
+            // Registrar movimiento
             $movimiento = new movimiento();
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->id_persona = $persona->id_persona;
-            $movimiento->descripcion = 'se añadio una nueva dirección';
-            $movimiento->id_direccion = $direccion->id_direccion; // Guardamos el id de la dirección
+            $movimiento->descripcion = 'se añadió una nueva dirección';
+            $movimiento->id_direccion = $direccion->id_direccion;
             $movimiento->save();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Dirección guardada correctamente'
@@ -123,126 +153,123 @@ class direccionController extends Controller
         $direccion = Direccion::where('id_direccion', $id)->first();
         $persona = Persona::find($idPersona);
 
-        // Validación de la solicitud
-        $request->validate([
-            'estado' => 'required|exists:estados,id_estado',  // Verifica que el id_estado sea válido
-            'municipio' => 'required|exists:municipios,id_estado',  // Verifica que el id_municipio sea válido
+        $validator = FacadesValidator::make($request->all(), [
+            'estado' => 'required|exists:estados,id_estado',
+            'municipio' => 'required|exists:municipios,id_municipio',
             'parroquia' => 'required|string|max:255',
             'urbanizacion' => 'required|string|max:255',
             'sector' => 'required|string|max:255',
             'comunidad' => 'required|string|max:255',
             'calle' => 'nullable|string|max:255',
             'manzana' => 'nullable|string|max:255',
-            'bloque' => 'nullable|string|max:255',  // Nuevo campo
-            'numero_de_vivienda' => 'required|string|max:255',  // Reemplaza a numero_de_casa
+            'bloque' => 'nullable|string|max:255',
+            'numero_de_vivienda' => 'required|string|max:255',
+            'categoria' => 'required|integer|exists:categorias_personas,id_categoriaPersona',
         ]);
 
-        // Verificamos si al menos uno de los campos 'calle' o 'manzana' está lleno
-        if (empty($request->input('calle')) && empty($request->input('manzana'))) {
-            return redirect()->back()->withErrors(['error' => 'Debe llenar al menos uno de los campos: calle o manzana']);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'validation_error',
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        // Verificamos si la dirección ya está registrada para la persona
-        $direccionExistente = Direccion::where('id_persona', $direccion->id_persona)
-            ->where('id_estado', $request->input('estado'))  // Comprobamos que el estado sea el mismo
-            ->where('id_municipio', $request->input('municipio'))  // Comprobamos que el municipio sea el mismo
-            ->where('id_parroquia', $request->input('parroquia'))
-            ->where('id_urbanizacion', $request->input('urbanizacion'))
-            ->where('id_sector', $request->input('sector'))
-            ->where('id_comunidad', $request->input('comunidad'))
-            ->where('calle', $request->input('calle'))
-            ->where('manzana', $request->input('manzana'))
-            ->where('bloque', $request->input('bloque'))  // Verificamos el nuevo campo
-            ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))  // Reemplazamos numero_de_casa
-            ->where('id_direccion', '!=', $id) // Excluimos la dirección actual
-            ->first();
+        try {
+            // Verificar si la dirección ya está registrada
+            $direccionExistente = Direccion::where('id_persona', $direccion->id_persona)
+                ->where('id_estado', $request->input('estado'))
+                ->where('id_municipio', $request->input('municipio'))
+                ->where('id_parroquia', $request->input('parroquia'))
+                ->where('id_urbanizacion', $request->input('urbanizacion'))
+                ->where('id_sector', $request->input('sector'))
+                ->where('id_comunidad', $request->input('comunidad'))
+                ->where('calle', $request->input('calle'))
+                ->where('manzana', $request->input('manzana'))
+                ->where('bloque', $request->input('bloque'))
+                ->where('numero_de_vivienda', $request->input('numero_de_vivienda'))
+                ->where('id_direccion', '!=', $id)
+                ->first();
 
-        if ($direccionExistente) {
-            return redirect()->back()->withErrors(['error' => 'La dirección ya está registrada para esta persona.'])->withInput();
-        }
-        $bloque = $request->input('bloque');
-        if (empty($bloque)) {
-            $bloque = null;
-        }
-        // Verificamos si la persona ya es líder de una comunidad
-        $esLider = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->exists();
-
-        // Verificamos si ya existe otro líder en la misma comunidad, pero excluimos a la persona que está siendo actualizada
-        $otroLider = Persona::whereHas('direccion', function ($query) use ($request) {
-            $query->where('id_comunidad', $request->input('comunidad'));
-        })->where('id_categoriaPersona', 2)
-            ->where('id_persona', '!=', $idPersona)  // Excluimos a la persona actual
-            ->exists();
-
-        // Verificamos si la persona ya es líder de otra comunidad
-        $esLiderOtraComunidad = $persona->id_categoriaPersona == 2 && $persona->lider_Comunitario()->where('estado', 1)->where('id_comunidad', '!=', $request->input('comunidad'))->exists();
-
-        // Priorizar la condición de actualizar la misma dirección en la que es líder
-        if ($esLider && $direccion->id_comunidad == $request->input('comunidad')) {
-            // Si se está actualizando la misma dirección, no se toma en cuenta la condición de otro líder
-            $otroLider = false;
-        } else {
-            if ($esLider && ($otroLider || $esLiderOtraComunidad)) {
-                return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad o la persona ya es líder de otra comunidad.'])->withInput();
-            } elseif ($esLider) {
-                return redirect()->back()->withErrors(['error' => 'Esta persona ya es líder de una comunidad.'])->withInput();
-            } elseif ($otroLider && $request->input('categoria') != 1) {
-                return redirect()->back()->withErrors(['error' => 'Ya existe un líder en esa comunidad.'])->withInput();
+            if ($direccionExistente) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'La dirección ya está registrada para esta persona.'
+                ], 422);
             }
-        }
 
-        // Si no hay líder para esa comunidad y la persona no es líder de ninguna, asignamos el puesto de líder
-        if (!$esLider && !$otroLider && !$esLiderOtraComunidad && $request->input('categoria') == 2) {
-            $persona->id_categoriaPersona = 2;
-            $persona->save();
+            // Manejar el cambio de estado de líder comunitario
+            $categoria = $request->input('categoria');
+            if ($categoria == 2) {
+                // Verificar si la persona ya es líder en otra comunidad
+                $liderExistente = Lider_Comunitario::where('id_persona', $idPersona)
+                    ->where('estado', 1)
+                    ->where('id_comunidad', '!=', $request->input('comunidad'))
+                    ->exists();
 
-            // Verificamos si la persona ya fue líder en esa comunidad y su estado está en 0
-            $liderExistente = $persona->lider_Comunitario()->where('id_comunidad', $request->input('comunidad'))->first();
-            if ($liderExistente) {
-                // Reactivamos el estado del líder
-                $liderExistente->estado = 1;
-                $liderExistente->save();
-            } else {
-                // Creamos un nuevo registro de líder
-                $liderComunitario = new Lider_Comunitario();
-                $liderComunitario->id_persona = $persona->id_persona;
-                $liderComunitario->id_comunidad = $request->input('comunidad');
-                $liderComunitario->estado = 1;  // El líder está activo
-                $liderComunitario->save();
+                if ($liderExistente) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Esta persona ya es líder en otra comunidad.'
+                    ], 422);
+                }
+
+                // Registrar como líder comunitario si no lo es
+                $liderActual = $persona->lider_Comunitario()->where('id_comunidad', $request->input('comunidad'))->first();
+                if (!$liderActual) {
+                    $persona->id_categoriaPersona = 2;
+                    $persona->save();
+
+                    $liderComunitario = new Lider_Comunitario();
+                    $liderComunitario->id_persona = $persona->id_persona;
+                    $liderComunitario->id_comunidad = $request->input('comunidad');
+                    $liderComunitario->estado = 1;
+                    $liderComunitario->save();
+                } elseif ($liderActual->estado == 0) {
+                    // Reactivar el estado de líder si estaba desactivado
+                    $liderActual->estado = 1;
+                    $liderActual->save();
+                }
+            } elseif ($categoria == 1) {
+                // Si la categoría cambia a regular, desactivar el estado de líder
+                $persona->id_categoriaPersona = 1;
+                $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->update(['estado' => 0]);
+                $persona->save();
             }
+
+            // Actualizar la dirección
+            $direccion->id_estado = $request->input('estado');
+            $direccion->id_municipio = $request->input('municipio');
+            $direccion->id_parroquia = $request->input('parroquia');
+            $direccion->id_urbanizacion = $request->input('urbanizacion');
+            $direccion->id_sector = $request->input('sector');
+            $direccion->id_comunidad = $request->input('comunidad');
+            $direccion->calle = $request->input('calle');
+            $direccion->manzana = $request->input('manzana');
+            $direccion->bloque = $request->input('bloque');
+            $direccion->numero_de_vivienda = $request->input('numero_de_vivienda');
+            $direccion->save();
+
+            // Registrar movimiento
+            $movimiento = new movimiento();
+            $movimiento->id_usuario = auth()->user()->id_usuario;
+            $movimiento->id_persona = $persona->id_persona;
+            $movimiento->descripcion = 'se modificó una dirección';
+            $movimiento->id_direccion = $direccion->id_direccion;
+            $movimiento->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Dirección actualizada correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'exception',
+                'message' => 'Error al procesar la solicitud',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Si la categoría de la persona cambia a regular, desactivamos su estado en la tabla de líderes
-        if ($request->input('categoria') == 1) {
-            $persona->id_categoriaPersona = 1;
-            // Cambiamos el estado del líder en la tabla 'lideres_comunitarios' a 0
-            $persona->lider_Comunitario()->where('id_comunidad', $direccion->id_comunidad)->update(['estado' => 0]);
-            $persona->save();
-        }
-
-        // Actualizamos la dirección con los nuevos datos
-        $direccion->id_parroquia = $request->input('parroquia');
-        $direccion->id_urbanizacion = $request->input('urbanizacion');
-        $direccion->id_sector = $request->input('sector');
-        $direccion->id_comunidad = $request->input('comunidad');
-        $direccion->calle = $request->input('calle');
-        $direccion->manzana = $request->input('manzana');
-        $direccion->bloque = $bloque;
-        $direccion->numero_de_vivienda = $request->input('numero_de_vivienda');  // Reemplazamos el número de casa
-        $direccion->id_estado = $request->input('estado'); // Asignamos el estado
-        $direccion->id_municipio = $request->input('municipio'); // Asignamos el municipio
-
-        $direccion->save();
-        $movimiento = new movimiento();
-        $movimiento->id_usuario = auth()->user()->id_usuario;
-        $movimiento->id_persona = $persona->id_persona;
-        $movimiento->descripcion = 'se modifico una dirección';
-        $movimiento->id_direccion = $direccion->id_direccion; // Guardamos el id de la dirección
-        $movimiento->save();
-        return redirect()->route('personas.show', ['slug' => $persona->slug])->with('success', 'Dirección actualizada exitosamente');
     }
-
-
 
     public function checkLiderStatus(Request $request)
     {

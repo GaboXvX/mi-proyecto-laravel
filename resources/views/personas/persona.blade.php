@@ -343,7 +343,7 @@
 
                             <div class="mb-3">
                                 <label for="altura" class="form-label">Altura (cm):</label>
-                                <input type="number" id="altura" name="altura" class="form-control"
+                                <input type="text" id="altura" name="altura" class="form-control"
                                     value="{{ old('altura', $persona->altura) }}" required min="0" step="0.01">
                             </div>
 
@@ -544,4 +544,32 @@
         }
     });
 </script>
+    <script>
+        document.getElementById('altura').addEventListener('input', function (e) {
+            // Permitir solo números, una coma o punto, y limitar a un dígito antes y dos después
+            this.value = this.value
+                .replace(/[^0-9.,]/g, '') // Permitir solo números, coma o punto
+                .replace(/,/g, '.') // Reemplazar coma por punto para consistencia
+                .replace(/^(\d{2,})\./, '$1') // Limitar a un dígito antes del punto
+                .replace(/(\.\d{2}).*/, '$1'); // Limitar a dos dígitos después del punto
+
+            // Validar rango de altura (mínimo 0.50, máximo 2.72)
+            const altura = parseFloat(this.value);
+            if (altura < 0.5 || altura > 2.72) {
+                this.value = ''; // Limpiar el campo si está fuera del rango
+            }
+        });
+
+        document.getElementById('editPersonaModal').addEventListener('show.bs.modal', function () {
+            const alturaInput = document.getElementById('altura');
+            if (alturaInput) {
+                // Eliminar cualquier texto adicional como "cm" y validar el formato
+                alturaInput.value = alturaInput.value
+                    .replace(/[^0-9.,]/g, '') // Permitir solo números, coma o punto
+                    .replace(/,/g, '.') // Reemplazar coma por punto
+                    .replace(/^(\d{2,})\./, '$1') // Limitar a un dígito antes del punto
+                    .replace(/(\.\d{2}).*/, '$1'); // Limitar a dos dígitos después del punto
+            }
+        });
+    </script>
 @endsection

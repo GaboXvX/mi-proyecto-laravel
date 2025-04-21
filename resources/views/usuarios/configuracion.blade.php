@@ -2,11 +2,6 @@
 
 @section('content')
 <style>
-    .form-container {
-        background-color: #f8f9fa;
-        min-height: calc(100vh - 56px);
-    }
-    
     .profile-table {
         width: 100%;
         margin-bottom: 1.5rem;
@@ -56,166 +51,162 @@
     }
 </style>
 
-<main class="form-container">
-    <div class="container py-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="text-center text-primary mb-3">Configuración de Cuenta</h2>
+    <main class="form-container">
+        <div class="table-container">
+            <h2 class="text-center mb-3">Configuración de Cuenta</h2>
                 
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show mb-3">
-                        <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show mb-3">
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show mb-3">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-                @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show mb-3">
-                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-                
-                <!-- Mostrar datos del usuario -->
-                <table class="profile-table table table-bordered">
-                    <tr>
-                        <th>Nombre:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->nombre }}</td>
-                    </tr>
-                    <tr>
-                        <th>Apellido:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->apellido }}</td>
-                    </tr>
-                    <tr>
-                        <th>Cédula:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->cedula }}</td>
-                    </tr>
-                    <tr>
-                        <th>Género:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
-                    </tr>
-                    <tr>
-                        <th>Fecha de Nacimiento:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
-                    </tr>
-                    <tr>
-                        <th>Altura:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
-                    </tr>
-                    <tr>
-                        <th>Teléfono:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>
-                    </tr>
-                    <tr>
-                        <th>Cargo:</th>
-                        <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre_cargo }}</td>
-                    </tr>
-                </table>
-
-                <hr>
-
-                <!-- Sección de Preguntas de Seguridad -->
-                <div class="security-questions">
-                    <h4 class="mb-4">
-                        <i class="bi bi-shield-lock me-2"></i>
-                        Preguntas de Seguridad
-                    </h4>
-                    
-                    @if($preguntasUsuario->count() > 0)
-                        @foreach($preguntasUsuario as $index => $respuesta)
-                            <div class="question-group">
-                                <div class="mb-2">
-                                    <label>Pregunta {{ $index + 1 }}:</label>
-                                    <p class="fw-bold">{{ $respuesta->pregunta->pregunta }}</p>
-                                </div>
-                                <div class="mb-2">
-                                    <label>Respuesta actual:</label>
-                                    <p>••••••••</p>
-                                </div>
-                            </div>
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show mb-3">
+                    <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
                         @endforeach
-                    @else
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            No has configurado preguntas de seguridad.
-                        </div>
-                    @endif
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+                
+            <!-- Mostrar datos del usuario -->
+            <table class="profile-table table table-bordered">
+                <tr>
+                    <th>Nombre:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->nombre }}</td>
+                </tr>
+                <tr>
+                    <th>Apellido:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->apellido }}</td>
+                </tr>
+                <tr>
+                    <th>Cédula:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->cedula }}</td>
+                </tr>
+                <tr>
+                    <th>Género:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
+                </tr>
+                <tr>
+                    <th>Fecha de Nacimiento:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
+                </tr>
+                <tr>
+                    <th>Altura:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
+                </tr>
+                <tr>
+                    <th>Teléfono:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>
+                </tr>
+                <tr>
+                    <th>Cargo:</th>
+                    <td>{{ auth()->user()->empleadoAutorizado->cargo->nombre_cargo }}</td>
+                </tr>
+            </table>
 
-                    <!-- Botón para cambiar preguntas -->
-                    <button type="button" class="btn btn-change-questions btn-primary" 
-                            data-bs-toggle="modal" data-bs-target="#changeQuestionsModal">
-                        <i class="bi bi-arrow-repeat me-2"></i>
-                        Cambiar Preguntas de Seguridad
+            <hr>
+
+            <!-- Sección de Preguntas de Seguridad -->
+            <div class="security-questions">
+                <h4 class="mb-4">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Preguntas de Seguridad
+                </h4>
+                    
+                @if($preguntasUsuario->count() > 0)
+                    @foreach($preguntasUsuario as $index => $respuesta)
+                        <div class="question-group">
+                            <div class="mb-2">
+                                <label>Pregunta {{ $index + 1 }}:</label>
+                                <p class="fw-bold">{{ $respuesta->pregunta->pregunta }}</p>
+                            </div>
+                            <div class="mb-2">
+                                <label>Respuesta actual:</label>
+                                <p>••••••••</p>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        No has configurado preguntas de seguridad.
+                    </div>
+                @endif
+
+                <!-- Botón para cambiar preguntas -->
+                <button type="button" class="btn btn-change-questions btn-primary" 
+                        data-bs-toggle="modal" data-bs-target="#changeQuestionsModal">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Cambiar Preguntas de Seguridad
+                </button>
+            </div>
+
+            <!-- Formulario principal de configuración -->
+            <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
+                @csrf
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="inputCorreo" class="form-label">
+                                <i class="bi bi-envelope me-2"></i>
+                                Correo Electrónico
+                            </label>
+                            <input type="email" class="form-control form-control-sm" id="inputCorreo"
+                                name="email" value="{{ old('email', $usuario->email) }}"
+                                placeholder="Ingrese su correo electrónico" required>
+                            <small id="correoFeedback" class="form-text"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="inputUsuario" class="form-label">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Nombre de Usuario
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="inputUsuario"
+                                name="nombre_usuario"
+                                value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
+                                placeholder="Ingrese su nombre de usuario" required>
+                            <small id="usuarioFeedback" class="form-text"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="inputContraseña" class="form-label">
+                                <i class="bi bi-lock me-2"></i>
+                                Nueva Contraseña
+                            </label>
+                            <input type="password" class="form-control form-control-sm" id="inputContraseña"
+                                name="contraseña" placeholder="Ingrese su nueva contraseña">
+                            <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
+                        </div>
+                    </div>
+                </div>
+                    
+                <div class="d-flex justify-content-center mt-3">
+                    <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>
+                        <i class="bi bi-save me-2"></i>
+                        Guardar Cambios
                     </button>
                 </div>
-
-                <!-- Formulario principal de configuración -->
-                <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="inputCorreo" class="form-label">
-                                    <i class="bi bi-envelope me-2"></i>
-                                    Correo Electrónico
-                                </label>
-                                <input type="email" class="form-control form-control-sm" id="inputCorreo"
-                                    name="email" value="{{ old('email', $usuario->email) }}"
-                                    placeholder="Ingrese su correo electrónico" required>
-                                <small id="correoFeedback" class="form-text"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="inputUsuario" class="form-label">
-                                    <i class="bi bi-person-badge me-2"></i>
-                                    Nombre de Usuario
-                                </label>
-                                <input type="text" class="form-control form-control-sm" id="inputUsuario"
-                                    name="nombre_usuario"
-                                    value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
-                                    placeholder="Ingrese su nombre de usuario" required>
-                                <small id="usuarioFeedback" class="form-text"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="inputContraseña" class="form-label">
-                                    <i class="bi bi-lock me-2"></i>
-                                    Nueva Contraseña
-                                </label>
-                                <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                    name="contraseña" placeholder="Ingrese su nueva contraseña">
-                                <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-center mt-3">
-                        <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>
-                            <i class="bi bi-save me-2"></i>
-                            Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
-    </div>
-</main>
+    </main>
 
 <!-- Modal para cambiar preguntas de seguridad -->
 <div class="modal fade" id="changeQuestionsModal" tabindex="-1" aria-labelledby="changeQuestionsModalLabel" aria-hidden="true">
@@ -271,9 +262,6 @@
         </div>
     </div>
 </div>
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
 <script>
     // Función para habilitar respuesta cuando se selecciona pregunta

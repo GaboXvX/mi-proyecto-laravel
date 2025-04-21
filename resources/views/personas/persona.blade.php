@@ -180,7 +180,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editDireccionModalLabel">Editar Dirección</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form method="POST" id="editDireccionForm" action="">
@@ -191,14 +190,16 @@
 
                             <livewire:dropdown-persona />
 
-                            <div class="mb-3">
-                                <label for="calle" class="form-label">Calle:</label>
-                                <input type="text" id="calle" name="calle" class="form-control" required>
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="calle" class="form-label">Calle:</label>
+                                    <input type="text" id="calle" name="calle" class="form-control" required>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="manzana" class="form-label">Manzana:</label>
-                                <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                <div class="col-md-6">
+                                    <label for="manzana" class="form-label">Manzana:</label>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -234,7 +235,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addDireccionModalLabel">Agregar Dirección</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div id="addDireccionErrorContainer" class="alert alert-danger d-none"></div>
@@ -242,14 +242,16 @@
                             @csrf
                             <livewire:dropdown-persona />
                             
-                            <div class="mb-3">
-                                <label for="calle" class="form-label">Calle:</label>
-                                <input type="text" id="calle" name="calle" class="form-control" required>
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="calle" class="form-label">Calle:</label>
+                                    <input type="text" id="calle" name="calle" class="form-control" required>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="manzana" class="form-label">Manzana:</label>
-                                <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                <div class="col-md-6">
+                                    <label for="manzana" class="form-label">Manzana:</label>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -262,22 +264,24 @@
                                 <input type="number" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required min="1" step="1">
                             </div>
 
-                            <div class="mb-3" id="categoria-container">
-                                <label for="categoria" class="form-label">Categoría:</label>
-                                <select id="categoria" name="categoria" class="form-select" required>
-                                    <option value="" disabled selected>--Seleccione--</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6" id="categoria-container">
+                                    <label for="categoria" class="form-label">Categoría:</label>
+                                    <select id="categoria" name="categoria" class="form-select" required>
+                                        <option value="" disabled selected>--Seleccione--</option>
+                                        @foreach($categorias as $categoria)
+                                            <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
-                                <select name="es_principal" id="es_principal" class="form-select" required>
-                                    <option value="1">Sí</option>
-                                    <option value="0">No</option>
-                                </select>
+                                <div class="col-md-6">
+                                    <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
+                                    <select name="es_principal" id="es_principal" class="form-select" required>
+                                        <option value="1">Sí</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">Guardar</button>
@@ -300,34 +304,33 @@
                             @csrf
                             @method('PUT')
                             
-                            <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre:</label>
-                                <input type="text" id="nombre" name="nombre" class="form-control"
-                                    value="{{ old('nombre', $persona->nombre) }}" required>
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">Nombre:</label>
+                                    <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre', $persona->nombre) }}" required>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="apellido" class="form-label">Apellido:</label>
-                                <input type="text" id="apellido" name="apellido" class="form-control"
-                                    value="{{ old('apellido', $persona->apellido) }}" required>
+                                <div class="col-md-6">
+                                    <label for="apellido" class="form-label">Apellido:</label>
+                                    <input type="text" id="apellido" name="apellido" class="form-control" value="{{ old('apellido', $persona->apellido) }}" required>
+                                </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="number" id="cedula" name="cedula" class="form-control"
-                                    value="{{ old('cedula', $persona->cedula) }}" required>
+                                <input type="number" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="correo" class="form-label">Correo Electrónico:</label>
-                                <input type="email" id="correo" name="correo" class="form-control"
-                                    value="{{ old('correo', $persona->correo) }}" required>
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="correo" class="form-label">Correo Electrónico:</label>
+                                    <input type="email" id="correo" name="correo" class="form-control" value="{{ old('correo', $persona->correo) }}" required>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="telefono" class="form-label">Teléfono:</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-control"
-                                    value="{{ old('telefono', $persona->telefono) }}" required>
+                                <div class="col-md-6">
+                                    <label for="telefono" class="form-label">Teléfono:</label>
+                                    <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ old('telefono', $persona->telefono) }}" required>
+                                </div>
                             </div>
 
                             <div class="mb-3">
@@ -346,8 +349,7 @@
 
                             <div class="mb-3">
                                 <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
-                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control"
-                                    value="{{ old('fecha_nacimiento', $persona->fecha_nacimiento) }}" required>
+                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento', $persona->fecha_nacimiento) }}" required>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">Actualizar</button>
@@ -361,46 +363,54 @@
 
     <script>
         document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const idPersona = this.getAttribute('data-id-persona');
-                const estado = this.getAttribute('data-estado');
-                const municipio = this.getAttribute('data-municipio');
-                const parroquia = this.getAttribute('data-parroquia');
-                const urbanizacion = this.getAttribute('data-urbanizacion');
-                const sector = this.getAttribute('data-sector');
-                const comunidad = this.getAttribute('data-comunidad');
-                const calle = this.getAttribute('data-calle');
-                const manzana = this.getAttribute('data-manzana');
-                const numeroDeVivienda = this.getAttribute('data-numero-de-vivienda');
-                const bloque = this.getAttribute('data-bloque');
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const idPersona = this.getAttribute('data-id-persona');
+            const comunidad = this.getAttribute('data-comunidad');
 
-                document.getElementById('direccion_id').value = id;
-                document.getElementById('calle').value = calle;
-                document.getElementById('manzana').value = manzana;
-                document.getElementById('numero_de_vivienda').value = numeroDeVivienda;
-                document.getElementById('bloque').value = bloque;
+            // Campos que se van a llenar
+            document.getElementById('direccion_id').value = id;
+            document.getElementById('calle').value = this.getAttribute('data-calle');
+            document.getElementById('manzana').value = this.getAttribute('data-manzana');
+            document.getElementById('numero_de_vivienda').value = this.getAttribute('data-numero-de-vivienda');
+            document.getElementById('bloque').value = this.getAttribute('data-bloque');
 
-                document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
+            // Actualizamos el action del formulario
+            document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
 
-                fetch(`/check-lider-status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ comunidad_id: comunidad, persona_id: idPersona })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.esLider) {
-                        document.getElementById('categoria-container').style.display = 'none';
-                    } else {
-                        document.getElementById('categoria-container').style.display = 'block';
-                    }
-                });
+            // Confirmación dulce 🍬
+            Swal.fire({
+                icon: 'info',
+                title: 'Editando Dirección',
+                text: 'Los campos se han cargado correctamente. ¡Haz tus cambios!',
+                confirmButtonText: 'Entendido 💪',
+                timer: 2000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false
+            });
+
+            // Consultamos si es líder para mostrar u ocultar categoría
+            fetch(`/check-lider-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ comunidad_id: comunidad, persona_id: idPersona })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const categoriaContainer = document.getElementById('categoria-container');
+                if (data.esLider) {
+                    categoriaContainer.style.display = 'none';
+                } else {
+                    categoriaContainer.style.display = 'block';
+                }
             });
         });
+    });
 
         const editPersonaModal = document.getElementById('editPersonaModal');
         
@@ -429,55 +439,64 @@
     </script>
 
     <script>
-        document.getElementById('addDireccionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const errorContainer = document.getElementById('addDireccionErrorContainer');
-            errorContainer.classList.add('d-none');
-            errorContainer.innerHTML = '';
+        document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
 
-            fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
+        try {
+            const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
                 body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    alert(data.message);
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                let errorHtml = '<ul>';
-                if (error.errors) {
-                    Object.values(error.errors).forEach(messages => {
-                        messages.forEach(message => {
-                            errorHtml += `<li>${message}</li>`;
-                        });
-                    });
-                } else if (error.message) {
-                    errorHtml += `<li>${error.message}</li>`;
-                    if (error.error) {
-                        errorHtml += `<li>${error.error}</li>`;
-                    }
-                } else {
-                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
-                }
-                errorHtml += '</ul>';
-                errorContainer.innerHTML = errorHtml;
-                errorContainer.classList.remove('d-none');
-                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
-        });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw data;
+            }
+
+            if (data.status === 'success') {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    confirmButtonText: 'Aceptar'
+                });
+                location.reload();
+            }
+
+        } catch (error) {
+            let errorHtml = '<ul>';
+
+            if (error.errors) {
+                Object.values(error.errors).forEach(messages => {
+                    messages.forEach(message => {
+                        errorHtml += `<li>${message}</li>`;
+                    });
+                });
+            } else if (error.message) {
+                errorHtml += `<li>${error.message}</li>`;
+                if (error.error) {
+                    errorHtml += `<li>${error.error}</li>`;
+                }
+            } else {
+                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+            }
+
+            errorHtml += '</ul>';
+
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error al guardar',
+                html: errorHtml,
+                confirmButtonText: 'Cerrar'
+            });
+        }
+    });
 
         document.getElementById('comunidad').addEventListener('change', function() {
             const comunidadId = this.value;

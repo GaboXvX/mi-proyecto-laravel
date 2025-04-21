@@ -1,204 +1,6 @@
 @extends('layouts.registrar')
 
 @section('content')
-<style>
-    /* Estilos mejorados */
-    .registration-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }
-    
-    .form-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .form-header h2 {
-        color: #2c3e50;
-        font-weight: 700;
-    }
-    
-    .form-step {
-        display: none;
-        animation: fadeIn 0.5s ease;
-    }
-    
-    .form-step.active {
-        display: block;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .progress-steps {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 2rem;
-        position: relative;
-    }
-    
-    .progress-steps:before {
-        content: '';
-        position: absolute;
-        top: 15px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #e0e0e0;
-        z-index: 1;
-    }
-    
-    .step {
-        text-align: center;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .step-number {
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        border-radius: 50%;
-        background: #e0e0e0;
-        color: #777;
-        display: inline-block;
-        margin-bottom: 0.5rem;
-    }
-    
-    .step.active .step-number {
-        background: #3498db;
-        color: white;
-    }
-    
-    .step-label {
-        font-size: 0.9rem;
-        color: #777;
-    }
-    
-    .step.active .step-label {
-        color: #3498db;
-        font-weight: 600;
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-control {
-        border-radius: 5px;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        transition: all 0.3s;
-    }
-    
-    .form-control:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-    }
-    
-    .password-container {
-        position: relative;
-    }
-    
-    .toggle-password {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #777;
-    }
-    
-    .btn-action {
-        padding: 10px 25px;
-        border-radius: 5px;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .btn-next {
-        background-color: #3498db;
-        border-color: #3498db;
-    }
-    
-    .btn-next:hover {
-        background-color: #2980b9;
-        transform: translateY(-2px);
-    }
-    
-    .btn-prev {
-        background-color: #95a5a6;
-        border-color: #95a5a6;
-    }
-    
-    .btn-prev:hover {
-        background-color: #7f8c8d;
-    }
-    
-    .btn-submit {
-        background-color: #2ecc71;
-        border-color: #2ecc71;
-    }
-    
-    .btn-submit:hover {
-        background-color: #27ae60;
-    }
-    
-    .question-group {
-        background-color: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        border: 1px solid #eee;
-    }
-    
-    .error-message {
-        color: #e74c3c;
-        font-size: 0.85rem;
-        margin-top: 0.3rem;
-        display: none;
-    }
-    
-    .error-message.active {
-        display: block;
-    }
-    
-    .input-error {
-        border-color: #e74c3c !important;
-    }
-    
-    .toast {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        z-index: 1000;
-        display: none;
-        animation: slideDown 0.3s ease;
-    }
-    
-    @keyframes slideDown {
-        from { top: -50px; opacity: 0; }
-        to { top: 20px; opacity: 1; }
-    }
-    
-    .toast-success { background-color: #27ae60; }
-    .toast-error { background-color: #e74c3c; }
-</style>
-
 <div class="registration-container">
     <div class="form-header">
         <h2>Registro de Usuario</h2>
@@ -276,13 +78,13 @@
 
         <!-- Paso 2: Preguntas de Seguridad -->
         <div class="form-step" id="step2">
-            <h4 class="mb-4">Preguntas de Seguridad</h4>
-            <p class="text-muted mb-4">Seleccione 3 preguntas de seguridad y proporcione sus respuestas.</p>
+            <h2>Preguntas de Seguridad</h2>
+            <p>Seleccione 3 preguntas de seguridad y proporcione sus respuestas.</p>
             
             @for ($i = 1; $i <= 3; $i++)
                 <div class="question-group">
                     <div class="form-group">
-                        <label for="pregunta_{{ $i }}">Pregunta {{ $i }}</label>
+                        <label for="pregunta_{{ $i }}" class="step-label">Pregunta {{ $i }}</label>
                         <select name="pregunta_{{ $i }}" id="pregunta_{{ $i }}" class="form-control" 
                                 required onchange="actualizarSelects()">
                             <option value="">Seleccione una pregunta</option>
@@ -294,20 +96,19 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="respuesta_{{ $i }}">Respuesta</label>
+                        <label for="respuesta_{{ $i }}" class="step-label">Respuesta</label>
                         <input type="text" name="respuesta_{{ $i }}" id="respuesta_{{ $i }}" class="form-control" placeholder="Su respuesta" required disabled>
                     </div>
                 </div>
             @endfor
 
-            <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-action btn-prev" onclick="retrocederPaso()">
-                    <i class="bi bi-arrow-left"></i> Anterior
-                </button>
-                <button type="submit" class="btn btn-action btn-submit">
-                    <i class="bi bi-check-circle"></i> Registrar Usuario
-                </button>
-            </div>
+            
+            <button type="button" class="btn btn-action btn-prev" onclick="retrocederPaso()">
+                <i class="bi bi-arrow-left"></i> Anterior
+            </button>
+            <button type="submit" class="btn btn-action btn-submit">
+                <i class="bi bi-check-circle"></i> Registrar Usuario
+            </button>
         </div>
     </form>
 </div>

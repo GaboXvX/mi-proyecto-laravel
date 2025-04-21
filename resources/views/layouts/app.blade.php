@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}"/>
     <title>Minaguas</title>
 </head>
 <body>
@@ -177,6 +178,7 @@
 <!-- Scripts -->
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
+<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Marcar notificación como leída

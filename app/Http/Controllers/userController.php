@@ -227,4 +227,5 @@ class UserController extends Controller
         // Devolver la vista con los movimientos
         return view('usuarios.movimientos', compact('usuario', 'movimientos'));
     }
+    
 }

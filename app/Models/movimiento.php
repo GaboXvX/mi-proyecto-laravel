@@ -29,5 +29,16 @@ class movimiento extends Model
     public function incidencia(){
         return $this->belongsTo(incidencia::class,'id_incidencia');
     }
+    public function usuarioAfectado()
+    {
+        return $this->belongsTo(User::class, 'id_usuario_afectado');
+    }
+    public function direccion()
+    {
+        return $this->belongsTo(Direccion::class, 'id_direccion', 'id_direccion');
+    }
+
+    // Relación con la incidencia afectada (si aplica)
+    
 }
 

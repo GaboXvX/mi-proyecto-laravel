@@ -6,7 +6,7 @@
         <div class="card-header bg-gradient-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
                 <h3 class="mb-0">
-                    <i class="bi bi-activity me-2"></i>Registro de Movimientos en Tiempo Real
+                    <i class="bi bi-activity me-2"></i>Movimientos de Registradores
                 </h3>
                 <div>
                     <span class="badge bg-white text-primary fs-6">
@@ -19,7 +19,7 @@
 
         <div class="card-body p-0">
             <div class="p-3 border-bottom bg-light">
-                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">                    <div class="col-md-3">
+                <form id="filtro-form" method="GET" action="{{ route('movimientos.registradores', ['slug' => $usuario->slug]) }}" class="row gy-2 gx-3 align-items-end">                    <div class="col-md-3">
                         <label for="filtro_rango" class="form-label">Filtrar por rango</label>
                         <select class="form-select" name="rango" id="filtro_rango">
                             <option value="">-- Selecciona --</option>
@@ -57,7 +57,7 @@
                     </div>
             
                     <div class="col-md-3 mt-2 d-flex gap-2">
-                        <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success w-100">
+                        <a href="{{ route('movimientos.registradores.exportar', request()->all()) }}" class="btn btn-success w-100">
                             <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
                         </a>
                     </div>
@@ -69,6 +69,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="py-3" style="width: 15%">Fecha/Hora</th>
+                            <th class="py-3" style="width: 15%">Usuario</th>
                             <th class="py-3" style="width: 15%">Tipo</th>
                             <th class="py-3" style="width: 20%">Elemento</th>
                             <th class="py-3">Descripción</th>
@@ -83,6 +84,12 @@
                                     <span class="fw-bold">{{ $mov->created_at->format('d/m/Y') }}</span>
                                     <small class="text-muted">{{ $mov->created_at->format('H:i:s') }}</small>
                                 </div>
+                            </td>
+                            <td class="py-3">
+                                <span class="d-flex align-items-center">
+                                    <i class="bi bi-person me-2 text-primary"></i>
+                                    {{ $mov->usuario->nombre_usuario ?? 'Sistema' }}
+                                </span>
                             </td>
                             <td class="py-3">
                                 @php
@@ -117,12 +124,12 @@
                                 @if($mov->id_usuario_afectado)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-person me-2 text-info"></i>
-                                        Usuario :{{ $mov->usuario->nombre_usuario }}
+                                        Usuario: {{ $mov->usuarioAfectado->nombre_usuario ?? 'N/A' }}
                                     </span>
                                 @elseif($mov->id_persona)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-person-badge me-2 text-success"></i>
-                                        Persona C.I {{ $mov->persona->cedula }}
+                                        Persona C.I {{ $mov->persona->cedula ?? 'N/A' }}
                                     </span>
                                 @elseif($mov->id_direccion)
                                     <span class="d-flex align-items-center">
@@ -132,7 +139,7 @@
                                 @elseif($mov->id_incidencia)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
-                                        Incidencia #{{ $mov->incidencia->cod_incidencia }}
+                                        Incidencia #{{ $mov->incidencia->cod_incidencia ?? 'N/A' }}
                                     </span>
                                 @else
                                     -
@@ -174,7 +181,6 @@
         </div>
     </div>
 </div>
-
 
 <script>
 $(document).ready(function() {

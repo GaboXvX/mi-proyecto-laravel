@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Mis Notificaciones</h5>
-            @if($notificaciones->where('leido', false)->count() > 0)
+            @if($notificaciones->filter(fn($n) => !$n->pivot->leido)->count() > 0)
                 <form action="{{ route('notificaciones.marcar-todas-leidas') }}" method="POST" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-primary">
@@ -33,40 +33,42 @@
                     </thead>
                     <tbody>
                         @forelse($notificaciones as $notificacion)
-                        <tr class="{{ $notificacion->leido ? '' : 'table-active' }}" 
+                        <tr class="{{ $notificacion->pivot->leido ? '' : 'table-active' }}" 
                             data-notification-id="{{ $notificacion->id_notificacion }}">
                             <td class="text-center">
-                                @if(!$notificacion->leido)
+                                @if(!$notificacion->pivot->leido)
                                 <span class="badge bg-primary rounded-circle" style="width: 12px; height: 12px;"></span>
                                 @endif
                             </td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <strong class="{{ $notificacion->leido ? 'text-dark' : 'text-primary' }}">
+                                    <strong class="{{ $notificacion->pivot->leido ? 'text-dark' : 'text-primary' }}">
                                         {{ $notificacion->titulo }}
                                     </strong>
-                                    <small class="{{ $notificacion->leido ? 'text-muted' : 'text-dark' }}">{{ $notificacion->mensaje }}</small>
+                                    <small class="{{ $notificacion->pivot->leido ? 'text-muted' : 'text-dark' }}">{{ $notificacion->mensaje }}</small>
                                 </div>
                             </td>
                             <td>
-                                <span class="{{ $notificacion->leido ? 'text-muted' : 'text-dark' }}">
+                                <span class="{{ $notificacion->pivot->leido ? 'text-muted' : 'text-dark' }}">
                                     {{ ucfirst(str_replace('_', ' ', $notificacion->tipo_notificacion)) }}
                                 </span>
                             </td>
                             <td>
-                                <span title="{{ $notificacion->created_at->format('d/m/Y H:i') }}" class="{{ $notificacion->leido ? 'text-muted' : 'text-dark' }}">
+                                <span title="{{ $notificacion->created_at->format('d/m/Y H:i') }}" class="{{ $notificacion->pivot->leido ? 'text-muted' : 'text-dark' }}">
                                     {{ $notificacion->created_at->diffForHumans() }}
                                 </span>
                             </td>
                             <td>
-                                @if(!$notificacion->leido)
+                                @if(!$notificacion->pivot->leido)
                                 <a href="{{ route('notificaciones.marcar-leida', $notificacion->id_notificacion) }}" 
-                                   class="btn btn-sm btn-outline-secondary"
+                                   class="btn btn-sm btn-outline-secondary marcar-leida"
                                    title="Marcar como leída">
                                     <i class="bi bi-check2"></i>
                                 </a>
                                 @else
-                                <span class="text-muted small">Leído</span>
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="bi bi-check2"></i>
+                                </button>
                                 @endif
                             </td>
                         </tr>
@@ -137,9 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (date) date.classList.add('text-muted');
                         
                         // Actualizar el botón de acción individual
-                        const actionCell = this.querySelector('td:nth-child(5)');
+                        const actionCell = this.querySelector('td:nth-child(5) .marcar-leida');
                         if (actionCell) {
-                            actionCell.innerHTML = '<span class="text-muted small">Leído</span>';
+                            actionCell.outerHTML = `
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="bi bi-check2"></i>
+                                </button>
+                            `;
                         }
                         
                         // Verificar si quedan notificaciones sin leer
@@ -154,17 +160,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateMarkAllButton() {
         const unreadCount = document.querySelectorAll('tbody tr.table-active').length;
         const markAllButton = document.querySelector('.card-header button[type="submit"]');
-        const disabledButton = document.querySelector('.card-header button:disabled');
         
         if (unreadCount === 0) {
             if (markAllButton) {
-                markAllButton.remove();
-                const header = document.querySelector('.card-header');
-                header.innerHTML += `
-                    <button class="btn btn-sm btn-secondary" disabled>
-                        Todas leídas
-                    </button>
-                `;
+                markAllButton.disabled = true;
+                markAllButton.classList.remove('btn-primary');
+                markAllButton.classList.add('btn-secondary');
+                markAllButton.textContent = 'Todas leídas';
             }
         }
     }

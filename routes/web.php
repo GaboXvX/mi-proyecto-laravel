@@ -142,11 +142,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('notificaciones.marcar-todas-leidas');
             Route::get('/contador', [NotificacionController::class, 'getContadorNoLeidas'])->name('notificaciones.contador');
         });
-        Route::get('/mis-movimientos', [MovimientoController::class, 'index'])->name('mis.movimientos');
-Route::get('/mis-movimientos/exportar', [MovimientoController::class, 'exportar'])->name('movimientos.exportar');
+// routes/web.php
+Route::get('/mis-movimientos', [movimientoController::class, 'index'])
+     ->name('mis.movimientos')
+     ->middleware('auth');Route::get('/mis-movimientos/exportar', [MovimientoController::class, 'exportar'])->name('movimientos.exportar');
 Route::get('/mis-movimientos/descargar/{id}', [MovimientoController::class, 'descargar'])->name('movimientos.descargar');
 
     });
     // Para ocultar individual
+   Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])
+     ->name('movimientos.registradores');
 
+Route::get('/movimientos-registradores/exportar', [MovimientoController::class, 'exportar'])
+    ->name('movimientos.registradores.exportar');
 });

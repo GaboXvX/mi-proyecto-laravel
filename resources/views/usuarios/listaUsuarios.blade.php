@@ -57,7 +57,7 @@
                                 <!-- Botón "Inspeccionar" (excluye al admin) -->
                                 @unless ($usuario->hasRole('admin'))
                                 @can('ver movimientos empleados')
-                                    <a href="{{ route('usuarios.movimientos', $usuario->slug) }}" 
+                                    <a href="{{ route('movimientos.registradores', $usuario->slug) }}" 
                                        class="btn btn-warning btn-sm" 
                                        title="Ver movimientos">
                                         Inspeccionar

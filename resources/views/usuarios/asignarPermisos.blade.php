@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="table-container">
     <h2>Asignar Permisos a {{ $usuario->empleadoAutorizado->nombre }} {{ $usuario->empleadoAutorizado->apellido }}</h2>
     <form id="form-permisos">
         @csrf
@@ -42,13 +42,6 @@
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
         });
     });
 </script>

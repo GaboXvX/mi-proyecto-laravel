@@ -423,15 +423,15 @@
                         direccionSelect.innerHTML = '<option value="" disabled selected>--Seleccione--</option>';
                         data.forEach(direccion => {
                             direccionSelect.innerHTML += `<option value="${direccion.id_direccion}">
-                                Estado: ${direccion.estado?.nombre || 'N/A'} - 
-                                Municipio: ${direccion.municipio?.nombre || 'N/A'} - 
-                                Parroquia: ${direccion.parroquia?.nombre || 'N/A'} - 
-                                Urbanización: ${direccion.urbanizacion?.nombre || 'N/A'} - 
-                                Sector: ${direccion.sector?.nombre || 'N/A'} - 
-                                Comunidad: ${direccion.comunidad?.nombre || 'N/A'} - 
-                                Calle: ${direccion.calle || 'N/A'} 
-                                Manzana: ${direccion.manzana || 'N/A'} 
-                                Número de Casa: ${direccion.numero_de_vivienda || 'N/A'}
+                                ${direccion.estado?.nombre || 'N/A'} - 
+                                 ${direccion.municipio?.nombre || 'N/A'} - 
+                                 ${direccion.parroquia?.nombre || 'N/A'} - 
+                                 ${direccion.urbanizacion?.nombre || 'N/A'} - 
+                                 ${direccion.sector?.nombre || 'N/A'} - 
+                                 ${direccion.comunidad?.nombre || 'N/A'} - 
+                                 ${direccion.calle || 'N/A'} 
+                                 ${direccion.manzana || 'N/A'} 
+                                 ${direccion.numero_de_vivienda || 'N/A'}
                             </option>`;
                         });
                     })

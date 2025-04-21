@@ -10,6 +10,7 @@
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Codigo Incidencia</th>
                     <th>Tipo de Incidencia</th>
                     <th>Descripción</th>
                     <th>Nivel de Prioridad</th>
@@ -21,6 +22,7 @@
             <tbody>
                 @foreach($incidencias as $incidencia)
                     <tr>
+                        <td>{{ $incidencia->cod_incidencia }}</td>
                         <td>{{ $incidencia->tipo_incidencia }}</td>
                         <td>{{ $incidencia->descripcion }}</td>
                         <td>{{ $incidencia->nivel_prioridad }}</td>
@@ -32,6 +34,9 @@
                                     Modificar incidencia
                                 </button>
                             @endif
+                            <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-success btn-sm" title="Descargar comprobante">
+                                <i class="bi bi-download"></i> Descargar
+                            </a>
                         </td>
                     </tr>
                 @endforeach
@@ -96,7 +101,7 @@
                             <option value="" disabled selected>--Seleccione--</option>
                             @foreach ($persona->direccion as $direccion)
                                 <option value="{{ $direccion->id_direccion }}" {{ $direccion->id_direccion == $incidencia->id_direccion ? 'selected' : '' }}>
-                                    Parroquia: {{ $direccion->parroquia->nombre }} - Urbanización: {{ $direccion->urbanizacion->nombre }} - Sector: {{ $direccion->sector->nombre }} - Comunidad: {{ $direccion->comunidad->nombre }} - Calle: {{ $direccion->calle }} Manzana: {{ $direccion->manzana }} Número de Casa: {{ $direccion->numero_de_vivienda }}
+                                     {{ $direccion->parroquia->nombre }} - {{ $direccion->urbanizacion->nombre }} - {{ $direccion->sector->nombre }} - {{ $direccion->comunidad->nombre }} -  {{ $direccion->calle }} -{{ $direccion->manzana }} -{{ $direccion->numero_de_vivienda }}
                                 </option>
                             @endforeach
                         </select>

@@ -149,10 +149,19 @@ class IncidenciaController extends Controller
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->descripcion = 'Se registró una incidencia';
             $movimiento->save();
-           
+    
+            // Generar el comprobante como PDF
+            $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
+                            ->setPaper('a4', 'portrait');
+    
+            // Convertir el PDF a base64 para enviarlo al cliente
+            $pdfBase64 = base64_encode($pdf->output());
+    
+            // Retornar la respuesta con el comprobante en base64
             return response()->json([
                 'success' => true,
                 'message' => 'Incidencia registrada correctamente.',
+                'comprobante' => $pdfBase64, // Comprobante en base64
             ]);
         } catch (\Exception $e) {
             Log::error('Error al registrar incidencia:', ['error' => $e->getMessage()]);
@@ -213,8 +222,18 @@ class IncidenciaController extends Controller
         try {
             // Buscar la incidencia
             $incidencia = Incidencia::findOrFail($id);
+
+            // Generar un slug único
             $slug = Str::slug(Str::lower($request->input('descripcion')));
-    
+            $originalSlug = $slug;
+            $counter = 1;
+
+            // Verificar si el slug ya existe en otra incidencia
+            while (Incidencia::where('slug', $slug)->where('id_incidencia', '!=', $id)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+
             // Validar la dirección
             $direccion = Direccion::find($request->input('direccion'));
             if (!$direccion) {
@@ -223,12 +242,12 @@ class IncidenciaController extends Controller
                     'message' => '❌ La dirección seleccionada no existe.',
                 ], 400);
             }
-    
+
             // Buscar al líder de la comunidad asociada
             $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
                 ->where('estado', 1)
                 ->first();
-    
+
             // Asignar el líder si existe, de lo contrario, dejarlo como null
             $incidencia->id_lider = $lider ? $lider->id_lider : null;
             $incidencia->slug = $slug;
@@ -240,7 +259,7 @@ class IncidenciaController extends Controller
             
             // Guardar los cambios en la incidencia
             $incidencia->save();
-    
+
             // Registrar el movimiento
             $movimiento = new movimiento();
             $movimiento->id_incidencia = $incidencia->id_incidencia;
@@ -253,7 +272,7 @@ class IncidenciaController extends Controller
                 'success' => true,
                 'message' => '✅ Incidencia actualizada correctamente.',
             ], 200);
-    
+
         } catch (\Exception $e) {
             // Manejo de errores
             return response()->json([

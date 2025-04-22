@@ -4,7 +4,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Lista de Personas</h2>
                 <div>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroPersonaModal">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registroPersonaModal" title="Agregar persona">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
                             <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
                             <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
@@ -128,7 +128,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="telefono" class="form-label">Teléfono:</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10,11}" placeholder="Ej: 1234567890" required>
+                                <input type="number" id="telefono" name="telefono" class="form-control" pattern="[0-9]{10,11}" placeholder="Ej: 1234567890" required maxlength="11">
                             </div>
                             <div class="col-md-6">
                                 <label for="altura" class="form-label">Altura (cm):</label>
@@ -273,12 +273,22 @@
                     if (data.exists) {
                         this.classList.add('is-invalid');
                         errorElement.textContent = 'Esta cédula ya está registrada';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Esta cédula ya está registrada'
+                        });
                     } else {
                         this.classList.remove('is-invalid');
                         errorElement.textContent = '';
                     }
                 } catch (error) {
                     console.error('Error al validar cédula:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'Hubo un problema al validar la cédula. Intenta nuevamente.'
+                    });
                 }
             });
 
@@ -304,12 +314,22 @@
                     if (data.exists) {
                         this.classList.add('is-invalid');
                         errorElement.textContent = 'Este correo ya está registrado';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Este correo ya está registrado'
+                        });
                     } else {
                         this.classList.remove('is-invalid');
                         errorElement.textContent = '';
                     }
                 } catch (error) {
                     console.error('Error al validar correo:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'Hubo un problema al validar el correo. Intenta nuevamente.'
+                    });
                 }
             });
 
@@ -456,16 +476,30 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
                             // Redirigir a la URL proporcionada en la respuesta
-                            window.location.href = data.redirect_url;
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: data.message || 'La incidencia se ha registrado correctamente.',
+                            }).then(() => {
+                                // Redirigir a la URL proporcionada en la respuesta
+                                window.location.href = data.redirect_url;
+                            });
                         } else {
-                            alert(data.message || 'Error al registrar la incidencia.');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Error al registrar la incidencia.',
+                            });
                         }
                     })
                     .catch(error => {
                         console.error('Error al enviar el formulario:', error);
-                        alert('Error de conexión. Por favor intente nuevamente.');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'Error de conexión. Por favor intente nuevamente.',
+                        });
                     });
             });
         });
@@ -523,5 +557,34 @@
                 `).join('');
             }
         }
+    </script>
+    <script>
+        // Obtenemos el campo de fecha de nacimiento
+    const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+
+// Escuchamos el evento input para detectar cambios
+fechaNacimientoInput.addEventListener('input', function() {
+    const fechaNacimiento = fechaNacimientoInput.value;
+    
+    if (fechaNacimiento) {
+        const fechaNacimientoObj = new Date(fechaNacimiento);
+        const fechaActual = new Date();
+        const edad = fechaActual.getFullYear() - fechaNacimientoObj.getFullYear();
+        const mes = fechaActual.getMonth() - fechaNacimientoObj.getMonth();
+
+        // Verificamos si la edad es menor a 18 años
+        if (edad < 18 || (edad === 18 && mes < 0)) {
+            // Muestra la alerta si no es mayor de edad
+            Swal.fire({
+                icon: 'error',
+                title: 'No eres mayor de edad',
+                text: 'Debes ser mayor de 18 años para registrarte.',
+            });
+
+            // Opcional: Limpia el campo o lo deshabilita para evitar que el formulario se envíe
+            fechaNacimientoInput.value = '';  // Limpia el campo si no es mayor de edad
+        }
+    }
+});
     </script>
 @endsection

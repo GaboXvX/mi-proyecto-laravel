@@ -61,25 +61,6 @@ document.getElementById("fecha_fin").addEventListener("change", function() {
   }
 });
 
-//limitar caracteres
-document.getElementById('cedula').addEventListener('input', function(e) {
-  if (this.value.length > 8) {
-      this.value = this.value.slice(0, 8); 
-  }
-});
-
-document.getElementById('nombre').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
-});
-
-document.getElementById('apellido').addEventListener('input', function(e) {
-  if (this.value.length > 11) {
-      this.value = this.value.slice(0, 11); 
-  }
-});
-
 document.getElementById('cedula').addEventListener('blur', async function () {
     const cedula = this.value.trim();
     if (cedula.length < 8) return;

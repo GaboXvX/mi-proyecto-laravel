@@ -297,7 +297,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editPersonaModalLabel">Editar Persona</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="{{ route('personas.update', $persona->slug) }}" method="POST">
@@ -307,18 +306,18 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="nombre" class="form-label">Nombre:</label>
-                                    <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre', $persona->nombre) }}" required>
+                                    <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre', $persona->nombre) }}" required maxlength="11">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="apellido" class="form-label">Apellido:</label>
-                                    <input type="text" id="apellido" name="apellido" class="form-control" value="{{ old('apellido', $persona->apellido) }}" required>
+                                    <input type="text" id="apellido" name="apellido" class="form-control" value="{{ old('apellido', $persona->apellido) }}" required maxlength="11">
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="number" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required>
+                                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required maxlength="8">
                             </div>
 
                             <div class="row mb-3">
@@ -329,7 +328,7 @@
 
                                 <div class="col-md-6">
                                     <label for="telefono" class="form-label">Teléfono:</label>
-                                    <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ old('telefono', $persona->telefono) }}" required>
+                                    <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ old('telefono', $persona->telefono) }}" required maxlength="11">
                                 </div>
                             </div>
 

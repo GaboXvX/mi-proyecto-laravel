@@ -175,6 +175,50 @@
             });
         });
     </script>
+    <script>
+    // Obtener los elementos del formulario
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    // Guardar el valor original de las fechas
+    let originalStartDate = startDateInput.value;
+    let originalEndDate = endDateInput.value;
+
+    // Función para validar las fechas
+    function validateDates(event) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+
+        // Si la fecha de inicio es posterior a la fecha de fin
+        if (startDate > endDate) {
+            // Muestra la alerta de SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La fecha de inicio no puede ser posterior a la fecha de fin.',
+                confirmButtonText: 'Aceptar'
+            });
+
+            // Restaurar el valor original de la fecha de fin (sin cambios)
+            if (event.target === startDateInput) {
+                startDateInput.value = originalStartDate;
+            } else {
+                endDateInput.value = originalEndDate;
+            }
+
+            // Establece la validación personalizada
+            endDateInput.setCustomValidity('La fecha de inicio no puede ser posterior a la fecha de fin.');
+            event.preventDefault(); // Prevenir el cambio en el valor del campo de fecha
+        } else {
+            // Si las fechas son correctas, limpia la validación
+            endDateInput.setCustomValidity('');
+        }
+    }
+
+    // Evento para validar cuando se cambian las fechas
+    startDateInput.addEventListener('change', validateDates);
+    endDateInput.addEventListener('change', validateDates);
+</script>
 
     <!-- Scripts locales -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>

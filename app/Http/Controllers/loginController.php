@@ -46,6 +46,9 @@ class LoginController extends Controller
         if ($user->id_estado_usuario == 3) {
             return redirect()->route('login')->with('error', 'Este usuario tiene una petición pendiente de verificación.');
         }
+        if ($user->id_estado_usuario == 4) {
+            return redirect()->route('login')->with('error', 'Este usuario tiene una petición rechazada.');
+        }
     }
 
     // Verificar las credenciales de la contraseña

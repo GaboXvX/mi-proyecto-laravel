@@ -121,12 +121,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/personas/modificardireccion/{slug}', [direccionController::class, 'edit'])->name('personas.modificarDireccion');
         Route::post('/personas/actualizardireccion/{id}/{idPersona}', [direccionController::class, 'update'])->name('personas.actualizarDireccion');
         Route::post('/personas/marcarprincipal', [direccionController::class, 'marcarPrincipal'])->name('personas.marcarPrincipal');
-        Route::get('/incidencias/{slug}', [IncidenciaController::class, 'mostrar'])->name('incidencias.mostrar');
         Route::post('/incidencias/buscar', [IncidenciaController::class, 'buscar'])->name('incidencias.buscar');
         Route::resource('lideres', liderController::class)->except('update', 'create');
         Route::put('/lideres/update/{slug}', [liderController::class, 'update'])->name('lideres.update');
         Route::post('/lideres/buscar', [liderController::class, 'buscar'])->name('lideres.buscar');
-        Route::get('/registrarincidenciaslider/{slug}', [IncidenciaController::class, 'create'])->name('incidenciaslider.create');
         Route::get('/modificarincidencialider/{slug}', [IncidenciaController::class, 'edit'])->name('incidenciaslider.edit');
 
         Route::get('/configuracion', [configController::class, 'index'])->name('usuarios.configuracion');

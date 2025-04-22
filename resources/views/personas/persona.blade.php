@@ -198,7 +198,7 @@
 
                                 <div class="col-md-6">
                                     <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" >
                                 </div>
                             </div>
 
@@ -250,7 +250,7 @@
 
                                 <div class="col-md-6">
                                     <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" >
                                 </div>
                             </div>
 

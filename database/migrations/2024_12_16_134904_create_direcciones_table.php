@@ -21,7 +21,7 @@ return new class extends Migration
             $table->bigInteger('id_sector')->unsigned()->nullable();
             $table->bigInteger('id_comunidad')->unsigned()->nullable();
             $table->string('calle');
-            $table->string('manzana');
+            $table->string('manzana')->nullable();
             $table->string('bloque')->nullable();
             $table->string('numero_de_vivienda');
             $table->boolean('es_principal');

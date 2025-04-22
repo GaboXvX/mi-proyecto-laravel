@@ -150,7 +150,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="manzana" class="form-label">Manzana:</label>
-                                <input type="text" id="manzana" name="manzana" class="form-control" required>
+                                <input type="text" id="manzana" name="manzana" class="form-control" >
                             </div>
                         </div>
 
@@ -457,7 +457,8 @@
                     .then(data => {
                         if (data.success) {
                             alert(data.message);
-                            location.reload();
+                            // Redirigir a la URL proporcionada en la respuesta
+                            window.location.href = data.redirect_url;
                         } else {
                             alert(data.message || 'Error al registrar la incidencia.');
                         }

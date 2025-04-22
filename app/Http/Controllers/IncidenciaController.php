@@ -142,7 +142,7 @@ class IncidenciaController extends Controller
             }
     
             Log::info('Incidencia registrada correctamente:', $incidencia->toArray());
-    
+            
             // Registrar movimiento
             $movimiento = new movimiento();
             $movimiento->id_incidencia = $incidencia->id_incidencia;
@@ -150,18 +150,15 @@ class IncidenciaController extends Controller
             $movimiento->descripcion = 'Se registró una incidencia';
             $movimiento->save();
     
-            // Generar el comprobante como PDF
-            $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
-                            ->setPaper('a4', 'portrait');
     
-            // Convertir el PDF a base64 para enviarlo al cliente
-            $pdfBase64 = base64_encode($pdf->output());
-    
-            // Retornar la respuesta con el comprobante en base64
+            // Retornar la respuesta con la URL de redirección
             return response()->json([
                 'success' => true,
                 'message' => 'Incidencia registrada correctamente.',
-                'comprobante' => $pdfBase64, // Comprobante en base64
+                'redirect_url' => route('incidencias.show', [
+                    'slug' => $persona->slug,
+                    'incidencia_slug' => $incidencia->slug
+                ])
             ]);
         } catch (\Exception $e) {
             Log::error('Error al registrar incidencia:', ['error' => $e->getMessage()]);

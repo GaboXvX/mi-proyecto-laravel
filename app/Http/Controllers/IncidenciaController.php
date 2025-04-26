@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
+use App\Models\categoriaExclusivaPersona;
 use App\Models\Direccion;
 use App\Models\incidencia;
 use App\Models\lider_comunitario;
@@ -22,7 +23,7 @@ class IncidenciaController extends Controller
     public function index(Request $request) 
     {
         // Cargar las incidencias junto con las relaciones necesarias
-        $incidencias = Incidencia::with(['usuario.empleadoAutorizado', 'lider.personas']) // Incluir usuario.empleadoAutorizado y lider.personas
+        $incidencias = Incidencia::with(['usuario.empleadoAutorizado', 'categoriaExclusiva.persona']) // Incluir usuario y categoría exclusiva
             ->when($request->codigo, function ($query, $codigo) {
                 return $query->where('cod_incidencia', 'like', "%$codigo%");
             })
@@ -52,12 +53,8 @@ class IncidenciaController extends Controller
 
         $persona = Persona::where('slug', $slug)->first();
 
-        $lider = lider_comunitario::where('slug', $slug)->first();
 
-        if ($lider) {
-
-            return view('incidencias.registrarIncidencialider', compact('lider'));
-        }
+       
 
         if ($persona) {
             return view('incidencias.registrarIncidencia', compact('persona'));
@@ -111,17 +108,17 @@ class IncidenciaController extends Controller
                 ], 400);
             }
     
-            // Buscar al líder según la comunidad de la dirección y su estado activo
-            $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
-                ->where('estado', 1) // Verificamos que el líder esté activo
+            // Buscar una categoría exclusiva activa en la comunidad de la dirección
+            $categoriaExclusiva = categoriaExclusivaPersona::where('id_comunidad', $direccion->id_comunidad)
+                ->where('es_activo', true)
                 ->first();
     
-            if ($lider) {
-                // Asignamos el líder a la incidencia
-                $incidencia->id_lider = $lider->id_lider;
+            if ($categoriaExclusiva) {
+                // Asignar la categoría exclusiva como líder
+                $incidencia->id_categoria_exclusiva = $categoriaExclusiva->id_categoria_exclusiva;
             } else {
-                // Si no hay un líder activo, asignamos NULL
-                $incidencia->id_lider = null;
+                // Si no hay una categoría exclusiva activa, asignar NULL
+                $incidencia->id_categoria_exclusiva = null;
             }
     
             // Asignar los valores a la incidencia
@@ -136,20 +133,12 @@ class IncidenciaController extends Controller
             // Guardar la incidencia
             $incidencia->save();
     
-            // Depuración: Verifica si los datos se guardaron
-            if (!$incidencia->exists) {
-                throw new \Exception('La incidencia no se guardó correctamente.');
-            }
-    
-            Log::info('Incidencia registrada correctamente:', $incidencia->toArray());
-            
             // Registrar movimiento
             $movimiento = new movimiento();
             $movimiento->id_incidencia = $incidencia->id_incidencia;
             $movimiento->id_usuario = auth()->user()->id_usuario;
             $movimiento->descripcion = 'Se registró una incidencia';
             $movimiento->save();
-    
     
             // Retornar la respuesta con la URL de redirección
             return response()->json([
@@ -172,20 +161,28 @@ class IncidenciaController extends Controller
     
     public function descargar($slug)
     {
-        // Buscar la incidencia por el slug
-        $incidencia = Incidencia::with(['persona', 'direccion', 'lider.personas'])->where('slug', $slug)->first();
-
-        // Verificar si la incidencia existe
-        if (!$incidencia) {
-            abort(404, 'Incidencia no encontrada.');
+        try {
+            // Buscar la incidencia por el slug
+            $incidencia = Incidencia::with(['persona', 'direccion', 'categoriaExclusiva.persona'])->where('slug', $slug)->first();
+    
+            // Verificar si la incidencia existe
+            if (!$incidencia) {
+                abort(404, 'Incidencia no encontrada.');
+            }
+    
+            // Generar el PDF con el formato individual
+            $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
+                            ->setPaper('a4', 'portrait');
+    
+            // Descargar el PDF con el código de incidencia como nombre
+            return $pdf->download('incidencia-' . $incidencia->cod_incidencia . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error al generar el PDF de la incidencia:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el PDF de la incidencia: ' . $e->getMessage(),
+            ], 500);
         }
-
-        // Generar el PDF con el formato individual
-        $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
-                        ->setPaper('a4', 'portrait');
-
-        // Descargar el PDF con el código de incidencia como nombre
-        return $pdf->download('incidencia-' . $incidencia->cod_incidencia . '.pdf');
     }
     
 
@@ -240,13 +237,13 @@ class IncidenciaController extends Controller
                 ], 400);
             }
 
-            // Buscar al líder de la comunidad asociada
-            $lider = Lider_Comunitario::where('id_comunidad', $direccion->id_comunidad)
-                ->where('estado', 1)
+            // Buscar una categoría exclusiva activa en la comunidad de la dirección
+            $categoriaExclusiva = categoriaExclusivaPersona::where('id_comunidad', $direccion->id_comunidad)
+                ->where('es_activo', true)
                 ->first();
 
-            // Asignar el líder si existe, de lo contrario, dejarlo como null
-            $incidencia->id_lider = $lider ? $lider->id_lider : null;
+            // Asignar la categoría exclusiva si existe, de lo contrario, dejarla como null
+            $incidencia->id_categoria_exclusiva = $categoriaExclusiva ? $categoriaExclusiva->id_categoria_exclusiva : null;
             $incidencia->slug = $slug;
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
             $incidencia->descripcion = Str::lower($request->input('descripcion'));
@@ -334,10 +331,7 @@ class IncidenciaController extends Controller
         'estado' => 'nullable|string|in:Atendido,Por atender,Todos',
     ]);
 
-    $query = Incidencia::with([
-        'usuario.empleadoAutorizado', 
-        'lider.personas'
-    ]);
+    $query = Incidencia::with(['usuario.empleadoAutorizado', 'categoriaExclusiva.persona', 'categoriaExclusiva.categoria']);
 
     if ($request->codigo) {
         $query->where('cod_incidencia', 'like', "%{$request->codigo}%");
@@ -354,31 +348,7 @@ class IncidenciaController extends Controller
         $query->where('estado', $request->estado);
     }
 
-    $incidencias = $query->get()->map(function ($incidencia) {
-        return [
-            'cod_incidencia' => $incidencia->cod_incidencia,
-            'tipo_incidencia' => $incidencia->tipo_incidencia,
-            'descripcion' => $incidencia->descripcion,
-            'nivel_prioridad' => $incidencia->nivel_prioridad,
-            'estado' => $incidencia->estado,
-            'created_at' => $incidencia->created_at,
-            'slug' => $incidencia->slug,
-            'usuario' => $incidencia->usuario ? [
-                'empleado_autorizado' => $incidencia->usuario->empleadoAutorizado ? [
-                    'nombre' => $incidencia->usuario->empleadoAutorizado->nombre,
-                    'apellido' => $incidencia->usuario->empleadoAutorizado->apellido,
-                    'cedula' => $incidencia->usuario->empleadoAutorizado->cedula
-                ] : null
-            ] : null,
-            'lider' => $incidencia->lider ? [
-                'personas' => $incidencia->lider->personas ? [
-                    'nombre' => $incidencia->lider->personas->nombre,
-                    'apellido' => $incidencia->lider->personas->apellido,
-                    'cedula' => $incidencia->lider->personas->cedula
-                ] : null
-            ] : null
-        ];
-    });
+    $incidencias = $query->get();
 
     return response()->json(['incidencias' => $incidencias]);
 }
@@ -396,7 +366,8 @@ class IncidenciaController extends Controller
         }
 
         // Construir la consulta para filtrar las incidencias
-        $query = Incidencia::with(['persona', 'lider'])->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+        $query = Incidencia::with(['persona', 'categoriaExclusiva.persona', 'categoriaExclusiva.categoria'])
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
 
         if ($estado !== 'Todos') {
             $query->where('estado', $estado);
@@ -410,9 +381,9 @@ class IncidenciaController extends Controller
         }
 
         // Generar el PDF con la tabla completa
-        $pdf = FacadePdf::loadView('incidencias.pdf_table', compact('incidencias', 'fechaInicio', 'fechaFin'));
+        $pdf = FacadePdf::loadView('incidencias.pdf_table', compact('incidencias', 'fechaInicio', 'fechaFin', 'estado'));
 
-        return $pdf->download('reporte_incidencias.pdf');
+        return $pdf->download('reporte_incidencias_' . $fechaInicio . '_a_' . $fechaFin . '.pdf');
     }
 
     public function show($slug, $incidencia_slug)

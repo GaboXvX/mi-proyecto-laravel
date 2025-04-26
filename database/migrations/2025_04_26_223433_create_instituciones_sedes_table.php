@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categorias_personas', function (Blueprint $table) {
-            $table->bigIncrements('id_categoria_persona');
-            $table->string('nombre_categoria');
-            $table->string('slug')->unique(); // Para búsquedas amigables
-            $table->text('descripcion')->nullable();
+        Schema::create('instituciones_sedes', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categorias_personas');
+        Schema::dropIfExists('instituciones_sedes');
     }
 };

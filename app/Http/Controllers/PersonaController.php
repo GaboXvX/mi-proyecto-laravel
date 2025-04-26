@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePersonaRequest;
 use App\Http\Requests\updatePersonaRequest;
+use App\Models\categoriaExclusivaPersona;
 use App\Models\categoriaPersona;
 use App\Models\Comunidad;
 use App\Models\Direccion;
@@ -12,12 +13,15 @@ use App\Models\movimiento;
 use App\Models\Notificacion;
 use App\Models\Parroquia;
 use App\Models\Persona;
+use App\Models\ReglaEspecial;
 use App\Models\Sector;
 use App\Models\Urbanizacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class PersonaController extends Controller
 {
@@ -27,126 +31,229 @@ class PersonaController extends Controller
         return view('personas.registrarPersonas', compact('categorias'));
     }
 
-    public function store(StorePersonaRequest $request)
+    public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
-            // Validación adicional manual
             $errors = [];
             
-            // Validar cédula
-            if (Persona::where('cedula', $request->cedula)->exists()) {
-                $errors['cedula'] = ['La cédula ya está registrada'];
+            // Validación básica de datos personales
+            $validationErrors = $this->validarDatosPersonales($request);
+            if (!empty($validationErrors)) {
+                $errors = array_merge($errors, $validationErrors);
             }
             
-            // Validar correo
-            if (Persona::where('correo', $request->correo)->exists()) {
-                $errors['correo'] = ['El correo electrónico ya está registrado'];
+            // Validación de categoría y sus reglas
+            $categoria = CategoriaPersona::with('reglasConfiguradas')->find($request->categoria);
+            
+            if (!$categoria) {
+                $errors['categoria'] = ['La categoría seleccionada no existe'];
+            } else {
+                $this->validarReglasCategoria($categoria, $request, $errors);
             }
             
-           
-
-            // Validar líder comunitario
-            if ($request->categoria == 2) {
-                $liderExistente = Lider_Comunitario::where('id_comunidad', $request->comunidad)
-                    ->where('estado', 1)
-                    ->exists();
-                    
-                if ($liderExistente) {
-                    $errors['categoria'] = ['Ya existe un líder activo para esta comunidad'];
-                }
-            }
-            
+            // Si hay errores, retornarlos de forma clara
             if (!empty($errors)) {
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Errores de validación',
+                    'success' => false,
+                    'title' => 'Error de validación',
+                    'message' => 'Por favor corrige los siguientes errores:',
                     'errors' => $errors
                 ], 422);
             }
 
-            // Resto de tu lógica de creación...
-            $persona = new Persona();
-            $slug = Str::slug($request->input('nombre'));
-            $count = Persona::where('slug', $slug)->count();
-
-            if ($count > 0) {
-                $originalSlug = $slug;
-                $counter = 1;
-
-                while (Persona::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
+            // Proceso de creación si no hay errores
+            $persona = $this->crearPersona($request);
+            $direccion = $this->crearDireccion($request, $persona);
+            
+            // Aplicar reglas de categoría si existen y la categoría no es "Regular"
+            if ($categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
+                $this->aplicarReglasCategoria($categoria, $persona, $request);
             }
-
-            $persona->slug = $slug;
-            $persona->nombre = Str::lower( $request->input('nombre'));
-            $persona->apellido =Str::lower( $request->input('apellido'));
-            $persona->cedula = $request->input('cedula');
-            $persona->correo = $request->input('correo');
-            $persona->telefono = $request->input('telefono');
-            $persona->genero = $request->input('genero');
-            $persona->altura = $request->input('altura')." cm";
-            $persona->fecha_nacimiento = $request->input('fecha_nacimiento');
-            $persona->id_usuario = Auth::user()->id_usuario;
-            $persona->id_categoriaPersona = $request->input('categoria');
-            $persona->save();
-
-            $direccion = new Direccion();
-            $direccion->id_comunidad = $request->input('comunidad');
-            $direccion->id_sector = $request->input('sector');
-            $direccion->calle = $request->input('calle');
-            $direccion->manzana = $request->input('manzana');
-            $direccion->numero_de_vivienda = $request->input('num_vivienda');
-            $direccion->bloque = $request->input('bloque');
-            $direccion->id_parroquia = $request->input('parroquia');
-            $direccion->id_urbanizacion = $request->input('urbanizacion');
-            $direccion->id_persona = $persona->id_persona;
-            $direccion->es_principal = $request->input('es_principal', 0);
-            $direccion->id_estado = $request->input('estado');
-            $direccion->id_municipio = $request->input('municipio');
-            $direccion->save();
-
-            $persona->direccion()->save($direccion);
-
-            if ($persona->id_categoriaPersona == 2) {
-                $liderComunitario = new Lider_Comunitario();
-                $liderComunitario->id_persona = $persona->id_persona;
-                $liderComunitario->id_comunidad = $request->input('comunidad');
-                $liderComunitario->estado = 1;
-                $liderComunitario->save();
-                $movimiento = new movimiento();
-                $movimiento->id_persona = $persona->id_persona;
-                $movimiento->id_usuario = auth()->user()->id_usuario;
-                $movimiento->descripcion = 'se registro como lider comunitario';
-                $movimiento->save();
-               
-            }
-            $movimiento = new movimiento();
-                $movimiento->id_persona = $persona->id_persona;
-                $movimiento->id_usuario = auth()->user()->id_usuario;
-                $movimiento->descripcion = 'se registro una persona';
-                $movimiento->save();
-               
+            
+            $this->registrarMovimiento($persona, 'Registro de persona');
+            
+            DB::commit();
+            
             return response()->json([
-                'status' => 'success',
-                'message' => 'Persona registrada exitosamente',
-                'data' => [
-                    'persona' => $persona,
-                    'direccion' => $direccion
-                ]
+                'success' => true,
+                'title' => 'Registro exitoso',
+                'message' => 'La persona ha sido registrada correctamente',
+                'redirect_url' => route('personas.index')
             ], 201);
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            Log::error('Error en la base de datos: '.$e->getMessage());
             return response()->json([
-                'status' => 'error',
-                'message' => 'Error inesperado en el servidor',
-                'error' => $e->getMessage()
+                'success' => false,
+                'title' => 'Error de base de datos',
+                'message' => 'Ocurrió un error al guardar los datos. Por favor intente nuevamente.'
             ], 500);
         }
         
     }
+    
+    // Métodos auxiliares:
+    
+    protected function validarDatosPersonales($request)
+{
+    $errors = [];
+    
+    // Validar cédula
+    if (empty($request->cedula)) {
+        $errors['cedula'] = ['La cédula es obligatoria'];
+    } elseif (strlen($request->cedula) < 6) {
+        $errors['cedula'] = ['La cédula debe tener al menos 6 caracteres'];
+    } elseif (Persona::where('cedula', $request->cedula)->exists()) {
+        $errors['cedula'] = ['Esta cédula ya está registrada en el sistema'];
+    }
+    
+    // Validar correo
+    if (empty($request->correo)) {
+        $errors['correo'] = ['El correo electrónico es obligatorio'];
+    } elseif (!filter_var($request->correo, FILTER_VALIDATE_EMAIL)) {
+        $errors['correo'] = ['Ingrese un correo electrónico válido'];
+    } elseif (Persona::where('correo', $request->correo)->exists()) {
+        $errors['correo'] = ['Este correo electrónico ya está registrado'];
+    }
+    
+    // Validar fecha de nacimiento
+   
+    
+    return $errors;
+}
 
+protected function validarReglasCategoria($categoria, $request, &$errors)
+{
+    $config = $categoria->reglasConfiguradas;
+    
+    // Validar si requiere comunidad
+    if ($config->requiere_comunidad && empty($request->comunidad)) {
+        $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría requiere que seleccione una comunidad'];
+    }
+    
+    // Validar unicidad en comunidad
+    if ($config->unico_en_comunidad && $request->comunidad) {
+        $existente = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
+            ->where('id_comunidad', $request->comunidad)
+            ->where('es_activo', true)
+            ->exists();
+            
+        if ($existente) {
+            $errors['categoria'] = [$config->mensaje_error ?? 'Ya existe un ' . $categoria->nombre_categoria . ' en la comunidad seleccionada'];
+        }
+    }
+    
+    // Validar unicidad en sistema
+    if ($config->unico_en_sistema) {
+        $existente = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
+            ->where('es_activo', true)
+            ->exists();
+            
+        if ($existente) {
+            $errors['categoria'] = [$config->mensaje_error ?? 'Solo puede haber un ' . $categoria->nombre_categoria . ' registrado en el sistema'];
+        }
+    }
+}
+    
+    protected function aplicarReglasCategoria($categoria, $persona, $request)
+    {
+        $reglaData = [
+            'id_persona' => $persona->id_persona,
+            'id_categoria_persona' => $categoria->id_categoria_persona,
+            'es_activo' => true,
+            'id_usuario' => auth()->id(),
+            'fecha_aprobacion' => now()
+        ];
+        
+        // Si la categoría requiere comunidad, la añadimos
+        if ($categoria->reglasConfiguradas->requiere_comunidad) {
+            $reglaData['id_comunidad'] = $request->comunidad;
+            $reglaData['tipo_regla'] = 'asignacion_comunidad';
+        } else {
+            $reglaData['tipo_regla'] = 'asignacion_sistema';
+        }
+        
+        // Crear la regla especial
+       categoriaExclusivaPersona::create($reglaData);
+        
+        // Registrar movimiento específico
+        $this->registrarMovimiento($persona, 'Asignación de categoría: ' . $categoria->nombre_categoria);
+    }
+    
+    protected function crearPersona($request)
+    {
+        $persona = new Persona();
+        $persona->slug = $this->generarSlug($request->nombre);
+        $persona->nombre = Str::lower($request->nombre);
+        $persona->apellido = Str::lower($request->apellido);
+        $persona->cedula = $request->cedula;
+        $persona->correo = $request->correo;
+        $persona->telefono = $request->telefono;
+        $persona->genero = $request->genero;
+        $persona->id_usuario = auth()->id();
+        $persona->id_categoria_persona = $request->categoria;
+        $persona->save();
+        
+        return $persona;
+    }
+    
+    protected function crearDireccion($request, $persona)
+    {
+        $direccion = new Direccion();
+        $direccion->id_comunidad = $request->comunidad;
+        $direccion->id_sector = $request->sector;
+        $direccion->calle = $request->calle;
+        $direccion->manzana = $request->manzana;
+        $direccion->numero_de_vivienda = $request->num_vivienda;
+        $direccion->bloque = $request->bloque;
+        $direccion->id_parroquia = $request->parroquia;
+        $direccion->id_urbanizacion = $request->urbanizacion;
+        $direccion->id_persona = $persona->id_persona;
+        $direccion->es_principal = $request->es_principal ?? 0;
+        $direccion->id_estado = $request->estado;
+        $direccion->id_municipio = $request->municipio;
+        $direccion->save();
+        
+        return $direccion;
+    }
+    
+    protected function registrarMovimiento($persona, $descripcion)
+    {
+        movimiento::create([
+            'id_persona' => $persona->id_persona,
+            'id_usuario' => auth()->id(),
+            'descripcion' => $descripcion
+        ]);
+    }
+    
+    protected function generarSlug($nombre)
+    {
+        $slug = Str::slug($nombre);
+        $count = Persona::where('slug', $slug)->count();
+    
+        if ($count > 0) {
+            $originalSlug = $slug;
+            $counter = 1;
+    
+            while (Persona::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+        }
+        
+        return $slug;
+    }
+    protected function returnValidationError($errors)
+    {
+        return response()->json([
+            'success' => false,
+            'title' => 'Error de validación',
+            'message' => 'Por favor corrige los siguientes errores:',
+            'errors' => $errors
+        ], 422);
+    }
     public function index()
     {
         $categorias = categoriaPersona::all();
@@ -157,22 +264,10 @@ class PersonaController extends Controller
     public function show($slug)
     {
         $categorias = categoriaPersona::all();
-        $persona = Persona::where('slug', $slug)->firstOrFail();
+        $persona = Persona::with('categoria')->where('slug', $slug)->firstOrFail();
+        $direcciones = Direccion::where('id_persona', $persona->id_persona)->with('estado', 'municipio', 'parroquia', 'urbanizacion', 'sector', 'comunidad')->paginate(10);
 
-        if ($persona) {
-            $direcciones = $persona->direccion()->paginate(5);
-
-            if (request()->ajax()) {
-                return response()->json([
-                    'direcciones' => view('partials.direcciones-list', compact('direcciones'))->render(),
-                    'pagination' => view('partials.pagination-links', compact('direcciones'))->render()
-                ]);
-            }
-
-            return view('personas.persona', compact('persona', 'categorias', 'direcciones'));
-        } else {
-            return redirect()->route('personas.index');
-        }
+        return view('personas.persona', compact('persona', 'direcciones', 'categorias'));
     }
 
     public function edit($slug)
@@ -208,15 +303,14 @@ class PersonaController extends Controller
                 return redirect()->route('personas.show', ['slug' => $slug])
                     ->with('error', 'Persona no encontrada con el slug: ' . $slug);
             }
-
+            $slug= $this->generarSlug($request->input('nombre'));
+            $persona->slug =$slug;
             $persona->nombre = Str::lower($request->input('nombre')) ;
             $persona->apellido = Str::lower($request->input('apellido')) ;
             $persona->cedula = $request->input('cedula');
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
             $persona->genero = $request->input('genero');
-            $persona->fecha_nacimiento = $request->input('fecha_nacimiento');
-            $persona->altura = $request->input('altura') . " cm";
             $persona->save();
             $movimiento = new movimiento();
             $movimiento->id_persona = $persona->id_persona;

@@ -108,7 +108,7 @@
                     <th>Estado</th>
                     <th>Creación</th>
                     <th>Registrado por</th>
-                    <th>Líder</th>
+                    <th>Representante</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -135,12 +135,13 @@
                             @endif
                         </td>
                         <td>
-                            @if($incidencia->lider && $incidencia->lider->personas)
-                                {{ $incidencia->lider->personas->nombre ?? 'Nombre no disponible' }} 
-                                {{ $incidencia->lider->personas->apellido ?? 'Apellido no disponible' }} 
-                                <strong>V-</strong>{{ $incidencia->lider->personas->cedula ?? 'Cédula no disponible' }}
+                            @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
+                                {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
+                                {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
+                                <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
+                                <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
                             @else
-                                <em>No tiene un líder asignado</em>
+                                <em>No tiene un representante asignado</em>
                             @endif
                         </td>
                         <td>
@@ -215,6 +216,10 @@
                     body: JSON.stringify({ codigo })
                 });
 
+                if (!response.ok) {
+                    throw new Error('Error al buscar por código');
+                }
+
                 const data = await response.json();
                 this.mostrarResultados(data.incidencias);
             } catch (error) {
@@ -237,6 +242,10 @@
                     body: JSON.stringify({ fecha_inicio: fechaInicio, fecha_fin: fechaFin, estado })
                 });
 
+                if (!response.ok) {
+                    throw new Error('Error al filtrar las incidencias');
+                }
+
                 const data = await response.json();
                 this.mostrarResultados(data.incidencias);
             } catch (error) {
@@ -254,16 +263,16 @@
 
                     const usuario = incidencia.usuario || {};
                     const empleado = usuario.empleado_autorizado || {};
-                    const lider = incidencia.lider || {};
-                    const persona = lider.personas || {};
+                    const categoriaExclusiva = incidencia.categoria_exclusiva || {};
+                    const representante = categoriaExclusiva.persona || {};
 
                     const registradoPor = empleado.nombre 
                         ? `${empleado.nombre} ${empleado.apellido} <strong>V-</strong>${empleado.cedula}`
                         : '<em>No registrado</em>';
 
-                    const liderInfo = persona.nombre 
-                        ? `${persona.nombre} ${persona.apellido} <strong>V-</strong>${persona.cedula}`
-                        : '<em>No tiene un líder asignado</em>';
+                    const representanteInfo = representante.nombre 
+                        ? `${representante.nombre} ${representante.apellido} <strong>V-</strong>${representante.cedula}<br><strong>Categoría:</strong> ${categoriaExclusiva.categoria?.nombre_categoria || '<em>Categoría no disponible</em>'}`
+                        : '<em>No tiene un representante asignado</em>';
 
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-incidencia-id', incidencia.slug);
@@ -275,7 +284,7 @@
                         <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
                         <td>${fechaFormateada}</td>
                         <td>${registradoPor}</td>
-                        <td>${liderInfo}</td>
+                        <td>${representanteInfo}</td>
                         <td>
                             <div class="d-flex gap-2">
                                 <a href="/incidencias/descargar/${incidencia.slug}" class="btn btn-primary btn-sm">

@@ -10,16 +10,26 @@ class Direccion extends Model
 
     protected $table = 'direcciones';
     protected $primaryKey = 'id_direccion';
-
+    protected $fillable = [
+        'id_persona',
+        'id_estado',
+        'id_municipio',
+        'id_parroquia',
+        'id_urbanizacion',
+        'id_sector',
+        'id_comunidad',
+        'calle',
+        'manzana',
+        'bloque',
+        'numero_de_vivienda',
+        'es_principal'
+    ];
     public function persona()
     {
         return $this->belongsTo(persona::class, 'id_persona');
     }
 
-    public function lider()
-    {
-        return $this->hasOne(persona::class, 'id_direccion');
-    }
+   
 
     public function comunidad()
     {

@@ -108,7 +108,7 @@
             }
         }
     </style>
-    <title>configuracion</title>
+    <title>Comprobante de Incidencia</title>
 </head>
 
 <body>
@@ -224,62 +224,60 @@
 
             @if($incidencia->id_persona)
             <div class="details-section">
-                <p><strong>Persona Afectada:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
-                    @if($incidencia->persona->es_lider==1)
-                    <p><strong>¿Es lider? </strong> <br>
-                    {{$incidencia->persona->es_lider ? 'si' :'No'}}
-                    @else
-                    <p><strong>Lugar de la incidencia:</strong></p>
+                <p><strong>Persona Afectada:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }} </p>
+                <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+                <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono }}</p>
+                <p><strong>Lugar de la incidencia:</strong></p>
 
-                    @if($incidencia->direccion)
-                        <p>
-                            <strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }},
-                            <strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }},
-                            <strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }},
-                            <strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }},
-                            <strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }},
-                            <strong>Comunidad:</strong> {{ $incidencia->direccion->comunidad->nombre }},
-                            <strong>Calle:</strong> {{ $incidencia->direccion->calle }},
-                            
-                            @if($incidencia->direccion->manzana)
-                                <strong>Manzana:</strong> {{ $incidencia->direccion->manzana }},
-                            @endif
-                    
-                            @if($incidencia->direccion->numero_de_vivienda)
-                                <strong>N° de vivienda:</strong> {{ $incidencia->direccion->numero_de_vivienda }},
-                            @endif
-                        </p>
-                    @else
-                        <p><em>No hay dirección asociada a esta incidencia.</em></p>
-                    @endif
-                    
-                    
-                    <p><strong>Lider comunitario </strong> <br>
-                        @if($incidencia->lider)
-                        {{$incidencia->lider->personas->nombre ?? 'Nombre no disponible'}} 
-                        {{$incidencia->lider->personas->apellido ?? 'Nombre no disponible'}} <strong>V-</strong>
-                        {{$incidencia->lider->personas->cedula ?? 'Nombre no disponible'}}
-                    @else
-                        <p>No tiene un líder asignado</p>
-                    @endif
-                                        @endif
-            </div>
-        @endif
-
-        <div class="details-section">
-            <p><strong>Registrado por:</strong> 
-                @if($incidencia->usuario)
-                    @if($incidencia->usuario->empleadoAutorizado)
-                        {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                        <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                    @else
-                        <em>Empleado autorizado no asignado</em>
-                    @endif
+                @if($incidencia->direccion)
+                    <p>
+                        <strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }},
+                        <strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }},
+                        <strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }},
+                        <strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }},
+                        <strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }},
+                        <strong>Comunidad:</strong> {{ $incidencia->direccion->comunidad->nombre }},
+                        <strong>Calle:</strong> {{ $incidencia->direccion->calle }},
+                        
+                        @if($incidencia->direccion->manzana)
+                            <strong>Manzana:</strong> {{ $incidencia->direccion->manzana }},
+                        @endif
+                
+                        @if($incidencia->direccion->numero_de_vivienda)
+                            <strong>N° de vivienda:</strong> {{ $incidencia->direccion->numero_de_vivienda }},
+                        @endif
+                    </p>
                 @else
-                    <em>Usuario no asignado</em>
+                    <p><em>No hay dirección asociada a esta incidencia.</em></p>
                 @endif
-            </p>
-        </div>
+                
+                <p><strong>Representante:</strong></p>
+                @if($incidencia->categoriaExclusiva)
+                    <p>
+                        <strong>Nombre:</strong> {{ $incidencia->categoriaExclusiva->persona->nombre }} {{ $incidencia->categoriaExclusiva->persona->apellido }}<br>
+                        <strong>Cédula:</strong> {{ $incidencia->categoriaExclusiva->persona->cedula }}<br>
+                        <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria }}
+                    </p>
+                @else
+                    <p><em>No hay un representante asociado a esta incidencia.</em></p>
+                @endif
+            </div>
+            @endif
+
+            <div class="details-section">
+                <p><strong>Registrado por:</strong> 
+                    @if($incidencia->usuario)
+                        @if($incidencia->usuario->empleadoAutorizado)
+                            {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                            <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
+                        @else
+                            <em>Empleado autorizado no asignado</em>
+                        @endif
+                    @else
+                        <em>Usuario no asignado</em>
+                    @endif
+                </p>
+            </div>
 
         </div>
 

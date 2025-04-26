@@ -61,19 +61,18 @@
                             <th>Género:</th>
                             <td>{{ $persona->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
                         </tr>
+                        
+                       
                         <tr>
-                            <th>Altura:</th>
-                            <td>{{ $persona->altura }}</td>
-                            <tr>
-                                <th>Responsable:</th>
-                                <td>
-                                    @if($persona->user && $persona->user->empleadoAutorizado)
-                                        {{ $persona->user->empleadoAutorizado->nombre }} {{ $persona->user->empleadoAutorizado->apellido }}
-                                    @else
-                                        No asignado
-                                    @endif
-                                </td>
-                            </tr>
+                            <th>Responsable:</th>
+                            <td>
+                                @if($persona->user && $persona->user->empleadoAutorizado)
+                                    {{ $persona->user->empleadoAutorizado->nombre }} {{ $persona->user->empleadoAutorizado->apellido }}
+                                @else
+                                    No asignado
+                                @endif
+                            </td>
+                        </tr>
                         <tr>
                             <th>Creado en:</th>
                             <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
@@ -108,7 +107,7 @@
                                 <th style="width: 5%;">N° vivienda</th>
                                 <th style="width: 5%;">Bloque</th>
                                 <th style="width: 5%;">Principal</th>
-                                <th style="width: 5%;">Líder</th>
+                                <th style="width: 10%;">Categoría</th>
                                 <th style="width: 10%;">Acciones</th>
                             </tr>
                         </thead>
@@ -132,13 +131,17 @@
                                     </td>
                                     <td>
                                         @php
-                                            $lider = \App\Models\Lider_Comunitario::where('id_persona', $persona->id_persona)
+                                            $categoriaExclusiva = $direccion->persona->categoriasExclusivasPersonas
                                                 ->where('id_comunidad', $direccion->id_comunidad)
+                                                ->where('es_activo', true)
                                                 ->first();
                                         @endphp
-                                        <span class="{{ $lider && $lider->estado == 1 ? 'text-success' : 'text-danger' }}">
-                                            {{ $lider && $lider->estado == 1 ? 'Sí' : 'No' }}
-                                        </span>
+                                        @if($categoriaExclusiva)
+                                        <small class="text-muted"> {{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
+                                            
+                                        @else
+                                            regular
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
@@ -217,9 +220,10 @@
                                 <select id="categoria" name="categoria" class="form-select" required>
                                     <option value="" disabled selected>--Seleccione--</option>
                                     @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                        <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
                                     @endforeach
                                 </select>
+                                
                             </div>
 
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -270,7 +274,7 @@
                                     <select id="categoria" name="categoria" class="form-select" required>
                                         <option value="" disabled selected>--Seleccione--</option>
                                         @foreach($categorias as $categoria)
-                                            <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -340,16 +344,8 @@
                                 </select>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="altura" class="form-label">Altura (cm):</label>
-                                <input type="text" id="altura" name="altura" class="form-control"
-                                    value="{{ old('altura', $persona->altura) }}" required min="0" step="0.01">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
-                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento', $persona->fecha_nacimiento) }}" required>
-                            </div>
+                          
+                           
 
                             <button type="submit" class="btn btn-primary w-100">Actualizar</button>
                         </form>
@@ -362,38 +358,34 @@
 
     <script>
         document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.getAttribute('data-id');
-            const idPersona = this.getAttribute('data-id-persona');
-            const comunidad = this.getAttribute('data-comunidad');
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const idPersona = this.getAttribute('data-id-persona');
 
-            // Campos que se van a llenar
-            document.getElementById('direccion_id').value = id;
-            document.getElementById('calle').value = this.getAttribute('data-calle');
-            document.getElementById('manzana').value = this.getAttribute('data-manzana');
-            document.getElementById('numero_de_vivienda').value = this.getAttribute('data-numero-de-vivienda');
-            document.getElementById('bloque').value = this.getAttribute('data-bloque');
+                // Campos que se van a llenar
+                document.getElementById('direccion_id').value = id;
+                document.getElementById('calle').value = this.getAttribute('data-calle');
+                document.getElementById('manzana').value = this.getAttribute('data-manzana');
+                document.getElementById('numero_de_vivienda').value = this.getAttribute('data-numero-de-vivienda');
+                document.getElementById('bloque').value = this.getAttribute('data-bloque');
 
-            // Actualizamos el action del formulario
-            document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
+                // Actualizamos el action del formulario
+                document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
 
-            // Confirmación dulce 🍬
-            Swal.fire({
-                icon: 'info',
-                title: 'Editando Dirección',
-                text: 'Los campos se han cargado correctamente. ¡Haz tus cambios!',
-                confirmButtonText: 'Entendido 💪',
-                timer: 2000,
-                timerProgressBar: true,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false
+                // Confirmación dulce 🍬
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Editando Dirección',
+                    text: 'Los campos se han cargado correctamente. ¡Haz tus cambios!',
+                    confirmButtonText: 'Entendido 💪',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                });
             });
-
-            // Consultamos si es líder para mostrar u ocultar categoría
-           
         });
-    });
 
         const editPersonaModal = document.getElementById('editPersonaModal');
         
@@ -422,127 +414,151 @@
     </script>
 
     <script>
-        document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+       document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    // Mostrar loader
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+    submitButton.disabled = true;
 
-        try {
-            const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
+    try {
+        const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw data;
+        }
+
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: data.title || '¡Éxito!',
+                text: data.message,
+                confirmButtonText: 'Aceptar'
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw data;
-            }
-
-            if (data.status === 'success') {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    confirmButtonText: 'Aceptar'
-                });
+            
+            // Redirigir si hay URL de redirección
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
                 location.reload();
             }
-
-        } catch (error) {
-            let errorHtml = '<ul>';
-
-            if (error.errors) {
-                Object.values(error.errors).forEach(messages => {
-                    messages.forEach(message => {
-                        errorHtml += `<li>${message}</li>`;
-                    });
-                });
-            } else if (error.message) {
-                errorHtml += `<li>${error.message}</li>`;
-                if (error.error) {
-                    errorHtml += `<li>${error.error}</li>`;
-                }
-            } else {
-                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
-            }
-
-            errorHtml += '</ul>';
-
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error al guardar',
-                html: errorHtml,
-                confirmButtonText: 'Cerrar'
-            });
         }
-    });
 
-       
+    } catch (error) {
+        let errorHtml = '<ul>';
+
+        if (error.errors) {
+            Object.values(error.errors).forEach(messages => {
+                messages.forEach(message => {
+                    errorHtml += `<li>${message}</li>`;
+                });
+            });
+        } else if (error.message) {
+            errorHtml += `<li>${error.message}</li>`;
+        } else {
+            errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+        }
+
+        errorHtml += '</ul>';
+
+        await Swal.fire({
+            icon: 'error',
+            title: error.title || 'Error al guardar',
+            html: errorHtml,
+            confirmButtonText: 'Cerrar'
+        });
+    } finally {
+        // Restaurar botón
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
+});
     </script>
     <script>
         document.getElementById('editDireccionForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+            e.preventDefault();
+            const formData = new FormData(this);
 
-        try {
-            const response = await fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
+            // Mostrar loader
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            submitButton.disabled = true;
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw data;
-            }
-
-            if (data.status === 'success') {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    confirmButtonText: 'Aceptar'
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
                 });
-                location.reload();
-            }
 
-        } catch (error) {
-            let errorHtml = '<ul>';
+                const data = await response.json();
 
-            if (error.errors) {
-                Object.values(error.errors).forEach(messages => {
-                    messages.forEach(message => {
-                        errorHtml += `<li>${message}</li>`;
-                    });
-                });
-            } else if (error.message) {
-                errorHtml += `<li>${error.message}</li>`;
-                if (error.error) {
-                    errorHtml += `<li>${error.error}</li>`;
+                if (!response.ok) {
+                    throw data;
                 }
-            } else {
-                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: data.title || '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                    // Redirigir si hay URL de redirección
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        location.reload();
+                    }
+                }
+
+            } catch (error) {
+                let errorHtml = '<ul>';
+
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+
+                errorHtml += '</ul>';
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: error.title || 'Error al actualizar',
+                    html: errorHtml,
+                    confirmButtonText: 'Cerrar'
+                });
+            } finally {
+                // Restaurar botón
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
-
-            errorHtml += '</ul>';
-
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error al actualizar',
-                html: errorHtml,
-                confirmButtonText: 'Cerrar'
-            });
-        }
-    });
-</script>
+        });
+    </script>
     <script>
         document.getElementById('altura').addEventListener('input', function (e) {
             // Permitir solo números, una coma o punto, y limitar a un dígito antes y dos después

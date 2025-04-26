@@ -14,9 +14,9 @@ class Persona extends Model
     protected $primaryKey = 'id_persona';
 
     protected $fillable = [
-        'id_direccion', 
-        'id_usuario', 
-        'id_lider', 
+        'id_direccion',
+        'id_usuario',
+        'id_lider',
         'id_domicilio',
         'slug',
         'nombre',
@@ -24,7 +24,7 @@ class Persona extends Model
         'cedula',
         'correo',
         'telefono',
-        'id_categoriaPersona', 
+        'id_categoriaPersona',
     ];
 
     public $timestamps = true;
@@ -39,11 +39,8 @@ class Persona extends Model
         return $this->hasMany(Incidencia::class, 'id_persona');
     }
 
-    public function lider_Comunitario()
-    {
-        return $this->hasMany(Lider_Comunitario::class, 'id_persona', 'id_persona');
-    }
-    
+
+
 
     public function direccion()
     {
@@ -51,14 +48,20 @@ class Persona extends Model
     }
     public function user()
     {
-        return $this->belongsTo(User::class,'id_usuario');
+        return $this->belongsTo(User::class, 'id_usuario');
     }
-    public function movimiento(){
-        return $this->hasMany(movimiento::class,'id_persona');
+    public function movimiento()
+    {
+        return $this->hasMany(movimiento::class, 'id_persona');
     }
 
     public function categoria()
     {
         return $this->belongsTo(categoriaPersona::class, 'id_categoriaPersona');
+    }
+
+    public function categoriasExclusivasPersonas()
+    {
+        return $this->hasMany(categoriaExclusivaPersona::class, 'id_persona');
     }
 }

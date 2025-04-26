@@ -9,6 +9,7 @@ use Database\Seeders\UrbanizacionSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\SectorSeeder;
 use Database\Seeders\ComunidadSeeder;
+use Database\Seeders\ConfigReglasCategoriasSeeder;
 use Database\Seeders\DepartamentosSeeder;
 use Database\Seeders\EmpleadosAutorizadosSeeder;
 use Database\Seeders\EstadoSeeder;
@@ -18,6 +19,8 @@ use Database\Seeders\PreguntaSeguridadSeeder;
 use Database\Seeders\RespuestasSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UsuarioSeeder;
+use PSpell\Config;
+
 class DatabaseSeeder extends Seeder
 {
     public function run()
@@ -37,6 +40,7 @@ class DatabaseSeeder extends Seeder
             UsuarioSeeder::class,
             categoriaPersonaSeeder::class,
             RespuestasSeeder::class,
+            ConfigReglasCategoriasSeeder::class,
 
         ]);
     }

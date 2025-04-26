@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lideres_comunitarios', function (Blueprint $table) {
-            $table->bigIncrements('id_lider');
-            $table->unsignedBigInteger('id_persona');
-            $table->unsignedBigInteger('id_comunidad');
-            $table->boolean('estado');
+        Schema::create('instituciones', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lideres_comunitarios');
+        Schema::dropIfExists('instituciones');
     }
 };

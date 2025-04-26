@@ -34,7 +34,7 @@
                 <th>Estado</th>
                 <th>Fecha de Creación</th>
                 <th>Registrado por</th>
-                <th>Líder comunitario</th>
+                <th>Representante</th>
             </tr>
         </thead>
         <tbody>
@@ -59,15 +59,14 @@
                         @endif
                     </td>
                     <td>
-                        <p><strong>Líder comunitario:</strong> <br>
-                            @if($incidencia->lider)
-                                {{ $incidencia->lider->personas->nombre ?? 'Nombre no disponible' }} 
-                                {{ $incidencia->lider->personas->apellido ?? 'Nombre no disponible' }} <strong>V-</strong>
-                                {{ $incidencia->lider->personas->cedula ?? 'Nombre no disponible' }}
-                            @else
-                                <p>No tiene un líder asignado</p>
-                            @endif
-                        </p>
+                        @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
+                            {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
+                            {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
+                            <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
+                            <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
+                        @else
+                            <em>No tiene un representante asignado</em>
+                        @endif
                     </td>
                 </tr>
             @endforeach

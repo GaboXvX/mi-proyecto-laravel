@@ -4,7 +4,7 @@
 <div class="container mt-5">
     <h2>Registrar Incidencia</h2>
 
-    <div id="alert-container"></div> <!-- Contenedor para mostrar mensajes -->
+    <div id="alert-container"></div>
 
     <form id="form-registrar-incidencia" action="{{ route('incidencias.store') }}" method="POST">
         @csrf
@@ -42,10 +42,28 @@
             <select id="direccion" name="direccion" class="form-select" required>
                 <option value="" disabled selected>--Seleccione--</option>
                 @foreach ($persona->direccion as $direccion)
-                    <option value="{{ $direccion->id_direccion }}">
-                        {{ $direccion->comunidad->nombre }} - {{ $direccion->calle }} - Casa: {{ $direccion->numero_de_vivienda }}
+                    <option value="{{ $direccion->id_direccion }}" data-estado="{{ $direccion->estado->id_estado }}">
+                        {{$direccion->estado->nombre}} - {{$direccion->municipio->nombre}} - {{$direccion->parroquia->nombre}} - {{$direccion->urbanizacion->nombre}} {{$direccion->sector->nombre}}- {{$direccion->comunidad->nombre}}- {{$direccion->calle}}- {{$direccion->manzana}}-
+                        {{$direccion->numero_de_vivienda}}
                     </option>
                 @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="institucion" class="form-label">Institución:</label>
+            <select id="institucion" name="institucion" class="form-select" required>
+                <option value="" disabled selected>--Seleccione una institución--</option>
+                @foreach ($instituciones as $institucion)
+                    <option value="{{ $institucion->id_institucion }}">{{ $institucion->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="estacion" class="form-label">Estación:</label>
+            <select id="estacion" name="estacion" class="form-select" required>
+                <option value="" disabled selected>--Seleccione una estación--</option>
             </select>
         </div>
 
@@ -54,67 +72,103 @@
 </div>
 
 <script>
-    document.getElementById('form-registrar-incidencia').addEventListener('submit', async function (event) {
-        event.preventDefault(); // Evitar el envío tradicional del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        const direccionSelect = document.getElementById('direccion');
+        const institucionSelect = document.getElementById('institucion');
+        const estacionSelect = document.getElementById('estacion');
 
-        const form = event.target;
-        const formData = new FormData(form);
-        const alertContainer = document.getElementById('alert-container');
-        const submitButton = form.querySelector('button[type="submit"]');
-        
-        // Limpiar mensajes anteriores
-        alertContainer.innerHTML = '';
-        
-        // Deshabilitar el botón para evitar múltiples envíos
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrando...';
+        async function cargarEstaciones() {
+            const direccionId = direccionSelect.value;
+            const estadoId = direccionSelect.options[direccionSelect.selectedIndex]?.getAttribute('data-estado');
+            const institucionId = institucionSelect.value;
 
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                },
-                body: formData,
-            });
+            // Limpiar el selector de estaciones
+            estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una estación--</option>';
 
-            const data = await response.json();
+            if (!direccionId || !estadoId || !institucionId) return;
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Error en la respuesta del servidor');
+            try {
+                const response = await fetch(`/instituciones-estaciones/estado/${estadoId}/institucion/${institucionId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Poblar el selector de estaciones
+                    data.estaciones.forEach(estacion => {
+                        const option = document.createElement('option');
+                        option.value = estacion.id_institucion_estacion;
+                        option.textContent = `${estacion.nombre} (Municipio: ${estacion.municipio.nombre})`;
+                        estacionSelect.appendChild(option);
+                    });
+
+                    if (data.estaciones.length === 0) {
+                        alert('No hay estaciones disponibles para esta combinación.');
+                    }
+                } else {
+                    alert(data.message || 'Error al cargar las estaciones.');
+                }
+            } catch (error) {
+                console.error('Error al cargar las estaciones:', error);
+                alert('Ocurrió un error al cargar las estaciones. Intente nuevamente.');
             }
-
-            // Mostrar mensaje de éxito
-            alertContainer.innerHTML = `
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    ${data.message || 'Incidencia registrada correctamente'}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-
-            // Redirigir a la URL proporcionada después de 2 segundos
-            if (data.redirect_url) {
-                setTimeout(() => {
-                    window.location.href = data.redirect_url;
-                }, 2000);
-            }
-
-        } catch (error) {
-            console.error('Error al registrar la incidencia:', error);
-            
-            // Mostrar mensaje de error específico
-            alertContainer.innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Error:</strong> ${error.message || 'Ocurrió un error al registrar la incidencia. Por favor, verifica los datos e intenta nuevamente.'}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            
-            // Habilitar el botón nuevamente
-            submitButton.disabled = false;
-            submitButton.textContent = 'Registrar';
         }
+
+        direccionSelect.addEventListener('change', cargarEstaciones);
+        institucionSelect.addEventListener('change', cargarEstaciones);
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('form-registrar-incidencia');
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault(); // Evitar el envío tradicional del formulario
+
+            const formData = new FormData(form);
+            const actionUrl = form.action;
+
+            try {
+                const response = await fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Mostrar mensaje de éxito con SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: result.message,
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        // Redirigir al comprobante
+                        window.location.href = result.redirect_url;
+                    });
+                } else {
+                    // Mostrar mensaje de error con SweetAlert
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message || 'Ocurrió un error al registrar la incidencia.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario:', error);
+                // Mostrar mensaje de error inesperado con SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error inesperado',
+                    text: 'Ocurrió un error inesperado. Intente nuevamente.',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
     });
 </script>
 @endsection

@@ -110,6 +110,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/modificarincidencialider/{slug}', 'edit')->name('incidenciaslider.edit');
         });
         Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit', 'destroy'])->parameters(['incidencias' => 'slug']);
+        Route::get('/instituciones-estaciones/direccion/{direccion}', [IncidenciaController::class, 'getInstitucionesEstacionesPorDireccion']);
+        Route::get('/instituciones-estaciones/municipio/{municipio}', [IncidenciaController::class, 'getEstacionesPorMunicipio']);
+        Route::get('/instituciones-estaciones/estado/{estado}/institucion/{institucion}', [IncidenciaController::class, 'getEstacionesPorEstadoEInstitucion']);
 
         // Rutas de direcciones
         Route::controller(direccionController::class)->group(function () {

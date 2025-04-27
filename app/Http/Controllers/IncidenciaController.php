@@ -6,7 +6,10 @@ use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
 use App\Models\categoriaExclusivaPersona;
 use App\Models\Direccion;
+use App\Models\Estado;
 use App\Models\incidencia;
+use App\Models\Institucion;
+use App\Models\InstitucionEstacion;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
 use App\Models\Notificacion;
@@ -42,11 +45,10 @@ class IncidenciaController extends Controller
     
     public function crear($slug)
     {
-
         $persona = Persona::where('slug', $slug)->first();
+        $instituciones = Institucion::all(); // Obtener todas las instituciones
 
-
-        return view('incidencias.registrarIncidencia', compact('persona'));
+        return view('incidencias.registrarIncidencia', compact('persona', 'instituciones'));
     }
     public function create($slug)
     {
@@ -114,22 +116,40 @@ class IncidenciaController extends Controller
                 ->first();
     
             if ($categoriaExclusiva) {
-                // Asignar la categoría exclusiva como líder
                 $incidencia->id_categoria_exclusiva = $categoriaExclusiva->id_categoria_exclusiva;
             } else {
-                // Si no hay una categoría exclusiva activa, asignar NULL
                 $incidencia->id_categoria_exclusiva = null;
             }
     
             // Asignar los valores a la incidencia
-            $incidencia->id_persona = $persona->id_persona; // Asociar la persona
+            $incidencia->id_persona = $persona->id_persona;
             $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
             $incidencia->descripcion = Str::lower($request->input('descripcion'));
             $incidencia->nivel_prioridad = $request->input('nivel_prioridad');
-            $incidencia->estado = 'Por atender'; // Estado inicial
-            $incidencia->id_direccion = $direccion->id_direccion; // Asociar la dirección
-            $incidencia->id_usuario = auth()->id(); // Usuario autenticado
-    
+            $incidencia->estado = 'Por atender';
+            $incidencia->id_direccion = $direccion->id_direccion;
+            $incidencia->id_usuario = auth()->id();
+
+            // Asignar la institución seleccionada
+            $institucionId = $request->input('institucion');
+            if (!$institucionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debe seleccionar una institución.',
+                ], 400);
+            }
+            $incidencia->id_institucion = $institucionId;
+
+            // Asignar la estación seleccionada
+            $estacionId = $request->input('estacion');
+            if (!$estacionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debe seleccionar una estación.',
+                ], 400);
+            }
+            $incidencia->id_institucion_estacion = $estacionId;
+
             // Guardar la incidencia
             $incidencia->save();
     
@@ -514,6 +534,134 @@ class IncidenciaController extends Controller
     return response()->json([
         'incidencias' => $incidencias
     ]);
+}
+
+public function getInstitucionesEstaciones($estado)
+{
+    try {
+        // Obtener las instituciones y estaciones relacionadas con el estado
+        $instituciones = Institucion::whereHas('estaciones', function ($query) use ($estado) {
+            $query->whereHas('municipio', function ($query) use ($estado) {
+                $query->where('id_estado', $estado); // Asegúrate de que `id_estado` sea el campo correcto
+            });
+        })->get();
+
+        $estaciones = InstitucionEstacion::whereHas('municipio', function ($query) use ($estado) {
+            $query->where('id_estado', $estado); // Asegúrate de que `id_estado` sea el campo correcto
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'instituciones' => $instituciones,
+            'estaciones' => $estaciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener instituciones y estaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getInstitucionesEstacionesPorDireccion($direccionId)
+{
+    try {
+        // Obtener la dirección y el estado relacionado
+        $direccion = Direccion::with('estado')->find($direccionId);
+
+        if (!$direccion) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La dirección seleccionada no existe.',
+            ], 404);
+        }
+
+        $estadoId = $direccion->estado->id;
+
+        // Obtener las instituciones relacionadas con el estado
+        $instituciones = Institucion::whereHas('estaciones', function ($query) use ($estadoId) {
+            $query->whereHas('municipio', function ($query) use ($estadoId) {
+                $query->where('id_estado', $estadoId);
+            });
+        })->get();
+
+        // Obtener las estaciones relacionadas con el estado
+        $estaciones = InstitucionEstacion::whereHas('municipio', function ($query) use ($estadoId) {
+            $query->where('id_estado', $estadoId);
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'instituciones' => $instituciones,
+            'estaciones' => $estaciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener instituciones y estaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getEstacionesPorMunicipio($municipioId)
+{
+    try {
+        // Obtener las estaciones relacionadas con el municipio
+        $estaciones = InstitucionEstacion::where('id_municipio', $municipioId)->get();
+
+        return response()->json([
+            'success' => true,
+            'estaciones' => $estaciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener las estaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getEstacionesPorMunicipioEInstitucion($municipioId, $institucionId)
+{
+    try {
+        // Obtener las estaciones relacionadas con el municipio y la institución
+        $estaciones = InstitucionEstacion::where('id_municipio', $municipioId)
+            ->where('id_institucion', $institucionId)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'estaciones' => $estaciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener las estaciones: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function getEstacionesPorEstadoEInstitucion($estadoId, $institucionId)
+{
+    try {
+        // Obtener las estaciones relacionadas con el estado y la institución
+        $estaciones = InstitucionEstacion::where('id_institucion', $institucionId)
+            ->whereHas('municipio', function ($query) use ($estadoId) {
+                $query->where('id_estado', $estadoId);
+            })
+            ->with('municipio') // Cargar el municipio relacionado
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'estaciones' => $estaciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener las estaciones: ' . $e->getMessage(),
+        ], 500);
+    }
 }
 
 }

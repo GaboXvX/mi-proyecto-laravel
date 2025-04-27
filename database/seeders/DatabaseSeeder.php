@@ -14,6 +14,8 @@ use Database\Seeders\DepartamentosSeeder;
 use Database\Seeders\EmpleadosAutorizadosSeeder;
 use Database\Seeders\EstadoSeeder;
 use Database\Seeders\EstadosUsuariosSeeder;
+use Database\Seeders\InstitucionEstacionSeeder;
+use Database\Seeders\InstitucionSeeder;
 use Database\Seeders\MunicipioSeeder;
 use Database\Seeders\PreguntaSeguridadSeeder;
 use Database\Seeders\RespuestasSeeder;
@@ -41,7 +43,8 @@ class DatabaseSeeder extends Seeder
             categoriaPersonaSeeder::class,
             RespuestasSeeder::class,
             ConfigReglasCategoriasSeeder::class,
-
+            InstitucionSeeder::class,
+            InstitucionEstacionSeeder::class,
         ]);
     }
 }

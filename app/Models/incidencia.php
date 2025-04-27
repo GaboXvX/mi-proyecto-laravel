@@ -72,4 +72,12 @@ class incidencia extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+    public function institucion()
+{
+    return $this->belongsTo(Institucion::class, 'id_institucion');
+}
+public function estacion()
+{
+    return $this->belongsTo(InstitucionEstacion::class, 'id_institucion_estacion');
+}
 }

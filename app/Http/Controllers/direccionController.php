@@ -88,9 +88,16 @@ class direccionController extends Controller
         
         // Aplicar reglas de categoría si existen y la categoría no es "Regular"
         if ($categoria && $categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
-            $this->aplicarReglasCategoria($categoria, $persona, $request);
-        }
+            // Verificar si ya tiene esta categoría activa en esta comunidad
+            $categoriaActiva = categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+                ->where('id_categoria_persona', $categoria->id_categoria_persona)
+                ->where('id_comunidad', $direccion->id_comunidad)
+                ->where('es_activo', true)
+                ->exists();
         
+            if (!$categoriaActiva) {
+                $this->aplicarReglasCategoria($categoria, $persona, $request);
+            }}
         // Actualizar categoría de la persona si es diferente
         if ($persona->id_categoria_persona != $request->categoria) {
             $persona->id_categoria_persona = $request->categoria;

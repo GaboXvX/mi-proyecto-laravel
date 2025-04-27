@@ -279,6 +279,23 @@
                 </p>
             </div>
 
+            <div class="details-section">
+                <p><strong>Institución Responsable:</strong> 
+                    @if($incidencia->institucion)
+                        {{ $incidencia->institucion->nombre }}
+                    @else
+                        <em>No hay institución asignada.</em>
+                    @endif
+                </p>
+                <p><strong>Estación Asignada:</strong> 
+                    @if($incidencia->estacion)
+                        {{ $incidencia->estacion->nombre }} (Municipio: {{ $incidencia->estacion->municipio->nombre }})
+                    @else
+                        <em>No hay estación asignada.</em>
+                    @endif
+                </p>
+            </div>
+
         </div>
 
         <div class="footer">

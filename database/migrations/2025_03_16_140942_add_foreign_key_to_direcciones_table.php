@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('direcciones', function (Blueprint $table) {
-            $table->foreign('id_persona')->references('id_persona')->on('personas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_parroquia')->references('id_parroquia')->on('parroquias')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('id_urbanizacion')->references('id_urbanizacion')->on('urbanizaciones')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('id_sector')->references('id_sector')->on('sectores')->onDelete('set null')->onUpdate('cascade');
@@ -28,7 +27,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('direcciones', function (Blueprint $table) {
+        Schema::table('domicilios', function (Blueprint $table) {
             //
         });
     }

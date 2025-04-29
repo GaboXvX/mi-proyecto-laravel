@@ -19,10 +19,7 @@ class Direccion extends Model
         'id_sector',
         'id_comunidad',
         'calle',
-        'manzana',
-        'bloque',
-        'numero_de_vivienda',
-        'es_principal'
+        'punto_de_referencia',
     ];
     public function persona()
     {
@@ -61,8 +58,8 @@ class Direccion extends Model
         return $this->belongsTo(Municipio::class, 'id_municipio');
     }
 
-    public function incidencias()
+    public function incidencias_personas()
     {
-        return $this->hasMany(Incidencia::class, 'id_direccion');
+        return $this->hasMany(incidencia_persona::class, 'id_direccion');
     }
 }

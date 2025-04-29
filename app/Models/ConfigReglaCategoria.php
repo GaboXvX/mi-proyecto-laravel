@@ -9,7 +9,7 @@ class ConfigReglaCategoria extends Model
 {
     use HasFactory;
 
-    protected $table = 'config_reglas_categorias';
+    protected $table = 'configuraciones_reglas_categorias';
     protected $primaryKey = 'id_config';
 
     protected $fillable = [

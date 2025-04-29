@@ -60,20 +60,6 @@ class User extends Authenticatable
         });
     }
 
-   
-
-    public function lideres()
-    {
-        return $this->hasMany(Lider_Comunitario::class, 'id_usuario');
-    }
-
-    // app/Models/User.php
-
-
-
-
-
-
     public function personas()
     {
         return $this->hasMany(Persona::class, 'id_usuario');
@@ -96,9 +82,9 @@ class User extends Authenticatable
         return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
     }
 
-    public function incidencias()
+    public function incidencias_personas()
     {
-        return $this->hasMany(Incidencia::class, 'id_usuario', 'id_usuario'); // Relación con el modelo Incidencia
+        return $this->hasMany(incidencia_persona::class, 'id_usuario', 'id_usuario'); // Relación con el modelo Incidencia
     }
 
     public function empleadoAutorizado()

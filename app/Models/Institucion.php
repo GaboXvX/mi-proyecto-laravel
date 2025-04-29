@@ -20,8 +20,8 @@ class Institucion extends Model
     {
         return $this->hasMany(InstitucionEstacion::class, 'id_institucion', 'id_institucion');
     }
-    public function incidencias()
+    public function incidencias_personas()
 {
-    return $this->hasMany(incidencia::class, 'id_institucion', 'id_institucion');
+    return $this->hasMany(incidencia_persona::class, 'id_institucion', 'id_institucion');
 }
 }

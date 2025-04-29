@@ -47,13 +47,13 @@ class movimientoController extends Controller
                 $query->whereNotNull('id_direccion');
                 break;
             case 'incidencia':
-                $query->whereNotNull('id_incidencia');
+                $query->whereNotNull('id_incidencia_p');
                 break;
             case 'sistema':
                 $query->whereNull('id_usuario_afectado')
                       ->whereNull('id_persona')
                       ->whereNull('id_direccion')
-                      ->whereNull('id_incidencia');
+                      ->whereNull('id_incidencia_p');
                 break;
         }
     }
@@ -104,13 +104,13 @@ class movimientoController extends Controller
                     $query->whereNotNull('id_direccion');
                     break;
                 case 'incidencia':
-                    $query->whereNotNull('id_incidencia');
+                    $query->whereNotNull('id_incidencia_p');
                     break;
                 case 'sistema':
                     $query->whereNull('id_usuario_afectado')
                           ->whereNull('id_persona')
                           ->whereNull('id_direccion')
-                          ->whereNull('id_incidencia');
+                          ->whereNull('id_incidencia_p');
                     break;
             }
         }
@@ -199,13 +199,13 @@ protected function applyFilters($query, Request $request)
                     $query->whereNotNull('id_direccion');
                     break;
                 case 'incidencia':
-                    $query->whereNotNull('id_incidencia');
+                    $query->whereNotNull('id_incidencia_p');
                     break;
                 case 'sistema':
                     $query->whereNull('id_usuario_afectado')
                           ->whereNull('id_persona')
                           ->whereNull('id_direccion')
-                          ->whereNull('id_incidencia');
+                          ->whereNull('id_incidencia_p');
                     break;
             }
         }

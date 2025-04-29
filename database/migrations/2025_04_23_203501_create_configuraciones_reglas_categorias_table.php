@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('config_reglas_categorias', function (Blueprint $table) {
+        Schema::create('configuraciones_reglas_categorias', function (Blueprint $table) {
             $table->id('id_config');
             
             // Clave foránea a categorias_personas

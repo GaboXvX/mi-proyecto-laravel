@@ -45,27 +45,28 @@
                     <td>{{ $incidencia->descripcion }}</td>
                     <td>{{ $incidencia->nivel_prioridad }}</td>
                     <td>{{ $incidencia->estado }}</td>
-                    <td>{{ $incidencia->created_at->format('d-m-Y H:i:s') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
                     <td>
-                        @if($incidencia->usuario)
-                            @if($incidencia->usuario->empleadoAutorizado)
-                                {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                            @else
-                                <em>Empleado autorizado no asignado</em>
-                            @endif
+                        @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                            {{ $incidencia->usuario->empleadoAutorizado->nombre }} 
+                            {{ $incidencia->usuario->empleadoAutorizado->apellido }} 
+                            <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                         @else
-                            <em>Usuario no asignado</em>
+                            <em>Empleado autorizado no asignado</em>
                         @endif
                     </td>
                     <td>
-                        @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
-                            {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
-                            {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
-                            <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
-                            <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
+                        @if($incidencia->tipo === 'persona')
+                            @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
+                                {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
+                                {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
+                                <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
+                                <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
+                            @else
+                                <em>No tiene un representante asignado</em>
+                            @endif
                         @else
-                            <em>No tiene un representante asignado</em>
+                            <em>Incidencia General</em>
                         @endif
                     </td>
                 </tr>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
+use App\Http\Controllers\DomicilioController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\LiderController;
@@ -105,31 +106,30 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/incidencias/generar-pdf', 'generarPDF')->name('incidencias.generarPDF')->middleware('can:descargar listado incidencias');
             Route::get('/incidencias/chart', 'showChart')->name('estadisticas')->middleware('can:ver grafica incidencia');
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
-            Route::get('persona/{slug}/incidencia/{incidencia_slug}', 'show')->name('incidencias.show');
+            // Route::get('persona/{slug}/incidencia/{incidencia_slug}', 'show')->name('incidencias.show');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
             Route::get('/modificarincidencialider/{slug}', 'edit')->name('incidenciaslider.edit');
+            Route::get('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderVista'])->name('incidencias.atender.vista');
+            Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderGuardar'])->name('incidencias.atender.guardar');
+            Route::get('/incidencias/{slug}/ver', [IncidenciaController::class, 'ver'])->name('incidencias.ver');
         });
         Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit', 'destroy'])->parameters(['incidencias' => 'slug']);
         Route::get('/instituciones-estaciones/direccion/{direccion}', [IncidenciaController::class, 'getInstitucionesEstacionesPorDireccion']);
         Route::get('/instituciones-estaciones/municipio/{municipio}', [IncidenciaController::class, 'getEstacionesPorMunicipio']);
         Route::get('/instituciones-estaciones/estado/{estado}/institucion/{institucion}', [IncidenciaController::class, 'getEstacionesPorEstadoEInstitucion']);
+        Route::get('/incidencias-generales/create', [IncidenciaController::class, 'create'])->name('incidencias.generales.create');
+        Route::get('incidencias/{slug}/edit', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
+        Route::get('incidencia/{slug}', [IncidenciaController::class, 'show'])->name('incidencias.show');
 
         // Rutas de direcciones
-        Route::controller(direccionController::class)->group(function () {
-            Route::get('personas/agregardirecion/{slug}', 'index')->name('personas.agregarDireccion');
-            Route::post('personas/guardardireccion/{id}', 'store')->name('guardarDireccion');
-            Route::get('/personas/modificardireccion/{slug}', 'edit')->name('personas.modificarDireccion');
-            Route::post('/personas/actualizardireccion/{id}/{idPersona}', 'update')->name('personas.actualizarDireccion');
+        Route::controller(DomicilioController::class)->group(function () {
+            Route::get('personas/agregardomicilio/{slug}', 'index')->name('personas.agregarDireccion');
+            Route::post('personas/guardardomicilio/{id}', 'store')->name('guardarDireccion');
+            Route::get('/personas/modificardomicilio/{slug}', 'edit')->name('personas.modificarDireccion');
+            Route::post('/personas/actualizardomicilio/{id}/{idPersona}', 'update')->name('personas.actualizarDireccion');
             Route::post('/personas/marcarprincipal', 'marcarPrincipal')->name('personas.marcarPrincipal');
             Route::post('/check-lider-status', 'checkLiderStatus');
         });
-
-        // Rutas de líderes
-        Route::controller(LiderController::class)->group(function () {
-            Route::put('/lideres/update/{slug}', 'update')->name('lideres.update');
-            Route::post('/lideres/buscar', 'buscar')->name('lideres.buscar');
-        });
-        Route::resource('lideres', liderController::class)->except(['update', 'create', 'destroy']);
 
         // Rutas de configuración
         Route::controller(configController::class)->group(function () {

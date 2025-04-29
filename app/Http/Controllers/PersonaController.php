@@ -7,7 +7,7 @@ use App\Http\Requests\updatePersonaRequest;
 use App\Models\categoriaExclusivaPersona;
 use App\Models\categoriaPersona;
 use App\Models\Comunidad;
-use App\Models\Direccion;
+use App\Models\Domicilio; // Cambiar Direccion por Domicilio
 use App\Models\Lider_Comunitario;
 use App\Models\movimiento;
 use App\Models\Notificacion;
@@ -64,7 +64,7 @@ class PersonaController extends Controller
 
             // Proceso de creación si no hay errores
             $persona = $this->crearPersona($request);
-            $direccion = $this->crearDireccion($request, $persona);
+            $domicilio = $this->crearDomicilio($request, $persona);
             
             // Aplicar reglas de categoría si existen y la categoría no es "Regular"
             if ($categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
@@ -199,24 +199,24 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
         return $persona;
     }
     
-    protected function crearDireccion($request, $persona)
+    protected function crearDomicilio($request, $persona)
     {
-        $direccion = new Direccion();
-        $direccion->id_comunidad = $request->comunidad;
-        $direccion->id_sector = $request->sector;
-        $direccion->calle = $request->calle;
-        $direccion->manzana = $request->manzana;
-        $direccion->numero_de_vivienda = $request->num_vivienda;
-        $direccion->bloque = $request->bloque;
-        $direccion->id_parroquia = $request->parroquia;
-        $direccion->id_urbanizacion = $request->urbanizacion;
-        $direccion->id_persona = $persona->id_persona;
-        $direccion->es_principal = $request->es_principal ?? 0;
-        $direccion->id_estado = $request->estado;
-        $direccion->id_municipio = $request->municipio;
-        $direccion->save();
-        
-        return $direccion;
+        $domicilio = new Domicilio();
+        $domicilio->id_persona = $persona->id_persona;
+        $domicilio->id_estado = $request->estado;
+        $domicilio->id_municipio = $request->municipio;
+        $domicilio->id_parroquia = $request->parroquia;
+        $domicilio->id_urbanizacion = $request->urbanizacion;
+        $domicilio->id_sector = $request->sector;
+        $domicilio->id_comunidad = $request->comunidad;
+        $domicilio->calle = $request->calle;
+        $domicilio->manzana = $request->manzana;
+        $domicilio->bloque = $request->bloque;
+        $domicilio->numero_de_vivienda = $request->num_vivienda;
+        $domicilio->es_principal = $request->es_principal ?? 0;
+        $domicilio->save();
+
+        return $domicilio;
     }
     
     protected function registrarMovimiento($persona, $descripcion)
@@ -265,9 +265,11 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
     {
         $categorias = categoriaPersona::all();
         $persona = Persona::with('categoria')->where('slug', $slug)->firstOrFail();
-        $direcciones = Direccion::where('id_persona', $persona->id_persona)->with('estado', 'municipio', 'parroquia', 'urbanizacion', 'sector', 'comunidad')->paginate(10);
+        $domicilios = Domicilio::where('id_persona', $persona->id_persona)
+            ->with('estado', 'municipio', 'parroquia', 'urbanizacion', 'sector', 'comunidad')
+            ->paginate(10);
 
-        return view('personas.persona', compact('persona', 'direcciones', 'categorias'));
+        return view('personas.persona', compact('persona', 'domicilios', 'categorias'));
     }
 
     public function edit($slug)
@@ -281,19 +283,19 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
             return redirect()->route('personas.index');
         }
     }
-    public function obtenerDirecciones($id)
-{
-    $persona = Persona::with([
-        'direccion.estado',
-        'direccion.municipio',
-        'direccion.parroquia',
-        'direccion.urbanizacion',
-        'direccion.sector',
-        'direccion.comunidad'
-    ])->findOrFail($id);
+    public function obtenerDomicilios($id)
+    {
+        $persona = Persona::with([
+            'domicilios.estado',
+            'domicilios.municipio',
+            'domicilios.parroquia',
+            'domicilios.urbanizacion',
+            'domicilios.sector',
+            'domicilios.comunidad'
+        ])->findOrFail($id);
 
-    return response()->json($persona->direccion);
-}
+        return response()->json($persona->domicilios);
+    }
     public function update(UpdatePersonaRequest $request, $slug)
     {
         try {
@@ -352,12 +354,12 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
     }
 
     public function verIncidencias($slug)
-{
-    $persona = Persona::where('slug', $slug)->firstOrFail();
+    {
+        $persona = Persona::where('slug', $slug)->firstOrFail();
 
-    // Cargar incidencias con paginación
-    $incidencias = $persona->incidencias()->orderBy('created_at', 'desc')->paginate(10);
+        // Cargar incidencias con paginación
+        $incidencias = $persona->incidencias_personas()->orderBy('created_at', 'desc')->paginate(10);
 
-    return view('personas.incidencias', compact('persona', 'incidencias'));
-}
+        return view('personas.incidencias', compact('persona', 'incidencias'));
+    }
 }

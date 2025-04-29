@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('titulo');
             $table->string('mensaje');
             $table->boolean('mostrar_a_todos')->default(false);
-            $table->unsignedBigInteger('id_incidencia')->nullable();
-            $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
+            $table->unsignedBigInteger('id_incidencia_p')->nullable();
+            $table->foreign('id_incidencia_p')->references('id_incidencia_p')->on('incidencias_personas')->onDelete('cascade');
             $table->timestamps();
         });
     }

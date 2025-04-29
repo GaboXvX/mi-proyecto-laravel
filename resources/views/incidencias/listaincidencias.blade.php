@@ -56,12 +56,17 @@
     <div class="d-flex justify-content-between align-item-center mb-3">
         <h2>Lista de Incidencias</h2>
         <div class="gen-pdf">
+            <a href="{{ route('incidencias.generales.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Registrar Incidencia General
+            </a>
+            
             @can('descargar listado incidencias')
             <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST" style="display: inline;">
                 @csrf
                 <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
                 <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
                 <input type="hidden" id="pdf-estado" name="estado">
+                <input type="hidden" id="pdf-codigo" name="codigo"> <!-- Nuevo campo para el código -->
                 <button type="submit" class="btn btn-primary">Generar PDF</button>
             </form>
             @endcan
@@ -135,43 +140,37 @@
                             @endif
                         </td>
                         <td>
-                            @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
-                                {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
-                                {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
-                                <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
-                                <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
+                            @if($incidencia->tipo === 'persona')
+                                @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
+                                    {{ $incidencia->categoriaExclusiva->persona->nombre }} {{ $incidencia->categoriaExclusiva->persona->apellido }}
+                                    <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula }}
+                                @else
+                                    <em>No tiene un representante asignado</em>
+                                @endif
                             @else
-                                <em>No tiene un representante asignado</em>
+                                <em>Incidencia General</em>
                             @endif
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                @can('descargar grafica incidencia')
-                                <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-primary btn-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-                                    </svg>
+                                <a href="{{ route('incidencias.ver', $incidencia->slug) }}" class="btn btn-info btn-sm">
+                                    <i class="bi bi-eye"></i> Ver
                                 </a>
-                                @endcan
-                                
-                                @can('cambiar estado de incidencias')
+                                <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-download"></i>
+                                </a>
                                 @if($incidencia->estado == 'Por atender')
-                                <button class="btn btn-atender btn-sm" onclick="atenderIncidencia('{{ $incidencia->slug }}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
-                                        <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
-                                        <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
-                                    </svg>  Atender
-                                </button>
+                                    <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-atender btn-sm">
+                                        <i class="bi bi-check-circle"></i> Atender
+                                    </a>
                                 @else
-                                <button class="btn btn-atender btn-sm" disabled>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
-                                        <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
-                                        <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
-                                    </svg> Atendido
-                                </button>
+                                    <button class="btn btn-atender btn-sm" disabled>
+                                        <i class="bi bi-check-circle"></i> Atendido
+                                    </button>
                                 @endif
-                                @endcan
+                                <a href="{{ route('incidenciaslider.edit', $incidencia->slug) }}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Modificar
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -181,253 +180,6 @@
     </div>
 </div>
 
-<script>
-    class FiltroIncidencias {
-        constructor(codigoInputId, fechaInicioId, fechaFinId, estadoId, tbodyId, url) {
-            this.codigoInput = document.getElementById(codigoInputId);
-            this.fechaInicio = document.getElementById(fechaInicioId);
-            this.fechaFin = document.getElementById(fechaFinId);
-            this.estado = document.getElementById(estadoId);
-            this.tbody = document.getElementById(tbodyId);
-            this.url = url;
+<script src=" {{ asset('js/incidencias.js') }}"></script>
 
-            // Event listeners
-            this.codigoInput.addEventListener('input', () => this.buscarPorCodigo());
-            this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
-            this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
-            this.estado.addEventListener('change', () => this.filtrarIncidencias());
-        }
-
-        async buscarPorCodigo() {
-            const codigo = this.codigoInput.value;
-
-            if (codigo.length === 0) {
-                await this.filtrarIncidencias();
-                return;
-            }
-
-            try {
-                const response = await fetch(this.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ codigo })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al buscar por código');
-                }
-
-                const data = await response.json();
-                this.mostrarResultados(data.incidencias);
-            } catch (error) {
-                console.error('Error al buscar por código:', error);
-            }
-        }
-
-        async filtrarIncidencias() {
-            const fechaInicio = this.fechaInicio.value;
-            const fechaFin = this.fechaFin.value;
-            const estado = this.estado.value;
-
-            try {
-                const response = await fetch(this.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ fecha_inicio: fechaInicio, fecha_fin: fechaFin, estado })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al filtrar las incidencias');
-                }
-
-                const data = await response.json();
-                this.mostrarResultados(data.incidencias);
-            } catch (error) {
-                console.error('Error al filtrar incidencias:', error);
-            }
-        }
-
-        mostrarResultados(incidencias) {
-            this.tbody.innerHTML = '';
-
-            if (incidencias && incidencias.length > 0) {
-                incidencias.forEach(incidencia => {
-                    const fecha = new Date(incidencia.created_at);
-                    const fechaFormateada = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}-${fecha.getFullYear()} ${fecha.getHours().toString().padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}:${fecha.getSeconds().toString().padStart(2, '0')}`;
-
-                    const usuario = incidencia.usuario || {};
-                    const empleado = usuario.empleado_autorizado || {};
-                    const categoriaExclusiva = incidencia.categoria_exclusiva || {};
-                    const representante = categoriaExclusiva.persona || {};
-
-                    const registradoPor = empleado.nombre 
-                        ? `${empleado.nombre} ${empleado.apellido} <strong>V-</strong>${empleado.cedula}`
-                        : '<em>No registrado</em>';
-
-                    const representanteInfo = representante.nombre 
-                        ? `${representante.nombre} ${representante.apellido} <strong>V-</strong>${representante.cedula}<br><strong>Categoría:</strong> ${categoriaExclusiva.categoria?.nombre_categoria || '<em>Categoría no disponible</em>'}`
-                        : '<em>No tiene un representante asignado</em>';
-
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-incidencia-id', incidencia.slug);
-                    tr.innerHTML = `
-                        <td>${incidencia.cod_incidencia}</td>
-                        <td>${incidencia.tipo_incidencia}</td>
-                        <td>${incidencia.descripcion}</td>
-                        <td>${incidencia.nivel_prioridad}</td>
-                        <td class="incidencia-status ${this.getStatusClass(incidencia.estado)}">${incidencia.estado}</td>
-                        <td>${fechaFormateada}</td>
-                        <td>${registradoPor}</td>
-                        <td>${representanteInfo}</td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a href="/incidencias/descargar/${incidencia.slug}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                                ${incidencia.estado === 'Por atender' ? 
-                                    `<button class="btn btn-atender btn-sm" onclick="atenderIncidencia('${incidencia.slug}')">
-                                        <i class="bi bi-check-circle"></i> Atender
-                                    </button>` : 
-                                    `<button class="btn btn-atender btn-sm" disabled>
-                                        <i class="bi bi-check-circle"></i> Atendido
-                                    </button>`}
-                            </div>
-                        </td>
-                    `;
-
-                    this.tbody.appendChild(tr);
-                });
-            } else {
-                this.tbody.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron incidencias para los filtros seleccionados.</td></tr>';
-            }
-        }
-
-        getStatusClass(estado) {
-            switch (estado) {
-                case 'Atendido': return 'status-resolved';
-                case 'Por atender': return 'status-pending';
-                default: return '';
-            }
-        }
-    }
-
-    // Función para atender incidencia
-    // Función para atender incidencia - Versión mejorada
-    async function atenderIncidencia(slug) {
-    // 1. Confirmación del usuario
-    if (!confirm('¿Está seguro que desea marcar esta incidencia como atendida?')) {
-        return;
-    }
-
-    // 2. Selección de elementos con verificación
-    const fila = document.querySelector(`tr[data-incidencia-id="${slug}"]`);
-    if (!fila) {
-        mostrarNotificacion('error', 'No se encontró la incidencia en la interfaz');
-        return;
-    }
-
-    const boton = fila.querySelector('.btn-atender');
-    const celdaEstado = fila.querySelector('.incidencia-status');
-    if (!boton || !celdaEstado) {
-        mostrarNotificacion('error', 'Elementos de la interfaz no encontrados');
-        return;
-    }
-
-    // 3. Estado de carga
-    const textoOriginal = boton.innerHTML;
-    boton.innerHTML = '<i class="bi bi-hourglass"></i> Procesando...';
-    boton.disabled = true;
-
-    try {
-        // 4. Solicitud al servidor
-        const response = await fetch(`/incidencias/${slug}/atender`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        // 5. Manejo de respuesta
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        if (!data.success) {
-            throw new Error(data.message || 'La operación no fue exitosa');
-        }
-
-        // 6. Actualizar interfaz
-        celdaEstado.textContent = 'Atendido';
-        celdaEstado.className = 'incidencia-status status-resolved';
-        boton.innerHTML = '<i class="bi bi-check-circle"></i> Atendido';
-        boton.disabled = true;
-
-        // 7. Notificación de éxito
-        mostrarNotificacion('success', data.message || 'Incidencia marcada como atendida');
-
-    } catch (error) {
-        console.error('Error al atender incidencia:', error);
-        
-        // 8. Restaurar estado original
-        boton.innerHTML = textoOriginal;
-        boton.disabled = false;
-
-        // 9. Notificación de error
-        const mensajeError = error.message.includes('Failed to fetch') 
-            ? 'Error de conexión. Verifique su red.'
-            : error.message;
-            
-        mostrarNotificacion('error', mensajeError);
-    }
-}
-
-// Función para mostrar notificaciones
-function mostrarNotificacion(tipo, mensaje) {
-    const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
-    const notificacion = document.createElement('div');
-    notificacion.className = `alert ${alertClass} fixed-top mx-auto mt-3`;
-    notificacion.style.width = 'fit-content';
-    notificacion.style.maxWidth = '80%';
-    notificacion.style.zIndex = '9999';
-    notificacion.textContent = mensaje;
-    
-    document.body.appendChild(notificacion);
-    
-    setTimeout(() => {
-        notificacion.remove();
-    }, 5000);
-}
-
-    // Inicializar la clase cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', () => {
-        new FiltroIncidencias(
-            'codigo-busqueda',
-            'fecha_inicio',
-            'fecha_fin',
-            'estado',
-            'incidencias-tbody',
-            '/filtrar-incidencia'
-        );
-
-        document.getElementById('generar-pdf-form').addEventListener('submit', function (e) {
-            const fechaInicio = document.getElementById('fecha_inicio').value || '';
-            const fechaFin = document.getElementById('fecha_fin').value || '';
-            const estado = document.getElementById('estado').value || 'Todos';
-
-            document.getElementById('pdf-fecha-inicio').value = fechaInicio;
-            document.getElementById('pdf-fecha-fin').value = fechaFin;
-            document.getElementById('pdf-estado').value = estado;
-        });
-    });
-</script>
 @endsection

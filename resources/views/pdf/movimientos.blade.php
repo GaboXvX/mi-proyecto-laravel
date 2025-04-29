@@ -31,7 +31,7 @@
                         if ($mov->id_usuario_afectado) $tipo = 'Usuario';
                         elseif ($mov->id_persona) $tipo = 'Persona';
                         elseif ($mov->id_direccion) $tipo = 'Dirección';
-                        elseif ($mov->id_incidencia) $tipo = 'Incidencia';
+                        elseif ($mov->id_incidencia_p) $tipo = 'Incidencia';
                         else $tipo = 'Sistema';
                     @endphp
                     {{ $tipo }}

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Minaguas</title>
 </head>
 <body>

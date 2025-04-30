@@ -6,7 +6,7 @@
 }
 
 body {
-    background-image: url('/img/home.png');
+    background-color: #0481d4;
     display: flex;
     justify-content: center;
     align-items: center;

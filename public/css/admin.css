@@ -10,13 +10,31 @@ body {
     width: 100vw;
     overflow: auto; /* Permite el desplazamiento */
     display: block; /* Evita problemas con flex */
-    background-color: #f0f5fd;
+    background-color: var(--background);
+}
+
+:root{
+    --sidebar-bg: #24476c;
+    --sidebar-text: #fff;
+
+    --background: #f0f5fd;
+    --object: #fff;
+    --tittle: #204a77;
+}
+
+[data-bs-theme="dark"] {
+    --sidebar-bg: #1a2b43;
+    --sidebar-text: #e2e8f0;
+
+    --background: #121826;
+    --object: #1e293b;
+    --tittle: #f0f5fd;
 }
 
 .sidebar {
     width: 250px;
-    background-color: #24476c;
-    color: #fff;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
     transition: all 0.4s ease;
     position: fixed;
     left: 0;
@@ -77,7 +95,7 @@ body {
 }
 
 .main-content .card-access .item{
-    background: #fff;
+    background: var(--object);
     width: 20%;
     padding: 20px;
     display: flex;
@@ -138,9 +156,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff;
+    background-color: var(--object);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px 20px;
+    border-radius: 8px;
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -148,23 +167,20 @@ body {
 }
 
 .topbar button:hover {
-    background-color: #1d5da1;
+    background-color: #24476c;
     color: #fff;
 }
 
 .main-content .separator{
     margin: 35px 0 20px;
     font-weight: 500;
-    color: #364670;
+    color: var(--tittle);
     font-size: 25px;
 }
 
-.burger-btn {
-    font-size: 20px;
-    border: none;
-    border-radius: 8px;
-    background-color: #f1f1f1;
-    transition: all 0.3s ease;
+.btn-outline-primary{
+    background-color: #1d5da1;
+    color: #fff;
 }
 
 /* Contenedor del formulario */
@@ -179,7 +195,7 @@ body {
 
 /* Tabla */
 .table-container {
-    background-color: #fff;
+    background-color: var(--object);
     border-radius: 10px;
     padding: 20px;
     margin: 20px auto;
@@ -194,7 +210,7 @@ body {
 .table-container h2 {
     font-size: 25px;
     font-weight: 700;
-    color: #24476c;
+    color: var(--tittle);
 }
 
 .filters-container input {

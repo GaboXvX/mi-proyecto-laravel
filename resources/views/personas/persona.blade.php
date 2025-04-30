@@ -61,19 +61,18 @@
                             <th>Género:</th>
                             <td>{{ $persona->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
                         </tr>
+                        
+                       
                         <tr>
-                            <th>Altura:</th>
-                            <td>{{ $persona->altura }}</td>
-                            <tr>
-                                <th>Responsable:</th>
-                                <td>
-                                    @if($persona->user && $persona->user->empleadoAutorizado)
-                                        {{ $persona->user->empleadoAutorizado->nombre }} {{ $persona->user->empleadoAutorizado->apellido }}
-                                    @else
-                                        No asignado
-                                    @endif
-                                </td>
-                            </tr>
+                            <th>Responsable:</th>
+                            <td>
+                                @if($persona->user && $persona->user->empleadoAutorizado)
+                                    {{ $persona->user->empleadoAutorizado->nombre }} {{ $persona->user->empleadoAutorizado->apellido }}
+                                @else
+                                    No asignado
+                                @endif
+                            </td>
+                        </tr>
                         <tr>
                             <th>Creado en:</th>
                             <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
@@ -85,10 +84,10 @@
 
         <div class="card mt-4">
             <div class="card-header">
-                Direcciones
+                Domicilios
                 
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDireccionModal">
-                    Añadir Dirección
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addDomicilioModal">
+                    Añadir Domicilio
                 </button>
                 
             </div>
@@ -108,54 +107,58 @@
                                 <th style="width: 5%;">N° vivienda</th>
                                 <th style="width: 5%;">Bloque</th>
                                 <th style="width: 5%;">Principal</th>
-                                <th style="width: 5%;">Líder</th>
+                                <th style="width: 10%;">Categoría</th>
                                 <th style="width: 10%;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($direcciones as $direccion)
-                                <tr id="direccion_{{ $direccion->id_direccion }}">
-                                    <td>{{ $direccion->estado->nombre }}</td>
-                                    <td>{{ $direccion->municipio->nombre }}</td>
-                                    <td>{{ $direccion->parroquia->nombre }}</td>
-                                    <td>{{ $direccion->urbanizacion->nombre }}</td>
-                                    <td>{{ $direccion->sector->nombre }}</td>
-                                    <td>{{ $direccion->comunidad->nombre }}</td>
-                                    <td>{{ $direccion->calle }}</td>
-                                    <td>{{ $direccion->manzana }}</td>
-                                    <td>{{ $direccion->numero_de_vivienda }}</td>
-                                    <td>{{ $direccion->bloque }}</td>
+                            @foreach($domicilios as $domicilio)
+                                <tr id="domicilio_{{ $domicilio->id_domicilio }}">
+                                    <td>{{ $domicilio->estado->nombre }}</td>
+                                    <td>{{ $domicilio->municipio->nombre }}</td>
+                                    <td>{{ $domicilio->parroquia->nombre }}</td>
+                                    <td>{{ $domicilio->urbanizacion->nombre }}</td>
+                                    <td>{{ $domicilio->sector->nombre }}</td>
+                                    <td>{{ $domicilio->comunidad->nombre }}</td>
+                                    <td>{{ $domicilio->calle }}</td>
+                                    <td>{{ $domicilio->manzana }}</td>
+                                    <td>{{ $domicilio->numero_de_vivienda }}</td>
+                                    <td>{{ $domicilio->bloque }}</td>
                                     <td>
-                                        <span class="{{ $direccion->es_principal ? 'text-success' : 'text-danger' }}">
-                                            {{ $direccion->es_principal ? 'Sí' : 'No' }}
+                                        <span class="{{ $domicilio->es_principal ? 'text-success' : 'text-danger' }}">
+                                            {{ $domicilio->es_principal ? 'Sí' : 'No' }}
                                         </span>
                                     </td>
                                     <td>
                                         @php
-                                            $lider = \App\Models\Lider_Comunitario::where('id_persona', $persona->id_persona)
-                                                ->where('id_comunidad', $direccion->id_comunidad)
+                                            $categoriaExclusiva = $domicilio->persona->categoriasExclusivasPersonas
+                                                ->where('id_comunidad', $domicilio->id_comunidad)
+                                                ->where('es_activo', true)
                                                 ->first();
                                         @endphp
-                                        <span class="{{ $lider && $lider->estado == 1 ? 'text-success' : 'text-danger' }}">
-                                            {{ $lider && $lider->estado == 1 ? 'Sí' : 'No' }}
-                                        </span>
+                                        @if($categoriaExclusiva)
+                                        <small class="text-muted"> {{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
+                                            
+                                        @else
+                                            regular
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
-                                            <button type="button" class="btn btn-warning btn-sm mb-1 edit-btn" data-id="{{ $direccion->id_direccion }}" 
-                                                    data-estado="{{ $direccion->estado }}" data-municipio="{{ $direccion->municipio }}"
-                                                    data-parroquia="{{ $direccion->parroquia->nombre }}" data-urbanizacion="{{ $direccion->urbanizacion->nombre }}"
-                                                    data-sector="{{ $direccion->sector->nombre }}" data-comunidad="{{ $direccion->comunidad->nombre }}"
-                                                    data-calle="{{ $direccion->calle }}" data-manzana="{{ $direccion->manzana }}"
-                                                    data-numero-de-vivienda="{{ $direccion->numero_de_vivienda }}" data-bloque="{{ $direccion->bloque }}"
+                                            <button type="button" class="btn btn-warning btn-sm mb-1 edit-btn" data-id="{{ $domicilio->id_domicilio }}" 
+                                                    data-estado="{{ $domicilio->estado }}" data-municipio="{{ $domicilio->municipio }}"
+                                                    data-parroquia="{{ $domicilio->parroquia->nombre }}" data-urbanizacion="{{ $domicilio->urbanizacion->nombre }}"
+                                                    data-sector="{{ $domicilio->sector->nombre }}" data-comunidad="{{ $domicilio->comunidad->nombre }}"
+                                                    data-calle="{{ $domicilio->calle }}" data-manzana="{{ $domicilio->manzana }}"
+                                                    data-numero-de-vivienda="{{ $domicilio->numero_de_vivienda }}" data-bloque="{{ $domicilio->bloque }}"
                                                     data-id-persona="{{ $persona->id_persona }}"
-                                                    data-bs-toggle="modal" data-bs-target="#editDireccionModal">
+                                                    data-bs-toggle="modal" data-bs-target="#editDomicilioModal">
                                                 Modificar
                                             </button>
-                                            @if(!$direccion->es_principal)
+                                            @if(!$domicilio->es_principal)
                                                 <form action="{{ route('personas.marcarPrincipal') }}" method="POST" style="display:inline;">
                                                     @csrf
-                                                    <input type="hidden" name="id_direccion" value="{{ $direccion->id_direccion }}">
+                                                    <input type="hidden" name="id_domicilio" value="{{ $domicilio->id_domicilio }}">
                                                     <button type="submit" class="btn btn-primary btn-sm" title="Marcar como principal">
                                                         <i class="bi bi-arrow-up-circle"></i>
                                                     </button>
@@ -169,24 +172,24 @@
                     </table>
                 </div>
                 <div class="d-flex justify-content-center mt-3">
-                    {{ $direcciones->links() }}
+                    {{ $domicilios->links() }}
                 </div>
             </div>
         </div>
 
-        <!-- Modal de edición de dirección -->
-        <div class="modal fade" id="editDireccionModal" tabindex="-1" aria-labelledby="editDireccionModalLabel" aria-hidden="true">
+        <!-- Modal de edición de domicilio -->
+        <div class="modal fade" id="editDomicilioModal" tabindex="-1" aria-labelledby="editDomicilioModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editDireccionModalLabel">Editar Dirección</h5>
+                        <h5 class="modal-title" id="editDomicilioModalLabel">Editar Domicilio</h5>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" id="editDireccionForm" action="">
+                        <form method="POST" id="editDomicilioForm" action="">
                             @csrf
                             @method('POST')
 
-                            <input type="hidden" id="direccion_id" name="direccion_id">
+                            <input type="hidden" id="domicilio_id" name="domicilio_id">
 
                             <livewire:dropdown-persona />
 
@@ -217,9 +220,10 @@
                                 <select id="categoria" name="categoria" class="form-select" required>
                                     <option value="" disabled selected>--Seleccione--</option>
                                     @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                        <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
                                     @endforeach
                                 </select>
+                                
                             </div>
 
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -229,16 +233,16 @@
             </div>
         </div>
 
-        <!-- Modal para añadir dirección -->
-        <div class="modal fade" id="addDireccionModal" tabindex="-1" aria-labelledby="addDireccionModalLabel" aria-hidden="true">
+        <!-- Modal para añadir domicilio -->
+        <div class="modal fade" id="addDomicilioModal" tabindex="-1" aria-labelledby="addDomicilioModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addDireccionModalLabel">Agregar Dirección</h5>
+                        <h5 class="modal-title" id="addDomicilioModalLabel">Agregar Domicilio</h5>
                     </div>
                     <div class="modal-body">
-                        <div id="addDireccionErrorContainer" class="alert alert-danger d-none"></div>
-                        <form id="addDireccionForm">
+                        <div id="addDomicilioErrorContainer" class="alert alert-danger d-none"></div>
+                        <form id="addDomicilioForm" method="POST" action="{{ route('guardarDireccion', $persona->id_persona) }}">
                             @csrf
                             <livewire:dropdown-persona />
                             
@@ -270,13 +274,13 @@
                                     <select id="categoria" name="categoria" class="form-select" required>
                                         <option value="" disabled selected>--Seleccione--</option>
                                         @foreach($categorias as $categoria)
-                                            <option value="{{ $categoria->id_categoriaPersona }}">{{ $categoria->nombre_categoria }}</option>
+                                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
+                                    <label for="es_principal" class="form-label">¿Es el domicilio principal?</label>
                                     <select name="es_principal" id="es_principal" class="form-select" required>
                                         <option value="1">Sí</option>
                                         <option value="0">No</option>
@@ -340,16 +344,8 @@
                                 </select>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="altura" class="form-label">Altura (cm):</label>
-                                <input type="text" id="altura" name="altura" class="form-control"
-                                    value="{{ old('altura', $persona->altura) }}" required min="0" step="0.01">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
-                                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento', $persona->fecha_nacimiento) }}" required>
-                            </div>
+                          
+                           
 
                             <button type="submit" class="btn btn-primary w-100">Actualizar</button>
                         </form>
@@ -362,38 +358,34 @@
 
     <script>
         document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.getAttribute('data-id');
-            const idPersona = this.getAttribute('data-id-persona');
-            const comunidad = this.getAttribute('data-comunidad');
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const idPersona = this.getAttribute('data-id-persona');
 
-            // Campos que se van a llenar
-            document.getElementById('direccion_id').value = id;
-            document.getElementById('calle').value = this.getAttribute('data-calle');
-            document.getElementById('manzana').value = this.getAttribute('data-manzana');
-            document.getElementById('numero_de_vivienda').value = this.getAttribute('data-numero-de-vivienda');
-            document.getElementById('bloque').value = this.getAttribute('data-bloque');
+                // Campos que se van a llenar
+                document.getElementById('domicilio_id').value = id;
+                document.getElementById('calle').value = this.getAttribute('data-calle');
+                document.getElementById('manzana').value = this.getAttribute('data-manzana');
+                document.getElementById('numero_de_vivienda').value = this.getAttribute('data-numero-de-vivienda');
+                document.getElementById('bloque').value = this.getAttribute('data-bloque');
 
-            // Actualizamos el action del formulario
-            document.getElementById('editDireccionForm').action = `/personas/actualizardireccion/${id}/${idPersona}`;
+                // Actualizamos el action del formulario
+                document.getElementById('editDomicilioForm').action = `/personas/actualizardomicilio/${id}/${idPersona}`;
 
-            // Confirmación dulce 🍬
-            Swal.fire({
-                icon: 'info',
-                title: 'Editando Dirección',
-                text: 'Los campos se han cargado correctamente. ¡Haz tus cambios!',
-                confirmButtonText: 'Entendido 💪',
-                timer: 2000,
-                timerProgressBar: true,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false
+                // Confirmación dulce 🍬
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Editando Domicilio',
+                    text: 'Los campos se han cargado correctamente. ¡Haz tus cambios!',
+                    confirmButtonText: 'Entendido 💪',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                });
             });
-
-            // Consultamos si es líder para mostrar u ocultar categoría
-           
         });
-    });
 
         const editPersonaModal = document.getElementById('editPersonaModal');
         
@@ -422,127 +414,151 @@
     </script>
 
     <script>
-        document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+       document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    // Mostrar loader
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+    submitButton.disabled = true;
 
-        try {
-            const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
+    try {
+        const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw data;
+        }
+
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: data.title || '¡Éxito!',
+                text: data.message,
+                confirmButtonText: 'Aceptar'
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw data;
-            }
-
-            if (data.status === 'success') {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    confirmButtonText: 'Aceptar'
-                });
+            
+            // Redirigir si hay URL de redirección
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
                 location.reload();
             }
-
-        } catch (error) {
-            let errorHtml = '<ul>';
-
-            if (error.errors) {
-                Object.values(error.errors).forEach(messages => {
-                    messages.forEach(message => {
-                        errorHtml += `<li>${message}</li>`;
-                    });
-                });
-            } else if (error.message) {
-                errorHtml += `<li>${error.message}</li>`;
-                if (error.error) {
-                    errorHtml += `<li>${error.error}</li>`;
-                }
-            } else {
-                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
-            }
-
-            errorHtml += '</ul>';
-
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error al guardar',
-                html: errorHtml,
-                confirmButtonText: 'Cerrar'
-            });
         }
-    });
 
-       
+    } catch (error) {
+        let errorHtml = '<ul>';
+
+        if (error.errors) {
+            Object.values(error.errors).forEach(messages => {
+                messages.forEach(message => {
+                    errorHtml += `<li>${message}</li>`;
+                });
+            });
+        } else if (error.message) {
+            errorHtml += `<li>${error.message}</li>`;
+        } else {
+            errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+        }
+
+        errorHtml += '</ul>';
+
+        await Swal.fire({
+            icon: 'error',
+            title: error.title || 'Error al guardar',
+            html: errorHtml,
+            confirmButtonText: 'Cerrar'
+        });
+    } finally {
+        // Restaurar botón
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
+});
     </script>
     <script>
         document.getElementById('editDireccionForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+            e.preventDefault();
+            const formData = new FormData(this);
 
-        try {
-            const response = await fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
+            // Mostrar loader
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            submitButton.disabled = true;
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw data;
-            }
-
-            if (data.status === 'success') {
-                await Swal.fire({
-                    icon: 'success',
-                    title: '¡Éxito!',
-                    text: data.message,
-                    confirmButtonText: 'Aceptar'
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
                 });
-                location.reload();
-            }
 
-        } catch (error) {
-            let errorHtml = '<ul>';
+                const data = await response.json();
 
-            if (error.errors) {
-                Object.values(error.errors).forEach(messages => {
-                    messages.forEach(message => {
-                        errorHtml += `<li>${message}</li>`;
-                    });
-                });
-            } else if (error.message) {
-                errorHtml += `<li>${error.message}</li>`;
-                if (error.error) {
-                    errorHtml += `<li>${error.error}</li>`;
+                if (!response.ok) {
+                    throw data;
                 }
-            } else {
-                errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: data.title || '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                    // Redirigir si hay URL de redirección
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        location.reload();
+                    }
+                }
+
+            } catch (error) {
+                let errorHtml = '<ul>';
+
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+
+                errorHtml += '</ul>';
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: error.title || 'Error al actualizar',
+                    html: errorHtml,
+                    confirmButtonText: 'Cerrar'
+                });
+            } finally {
+                // Restaurar botón
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
-
-            errorHtml += '</ul>';
-
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error al actualizar',
-                html: errorHtml,
-                confirmButtonText: 'Cerrar'
-            });
-        }
-    });
-</script>
+        });
+    </script>
     <script>
         document.getElementById('altura').addEventListener('input', function (e) {
             // Permitir solo números, una coma o punto, y limitar a un dígito antes y dos después
@@ -568,6 +584,156 @@
                     .replace(/,/g, '.') // Reemplazar coma por punto
                     .replace(/^(\d{2,})\./, '$1') // Limitar a un dígito antes del punto
                     .replace(/(\.\d{2}).*/, '$1'); // Limitar a dos dígitos después del punto
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('addDomicilioForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Mostrar loader
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw data;
+                }
+
+                // Mostrar alerta de éxito
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: data.title || '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                    // Redirigir si hay URL de redirección
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        location.reload();
+                    }
+                }
+            } catch (error) {
+                // Manejar errores
+                let errorHtml = '<ul>';
+
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+
+                errorHtml += '</ul>';
+
+                // Mostrar alerta de error
+                await Swal.fire({
+                    icon: 'error',
+                    title: error.title || 'Error al guardar',
+                    html: errorHtml,
+                    confirmButtonText: 'Cerrar'
+                });
+            } finally {
+                // Restaurar botón
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('editDomicilioForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Mostrar loader
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            submitButton.disabled = true;
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw data;
+                }
+
+                // Mostrar alerta de éxito
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: data.title || '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                    // Redirigir si hay URL de redirección
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        location.reload();
+                    }
+                }
+            } catch (error) {
+                // Manejar errores
+                let errorHtml = '<ul>';
+
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+
+                errorHtml += '</ul>';
+
+                // Mostrar alerta de error
+                await Swal.fire({
+                    icon: 'error',
+                    title: error.title || 'Error al actualizar',
+                    html: errorHtml,
+                    confirmButtonText: 'Cerrar'
+                });
+            } finally {
+                // Restaurar botón
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
         });
     </script>

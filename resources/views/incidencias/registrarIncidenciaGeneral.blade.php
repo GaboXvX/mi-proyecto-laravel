@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="table-container mt-5">
-    <h2>Registrar Incidencia</h2>
+    <h2>Registrar Incidencia General</h2>
 
     <div id="alert-container"></div>
     <!-- Paso visual -->
@@ -135,123 +135,128 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const steps = document.querySelectorAll('.step');
-        const nextToStep2 = document.getElementById('next-to-step-2');
-        const nextToStep3 = document.getElementById('next-to-step-3');
-        const backToStep1 = document.getElementById('back-to-step-1');
-        const backToStep2 = document.getElementById('back-to-step-2');
-    
-        // Mostrar el paso actual y ocultar los demás
-        function showStep(stepIndex) {
-            steps.forEach((step, index) => {
-                step.classList.toggle('d-none', index !== stepIndex);
-            });
-        }
-    
-        // Navegación entre pasos
-        nextToStep2.addEventListener('click', () => showStep(1));
-        nextToStep3.addEventListener('click', () => showStep(2));
-        backToStep1.addEventListener('click', () => showStep(0));
-        backToStep2.addEventListener('click', () => showStep(1));
-    
-        const estadoSelect = document.getElementById('estado'); // Dropdown de estado
-        const institucionSelect = document.getElementById('institucion'); // Dropdown de institución
-        const estacionSelect = document.getElementById('estacion'); // Dropdown de estación
-    
-        // Función para cargar estaciones
-        async function cargarEstaciones() {
-            const estadoId = estadoSelect.value;
-            const institucionId = institucionSelect.value;
-    
-            // Limpiar el selector de estaciones
-            estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una estación--</option>';
-    
-            if (!estadoId || !institucionId) return;
-    
-            try {
-                const response = await fetch(`/instituciones-estaciones/estado/${estadoId}/institucion/${institucionId}`);
-                const data = await response.json();
-    
-                if (data.success) {
-                    // Poblar el selector de estaciones
-                    data.estaciones.forEach(estacion => {
-                        const option = document.createElement('option');
-                        option.value = estacion.id_institucion_estacion;
-                        option.textContent = `${estacion.nombre} (Municipio: ${estacion.municipio.nombre})`;
-                        estacionSelect.appendChild(option);
-                    });
-    
-                    if (data.estaciones.length === 0) {
-                        alert('No hay estaciones disponibles para esta combinación.');
-                    }
-                } else {
-                    alert(data.message || 'Error al cargar las estaciones.');
+document.addEventListener('DOMContentLoaded', function () {
+    const steps = document.querySelectorAll('.step');
+    const nextToStep2 = document.getElementById('next-to-step-2');
+    const nextToStep3 = document.getElementById('next-to-step-3');
+    const backToStep1 = document.getElementById('back-to-step-1');
+    const backToStep2 = document.getElementById('back-to-step-2');
+
+    // Mostrar el paso actual y ocultar los demás
+    function showStep(stepIndex) {
+        steps.forEach((step, index) => {
+            step.classList.toggle('d-none', index !== stepIndex);
+        });
+    }
+
+    // Navegación entre pasos
+    nextToStep2.addEventListener('click', () => showStep(1));
+    nextToStep3.addEventListener('click', () => showStep(2));
+    backToStep1.addEventListener('click', () => showStep(0));
+    backToStep2.addEventListener('click', () => showStep(1));
+
+    const estadoSelect = document.getElementById('estado'); // Dropdown de estado
+    const institucionSelect = document.getElementById('institucion'); // Dropdown de institución
+    const estacionSelect = document.getElementById('estacion'); // Dropdown de estación
+
+    // Función para cargar estaciones
+    async function cargarEstaciones() {
+        const estadoId = estadoSelect.value;
+        const institucionId = institucionSelect.value;
+
+        // Limpiar el selector de estaciones
+        estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una estación--</option>';
+
+        if (!estadoId || !institucionId) return;
+
+        try {
+            const response = await fetch(`/instituciones-estaciones/estado/${estadoId}/institucion/${institucionId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                // Poblar el selector de estaciones
+                data.estaciones.forEach(estacion => {
+                    const option = document.createElement('option');
+                    option.value = estacion.id_institucion_estacion;
+                    option.textContent = `${estacion.nombre} (Municipio: ${estacion.municipio.nombre})`;
+                    estacionSelect.appendChild(option);
+                });
+
+                if (data.estaciones.length === 0) {
+                    alert('No hay estaciones disponibles para esta combinación.');
                 }
-            } catch (error) {
-                console.error('Error al cargar las estaciones:', error);
-                alert('Ocurrió un error al cargar las estaciones. Intente nuevamente.');
+            } else {
+                alert(data.message || 'Error al cargar las estaciones.');
             }
+        } catch (error) {
+            console.error('Error al cargar las estaciones:', error);
+            alert('Ocurrió un error al cargar las estaciones. Intente nuevamente.');
         }
-    
-        // Escuchar cambios en los dropdowns de estado e institución
-        estadoSelect.addEventListener('change', cargarEstaciones);
-        institucionSelect.addEventListener('change', cargarEstaciones);
-    });
-    </script>
+    }
+
+    // Escuchar cambios en los dropdowns de estado e institución
+    estadoSelect.addEventListener('change', cargarEstaciones);
+    institucionSelect.addEventListener('change', cargarEstaciones);
+});
+</script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('form-registrar-incidencia');
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('incidenciaGeneralForm');
 
-        form.addEventListener('submit', async function (event) {
-            event.preventDefault(); // Evitar el envío tradicional del formulario
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
 
-            const formData = new FormData(form);
-            const actionUrl = form.action;
-
-            try {
-                const response = await fetch(actionUrl, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Mostrar mensaje de éxito con SweetAlert
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: result.message,
-                        confirmButtonText: 'Aceptar'
-                    }).then(() => {
-                        // Redirigir al comprobante
-                        window.location.href = result.redirect_url;
-                    });
-                } else {
-                    // Mostrar mensaje de error con SweetAlert
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: result.message || 'Ocurrió un error al registrar la incidencia.',
-                        confirmButtonText: 'Aceptar'
-                    });
-                }
-            } catch (error) {
-                console.error('Error al enviar el formulario:', error);
-                // Mostrar mensaje de error inesperado con SweetAlert
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error inesperado',
-                    text: 'Ocurrió un error inesperado. Intente nuevamente.',
-                    confirmButtonText: 'Aceptar'
-                });
+        Swal.fire({
+            title: 'Procesando',
+            html: 'Registrando la incidencia...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
         });
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error en la respuesta del servidor');
+            }
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = data.redirect_url; // Redirigir a la lista de incidencias
+                    }
+                });
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Ocurrió un error al registrar la incidencia',
+                confirmButtonText: 'Aceptar'
+            });
+            console.error('Error:', error);
+        }
     });
+});
 </script>
 @endsection

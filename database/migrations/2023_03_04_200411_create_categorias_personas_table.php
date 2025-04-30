@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('categorias_personas', function (Blueprint $table) {
-            $table->bigIncrements('id_categoriaPersona');
-            $table->string("nombre_categoria");
+            $table->bigIncrements('id_categoria_persona');
+            $table->string('nombre_categoria');
+            $table->string('slug')->unique(); // Para búsquedas amigables
+            $table->text('descripcion')->nullable();
             $table->timestamps();
         });
     }

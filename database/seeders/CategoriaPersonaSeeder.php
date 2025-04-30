@@ -13,11 +13,26 @@ class categoriaPersonaSeeder extends Seeder
      */
     public function run(): void
     {
-        $categorias_personas=[
-        ['nombre_categoria'=>'Regular'],
-        ['nombre_categoria'=>'Lider']];
-        foreach ($categorias_personas as $categoria) {
-            categoriaPersona::create($categoria);
+        $categorias = [
+            [
+                'nombre_categoria' => 'Regular',
+                'slug' => 'regular',
+                'descripcion' => 'Personas sin roles especiales en el sistema'
+            ],
+            [
+                'nombre_categoria' => 'Líder Comunitario',
+                'slug' => 'lider-comunitario',
+                'descripcion' => 'Representantes autorizados de comunidades'
+            ],
+           
+        ];
+    
+        // 2. Verificación y creación condicional
+        foreach ($categorias as $categoria) {
+            categoriaPersona::firstOrCreate(
+                ['slug' => $categoria['slug']], // Buscar por slug único
+                $categoria // Datos a insertar si no existe
+            );
         }
     }
 }

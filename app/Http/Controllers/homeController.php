@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\incidencia;
+use App\Models\incidencia_persona;
 use App\Models\Persona;
 use App\Models\Peticion;
 use App\Models\User;
@@ -14,7 +15,7 @@ class HomeController extends Controller
         $totalUsuarios = User::all()->count();
 
         // Contar el número total de incidencias
-        $totalIncidencias = Incidencia::count();
+        $totalIncidencias = incidencia_persona::count();
 
         // Contar el número de usuarios con id_estado_usuario == 3 (pendientes de verificación)
         $totalPeticiones = User::where('id_estado_usuario', 3)->count();

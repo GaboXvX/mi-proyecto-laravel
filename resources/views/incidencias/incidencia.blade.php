@@ -20,7 +20,7 @@
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 30px;
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 10px;
@@ -29,57 +29,65 @@
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
-            font-size: 30px;
+            font-size: 32px;
             color: #003366;
             margin-bottom: 5px;
         }
 
         .header p {
-            font-size: 14px;
+            font-size: 16px;
             color: #777;
             margin-top: 0;
         }
 
-        .invoice-details {
+        .details-section {
             margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
         }
 
-        .invoice-details h3 {
+        .details-section h3 {
             font-size: 18px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #003366;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 8px;
         }
 
-        .invoice-details p {
+        .details-section p {
             font-size: 14px;
             margin: 5px 0;
         }
 
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 30px;
             font-size: 12px;
             color: #888;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
         }
 
         .button-container {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-size: 14px;
             border-radius: 5px;
             border: none;
             cursor: pointer;
             text-align: center;
             display: inline-block;
-            margin: 5px;
+            margin: 10px;
         }
 
         .btn-download {
@@ -104,11 +112,11 @@
 
         @media print {
             .button-container {
-                display: none; 
+                display: none;
             }
         }
     </style>
-    <title>configuracion</title>
+    <title>Comprobante de Incidencia</title>
 </head>
 
 <body>
@@ -125,7 +133,7 @@
                     <span>Panel</span>
                 </a>
             </li>
-           
+
             <li class="nav-item">
                 <a href="#layouts" class="nav-link" data-bs-toggle="collapse">
                     <i class="bi bi-search"></i>
@@ -154,15 +162,12 @@
                                 <span>Incidencias</span>
                             </a>
                         </li>
-                        
                         <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3">
                                 <i class="bi bi-envelope"></i>
                                 <span>Peticiones</span>
                             </a>
                         </li>
-                       
-                        
                     </ul>
                 </div>
             </li>
@@ -173,7 +178,7 @@
                     <span>Estadísticas</span>
                 </a>
             </li>
-        @endcan
+            @endcan
         </ul>
         <hr class="text-secondary">
     </nav>
@@ -203,17 +208,18 @@
             </div>
         </div>
 
-   
+        <div class="container" id="comprobante-container">
+            <div class="header">
+                @if( $incidencia->id_incidencia_p)
+                <h1>Comprobante de Incidencia persona</h1>
+                @else
+                <h1>Comprobante de Incidencia general</h1>
+                @endif
+                <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia_p ?? $incidencia->id_incidencia_g }}</p>
+            </div>
 
-    <div class="container" id="comprobante-container">
-        <div class="header">
-            <h1>Comprobante de Incidencia</h1>
-            <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
-        </div>
-
-        <div class="invoice-details">
-            <h3>Información de la Incidencia:</h3>
             <div class="details-section">
+                <h3>Información de la Incidencia:</h3>
                 <p><strong>Código de Incidencia:</strong> {{ $incidencia->cod_incidencia }}</p>
                 <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
                 <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipo_incidencia }}</p>
@@ -222,79 +228,51 @@
                 <p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->format('d/m/Y H:i') }}</p>
             </div>
 
-            @if($incidencia->id_persona)
+            @if(isset($incidencia->persona))
             <div class="details-section">
-                <p><strong>Persona Afectada:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
-                    @if($incidencia->persona->es_lider==1)
-                    <p><strong>¿Es lider? </strong> <br>
-                    {{$incidencia->persona->es_lider ? 'si' :'No'}}
-                    @else
-                    <p><strong>Lugar de la incidencia:</strong></p>
-
-                    @if($incidencia->direccion)
-                        <p>
-                            <strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }},
-                            <strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }},
-                            <strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }},
-                            <strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }},
-                            <strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }},
-                            <strong>Comunidad:</strong> {{ $incidencia->direccion->comunidad->nombre }},
-                            <strong>Calle:</strong> {{ $incidencia->direccion->calle }},
-                            
-                            @if($incidencia->direccion->manzana)
-                                <strong>Manzana:</strong> {{ $incidencia->direccion->manzana }},
-                            @endif
-                    
-                            @if($incidencia->direccion->numero_de_vivienda)
-                                <strong>N° de vivienda:</strong> {{ $incidencia->direccion->numero_de_vivienda }},
-                            @endif
-                        </p>
-                    @else
-                        <p><em>No hay dirección asociada a esta incidencia.</em></p>
-                    @endif
-                    
-                    
-                    <p><strong>Lider comunitario </strong> <br>
-                        @if($incidencia->lider)
-                        {{$incidencia->lider->personas->nombre ?? 'Nombre no disponible'}} 
-                        {{$incidencia->lider->personas->apellido ?? 'Nombre no disponible'}} <strong>V-</strong>
-                        {{$incidencia->lider->personas->cedula ?? 'Nombre no disponible'}}
-                    @else
-                        <p>No tiene un líder asignado</p>
-                    @endif
-                                        @endif
+                <h3>Información de la Persona Afectada:</h3>
+                <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
+                <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+                <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono }}</p>
             </div>
-        @endif
+            @endif
 
-        <div class="details-section">
-            <p><strong>Registrado por:</strong> 
-                @if($incidencia->usuario)
-                    @if($incidencia->usuario->empleadoAutorizado)
-                        {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                        <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                    @else
-                        <em>Empleado autorizado no asignado</em>
-                    @endif
+            @if(isset($incidencia->direccion))
+            <div class="details-section">
+                <h3>Lugar de la Incidencia:</h3>
+                <p><strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }}</p>
+                <p><strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }}</p>
+                <p><strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }}</p>
+                <p><strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }}</p>
+                <p><strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }}</p>
+                <p><strong>Calle:</strong> {{ $incidencia->direccion->calle }}</p>
+                <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccion->punto_de_referencia }}</p>
+            </div>
+            @endif
+
+            <div class="details-section">
+                <h3>Institución Responsable:</h3>
+                <p><strong>Institución:</strong> {{ $incidencia->institucion->nombre }}</p>
+                @if(isset($incidencia->institucionEstacion))
+                    <p><strong>Estación:</strong> {{ $incidencia->institucionEstacion->nombre }}</p>
                 @else
-                    <em>Usuario no asignado</em>
+                    <p><em>No hay estación asignada.</em></p>
                 @endif
-            </p>
-        </div>
+            </div>
 
-        </div>
-
-        <div class="footer">
-            <p class="comprobante">
-                Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).
-            </p>
+            <div class="footer">
+                <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
+            </div>
         </div>
 
         <div class="button-container">
             <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-download">Descargar PDF</a>
-            <a href="{{ route('personas.index') }}" class="btn btn-back">Volver</a>
+            <a href="{{ route('incidencias.index') }}" class="btn btn-back">Volver</a>
         </div>
-    </div>
+    </main>
 
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/script.js') }}"></script>
+</body>
+
 </html>

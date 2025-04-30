@@ -10,16 +10,23 @@ class Direccion extends Model
 
     protected $table = 'direcciones';
     protected $primaryKey = 'id_direccion';
-
+    protected $fillable = [
+        'id_persona',
+        'id_estado',
+        'id_municipio',
+        'id_parroquia',
+        'id_urbanizacion',
+        'id_sector',
+        'id_comunidad',
+        'calle',
+        'punto_de_referencia',
+    ];
     public function persona()
     {
         return $this->belongsTo(persona::class, 'id_persona');
     }
 
-    public function lider()
-    {
-        return $this->hasOne(persona::class, 'id_direccion');
-    }
+   
 
     public function comunidad()
     {
@@ -51,8 +58,8 @@ class Direccion extends Model
         return $this->belongsTo(Municipio::class, 'id_municipio');
     }
 
-    public function incidencias()
+    public function incidencias_personas()
     {
-        return $this->hasMany(Incidencia::class, 'id_direccion');
+        return $this->hasMany(incidencia_persona::class, 'id_direccion');
     }
 }

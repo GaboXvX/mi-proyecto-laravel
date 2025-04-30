@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_direccion')->nullable();
             $table->foreign('id_direccion')->references('id_direccion')->on('direcciones')->onDelete('cascade');
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('id_incidencia')->nullable();
-            $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
+            $table->unsignedBigInteger('id_incidencia_p')->nullable();
+            $table->foreign('id_incidencia_p')->references('id_incidencia_p')->on('incidencias_personas')->onDelete('cascade');
             $table->string('descripcion', 50)->nullable();
             $table->timestamps();
         });

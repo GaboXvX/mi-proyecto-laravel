@@ -97,7 +97,7 @@
                                     } elseif ($mov->id_direccion) {
                                         $tipo = 'Dirección';
                                         $badgeClass = 'bg-warning text-dark';
-                                    } elseif ($mov->id_incidencia) {
+                                    } elseif ($mov->id_incidencia_p) {
                                         $tipo = 'Incidencia';
                                         $badgeClass = 'bg-danger';
                                     }
@@ -129,10 +129,10 @@
                                         <i class="bi bi-geo-alt me-2 text-warning"></i>
                                         Dirección #{{ $mov->id_direccion }}
                                     </span>
-                                @elseif($mov->id_incidencia)
+                                @elseif($mov->id_incidencia_p)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
-                                        Incidencia #{{ $mov->incidencia->cod_incidencia }}
+                                        Incidencia #{{ $mov->incidencias_personas ? $mov->incidencias_personas->cod_incidencia : 'N/A' }}
                                     </span>
                                 @else
                                     -

@@ -278,6 +278,24 @@ body {
     border-radius: 5px;
 }
 
+#stepIndicator .nav-link {
+    cursor: default;
+    background-color: #e9ecef;
+    margin: 0 5px;
+    color: #495057;
+    border-radius: 1rem;
+}
+
+#stepIndicator .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+#stepIndicator .nav-link.completed {
+    background-color: #198754;
+    color: white;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
     .sidebar {

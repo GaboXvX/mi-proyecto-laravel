@@ -34,9 +34,9 @@ class Persona extends Model
         return 'slug';
     }
 
-    public function incidencias_personas()
+    public function incidencia()
     {
-        return $this->hasMany(incidencia_persona::class, 'id_persona');
+        return $this->hasMany(incidencia::class, 'id_persona');
     }
 
     public function categoriasExclusivas()

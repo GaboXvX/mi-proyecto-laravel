@@ -117,7 +117,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/instituciones-estaciones/direccion/{direccion}', [IncidenciaController::class, 'getInstitucionesEstacionesPorDireccion']);
         Route::get('/instituciones-estaciones/municipio/{municipio}', [IncidenciaController::class, 'getEstacionesPorMunicipio']);
         Route::get('/instituciones-estaciones/estado/{estado}/institucion/{institucion}', [IncidenciaController::class, 'getEstacionesPorEstadoEInstitucion']);
-        Route::get('/incidencias-generales/create', [IncidenciaController::class, 'create'])->name('incidencias.generales.create');
+        Route::get('/incidencias-generales/create', [IncidenciaController::class, 'create'])->name('incidencias.create');
         Route::get('incidencias/{slug}/edit', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
         Route::get('incidencia/{slug}', [IncidenciaController::class, 'show'])->name('incidencias.show');
 

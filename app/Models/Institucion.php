@@ -22,6 +22,6 @@ class Institucion extends Model
     }
     public function incidencias_personas()
 {
-    return $this->hasMany(incidencia_persona::class, 'id_institucion', 'id_institucion');
+    return $this->hasMany(incidencia::class, 'id_institucion', 'id_institucion');
 }
 }

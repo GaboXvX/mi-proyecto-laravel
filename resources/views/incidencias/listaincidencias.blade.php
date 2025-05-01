@@ -2,27 +2,12 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
-    .status-pending {
-        color: orange;
-    }
-    .status-resolved {
-        color: green;
-    }
-    .status-closed {
-        color: red;
-    }
-    .alert {
-        border-radius: 6px;
-        font-weight: bold;
-    }
-    .alert-success {
-        background-color: #28a745;
-        color: white;
-    }
-    .alert-danger {
-        background-color: #dc3545;
-        color: white;
-    }
+    .status-pending { color: orange; }
+    .status-resolved { color: green; }
+    .alert { border-radius: 6px; font-weight: bold; }
+    .alert-success { background-color: #28a745; color: white; }
+    .alert-danger { background-color: #dc3545; color: white; }
+    .alert-info { background-color: #17a2b8; color: white; }
     .btn-atender {
         background-color: #28a745;
         color: #fff;
@@ -30,156 +15,158 @@
         font-size: 12px;
         transition: background-color 0.3s;
     }
-    .btn-atender:hover {
-        background-color: #218838;
-        color: #fff;
-    }
-    .btn-atender:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
-    }
+    .btn-atender:hover { background-color: #218838; color: #fff; }
+    .btn-atender:disabled { background-color: #6c757d; cursor: not-allowed; }
+    .last-update { font-size: 0.8rem; color: #6c757d; text-align: right; margin-top: 10px; }
+    .filters-container { margin-bottom: 20px; }
+    .table-container { margin-top: 20px; }
 </style>
 
 @if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
+    <div class="alert alert-success">{{ session('success') }}</div>
 @endif
 
 @if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
+    <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="table-container">
-    <div class="d-flex justify-content-between align-item-center mb-3">
+<div class="container">
+    <!-- Título y Botón de Registro -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Lista de Incidencias</h2>
-        <div class="gen-pdf">
-            <a href="{{ route('incidencias.generales.create') }}" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Registrar Incidencia General
+        <div>
+            <a href="{{ route('incidencias.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Registrar Incidencia
             </a>
-            
-            @can('descargar listado incidencias')
-            <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST" style="display: inline;">
-                @csrf
-                <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
-                <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
-                <input type="hidden" id="pdf-estado" name="estado">
-                <input type="hidden" id="pdf-codigo" name="codigo"> <!-- Nuevo campo para el código -->
-                <button type="submit" class="btn btn-primary">Generar PDF</button>
-            </form>
-            @endcan
         </div>
     </div>
-   
-    <!-- Filters -->
-    <div class="d-flex filters-container gap-2">
-        <form id="busqueda-codigo-form" class="input-group input-group-sm">
-            <button class="input-group-text btn btn-primary" id="basic-addon1" type="button">
-                <i class="bi bi-search"></i>
-            </button>
-            <input type="text" id="codigo-busqueda" class="form-control form-control-sm" placeholder="Ingrese un código">
-        </form>
-        <form id="filtros-form">
-            @csrf
-            <label for="fecha_inicio" class="form-label">Selecciona el período:</label>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex">
-                    <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control mr-2 mb-3" />
-                    <span class="m-2">hasta</span>
-                    <input type="date" id="fecha_fin" name="fecha_fin" class="form-control ml-2 mb-3" />
+
+    <!-- Filtros -->
+    <div class="card mb-4 filters-container">
+        <div class="card-body">
+            <form id="filtros-form">
+                @csrf
+                <div class="row">
+                    <!-- Filtro por Código -->
+                    <div class="col-md-3">
+                        <label for="codigo-busqueda" class="form-label">Código:</label>
+                        <input type="text" id="codigo-busqueda" class="form-control" placeholder="Buscar por código">
+                    </div>
+
+                    <!-- Filtro por Estado -->
+                    <div class="col-md-3">
+                        <label for="estado" class="form-label">Estado:</label>
+                        <select class="form-select" id="estado" name="estado">
+                            <option value="Todos">Todos</option>
+                            <option value="Atendido">Atendido</option>
+                            <option value="Por atender">Por atender</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Fechas -->
+                    <div class="col-md-6">
+                        <label class="form-label">Rango de Fechas:</label>
+                        <div class="input-group">
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
+                            <span class="input-group-text">a</span>
+                            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control">
+                        </div>
+                    </div>
                 </div>
-                <select class="form-select form-select-sm w-50 m-2" aria-label="Select status" name="estado" id="estado">
-                    <option value="Todos" selected>Todos</option>
-                    <option value="Atendido">Atendido</option>
-                    <option value="Por atender">Por atender</option>
-                </select>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
-    <div id="resultados" class="mt-3"></div>
+    <!-- Botón para Generar PDF -->
+    <div class="d-flex justify-content-end mb-3">
+        @can('descargar listado incidencias')
+        <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST" style="display: inline;">
+            @csrf
+            <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
+            <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
+            <input type="hidden" id="pdf-estado" name="estado">
+            <input type="hidden" id="pdf-codigo" name="codigo">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+            </button>
+        </form>
+        @endcan
+    </div>
 
-    <!-- Tabla -->
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Código de incidencia</th>
-                    <th>Tipo de Incidencia</th>
-                    <th>Descripción</th>
-                    <th>Nivel de Prioridad</th>
-                    <th>Estado</th>
-                    <th>Creación</th>
-                    <th>Registrado por</th>
-                    <th>Representante</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="incidencias-tbody">
-                @foreach ($incidencias as $incidencia)
-                    <tr data-incidencia-id="{{ $incidencia->slug }}">
-                        <td>{{ $incidencia->cod_incidencia }}</td>
-                        <td>{{ $incidencia->tipo_incidencia }}</td>
-                        <td>{{ $incidencia->descripcion }}</td>
-                        <td>{{ $incidencia->nivel_prioridad }}</td>
-                        <td class="incidencia-status 
-                                    @if($incidencia->estado == 'Por atender') status-pending 
-                                    @elseif($incidencia->estado == 'Atendido') status-resolved 
-                                    @endif">
-                            {{ $incidencia->estado }}
-                        </td>
-                        <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
-                        <td>
-                            @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
-                                {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                            @else
-                                <em>No registrado</em>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->tipo === 'persona')
-                                @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
-                                    {{ $incidencia->categoriaExclusiva->persona->nombre }} {{ $incidencia->categoriaExclusiva->persona->apellido }}
-                                    <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula }}
+    <!-- Tabla de Incidencias -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Creación</th>
+                        <th>Registrado por</th>
+                        <th>Persona</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="incidencias-tbody">
+                    @foreach ($incidencias as $incidencia)
+                        <tr data-incidencia-id="{{ $incidencia->slug }}">
+                            <td>{{ $incidencia->cod_incidencia }}</td>
+                            <td>{{ $incidencia->tipo_incidencia }}</td>
+                            <td>{{ $incidencia->descripcion }}</td>
+                            <td>{{ $incidencia->nivel_prioridad }}</td>
+                            <td class="incidencia-status {{ $incidencia->estado == 'Por atender' ? 'status-pending' : 'status-resolved' }}">
+                                {{ $incidencia->estado }}
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
+                            <td>
+                                @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                                    {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                                    <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                                 @else
-                                    <em>No tiene un representante asignado</em>
+                                    <em>No registrado</em>
                                 @endif
-                            @else
-                                <em>Incidencia General</em>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <a href="{{ route('incidencias.ver', $incidencia->slug) }}" class="btn btn-info btn-sm">
-                                    <i class="bi bi-eye"></i> Ver
-                                </a>
-                                <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                                @if($incidencia->estado == 'Por atender')
+                            </td>
+                            <td>
+                                @if($incidencia->persona)
+                                    {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
+                                    <strong>V-</strong>{{ $incidencia->persona->cedula }}
+                                @else
+                                    <em>Incidencia General</em>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="{{ route('incidencias.ver', $incidencia->slug) }}" class="btn btn-info btn-sm">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                    <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    @if($incidencia->estado == 'Por atender')
                                     <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-atender btn-sm">
                                         <i class="bi bi-check-circle"></i> Atender
+                                        </a>
+                                    @else
+                                        <button class="btn btn-atender btn-sm" disabled>
+                                            <i class="bi bi-check-circle"></i> Atendido
+                                        </button>
+                                    @endif
+                                    <a href="{{ route('incidencias.edit', $incidencia->slug) }}" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i> Modificar
                                     </a>
-                                @else
-                                    <button class="btn btn-atender btn-sm" disabled>
-                                        <i class="bi bi-check-circle"></i> Atendido
-                                    </button>
-                                @endif
-                                <a href="{{ route('incidenciaslider.edit', $incidencia->slug) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil-square"></i> Modificar
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
     </div>
 </div>
 
-<script src=" {{ asset('js/incidencias.js') }}"></script>
-
+<script src="{{ asset('js/incidencias.js') }}"></script>
 @endsection

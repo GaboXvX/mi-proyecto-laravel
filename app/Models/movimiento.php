@@ -13,6 +13,8 @@ class movimiento extends Model
     protected $primaryKey='id_movimiento';
     protected $fillable = [
         'id_usuario',
+        'id_direccion',
+        'id_incidencia',
         'id_persona',
         'id_usuario_afectado',
         'descripcion',
@@ -25,8 +27,8 @@ class movimiento extends Model
     public function usuario(){
         return $this->belongsTo(User::class,'id_usuario');
     }
-    public function incidencias_personas(){
-        return $this->belongsTo(incidencia_persona::class,'id_incidencia_p');
+    public function incidencia(){
+        return $this->belongsTo(incidencia::class,'id_incidencia');
     }
     public function usuarioAfectado()
     {

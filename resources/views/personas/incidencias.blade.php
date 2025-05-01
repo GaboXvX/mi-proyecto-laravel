@@ -36,7 +36,6 @@
                                     @method('PUT')
                                     <!-- Otros campos del formulario -->
                                     <input type="hidden" name="redirect_source" value="personas.show">
-                                    <button type="submit" class="btn btn-primary">Guardar</button>
                                 </form>
                             @endif
                             <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-success btn-sm" title="Descargar comprobante">

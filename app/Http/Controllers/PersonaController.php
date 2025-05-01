@@ -358,7 +358,7 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
         $persona = Persona::where('slug', $slug)->firstOrFail();
 
         // Cargar incidencias con paginación
-        $incidencias = $persona->incidencias_personas()->orderBy('created_at', 'desc')->paginate(10);
+        $incidencias = $persona->incidencia()->orderBy('created_at', 'desc')->paginate(10);
 
         return view('personas.incidencias', compact('persona', 'incidencias'));
     }

@@ -79,7 +79,7 @@
     <div class="container">
         <div class="header">
             <h1>Comprobante de Incidencia</h1>
-            <p>Detalles de la Incidencia #{{ $incidencia->id ?? 'N/A' }}</p>
+            <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia ?? 'N/A' }}</p>
         </div>
 
         <div class="details-section">

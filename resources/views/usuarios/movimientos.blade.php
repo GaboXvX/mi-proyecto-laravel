@@ -19,7 +19,8 @@
 
         <div class="card-body p-0">
             <div class="p-3 border-bottom bg-light">
-                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">                    <div class="col-md-3">
+                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">
+                    <div class="col-md-3">
                         <label for="filtro_rango" class="form-label">Filtrar por rango</label>
                         <select class="form-select" name="rango" id="filtro_rango">
                             <option value="">-- Selecciona --</option>
@@ -97,7 +98,7 @@
                                     } elseif ($mov->id_direccion) {
                                         $tipo = 'Dirección';
                                         $badgeClass = 'bg-warning text-dark';
-                                    } elseif ($mov->id_incidencia_p) {
+                                    } elseif ($mov->id_incidencia) {
                                         $tipo = 'Incidencia';
                                         $badgeClass = 'bg-danger';
                                     }
@@ -129,10 +130,10 @@
                                         <i class="bi bi-geo-alt me-2 text-warning"></i>
                                         Dirección #{{ $mov->id_direccion }}
                                     </span>
-                                @elseif($mov->id_incidencia_p)
+                                @elseif($mov->id_incidencia)
                                     <span class="d-flex align-items-center">
                                         <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
-                                        Incidencia #{{ $mov->incidencias_personas ? $mov->incidencias_personas->cod_incidencia : 'N/A' }}
+                                        Incidencia #{{ $mov->incidencia->cod_incidencia }}
                                     </span>
                                 @else
                                     -

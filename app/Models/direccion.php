@@ -58,8 +58,8 @@ class Direccion extends Model
         return $this->belongsTo(Municipio::class, 'id_municipio');
     }
 
-    public function incidencias_personas()
+    public function incidencias()
     {
-        return $this->hasMany(incidencia_persona::class, 'id_direccion');
+        return $this->hasMany(incidencia::class, 'id_direccion');
     }
 }

@@ -12,8 +12,7 @@ class ReparacionIncidencia extends Model
     protected $table = 'reparaciones_incidencias';
     protected $primaryKey = 'id_reparacion'; // Cambia esto si tu clave primaria es diferente
     protected $fillable = [
-        'id_incidencia_p',
-        'id_incidencia_g',
+        'id_incidencia',
         'descripcion',
         'prueba_fotografica',
         'slug',
@@ -21,16 +20,13 @@ class ReparacionIncidencia extends Model
     ];
 
     // Relación con incidencia_persona
-    public function incidenciaPersona()
+    public function incidencia()
     {
-        return $this->belongsTo(incidencia_persona::class, 'id_incidencia', 'id_incidencia_p');
+        return $this->belongsTo(incidencia::class, 'id_incidencia', 'id_incidencia');
     }
 
     // Relación con IncidenciaGeneral
-    public function incidenciaGeneral()
-    {
-        return $this->belongsTo(IncidenciaGeneral::class, 'id_incidencia', 'id_incidencia_g');
-    }
+   
 
     // Relación con el usuario que atendió la incidencia
     public function usuario()

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}" />
     <style>
+        /* Estilos personalizados */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -210,12 +211,8 @@
 
         <div class="container" id="comprobante-container">
             <div class="header">
-                @if( $incidencia->id_incidencia_p)
-                <h1>Comprobante de Incidencia persona</h1>
-                @else
-                <h1>Comprobante de Incidencia general</h1>
-                @endif
-                <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia_p ?? $incidencia->id_incidencia_g }}</p>
+                <h1>Comprobante de Incidencia</h1>
+                <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia}}</p>
             </div>
 
             <div class="details-section">

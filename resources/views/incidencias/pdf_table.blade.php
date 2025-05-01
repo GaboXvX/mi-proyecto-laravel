@@ -5,6 +5,24 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 100px;
+            height: auto;
+        }
+        .header h1 {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .header p {
+            font-size: 14px;
+            margin: 0;
         }
         table {
             width: 100%;
@@ -22,8 +40,14 @@
     </style>
 </head>
 <body>
-    <h1>Listado de Incidencias</h1>
-    <p>Desde: {{ $fechaInicio }} Hasta: {{ $fechaFin }}</p>
+    <!-- Membrete -->
+    <div class="header">
+        <h1>Ministerio del Poder Popular para la Atención de las Aguas</h1>
+        <p>Listado de Incidencias</p>
+        <p>Desde: {{ $fechaInicio }} Hasta: {{ $fechaFin }}</p>
+    </div>
+
+    <!-- Tabla de Incidencias -->
     <table>
         <thead>
             <tr>
@@ -34,7 +58,7 @@
                 <th>Estado</th>
                 <th>Fecha de Creación</th>
                 <th>Registrado por</th>
-                <th>Representante</th>
+                <th>Persona Afectada</th>
             </tr>
         </thead>
         <tbody>
@@ -52,19 +76,14 @@
                             {{ $incidencia->usuario->empleadoAutorizado->apellido }} 
                             <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                         @else
-                            <em>Empleado autorizado no asignado</em>
+                            <em>No registrado</em>
                         @endif
                     </td>
                     <td>
-                        @if($incidencia->tipo === 'persona')
-                            @if($incidencia->categoriaExclusiva && $incidencia->categoriaExclusiva->persona)
-                                {{ $incidencia->categoriaExclusiva->persona->nombre ?? 'Nombre no disponible' }} 
-                                {{ $incidencia->categoriaExclusiva->persona->apellido ?? 'Apellido no disponible' }} 
-                                <strong>V-</strong>{{ $incidencia->categoriaExclusiva->persona->cedula ?? 'Cédula no disponible' }}<br>
-                                <strong>Categoría:</strong> {{ $incidencia->categoriaExclusiva->categoria->nombre_categoria ?? 'Categoría no disponible' }}
-                            @else
-                                <em>No tiene un representante asignado</em>
-                            @endif
+                        @if($incidencia->persona)
+                            {{ $incidencia->persona->nombre }} 
+                            {{ $incidencia->persona->apellido }} 
+                            <strong>V-</strong>{{ $incidencia->persona->cedula }}
                         @else
                             <em>Incidencia General</em>
                         @endif

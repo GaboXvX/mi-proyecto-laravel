@@ -4,12 +4,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class incidencia_persona extends Model
+class incidencia extends Model
 {
     use HasFactory;
 
-    protected $table = 'incidencias_personas';
-    protected $primaryKey = 'id_incidencia_p';
+    protected $table = 'incidencias';
+    protected $primaryKey = 'id_incidencia';
 
     protected $fillable = [
         'id_persona',
@@ -20,6 +20,8 @@ class incidencia_persona extends Model
         'tipo_incidencia',
         'descripcion',
         'nivel_prioridad',
+        'id_institucion',
+        'id_institucion_estacion',
         'estado',
         'created_at',
         'updated_at'

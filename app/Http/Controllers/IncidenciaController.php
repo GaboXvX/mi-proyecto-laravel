@@ -138,7 +138,7 @@ class IncidenciaController extends Controller
 
             // Registrar movimiento
             movimiento::create([
-                'id_incidencia' => $incidencia->id,
+                'id_incidencia' => $incidencia->id_incidencia,
                 'id_usuario' => auth()->id(),
                 'descripcion' => 'Se registró una incidencia',
             ]);

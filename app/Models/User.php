@@ -82,9 +82,9 @@ class User extends Authenticatable
         return $this->belongsTo(EstadoUsuario::class, 'id_estado_usuario'); // Relación con EstadoUsuario
     }
 
-    public function incidencias_personas()
+    public function incidencia()
     {
-        return $this->hasMany(incidencia_persona::class, 'id_usuario', 'id_usuario'); // Relación con el modelo Incidencia
+        return $this->hasMany(incidencia::class, 'id_usuario', 'id_usuario'); // Relación con el modelo Incidencia
     }
 
     public function empleadoAutorizado()

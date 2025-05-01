@@ -47,6 +47,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
     });
+    Route::post('peticiones', [PeticionController::class,'store'])->name('peticiones.store');
 
     Route::middleware(['auth'])->group(function () {
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -61,7 +62,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/peticiones/obtener', 'obtenerPeticiones')->name('peticiones.obtener');
             Route::post('/validar-campo-asincrono', 'validarCampoAsincrono')->name('validar.campo.asincrono');
         });
-        Route::resource('peticiones', PeticionController::class)->except(['index', 'create', 'show', 'edit', 'update', 'destroy']);
 
         // Rutas de personas
         Route::controller(PersonaController::class)->group(function () {
@@ -156,6 +156,5 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Rutas de movimientos por usuario (individual)
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
-        Route::get('/movimientos-registradores/exportar', [MovimientoController::class, 'exportar'])->name('movimientos.registradores.exportar');
     });
 });

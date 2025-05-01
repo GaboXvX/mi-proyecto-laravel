@@ -67,6 +67,12 @@ class movimientoController extends Controller
     {
         $query = Movimiento::query();
 
+        // Filtrar por usuario si se proporciona un slug
+        if ($request->filled('usuario_slug')) {
+            $usuario = User::where('slug', $request->usuario_slug)->firstOrFail();
+            $query->where('id_usuario', $usuario->id_usuario);
+        }
+
         // Filtro por rango
         switch ($request->rango) {
             case 'ultimos_25':
@@ -132,32 +138,7 @@ class movimientoController extends Controller
     }
     // En MovimientoController.php
 // app/Http/Controllers/movimientoController.php
-public function movimientosRegistradores(Request $request)
-{
-    $query = Movimiento::with([
-        'usuario', 
-        'usuarioAfectado', 
-        'persona', 
-        'direccion', 
-        'incidencia'
-    ]);
 
-    // Aplicar filtros
-    $this->applyFilters($query, $request);
-
-    $movimientos = $query->orderByDesc('created_at')->paginate(15);
-
-    if ($request->ajax()) {
-        return response()->json([
-            'html' => view('usuarios.partials.movimientos_rows', compact('movimientos'))->render(),
-            'pagination' => $movimientos->links()->toHtml(),
-            'current_count' => $movimientos->count(),
-            'total_count' => $movimientos->total()
-        ]);
-    }
-
-    return view('usuarios.movimientos_registradores', compact('movimientos'));
-}
 protected function applyFilters($query, Request $request)
     {
         // Filtro por rango

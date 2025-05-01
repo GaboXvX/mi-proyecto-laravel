@@ -19,9 +19,11 @@
             } elseif ($mov->id_direccion) {
                 $tipo = 'Dirección';
                 $badgeClass = 'bg-warning text-dark';
-            } elseif ($mov->id_incidencia_p_p) {
+            } elseif ($mov->id_incidencia) {
                 $tipo = 'Incidencia';
                 $badgeClass = 'bg-danger';
+            } else {
+                $tipo = 'Sistema';
             }
         @endphp
         <span class="badge {{ $badgeClass }} rounded-pill p-2">
@@ -32,7 +34,7 @@
                 @elseif($tipo == 'Incidencia') bi-exclamation-triangle 
                 @else bi-gear @endif
             me-1"></i>
-            {{ $tipo ?: 'Sistema' }}
+            {{ $tipo }}
         </span>
     </td>
     <td class="py-3">
@@ -51,13 +53,13 @@
                 <i class="bi bi-geo-alt me-2 text-warning"></i>
                 Dirección #{{ $mov->id_direccion }}
             </span>
-        @elseif($mov->id_incidencia_p)
+        @elseif($mov->id_incidencia)
             <span class="d-flex align-items-center">
                 <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
-                Incidencia #{{ $mov->incidencias_personas->cod_incidencia ?? 'N/A' }}
+                Incidencia #{{ $mov->incidencia->cod_incidencia ?? 'N/A' }}
             </span>
         @else
-            -
+            <span class="text-muted">Sistema</span>
         @endif
     </td>
     <td class="py-3">

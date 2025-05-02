@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="auto">
 <head>
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -94,13 +94,13 @@
     <!-- Main content -->
     <main class="main-content flex-fill">
         <div class="topbar d-flex align-items-center justify-content-between px-3 py-2 shadow-sm">
-            <button class="btn btn-light burger-btn" id="menuToggle">
+            <button class="btn btn-light-outline" id="menuToggle">
                 <i class="bi bi-list"></i>
             </button>
             <div class="d-flex align-items-center">
                 <!-- Notificaciones -->
                 <div class="dropdown me-3">
-                    <button class="btn btn-light position-relative" id="dropdownNotifications" data-bs-toggle="dropdown">
+                    <button class="btn btn-light-outline position-relative" id="dropdownNotifications" data-bs-toggle="dropdown">
                         <i class="bi bi-bell fs-5"></i>
                         @auth
                         @if($unreadCount = auth()->user()->notificaciones()->where('leido', false)->count())
@@ -152,7 +152,7 @@
 
                 <!-- Perfil usuario -->
                 <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-light-outline dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -172,11 +172,41 @@
         <!-- Contenido principal -->
         <div class="container py-4">
             @yield('content')
+            
+            <!-- Botón de cambio de tema -->
+            <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3">
+                <button class="btn btn-outline-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Cambiar tema">
+                    <i class="bi bi-circle-half" aria-hidden="true"></i>
+                    <span class="visually-hidden" id="bd-theme-text">Tema</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                            <i class="bi bi-brightness-high me-3" aria-hidden="true"></i>
+                            Claro
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                            <i class="bi bi-moon-stars me-3" aria-hidden="true"></i>
+                            Oscuro
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+                            <i class="bi bi-circle-half me-3" aria-hidden="true"></i>
+                            Auto
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
         </div>
     </main>
 
 <!-- Scripts -->
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/popper.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
@@ -232,5 +262,41 @@
         setInterval(updateNotificationCount, 60000);
     });
 </script>
+<script>
+        (() => {
+            'use strict';
+
+            const storedTheme = localStorage.getItem('theme');
+
+            const getPreferredTheme = () => {
+                if (storedTheme) return storedTheme;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            const setTheme = theme => {
+                if (theme === 'auto') {
+                    document.documentElement.removeAttribute('data-bs-theme');
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                }
+            }
+
+            setTheme(getPreferredTheme());
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                    setTheme(getPreferredTheme());
+                }
+            });
+
+            document.querySelectorAll('[data-bs-theme-value]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const theme = btn.getAttribute('data-bs-theme-value');
+                    localStorage.setItem('theme', theme);
+                    setTheme(theme);
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

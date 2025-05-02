@@ -484,34 +484,74 @@ class IncidenciaController extends Controller
     public function showChart(Request $request)
     {
         Carbon::setLocale('es');
-
+    
         $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()));
         $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()));
         $tipoIncidencia = $request->input('tipo_incidencia', '');
-
+        $denunciante = $request->input('denunciante', '');
+    
+        // Consulta para incidencias atendidas
         $queryAtendidas = Incidencia::where('estado', 'Atendido')
             ->whereBetween('created_at', [$startDate, $endDate]);
-
+    
+        // Consulta para total de incidencias (para calcular porcentaje)
+        $queryTotal = Incidencia::whereBetween('created_at', [$startDate, $endDate]);
+    
         if ($tipoIncidencia) {
             $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
+            $queryTotal->where('tipo_incidencia', $tipoIncidencia);
         }
-
+    
+        if ($denunciante === 'con') {
+            $queryAtendidas->whereNotNull('id_persona');
+            $queryTotal->whereNotNull('id_persona');
+        } elseif ($denunciante === 'sin') {
+            $queryAtendidas->whereNull('id_persona');
+            $queryTotal->whereNull('id_persona');
+        }
+    
+        // Obtener datos mensuales de incidencias atendidas
         $incidenciasAtendidas = $queryAtendidas->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
             ->groupBy('year', 'month')
             ->orderBy('year')
             ->orderBy('month')
             ->get();
-
+    
+        // Obtener totales mensuales para calcular porcentajes
+        $totalesMensuales = $queryTotal->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get()
+            ->keyBy(function($item) {
+                return $item->year . '-' . $item->month;
+            });
+    
         $labels = [];
         $dataAtendidas = [];
-
+        $porcentajes = [];
+    
         foreach ($incidenciasAtendidas as $incidencia) {
             $monthName = Carbon::createFromFormat('m', $incidencia->month)->locale('es')->isoFormat('MMMM');
             $labels[] = $monthName . ' ' . $incidencia->year;
             $dataAtendidas[] = $incidencia->total;
+            
+            // Calcular porcentaje
+            $key = $incidencia->year . '-' . $incidencia->month;
+            $totalMes = $totalesMensuales[$key]->total ?? 0;
+            $porcentaje = $totalMes > 0 ? round(($incidencia->total / $totalMes) * 100, 2) : 0;
+            $porcentajes[] = $porcentaje;
         }
-
-        return view('incidencias.grafica_incidencia_resueltas', compact('labels', 'dataAtendidas', 'startDate', 'endDate', 'tipoIncidencia'));
+    
+        return view('incidencias.grafica_incidencia_resueltas', compact(
+            'labels', 
+            'dataAtendidas', 
+            'porcentajes',
+            'startDate', 
+            'endDate', 
+            'tipoIncidencia',
+            'denunciante'
+        ));
     }
 
     public function buscar(Request $request)

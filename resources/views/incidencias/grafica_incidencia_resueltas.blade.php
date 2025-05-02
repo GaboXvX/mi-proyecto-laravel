@@ -35,20 +35,28 @@
         <!-- filtrado -->
         <form class="card p-4 m-4">
             <div class="row g-3 align-items-end filter-section">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="form-label">Fecha de inicio:</label>
                     <input type="date" id="start_date" name="start_date" value="{{ $startDate->toDateString() }}" class="form-control">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="" class="form-label">Fecha de fin:</label>
                     <input type="date" id="end_date" name="end_date" value="{{ $endDate->toDateString() }}" class="form-control">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="" class="form-label">Tipo de incidencia:</label>
                     <select id="tipo_incidencia" name="tipo_incidencia" class="form-select">
                         <option value="" {{ $tipoIncidencia == '' ? 'selected' : '' }}>Todos</option>
                         <option value="agua potable" {{ $tipoIncidencia == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
                         <option value="agua servida" {{ $tipoIncidencia == 'agua servida' ? 'selected' : '' }}>Agua Servida</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="" class="form-label">Denunciante:</label>
+                    <select id="denunciante" name="denunciante" class="form-select">
+                        <option value="" {{ $denunciante == '' ? 'selected' : '' }}>Todos</option>
+                        <option value="con" {{ $denunciante == 'con' ? 'selected' : '' }}>Con denunciante</option>
+                        <option value="sin" {{ $denunciante == 'sin' ? 'selected' : '' }}>Sin denunciante</option>
                     </select>
                 </div>
             </div>
@@ -63,7 +71,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card">
                 <div class="card-body" style="width: 100%; height: 400px; margin: 0 auto;">
-                    <h3 class="card-title text-center">Gráfica</h3>
+                    <h3 class="card-title text-center">Porcentaje de Incidencias Atendidas</h3>
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
@@ -75,7 +83,6 @@
     @endcan
 
     <script>
-        // Asegúrate de que Chart.js esté cargado
         document.addEventListener('DOMContentLoaded', function() {
             var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -84,16 +91,16 @@
                 data: {
                     labels: @json($labels),
                     datasets: [{
-                        label: 'Incidencias Atendidas',
-                        data: @json($dataAtendidas),
+                        label: 'Porcentaje de Incidencias Atendidas',
+                        data: @json($porcentajes),
                         backgroundColor: 'rgba(54, 162, 235, 0.5)', 
                         borderColor: 'rgba(54, 162, 235, 0.2)',
                         borderWidth: 0,
-                        barThickness: 30, 
+                        barThickness: 30,
                     },
                     {
                         label: 'Tendencia',
-                        data: @json($dataAtendidas),
+                        data: @json($porcentajes),
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         type: 'line',
@@ -107,8 +114,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            max: 100,
                             ticks: {
-                                stepSize: 5,
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                stepSize: 10,
                                 font: { size: 12 }
                             }
                         },
@@ -126,7 +137,12 @@
                         tooltip: {
                             callbacks: {
                                 label: function(tooltipItem) {
-                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw + ' incidencias';
+                                    return tooltipItem.dataset.label + ': ' + tooltipItem.raw + '%';
+                                },
+                                afterLabel: function(tooltipItem) {
+                                    const index = tooltipItem.dataIndex;
+                                    return 'Incidencias atendidas: ' + @json($dataAtendidas)[index] + 
+                                           '\nTotal incidencias: ' + (@json($dataAtendidas)[index] / (@json($porcentajes)[index] / 100)).toFixed(0);
                                 }
                             }
                         }
@@ -137,44 +153,51 @@
             document.getElementById('downloadPdfBtn').addEventListener('click', function() {
                 const { jsPDF } = window.jspdf;
 
-                // Esperar a que el gráfico esté completamente renderizado
                 setTimeout(() => {
                     const imageUrl = myChart.toBase64Image();
 
                     const doc = new jsPDF();
                     doc.setFontSize(18);
-                    doc.text('Informe de Incidencias', 10, 10);
+                    doc.text('Informe de Incidencias Atendidas', 10, 10);
 
                     doc.setFontSize(12);
                     doc.text(`Fecha de Inicio: ${@json($startDate->toDateString())}`, 10, 20);
                     doc.text(`Fecha de Fin: ${@json($endDate->toDateString())}`, 10, 30);
+                    
                     if ('{{$tipoIncidencia}}' !== '') {
                         doc.text(`Tipo de Incidencia: {{$tipoIncidencia}}`, 10, 40);
                     }
+                    
+                    if ('{{$denunciante}}' !== '') {
+                        doc.text(`Denunciante: {{$denunciante == 'con' ? 'Con denunciante' : 'Sin denunciante'}}`, 10, 50);
+                    }
 
-                    const tableStartY = 50;
+                    const tableStartY = '{{$denunciante}}' !== '' ? 60 : 50;
                     doc.setFontSize(12);
                     doc.text('Mes', 10, tableStartY);
-                    doc.text('Incidencias Atendidas', 80, tableStartY);
+                    doc.text('Porcentaje Atendido', 60, tableStartY);
+                    doc.text('Atendidas/Total', 120, tableStartY);
 
                     let currentY = tableStartY + 10;
 
                     @foreach($labels as $index => $label)
                         doc.text('{{ $label }}', 10, currentY);
-                        doc.text('{{ $dataAtendidas[$index] }}', 80, currentY); 
+                        doc.text('{{ $porcentajes[$index] }}%', 60, currentY);
+                        doc.text('{{ $dataAtendidas[$index] }}/' + Math.round({{ $dataAtendidas[$index] }} / ({{ $porcentajes[$index] }} / 100)), 120, currentY);
                         currentY += 10;
                     @endforeach
 
-                    // Ajusta el tamaño del gráfico en el PDF
-                    const chartWidth = 150; // Ancho reducido
-                    const chartHeight = 60; // Alto reducido
+                    const chartWidth = 150;
+                    const chartHeight = 60;
                     doc.addImage(imageUrl, 'PNG', 10, currentY + 10, chartWidth, chartHeight);
 
-                    doc.save('incidencias.pdf');
-                }, 500); // Espera 500ms para asegurar que el gráfico esté listo
+                    doc.save('incidencias_atendidas.pdf');
+                }, 500);
             });
         });
     </script>
+
+    <!-- Resto del código JavaScript para validación de fechas -->
     <script>
     // Obtener los elementos del formulario
     const startDateInput = document.getElementById('start_date');
@@ -218,7 +241,7 @@
     // Evento para validar cuando se cambian las fechas
     startDateInput.addEventListener('change', validateDates);
     endDateInput.addEventListener('change', validateDates);
-</script>
+    </script>
 
     <!-- Scripts locales -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>

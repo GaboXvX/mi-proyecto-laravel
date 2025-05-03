@@ -222,11 +222,11 @@ body {
 }
 
 .filters-container input {
-    width: 150px;
+    width: 100%;
 }
 
 .filters-container .input-group {
-    width: 50%;
+    width: 100%;
 }
 
 /* estilos del step en las incidencias */

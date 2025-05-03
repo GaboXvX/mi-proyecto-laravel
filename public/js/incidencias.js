@@ -208,3 +208,62 @@ document.addEventListener('DOMContentLoaded', () => {
         this.submit();
     });
 });
+
+// funcion para el seguimiento del step en las incidencias
+document.addEventListener("DOMContentLoaded", function () {
+    const steps = document.querySelectorAll(".step");
+    const indicators = document.querySelectorAll("#stepIndicator .nav-link");
+    
+    let currentStep = 1;
+
+    function showStep(step) {
+        steps.forEach((s, i) => {
+            s.classList.toggle("d-none", i !== step - 1);
+        });
+
+        indicators.forEach((ind, i) => {
+            ind.classList.remove("active", "disabled");
+            if (i + 1 === step) {
+                ind.classList.add("active");
+            } else if (i + 1 < step) {
+                ind.classList.add("completed");
+            } else {
+                ind.classList.add("disabled");
+            }
+        });
+
+        currentStep = step;
+    }
+
+    function validateStep(step) {
+        const form = document.getElementById("incidenciaGeneralForm");
+        const inputs = steps[step - 1].querySelectorAll("input, select, textarea");
+        for (let input of inputs) {
+            if (!input.checkValidity()) {
+                input.classList.add("is-invalid");
+                return false;
+            } else {
+                input.classList.remove("is-invalid");
+            }
+        }
+        return true;
+    }
+
+    document.getElementById("next-to-step-2").addEventListener("click", function () {
+        if (validateStep(1)) showStep(2);
+    });
+
+    document.getElementById("back-to-step-1").addEventListener("click", function () {
+        showStep(1);
+    });
+
+    document.getElementById("next-to-step-3").addEventListener("click", function () {
+        if (validateStep(2)) showStep(3);
+    });
+
+    document.getElementById("back-to-step-2").addEventListener("click", function () {
+        showStep(2);
+    });
+
+    showStep(1); // inicializar
+});

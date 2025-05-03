@@ -2,24 +2,38 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2>Registrar Incidencia General</h2>
+    <h2 class="mb-4">Registrar Incidencia General</h2>
 
     <div id="alert-container"></div>
 
+    <!-- Paso visual -->
+    <div class="mb-4">
+        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+            <li class="nav-item">
+                <a class="nav-link active" data-step="1">1. Dirección</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" data-step="2">2. Institución</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" data-step="3">3. Detalles</a>
+            </li>
+        </ul>
+    </div>
     <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST">
         @csrf
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
-            <div class="card mb-3">
+            <div class="card border-0 mb-3">
                 <div class="card-header">
-                    <h5>Dirección del Incidente</h5>
+                    <h5 class="mb-0">Dirección del Incidente</h5>
                 </div>
                 <div class="card-body">
                     <livewire:dropdown-persona/>
 
-                    <div class="row mt-3">
+                    <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="calle" class="form-label">Calle:</label>
                             <input type="text" id="calle" name="calle" class="form-control" required>
@@ -31,66 +45,94 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" id="next-to-step-2">
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Paso 2: Institución y Estación -->
         <div class="step d-none" id="step-2">
-            <div class="mb-3">
-                <label for="institucion" class="form-label">Institución Responsable:</label>
-                <select id="institucion" name="institucion" class="form-select" required>
-                    <option value="" disabled selected>--Seleccione--</option>
-                    @foreach($instituciones as $institucion)
-                        <option value="{{ $institucion->id_institucion }}">{{ $institucion->nombre }}</option>
-                    @endforeach
-                </select>
+            <div class="card border-0 mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Institución y Estación</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="institucion" class="form-label">Institución Responsable</label>
+                        <select id="institucion" name="institucion" class="form-select form-select-sm" required>
+                            <option value="" disabled selected>--Seleccione--</option>
+                            @foreach($instituciones as $institucion)
+                                <option value="{{ $institucion->id_institucion }}">{{ $institucion->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="estacion" class="form-label">Estación</label>
+                        <select id="estacion" name="estacion" class="form-select form-select-sm" required>
+                            <option value="" disabled selected>--Seleccione una estación--</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="estacion" class="form-label">Estación:</label>
-                <select id="estacion" name="estacion" class="form-select" required>
-                    <option value="" disabled selected>--Seleccione una estación--</option>
-                </select>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-1">
+                    <i class="bi bi-chevron-left me-1"></i> Atrás
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="next-to-step-3">
+                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                </button>
             </div>
-
-            <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
-            <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
         </div>
 
-        <!-- Paso 3: Detalles de la Incidencia -->
+        <!-- Paso 3 -->
         <div class="step d-none" id="step-3">
-            <div class="mb-3">
-                <label for="tipo_incidencia" class="form-label">Tipo de Incidencia:</label>
-                <select id="tipo_incidencia" name="tipo_incidencia" class="form-select" required>
-                    <option value="" disabled selected>--Seleccione--</option>
-                    <option value="agua potable">Agua Potable</option>
-                    <option value="agua servida">Agua Servida</option>
-                </select>
-            </div>
-    
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción:</label>
-                <textarea id="descripcion" name="descripcion" class="form-control" rows="3" required></textarea>
-            </div>
-    
-            <div class="mb-3">
-                <label for="nivel_prioridad" class="form-label">Nivel de Prioridad:</label>
-                <select id="nivel_prioridad" name="nivel_prioridad" class="form-select" required>
-                    <option value="" disabled selected>--Seleccione--</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Detalles de la Incidencia</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="tipo_incidencia" class="form-label">Tipo de Incidencia</label>
+                        <select id="tipo_incidencia" name="tipo_incidencia" class="form-select form-select-sm" required>
+                            <option value="" disabled selected>--Seleccione--</option>
+                            <option value="agua potable">Agua Potable</option>
+                            <option value="agua servida">Agua Servida</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control form-control-sm" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nivel_prioridad" class="form-label">Nivel de Prioridad</label>
+                        <select id="nivel_prioridad" name="nivel_prioridad" class="form-select form-select-sm" required>
+                            <option value="" disabled selected>--Seleccione--</option>
+                            @for($i = 1; $i <= 5; $i++)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
-            <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
-        </div>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">
+                    <i class="bi bi-chevron-left me-1"></i> Atrás
+                </button>
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="bi bi-check-circle me-1"></i> Registrar Incidencia
+                </button>
+            </div>
     </form>
 </div>
 
+<script src="{{ asset('js/incidencias.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const steps = document.querySelectorAll('.step');

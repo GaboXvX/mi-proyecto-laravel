@@ -2,9 +2,24 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2>Registrar Incidencia</h2>
+    <h2 class="mb-4">Registrar Incidencia</h2>
 
     <div id="alert-container"></div>
+
+    <!-- Paso visual -->
+    <div class="mb-4">
+        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+            <li class="nav-item">
+                <a class="nav-link active" data-step="1">1. Dirección</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" data-step="2">2. Institución</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" data-step="3">3. Detalles</a>
+            </li>
+        </ul>
+    </div>
 
     <form id="form-registrar-incidencia" action="{{ route('incidencias.store') }}" method="POST">
         @csrf
@@ -13,14 +28,14 @@
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
-            <div class="card mb-3">
+            <div class="card border-0 mb-3">
                 <div class="card-header">
-                    <h5>Dirección del Incidente</h5>
+                    <h5 class="mb-0">Dirección del Incidente</h5>
                 </div>
                 <div class="card-body">
                     <livewire:dropdown-persona/>
 
-                    <div class="row mt-3">
+                    <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="calle" class="form-label">Calle:</label>
                             <input type="text" id="calle" name="calle" class="form-control" required>
@@ -32,14 +47,16 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+            </div>
         </div>
 
         <!-- Paso 2: Institución y Estación -->
         <div class="step d-none" id="step-2">
-            <div class="card mb-3">
+            <div class="card border-0 mb-3">
                 <div class="card-header">
-                    <h5>Institución Responsable</h5>
+                    <h5 class="mb-0">Institución Responsable</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -60,15 +77,17 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
-            <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
+                <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+            </div>
         </div>
 
         <!-- Paso 3: Detalles de la Incidencia -->
         <div class="step d-none" id="step-3">
-            <div class="card mb-3">
+            <div class="card g-3 mb-3">
                 <div class="card-header">
-                    <h5>Detalles de la Incidencia</h5>
+                    <h5 class="mb-0">Detalles de la Incidencia</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -98,12 +117,15 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
-            <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
+                <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
+            </div>
         </div>
     </form>
 </div>
 
+<script src="{{ asset('js/incidencias.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const steps = document.querySelectorAll('.step');

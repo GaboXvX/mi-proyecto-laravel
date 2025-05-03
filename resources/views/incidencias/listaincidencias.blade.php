@@ -30,19 +30,19 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
 @endif
 
-<div class="container">
+<div class="table-container">
     <!-- Título y Botón de Registro -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Lista de Incidencias</h2>
         <div>
-            <a href="{{ route('incidencias.create') }}" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Registrar Incidencia
+            <a href="{{ route('incidencias.create') }}" class="btn btn-success" title="Registrar incidencia">
+                <i class="bi bi-file-earmark-plus"></i>
             </a>
         </div>
     </div>
 
     <!-- Filtros -->
-    <div class="card mb-4 filters-container">
+    <div class="filters-container">
         <div class="card-body">
             <form id="filtros-form">
                 @csrf
@@ -94,8 +94,7 @@
     </div>
 
     <!-- Tabla de Incidencias -->
-    <div class="table-container">
-        <div class="table-responsive">
+    <div class="container">
             <table class="table table-striped align-middle">
                 <thead>
                     <tr>
@@ -138,32 +137,46 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <a href="{{ route('incidencias.ver', $incidencia->slug) }}" class="btn btn-info btn-sm">
-                                        <i class="bi bi-eye"></i> Ver
-                                    </a>
-                                    <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-download"></i>
-                                    </a>
-                                    @if($incidencia->estado == 'Por atender')
-                                    <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-atender btn-sm">
-                                        <i class="bi bi-check-circle"></i> Atender
-                                        </a>
-                                    @else
-                                        <button class="btn btn-atender btn-sm" disabled>
-                                            <i class="bi bi-check-circle"></i> Atendido
-                                        </button>
-                                    @endif
-                                    <a href="{{ route('incidencias.edit', $incidencia->slug) }}" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Modificar
-                                    </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('incidencias.ver', $incidencia->slug) }}">
+                                                <i class="bi bi-eye me-2"></i>Ver
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('incidencias.descargar', $incidencia->slug) }}">
+                                                <i class="bi bi-download me-2"></i>Descargar
+                                            </a>
+                                        </li>
+                                        @if($incidencia->estado == 'Por atender')
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('incidencias.atender.vista', $incidencia->slug) }}">
+                                                    <i class="bi bi-check-circle me-2"></i>Atender
+                                                </a>
+                                            </li>
+                                        @else
+                                            <li>
+                                                <button class="dropdown-item disabled">
+                                                    <i class="bi bi-check-circle me-2"></i>Atendido
+                                                </button>
+                                            </li>
+                                        @endif
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('incidencias.edit', $incidencia->slug) }}">
+                                                <i class="bi bi-pencil-square me-2"></i>Modificar
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-        </div>
         <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
     </div>
 </div>

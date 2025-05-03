@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-lg-9">
             <div class="card">
-                <div class="card-header">
-                    <h2>Registrar Nueva Persona</h2>
+                <div class="card-header py-3">
+                    <h2 class="mb-0">Registrar Nueva Persona</h2>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body px-4">
                     <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
                         @csrf
                         
                         <div id="global-alerts" class="alert d-none"></div>
 
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="categoria" class="form-label">Categoría:</label>
                                 <select name="categoria" id="categoria" class="form-select" required>
@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label">Nombre:</label>
                                 <input type="text" id="nombre" name="nombre" class="form-control" required>
@@ -45,7 +45,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="cedula" class="form-label">Cédula:</label>
                                 <input type="text" id="cedula" name="cedula" class="form-control" required maxlength="8">
@@ -58,17 +58,15 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="telefono" class="form-label">Teléfono:</label>
-                                <input type="tel" id="telefono" name="telefono" class="form-control" required>
-                            </div>
-                           
+                        
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono:</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control" required>
                         </div>
-
+                          
                         <livewire:dropdown-persona/>
 
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="calle" class="form-label">Calle:</label>
                                 <input type="text" id="calle" name="calle" class="form-control" required>
@@ -79,7 +77,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label for="bloque" class="form-label">Bloque:</label>
                                 <input type="text" id="bloque" name="bloque" class="form-control">
@@ -98,7 +96,7 @@
                             </select>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <div class="d-flex justify-content-between">
                             <a href="{{ route('personas.index') }}" class="btn btn-secondary me-md-2">Cancelar</a>
                             <button type="submit" class="btn btn-primary" id="submitRegistroPersona">Registrar</button>
                         </div>

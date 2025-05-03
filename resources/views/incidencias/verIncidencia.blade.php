@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container">
     <h2>Detalles de la Incidencia</h2>
     <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
     <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>

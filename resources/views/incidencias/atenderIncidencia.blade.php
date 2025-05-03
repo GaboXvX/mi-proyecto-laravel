@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2>Atender Incidencia</h2>
     <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
     <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
@@ -20,8 +20,10 @@
             <small class="text-muted">Formatos aceptados: JPEG, PNG, JPG (Máx. 2MB)</small>
         </div>
 
-        <button type="submit" class="btn btn-success" id="submit-btn">Guardar Atención</button>
+        <div class="d-flex justify-content-between">
         <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success" id="submit-btn">Guardar Atención</button>
+        </div>
     </form>
 </div>
 

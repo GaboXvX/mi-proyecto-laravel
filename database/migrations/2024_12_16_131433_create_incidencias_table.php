@@ -16,13 +16,18 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_direccion')->nullable();
-            $table->unsignedBigInteger('id_lider')->nullable();
-           $table->string('slug')->unique();
-           $table->string('cod_incidencia')->unique();
+            $table->unsignedBigInteger('id_categoria_exclusiva')->nullable();
+            $table->unsignedBigInteger('id_institucion');
+
+            $table->unsignedBigInteger('id_institucion_estacion')->nullable();
+
+            $table->string('slug')->unique();
+            $table->string('cod_incidencia')->unique();
             $table->string('tipo_incidencia');
             $table->text('descripcion');
             $table->integer('nivel_prioridad');
             $table->string('estado');
+
             $table->timestamps();
         });
     }
@@ -32,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incidencias');
+        Schema::dropIfExists('incidencias_personas');
     }
 };

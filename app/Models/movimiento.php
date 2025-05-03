@@ -13,13 +13,14 @@ class movimiento extends Model
     protected $primaryKey='id_movimiento';
     protected $fillable = [
         'id_usuario',
+        'id_direccion',
+        'id_incidencia',
+        'id_persona',
         'id_usuario_afectado',
         'descripcion',
         // Agrega aquí otros campos que necesites asignar masivamente
     ];
-    public function lider(){
-        return $this->belongsTo(Lider_Comunitario::class,'id_lider');
-    }
+    
     public function persona(){
         return $this->belongsTo(persona::class,'id_persona');
     }

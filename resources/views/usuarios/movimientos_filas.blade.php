@@ -22,6 +22,8 @@
             } elseif ($mov->id_incidencia) {
                 $tipo = 'Incidencia';
                 $badgeClass = 'bg-danger';
+            } else {
+                $tipo = 'Sistema';
             }
         @endphp
         <span class="badge {{ $badgeClass }} rounded-pill p-2">
@@ -32,7 +34,7 @@
                 @elseif($tipo == 'Incidencia') bi-exclamation-triangle 
                 @else bi-gear @endif
             me-1"></i>
-            {{ $tipo ?: 'Sistema' }}
+            {{ $tipo }}
         </span>
     </td>
     <td class="py-3">
@@ -57,7 +59,7 @@
                 Incidencia #{{ $mov->incidencia->cod_incidencia ?? 'N/A' }}
             </span>
         @else
-            -
+            <span class="text-muted">Sistema</span>
         @endif
     </td>
     <td class="py-3">

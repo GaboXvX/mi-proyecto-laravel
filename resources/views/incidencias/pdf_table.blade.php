@@ -3,89 +3,51 @@
 <head>
     <title>Listado de Incidencias</title>
     <style>
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 11px; /* Reducir tamaño de fuente */
-        margin: 0;
-        padding: 10px;
-    }
-
-    .pdf-container {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-        word-wrap: break-word;
-    }
-
-    th, td {
-        border: 1px solid #ddd;
-        padding: 6px;
-        text-align: left;
-        font-size: 10px;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    .membrete {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-    }
-
-    .membrete img {
-        height: 70px;
-        margin-right: 15px;
-    }
-
-    .membrete-info {
-        line-height: 1.2;
-    }
-
-    .membrete-info h2 {
-        margin: 0;
-        font-size: 18px;
-    }
-
-    .membrete-info p {
-        margin: 2px 0;
-        font-size: 11px;
-    }
-
-    .fecha-emision {
-        text-align: right;
-        font-size: 11px;
-        margin-top: -20px;
-        margin-bottom: 10px;
-    }
-</style>
-
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 100px;
+            height: auto;
+        }
+        .header h1 {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .header p {
+            font-size: 14px;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <div class="membrete">
-        <img src="{{ asset('img/logo.png') }}"  alt="Logo">
-        <div class="membrete-info">
-            <h2>Ministerio del Poder Popular de Atención de las Aguas</h2>
-            <p>RIF: J-12345678-9</p>
-            <p>Dirección: Av. Principal, Edif. Corporativo, Caracas</p>
-            <p>Tel: (0212) 123-4567 | Email: contacto@empresa.com</p>
-        </div>
+    <!-- Membrete -->
+    <div class="header">
+        <h1>Ministerio del Poder Popular para la Atención de las Aguas</h1>
+        <p>Listado de Incidencias</p>
+        <p>Desde: {{ $fechaInicio }} Hasta: {{ $fechaFin }}</p>
     </div>
 
-    <div class="fecha-emision">
-        <strong>Fecha de emisión:</strong> {{ \Carbon\Carbon::now()->format('d-m-Y H:i:s') }}
-    </div>
-    <h1>Listado de Incidencias</h1>
-    <p>Desde: {{ $fechaInicio }} Hasta: {{ $fechaFin }}</p>
-    <div class="pdf-container">
+    <!-- Tabla de Incidencias -->
     <table>
         <thead>
             <tr>
@@ -96,7 +58,7 @@
                 <th>Estado</th>
                 <th>Fecha de Creación</th>
                 <th>Registrado por</th>
-                <th>Líder comunitario</th>
+                <th>Persona Afectada</th>
             </tr>
         </thead>
         <tbody>
@@ -107,29 +69,24 @@
                     <td>{{ $incidencia->descripcion }}</td>
                     <td>{{ $incidencia->nivel_prioridad }}</td>
                     <td>{{ $incidencia->estado }}</td>
-                    <td>{{ $incidencia->created_at->format('d-m-Y H:i:s') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
                     <td>
-                        @if($incidencia->usuario)
-                            @if($incidencia->usuario->empleadoAutorizado)
-                                {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                            @else
-                                <em>Empleado autorizado no asignado</em>
-                            @endif
+                        @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                            {{ $incidencia->usuario->empleadoAutorizado->nombre }} 
+                            {{ $incidencia->usuario->empleadoAutorizado->apellido }} 
+                            <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
                         @else
-                            <em>Usuario no asignado</em>
+                            <em>No registrado</em>
                         @endif
                     </td>
                     <td>
-                        <p><strong>Líder comunitario:</strong> <br>
-                            @if($incidencia->lider)
-                                {{ $incidencia->lider->personas->nombre ?? 'Nombre no disponible' }} 
-                                {{ $incidencia->lider->personas->apellido ?? 'Nombre no disponible' }} <strong>V-</strong>
-                                {{ $incidencia->lider->personas->cedula ?? 'Nombre no disponible' }}
-                            @else
-                                <p>No tiene un líder asignado</p>
-                            @endif
-                        </p>
+                        @if($incidencia->persona)
+                            {{ $incidencia->persona->nombre }} 
+                            {{ $incidencia->persona->apellido }} 
+                            <strong>V-</strong>{{ $incidencia->persona->cedula }}
+                        @else
+                            <em>Incidencia General</em>
+                        @endif
                     </td>
                 </tr>
             @endforeach

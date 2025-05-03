@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('direcciones', function (Blueprint $table) {
-            $table->bigIncrements('id_direccion')->unsigned(); // Clave primaria
+        Schema::create('domicilios', function (Blueprint $table) {
+            $table->bigIncrements('id_domicilio')->unsigned(); // Clave primaria
+            $table->unsignedBigInteger('id_persona') ->nullable();
             $table->unsignedBigInteger('id_estado');
             $table->unsignedBigInteger('id_municipio');
             $table->bigInteger('id_parroquia')->unsigned()->nullable();
@@ -20,9 +21,11 @@ return new class extends Migration
             $table->bigInteger('id_sector')->unsigned()->nullable();
             $table->bigInteger('id_comunidad')->unsigned()->nullable();
             $table->string('calle');
-            $table->string('punto_de_referencia')->nullable();
+            $table->string('manzana')->nullable();
+            $table->string('bloque')->nullable();
+            $table->string('numero_de_vivienda');
+            $table->boolean('es_principal');
             $table->timestamps();
-       
         });
     }
 
@@ -31,7 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('direcciones');
+        Schema::dropIfExists('domicilios');
     }
 };
-

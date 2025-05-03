@@ -1,0 +1,228 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mt-5">
+    <h2>Editar Incidencia</h2>
+
+    <div id="alert-container"></div>
+
+    <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST">
+        @csrf
+        @method('PUT')
+
+        <!-- Paso 1: Dirección -->
+        <div class="step" id="step-1">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Dirección del Incidente</h5>
+                </div>
+                <div class="card-body">
+                    <livewire:dropdown-persona/>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="calle" class="form-label">Calle:</label>
+                            <input type="text" id="calle" name="calle" class="form-control" value="{{ $incidencia->direccion->calle }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="punto_de_referencia" class="form-label">Punto de Referencia:</label>
+                            <input type="text" id="punto_de_referencia" name="punto_de_referencia" class="form-control" value="{{ $incidencia->direccion->punto_de_referencia }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+        </div>
+
+        <!-- Paso 2: Institución y Estación -->
+        <div class="step d-none" id="step-2">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Institución Responsable</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="institucion" class="form-label">Institución:</label>
+                        <select id="institucion" name="institucion" class="form-select" required>
+                            <option value="" disabled>--Seleccione una institución--</option>
+                            @foreach ($instituciones as $institucion)
+                                <option value="{{ $institucion->id_institucion }}" {{ $incidencia->institucion->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
+                                    {{ $institucion->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="estacion" class="form-label">Estación:</label>
+                        <select id="estacion" name="estacion" class="form-select" required>
+                            <option value="" disabled>--Seleccione una estación--</option>
+                            @foreach ($estaciones as $estacion)
+                                <option value="{{ $estacion->id_institucion_estacion }}" 
+                                    {{ $incidencia->institucionEstacion && $incidencia->institucionEstacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
+                                    {{ $estacion->nombre }} (Municipio: {{ $estacion->municipio->nombre }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
+            <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+        </div>
+
+        <!-- Paso 3: Detalles de la Incidencia -->
+        <div class="step d-none" id="step-3">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Detalles de la Incidencia</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="tipo_incidencia" class="form-label">Tipo de Incidencia:</label>
+                        <select id="tipo_incidencia" name="tipo_incidencia" class="form-select" required>
+                            <option value="" disabled>--Seleccione--</option>
+                            <option value="agua potable" {{ $incidencia->tipo_incidencia == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
+                            <option value="agua servida" {{ $incidencia->tipo_incidencia == 'agua servida' ? 'selected' : '' }}>Agua Servida</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción:</label>
+                        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" required>{{ $incidencia->descripcion }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nivel_prioridad" class="form-label">Nivel de Prioridad:</label>
+                        <select id="nivel_prioridad" name="nivel_prioridad" class="form-select" required>
+                            <option value="" disabled>--Seleccione--</option>
+                            <option value="1" {{ $incidencia->nivel_prioridad == '1' ? 'selected' : '' }}>1</option>
+                            <option value="2" {{ $incidencia->nivel_prioridad == '2' ? 'selected' : '' }}>2</option>
+                            <option value="3" {{ $incidencia->nivel_prioridad == '3' ? 'selected' : '' }}>3</option>
+                            <option value="4" {{ $incidencia->nivel_prioridad == '4' ? 'selected' : '' }}>4</option>
+                            <option value="5" {{ $incidencia->nivel_prioridad == '5' ? 'selected' : '' }}>5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const steps = document.querySelectorAll('.step');
+        const nextToStep2 = document.getElementById('next-to-step-2');
+        const nextToStep3 = document.getElementById('next-to-step-3');
+        const backToStep1 = document.getElementById('back-to-step-1');
+        const backToStep2 = document.getElementById('back-to-step-2');
+
+        function showStep(stepIndex) {
+            steps.forEach((step, index) => {
+                step.classList.toggle('d-none', index !== stepIndex);
+            });
+        }
+
+        nextToStep2.addEventListener('click', () => showStep(1));
+        nextToStep3.addEventListener('click', () => showStep(2));
+        backToStep1.addEventListener('click', () => showStep(0));
+        backToStep2.addEventListener('click', () => showStep(1));
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-editar-incidencia');
+
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        // Mostrar loader
+        const swalInstance = Swal.fire({
+            title: 'Procesando',
+            html: 'Actualizando la incidencia...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            // Cerrar el loader inmediatamente al recibir respuesta
+            await swalInstance.close();
+
+            // Verificar si la respuesta es JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('La respuesta no es JSON válido');
+            }
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                // Si el servidor devuelve un error (400, 500, etc.) o success=false
+                throw new Error(result.message || `Error en la operación: ${response.statusText}`);
+            }
+
+            // Mostrar mensaje de éxito y redirigir
+            await Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: result.message,
+                showConfirmButton: true,
+                confirmButtonText: 'Aceptar',
+                timer: 3000,
+                timerProgressBar: true
+            });
+
+            // Redirigir después del mensaje
+            if (result.redirect_url) {
+                window.location.href = result.redirect_url;
+            } else {
+                // Recargar como fallback
+                window.location.reload();
+            }
+
+        } catch (error) {
+            // Cerrar el loader si está abierto
+            if (swalInstance.isActive()) {
+                swalInstance.close();
+            }
+            
+            console.error('Error completo:', error);
+            
+            let errorMessage = 'Ocurrió un error al procesar la solicitud';
+            
+            if (error instanceof SyntaxError) {
+                errorMessage = 'Error al interpretar la respuesta del servidor';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                confirmButtonText: 'Entendido',
+                allowOutsideClick: false
+            });
+        }
+    });
+});
+</script>
+@endsection

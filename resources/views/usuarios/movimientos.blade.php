@@ -19,7 +19,8 @@
 
         <div class="card-body p-0">
             <div class="p-3 border-bottom bg-light">
-                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">                    <div class="col-md-3">
+                <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">
+                    <div class="col-md-3">
                         <label for="filtro_rango" class="form-label">Filtrar por rango</label>
                         <select class="form-select" name="rango" id="filtro_rango">
                             <option value="">-- Selecciona --</option>

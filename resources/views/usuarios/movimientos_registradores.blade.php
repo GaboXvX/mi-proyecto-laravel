@@ -18,8 +18,10 @@
         </div>
 
         <div class="card-body p-0">
+            <!-- Filtros -->
             <div class="p-3 border-bottom bg-light">
-                <form id="filtro-form" method="GET" action="{{ route('movimientos.registradores', ['slug' => $usuario->slug]) }}" class="row gy-2 gx-3 align-items-end">                    <div class="col-md-3">
+                <form id="filtro-form" method="GET" action="{{ route('movimientos.registradores', ['slug' => $usuario->slug]) }}" class="row gy-2 gx-3 align-items-end">
+                    <div class="col-md-3">
                         <label for="filtro_rango" class="form-label">Filtrar por rango</label>
                         <select class="form-select" name="rango" id="filtro_rango">
                             <option value="">-- Selecciona --</option>
@@ -39,31 +41,26 @@
                             <option value="sistema" {{ request('tipo') == 'sistema' ? 'selected' : '' }}>Sistema</option>
                         </select>
                     </div>
-                    
                     <div class="col-md-3">
                         <label for="fecha_inicio" class="form-label">Desde</label>
                         <input type="date" class="form-control" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
                     </div>
-            
                     <div class="col-md-3">
                         <label for="fecha_fin" class="form-label">Hasta</label>
                         <input type="date" class="form-control" name="fecha_fin" value="{{ request('fecha_fin') }}">
                     </div>
-            
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
                             <i class="bi bi-funnel me-1"></i> Filtrar
                         </button>
-                    </div>
-            
-                    <div class="col-md-3 mt-2 d-flex gap-2">
-                        <a href="{{ route('movimientos.registradores.exportar', request()->all()) }}" class="btn btn-success w-100">
+                        <a href="{{ route('movimientos.exportar', array_merge(request()->all(), ['usuario_slug' => $usuario->slug])) }}" class="btn btn-sm btn-success w-100">
                             <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
                         </a>
                     </div>
                 </form>
             </div>
-            
+
+            <!-- Tabla de Movimientos -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
@@ -77,7 +74,7 @@
                         </tr>
                     </thead>
                     <tbody id="movimientos-container">
-                        @foreach($movimientos as $mov)
+                        @forelse($movimientos as $mov)
                         <tr class="border-bottom">
                             <td class="py-3">
                                 <div class="d-flex flex-column">
@@ -142,7 +139,7 @@
                                         Incidencia #{{ $mov->incidencia->cod_incidencia ?? 'N/A' }}
                                     </span>
                                 @else
-                                    -
+                                    <span class="text-muted">Sistema</span>
                                 @endif
                             </td>
                             <td class="py-3">
@@ -163,7 +160,11 @@
                                 </button>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-3 text-muted">No se encontraron movimientos.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -186,49 +187,6 @@
 $(document).ready(function() {
     // Inicializar tooltips
     $('[data-bs-toggle="tooltip"]').tooltip();
-
-    // Función para actualizar los movimientos
-    function updateMovimientos() {
-        $.ajax({
-            url: window.location.href,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                $('#movimientos-container').html(data.html);
-                $('#pagination-links').html(data.pagination);
-                $('#current-count').text(data.current_count);
-                $('#total-count').text(data.total_count);
-                $('#last-update').text('Actualizado: ' + new Date().toLocaleTimeString());
-                
-                // Reinicializar tooltips después de actualizar
-                $('[data-bs-toggle="tooltip"]').tooltip();
-            },
-            complete: function() {
-                // Programar la próxima actualización
-                setTimeout(updateMovimientos, 3000);
-            }
-        });
-    }
-
-    // Manejar paginación AJAX
-    $(document).on('click', '#pagination-links a', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: $(this).attr('href'),
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                window.history.pushState(null, null, $(this).attr('href'));
-                $('#movimientos-container').html(data.html);
-                $('#pagination-links').html(data.pagination);
-                $('#current-count').text(data.current_count);
-                $('#total-count').text(data.total_count);
-            }
-        });
-    });
-
-    // Iniciar la actualización automática
-    setTimeout(updateMovimientos, 3000);
 });
 </script>
 @endsection

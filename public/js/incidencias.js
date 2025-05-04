@@ -60,19 +60,6 @@ class FiltroIncidencias {
         }
     }
 
-    iniciarActualizacionAutomatica() {
-        // Limpiar intervalo existente si hay uno
-        if (this.intervaloActualizacion) {
-            clearInterval(this.intervaloActualizacion);
-        }
-        
-        // Establecer nuevo intervalo (5 minutos = 300000 ms)
-        this.intervaloActualizacion = setInterval(() => {
-            this.filtrarIncidencias();
-            this.mostrarNotificacion('info', 'Datos actualizados automáticamente');
-        }, 300000);
-    }
-
     mostrarResultados(incidencias) {
         this.tbody.innerHTML = '';
 

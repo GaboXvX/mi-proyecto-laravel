@@ -6,7 +6,7 @@
 }
 
 body {
-    background-color: #0481d4;
+    background: linear-gradient(135deg, #a7b6e6, #76a5a3);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -429,6 +429,12 @@ footer {
 
 .btn-submit:hover {
     background-color: #27ae60;
+}
+
+.btn-cont{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .question-group {

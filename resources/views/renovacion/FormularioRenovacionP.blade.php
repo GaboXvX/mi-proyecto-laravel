@@ -76,9 +76,7 @@
     }
 </style>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
+    <div class="container">
             <div class="card">
                 <div class="card-header text-center">
                     <i class="bi bi-arrow-repeat" style="margin-right: 8px;"></i>
@@ -97,7 +95,7 @@
                     <form method="POST" action="{{ route('renovacion.procesar') }}">
                         @csrf
 
-                        <div class="form-group row">
+                        <div class="form-group">
                             <label for="correo" class="col-md-4 col-form-label text-md-right">
                                 <i class="bi bi-envelope" style="margin-right: 8px;"></i>
                                 Correo Electrónico
@@ -126,19 +124,14 @@
                         </div>
                     </form>
 
-                    <div class="text-center mt-4">
-                        <p class="text-muted">
-                            <i class="bi bi-info-circle" style="margin-right: 5px;"></i>
-                            Puedes renovar tu solicitud hasta 3 veces si ha sido rechazada.
-                        </p>
-                    </div>
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle" style="margin-right: 5px;"></i>
+                        Puedes renovar tu solicitud hasta 3 veces si ha sido rechazada.
+                    </p>
                 </div>
             </div>
-        </div>
     </div>
-</div>
 
-<!-- Asegúrate de tener Bootstrap Icons en tu layout -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
 @endsection

@@ -96,7 +96,7 @@ body {
 }
 
 .main-content .separator{
-    margin: 35px 0 20px;
+    margin: 25px 0 20px;
     font-weight: 500;
     color: var(--tittle);
     font-size: 25px;
@@ -106,6 +106,10 @@ body {
     display: flex;
     justify-content: space-around;
     cursor: pointer;
+}
+
+.main-content .card-access .item:hover{
+    transform: translateY(-5px);
 }
 
 .main-content .card-access .item{

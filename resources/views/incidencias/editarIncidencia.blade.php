@@ -46,7 +46,9 @@
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+            </div>
         </div>
 
         <!-- Paso 2: Institución y Estación -->

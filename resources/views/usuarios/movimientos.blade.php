@@ -18,7 +18,7 @@
         </div>
 
         <div class="card-body p-0">
-            <div class="p-3 border-bottom bg-light">
+            <div class="p-3 border-bottom">
                 <form id="filtro-form" method="GET" action="{{ route('mis.movimientos') }}" class="row gy-2 gx-3 align-items-end">
                     <div class="col-md-3">
                         <label for="filtro_rango" class="form-label">Filtrar por rango</label>
@@ -67,7 +67,7 @@
             
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
+                    <thead class="table">
                         <tr>
                             <th class="py-3" style="width: 15%">Fecha</th>
                             <th class="py-3" style="width: 15%">Tipo</th>

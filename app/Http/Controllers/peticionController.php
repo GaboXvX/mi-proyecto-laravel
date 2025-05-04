@@ -58,7 +58,7 @@ class peticionController extends Controller
    {
        $request->validate(['cedula' => 'required|string']);
    
-       $empleado = EmpleadoAutorizado::where('cedula', $request->cedula)->first();
+       $empleado = EmpleadoAutorizado::with('cargo')->where('cedula', $request->cedula)->first();
    
        if (!$empleado) {
            return response()->json(['error' => 'Empleado no encontrado'], 404);
@@ -70,7 +70,8 @@ class peticionController extends Controller
            'apellido' => $empleado->apellido,
            'genero' => $empleado->genero,
            'fecha_nacimiento' => $empleado->fecha_nacimiento,
-           'altura' => $empleado->altura
+           'altura' => $empleado->altura,
+           'cargo' => $empleado->cargo->nombre_cargo,
        ]);
    }
 

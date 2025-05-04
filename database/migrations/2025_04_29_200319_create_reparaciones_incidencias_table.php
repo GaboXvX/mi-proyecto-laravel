@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_reparacion'); // ID autoincremental
             $table->unsignedBigInteger('id_usuario'); // Relación con el usuario
             $table->unsignedBigInteger('id_incidencia')->nullable(); 
+            $table->unsignedBigInteger('id_personal_reparacion')->nullable(); // Relación con el personal de reparación
             $table->string('slug')->unique(); // Slug único para la reparación
             $table->text('descripcion'); // Descripción de la reparación
             $table->string('prueba_fotografica'); // Ruta de la prueba fotográfica
@@ -23,6 +24,7 @@ return new class extends Migration
             // Clave foránea
             $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
+            $table->foreign('id_personal_reparacion')->references('id_personal_reparacion')->on('personal_reparaciones')->onDelete('cascade');
         });
     }
 

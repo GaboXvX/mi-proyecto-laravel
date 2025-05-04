@@ -61,7 +61,8 @@
                         <select id="institucion" name="institucion" class="form-select" required>
                             <option value="" disabled>--Seleccione una institución--</option>
                             @foreach ($instituciones as $institucion)
-                                <option value="{{ $institucion->id_institucion }}" {{ $incidencia->institucion->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
+                                <option value="{{ $institucion->id_institucion }}" 
+                                    {{ $incidencia->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
                                     {{ $institucion->nombre }}
                                 </option>
                             @endforeach
@@ -74,7 +75,7 @@
                             <option value="" disabled>--Seleccione una estación--</option>
                             @foreach ($estaciones as $estacion)
                                 <option value="{{ $estacion->id_institucion_estacion }}" 
-                                    {{ $incidencia->institucionEstacion && $incidencia->institucionEstacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
+                                    {{ $incidencia->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
                                     {{ $estacion->nombre }} (Municipio: {{ $estacion->municipio->nombre }})
                                 </option>
                             @endforeach
@@ -112,12 +113,12 @@
                     <div class="mb-3">
                         <label for="nivel_prioridad" class="form-label">Nivel de Prioridad:</label>
                         <select id="nivel_prioridad" name="nivel_prioridad" class="form-select" required>
-                            <option value="" disabled>--Seleccione--</option>
-                            <option value="1" {{ $incidencia->nivel_prioridad == '1' ? 'selected' : '' }}>1</option>
-                            <option value="2" {{ $incidencia->nivel_prioridad == '2' ? 'selected' : '' }}>2</option>
-                            <option value="3" {{ $incidencia->nivel_prioridad == '3' ? 'selected' : '' }}>3</option>
-                            <option value="4" {{ $incidencia->nivel_prioridad == '4' ? 'selected' : '' }}>4</option>
-                            <option value="5" {{ $incidencia->nivel_prioridad == '5' ? 'selected' : '' }}>5</option>
+                            @foreach($prioridades as $prioridad)
+                                <option value="{{ $prioridad->id_nivel_incidencia }}"
+                                    {{ $incidencia->id_nivel_incidencia == $prioridad->id_nivel_incidencia ? 'selected' : '' }}>
+                                    {{ $prioridad->nivel }}/{{$prioridad->nombre}}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -142,6 +143,17 @@
         function showStep(stepIndex) {
             steps.forEach((step, index) => {
                 step.classList.toggle('d-none', index !== stepIndex);
+            });
+            
+            // Actualizar indicador de pasos
+            document.querySelectorAll('#stepIndicator .nav-link').forEach((link, index) => {
+                if (index < stepIndex + 1) {
+                    link.classList.remove('disabled');
+                    link.classList.add('active');
+                } else {
+                    link.classList.add('disabled');
+                    link.classList.remove('active');
+                }
             });
         }
 

@@ -68,7 +68,9 @@
             <div class="password-container">
                 <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento') }}" required max="{{ date('Y-m-d') }}" readonly>
             </div>
-
+            <div class="password-container">
+                <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
+            </div>
             <input type="hidden" name="estado" value="activo">
 
             <button type="button" class="btn btn-action btn-next" onclick="validarYAvanzar()">
@@ -201,7 +203,9 @@
         document.getElementById('apellido').value = data.apellido || '';
         document.getElementById('genero').value = data.genero || '';
         document.getElementById('fecha_nacimiento').value = data.fecha_nacimiento || '';
-        document.getElementById('altura').value = data.altura || ''; // Mantener el formato original de la altura
+        document.getElementById('altura').value = data.altura || '';
+        document.getElementById('cargo').value = data.cargo || '';
+        // Mantener el formato original de la altura
 
         cedulaError.textContent = '';
         cedulaError.classList.remove('active');

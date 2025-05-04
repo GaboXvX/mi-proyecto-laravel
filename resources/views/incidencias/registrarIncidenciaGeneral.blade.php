@@ -113,9 +113,9 @@
                         <label for="nivel_prioridad" class="form-label">Nivel de Prioridad</label>
                         <select id="nivel_prioridad" name="nivel_prioridad" class="form-select form-select-sm" required>
                             <option value="" disabled selected>--Seleccione--</option>
-                            @for($i = 1; $i <= 5; $i++)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
+                           @foreach($prioridades as $prioridad)
+                                <option value="{{ $prioridad->id_nivel_incidencia }}">{{ $prioridad->nivel }}/{{$prioridad->nombre}}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>

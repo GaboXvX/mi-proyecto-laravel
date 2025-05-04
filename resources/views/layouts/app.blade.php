@@ -206,6 +206,7 @@
     </main>
 
 <!-- Scripts -->
+<script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>

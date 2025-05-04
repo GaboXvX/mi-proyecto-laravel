@@ -33,4 +33,9 @@ class ReparacionIncidencia extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+    // Relación con el personal de reparación
+    public function personalReparacion()
+    {
+        return $this->belongsTo(personalReparacion::class, 'id_personal_reparacion');
+    }
 }

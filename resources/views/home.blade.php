@@ -29,6 +29,15 @@
                 <p>{{ $totalPeticiones }}</p>
             </a>
         </div>
+
+        <div class="grid-stack">
+            <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="4" gs-h="2">
+                <div class="grid-stack-item-content">no se</div>
+            </div>
+            <div class="grid-stack-item" gs-x="0" gs-y="2" gs-w="8" gs-h="2">
+                <div class="grid-stack-item-content">grafiquito</div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -44,5 +53,10 @@
 
         // Actualizar el total de peticiones cada 30 segundos
         setInterval(actualizarTotalPeticiones, 30000);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            GridStack.init();
+        });
     </script>
 @endsection

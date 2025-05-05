@@ -160,57 +160,41 @@ class DomicilioController extends Controller
     }
 
     protected function validarReglasCategoria($categoria, $request, &$errors, $personaId)
-{
-    $config = $categoria->reglasConfiguradas;
+    {
+        $config = $categoria->reglasConfiguradas;
 
-    // Validar si requiere comunidad
-    if ($config->requiere_comunidad && empty($request->comunidad)) {
-        $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría requiere que seleccione una comunidad'];
-    }
+        // Validar si requiere comunidad
+        if ($config->requiere_comunidad && empty($request->comunidad)) {
+            $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría requiere que seleccione una comunidad'];
+        }
 
-    // Validar unicidad en comunidad
-    if ($config->unico_en_comunidad && $request->comunidad) {
-        $existente = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
-            ->where('id_comunidad', $request->comunidad)
-            ->where('es_activo', true)
-            ->where('id_persona', '!=', $personaId) // Excluir a la persona actual
-            ->exists();
+        // Validar unicidad en comunidad
+        if ($config->unico_en_comunidad && $request->comunidad) {
+            $existente = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
+                ->where('id_comunidad', $request->comunidad)
+                ->where('es_activo', true)
+                ->where('id_persona', '!=', $personaId) // Excluir a la persona actual
+                ->exists();
 
-        if ($existente) {
-            $errors['categoria'] = [$config->mensaje_error ?? 'Ya existe un ' . $categoria->nombre_categoria . ' en la comunidad seleccionada'];
+            if ($existente) {
+                $errors['categoria'] = [$config->mensaje_error ?? 'Ya existe un ' . $categoria->nombre_categoria . ' en la comunidad seleccionada'];
+            }
         }
     }
-
-    // Validar que la persona no tenga ya otra categoría exclusiva activa
-   
-
-    // Validar que esta categoría no esté ya asignada a esta persona en otra comunidad
-    if ($config->una_categoria_por_comunidad_persona && !empty($request->comunidad)) {
-        $categoriaRepetida = categoriaExclusivaPersona::where('id_persona', $personaId)
-            ->where('id_categoria_persona', $categoria->id_categoria_persona)
-            ->where('id_comunidad', '!=', $request->comunidad)
-            ->where('es_activo', true)
-            ->exists();
-
-        if ($categoriaRepetida) {
-            $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría ya está asignada a esta persona en otra comunidad'];
-        }
-    }
-}
-
 
     protected function aplicarReglasCategoria($categoria, $persona, $request)
     {
+        // Si la categoría no tiene reglas configuradas, no registrar nada
         if (!$categoria->reglasConfiguradas) {
             return;
         }
-    
-        // Desactivar cualquier categoría exclusiva activa para la persona
+
+        // Primero desactivar cualquier regla previa para esta persona y categoría
         categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
-            ->where('es_activo', true)
+            ->where('id_categoria_persona', $categoria->id_categoria_persona)
             ->update(['es_activo' => false]);
-    
-        // Crear nueva categoría exclusiva
+
+        // Crear nueva regla especial
         $reglaData = [
             'id_persona' => $persona->id_persona,
             'id_categoria_persona' => $categoria->id_categoria_persona,
@@ -219,14 +203,14 @@ class DomicilioController extends Controller
             'fecha_aprobacion' => now(),
             'tipo_regla' => 'asignacion_comunidad'
         ];
-    
+
+        // Si la categoría requiere comunidad, la añadimos
         if ($categoria->reglasConfiguradas->requiere_comunidad) {
             $reglaData['id_comunidad'] = $request->comunidad;
         }
-    
+
         categoriaExclusivaPersona::create($reglaData);
     }
-    
 
     protected function crearDomicilio($request, $persona)
     {

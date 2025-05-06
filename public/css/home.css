@@ -1,3 +1,4 @@
+/* Estilos generales */
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +7,10 @@
 }
 
 body {
-    background-color: #0481d4;
+    background-image: url('/img/home.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,6 +19,7 @@ body {
     flex-direction: column;
 }
 
+/* Contenedor principal */
 .container {
     background-color: #fff;
     border-radius: 25px;
@@ -28,6 +33,7 @@ body {
     flex-wrap: wrap;
 }
 
+/* Contenido de texto a la izquierda */
 .content {
     max-width: 50%;
 }
@@ -45,6 +51,7 @@ body {
     font-size: 18px;
 }
 
+/* Contenido del formulario a la derecha */
 .form-content {
     max-width: 40%;
     max-height: 500px;
@@ -54,29 +61,21 @@ body {
     overflow: auto;
 }
 
-.form-content h3{
+.form-content h3 {
     color: #28446e;
     display: flex;
     justify-content: center;
 }
 
-.form-content .row{
-    display: flex;
-    gap: 10px;
-}
-
-.form-content .row input{
-    width: 100%;
-}
-
-.form-content .quest{
+.form-content .quest {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.form-content label{
+.form-content label {
     color: #333;
+    font-size: 16px;
 }
 
 .form-content input {
@@ -95,10 +94,18 @@ body {
     box-shadow: 0 0 5px rgba(92, 110, 248, 0.5);
 }
 
-/* Estilo cuando se detecta un carácter especial */
 .form-content input.error {
     border: 1px solid red;
     background-color: #ffcccc;
+}
+
+.form-content .row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-content .row input {
+    width: 100%;
 }
 
 .form-content button {
@@ -129,11 +136,11 @@ body {
     text-decoration: underline;
 }
 
-.form-content p{
+.form-content p {
     color: #333;
 }
 
-.form-content select{
+.form-content select {
     padding: 12px;
     background-color: #f9f9f9;
     border: 1px solid #ccc;
@@ -151,22 +158,23 @@ body {
     box-shadow: 0 0 5px rgba(92, 110, 248, 0.5);
 }
 
-.form-content span{
+.form-content span {
     color: #000;
 }
 
-.cambio-select{
+/* Estilos para el select de cambio */
+.cambio-select {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.cambio-select label{
+.cambio-select label {
     color: #333;
     font-size: 16px;
 }
 
-.cambio-select select{
+.cambio-select select {
     padding: 12px;
     background-color: #f9f9f9;
     border: 1px solid #ccc;
@@ -177,64 +185,7 @@ body {
     color: #333;
 }
 
-/*Redes sociales*/
-.social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.social-icons a {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    justify-content: center;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    align-items: center;
-    color: #5c6ef8;
-    background-color: #fff;
-    border-radius: 50%;
-    font-size: 20px;
-    transition: all 0.3s ease;
-}
-
-.social-icons a:hover {
-    background-color: #3e5ec7;
-    transform: scale(1.1);
-    color: #fff;
-}
-
-footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-    color: #283b63;
-}
-
-/*Entes similares*/
-.slider-container{
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    background: linear-gradient(#00000034, #00000037);
-    margin-top: 20px;
-}
-
-.slider{
-    display: flex;
-    width: 200%;
-    animation: slide 10s infinite linear;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-}
-
+/* Contenedor de la contraseña */
 .password-container {
     position: relative;
     display: flex;
@@ -249,47 +200,60 @@ footer {
     padding-right: 40px;
 }
 
+/* Icono para mostrar/ocultar contraseña */
 .toggle-password {
     position: absolute;
     right: 10px;
     cursor: pointer;
     font-size: 1.2rem;
     color: #6c757d;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-@keyframes slide{
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
+/* Redes sociales */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-/*Responsive*/
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        text-align: center;
-        padding: 30px;
-    }
-
-    .content, .form-content {
-        max-width: 100%;
-    }
-
-    .form-content {
-        margin-top: 20px;
-    }
+.social-icons a {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #5c6ef8;
+    background-color: #fff;
+    border-radius: 50%;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-/*css del Registro*/
+.social-icons a:hover {
+    background-color: #3e5ec7;
+    transform: scale(1.1);
+    color: #fff;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #fff;
+}
+
+/* Estilos para el formulario de registro (multistep) */
 .registration-container {
     margin: 0 auto;
     padding: 25px;
     background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
@@ -311,7 +275,7 @@ footer {
     display: block;
 }
 
-.form-step p{
+.form-step p {
     color: #28446e;
     font-size: 18px;
 }
@@ -371,12 +335,12 @@ footer {
     font-weight: 600;
 }
 
-.row{
+.registration-container .row {
     display: flex;
     gap: 10px;
 }
 
-.row .form-group {
+.registration-container .row .form-group {
     margin-bottom: 1.5rem;
     width: 100%;
 }
@@ -394,14 +358,17 @@ footer {
     box-shadow: 0 0 5px rgba(92, 110, 248, 0.5);
 }
 
-.btn-action {
+.btn-cont {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-next {
     padding: 10px 25px;
     border-radius: 5px;
     font-weight: 600;
     transition: all 0.3s;
-}
-
-.btn-next {
     background-color: #3498db;
     border: none;
     color: #fff;
@@ -414,8 +381,13 @@ footer {
 }
 
 .btn-prev {
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: all 0.3s;
     background-color: #95a5a6;
     border: none;
+    cursor: pointer;
 }
 
 .btn-prev:hover {
@@ -423,14 +395,20 @@ footer {
 }
 
 .btn-submit {
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: all 0.3s;
     background-color: #2ecc71;
     border: none;
+    cursor: pointer;
 }
 
 .btn-submit:hover {
     background-color: #27ae60;
 }
 
+/* Estilos para grupos de preguntas */
 .question-group {
     background-color: #f8f9fa;
     padding: 1.5rem;
@@ -439,6 +417,7 @@ footer {
     border: 1px solid #eee;
 }
 
+/* Mensajes de error */
 .error-message {
     color: #e74c3c;
     font-size: 0.85rem;
@@ -454,6 +433,7 @@ footer {
     border-color: #e74c3c !important;
 }
 
+/* Notificaciones Toast */
 .toast {
     position: fixed;
     top: 20px;
@@ -478,3 +458,21 @@ footer {
 
 .toast-success { background-color: #27ae60; }
 .toast-error { background-color: #e74c3c; }
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px;
+    }
+
+    .content,
+    .form-content {
+        max-width: 100%;
+    }
+
+    .form-content {
+        margin-top: 20px;
+    }
+}

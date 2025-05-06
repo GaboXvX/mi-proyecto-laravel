@@ -70,6 +70,13 @@
         margin-bottom: 18px;
     }
 
+    form{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
     .notice{
         color: #fff;
         padding: 10px;

@@ -96,7 +96,7 @@ body {
 }
 
 .main-content .separator{
-    margin: 35px 0 20px;
+    margin: 25px 0 20px;
     font-weight: 500;
     color: var(--tittle);
     font-size: 25px;
@@ -106,6 +106,10 @@ body {
     display: flex;
     justify-content: space-around;
     cursor: pointer;
+}
+
+.main-content .card-access .item:hover{
+    transform: translateY(-5px);
 }
 
 .main-content .card-access .item{
@@ -230,38 +234,99 @@ body {
 }
 
 /* estilos del step en las incidencias */
-#stepIndicator .nav-link {
-    cursor: default;
-    background-color: #e9ecef;
-    margin: 0 5px;
-    color: #495057;
-    border-radius: 1rem;
-}
-
-#stepIndicator .nav-link.active {
-    background-color: #0d6efd;
-    color: white;
-}
-
-#stepIndicator .nav-link.completed {
-    background-color: #198754;
-    color: white;
-}
-/* fin */
-
-/* Graficos */
-.row {
+#stepIndicator {
     display: flex;
+    align-items: center;
     justify-content: center;
 }
 
-.card {
-    border: none;
+#stepIndicator .nav-item {
+    display: flex;
+    align-items: center;
 }
 
-.card h3 {
-    color: #24476c;
+#stepIndicator .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: default;
+    color: #495057;
 }
+
+#stepIndicator .nav-link.active {
+    color: #007bff;
+}
+
+#stepIndicator .nav-link.completed {
+    color: #28a745;
+}
+
+#stepIndicator .step-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    z-index: 1;
+}
+
+#stepIndicator .nav-link.active .step-circle {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.1);
+}
+
+#stepIndicator .nav-link.completed .step-circle {
+    background-color: #28a745;
+    color: white;
+}
+
+#stepIndicator .connector {
+    height: 0.2rem;
+    background-color: #e9ecef;
+    flex-grow: 1;
+    margin: 0 1rem;
+    z-index: 0;
+}
+#stepIndicator .nav-item:last-child .connector {
+    display: none;
+}
+
+#stepIndicator .nav-link.active ~ .nav-item .connector,
+#stepIndicator .nav-link.completed ~ .nav-item .connector {
+    background-color: #007bff;
+}
+
+#stepIndicator .nav-link.completed ~ .nav-item .nav-link .step-circle {
+    background-color: #007bff;
+    color: white;
+}
+
+#stepIndicator .nav-link.completed::before {
+    font-size: 1rem;
+    margin-right: 0.3rem;
+}
+/* fin */
+
+/* formularios bootstrap */
+.card-header{
+    background-color: var(--object);
+}
+
+.card-header h5{
+    color: var(--tittle);
+}
+/* fin */
 
 .is-invalid {
     border-color: #dc3545;

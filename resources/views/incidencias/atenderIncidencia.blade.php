@@ -1,88 +1,102 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-3">
     <div class="card shadow-sm">
-        <div class="card-header">
-            <h4 class="mb-0">Atender Incidencia</h4>
+        <div class="card-header py-3">
+            <h5 class="mb-0">Atender Incidencia</h5>
         </div>
-        <div class="card-body">
-            <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
-            <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
+        <div class="card-body py-3">
+            <p class="mb-2"><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
+            <p class="mb-2"><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
 
             <form id="multi-step-form" action="{{ route('incidencias.atender.guardar', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <!-- Paso 1 -->
                 <div id="step-1" class="step">
-                    <h5 class="h5 text-primary">Paso 1: Datos del Personal</h4>
+                    <h6 class="h6 text-primary mb-3">Paso 1: Datos del Personal</h6>
 
                     <div class="d-flex justify-content-end mb-2">
-                        <button type="button" class="btn btn-info btn-sm" onclick="cargarDatosUsuario()">
+                        <button type="button" class="btn btn-info btn-sm py-2 px-3" onclick="cargarDatosUsuario()">
                             <i class="bi bi-person-fill me-1"></i> Personal Autorizado
                         </button>
                     </div>
 
                     <div class="row g-3 mt-2">
-                        <div class="col-md-4">
-                            <label for="cedula" class="form-label">Cédula <span class="text-danger">*</span></label>
-                            <input type="text" name="cedula" id="cedula" class="form-control" required pattern="\d+" placeholder="Ej: 12345678">
+                        <div class="col-md-3">
+                            <label for="nacionalidad" class="form-label small mb-0">Nacionalidad <span class="text-danger">*</span></label>
                         </div>
-
-                        <div class="col-md-4">
-                            <label for="nacionalidad" class="form-label">Nacionalidad <span class="text-danger">*</span></label>
-                            <select name="nacionalidad" id="nacionalidad" class="form-select" required>
+                        <div class="col-md-3">
+                            <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm py-2" required>
                                 <option value="" selected disabled>Seleccione...</option>
                                 <option value="V">Venezolano (V)</option>
                                 <option value="E">Extranjero (E)</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
+                        </div>
                         <div class="col-md-4">
-                            <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
-                            <input type="tel" name="telefono" id="telefono" class="form-control" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
+                            <input type="text" name="cedula" id="cedula" class="form-control form-control-sm py-2" required pattern="\d+" placeholder="Ej: 12345678">
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-3">
-                        <div class="col-md-6">
-                            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                            <input type="text" name="nombre" id="nombre" class="form-control" required>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label for="telefono" class="form-label small mb-0">Teléfono <span class="text-danger">*</span></label>
                         </div>
-
-                        <div class="col-md-6">
-                            <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
-                            <input type="text" name="apellido" id="apellido" class="form-control" required>
+                        <div class="col-md-4">
+                            <input type="tel" name="telefono" id="telefono" class="form-control form-control-sm py-2" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-primary" onclick="nextStep()">
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label for="nombre" class="form-label small mb-0">Nombre <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="nombre" id="nombre" class="form-control form-control-sm py-2" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label for="apellido" class="form-label small mb-0">Apellido <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="apellido" id="apellido" class="form-control form-control-sm py-2" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-primary btn-sm py-2 px-3" onclick="nextStep()">
                             Siguiente <i class="bi bi-arrow-right-circle ms-1"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Paso 2 -->
                 <div id="step-2" class="step d-none">
-                    <h4 class="h5 text-primary">Paso 2: Atención de la Incidencia</h4>
+                    <h6 class="h6 text-primary mb-3">Paso 2: Atención de la Incidencia</h6>
 
                     <div class="mb-3 mt-2">
-                        <label for="descripcion" class="form-label">Descripción de la atención <span class="text-danger">*</span></label>
-                        <textarea name="descripcion" id="descripcion" class="form-control" rows="4" required placeholder="Describe cómo fue atendida la incidencia..."></textarea>
+                        <label for="descripcion" class="form-label small">Descripción de la atención <span class="text-danger">*</span></label>
+                        <textarea name="descripcion" id="descripcion" class="form-control form-control-sm py-2" rows="2" required placeholder="Describe cómo fue atendida la incidencia..."></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label for="prueba_fotografica" class="form-label">Prueba fotográfica <span class="text-danger">*</span></label>
-                        <input type="file" name="prueba_fotografica" id="prueba_fotografica" class="form-control" accept=".jpg,.jpeg,.png" required>
-                        <small class="form-text text-muted">Formatos permitidos: JPG, JPEG, PNG. Máx: 2MB.</small>
+                        <label for="prueba_fotografica" class="form-label small">Prueba fotográfica <span class="text-danger">*</span></label>
+                        <input type="file" name="prueba_fotografica" id="prueba_fotografica" class="form-control form-control-sm py-2" accept=".jpg,.jpeg,.png" required>
+                        <small class="form-text text-muted small">Formatos permitidos: JPG, JPEG, PNG. Máx: 2MB.</small>
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" onclick="previousStep()">
+                        <button type="button" class="btn btn-secondary btn-sm py-2 px-3" onclick="previousStep()">
                             <i class="bi bi-arrow-left-circle me-1"></i> Anterior
                         </button>
-                        <button type="submit" class="btn btn-success" id="submit-btn">
+                        <button type="submit" class="btn btn-success btn-sm py-2 px-3" id="submit-btn">
                             <i class="bi bi-save me-1"></i> Guardar Atención
                         </button>
                     </div>

@@ -1,29 +1,40 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2>Editar Incidencia</h2>
 
     <div id="alert-container"></div>
 
-    <!-- Paso visual -->
-    <div class="mb-4">
-        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-            <li class="nav-item">
-                <a class="nav-link active" data-step="1">1. Dirección</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="2">2. Institución</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="3">3. Detalles</a>
-            </li>
-        </ul>
-    </div>
-
     <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST">
         @csrf
         @method('PUT')
+
+        <!-- Paso visual -->
+        <div>
+            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+                <li class="nav-item">
+                    <a class="nav-link active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span>Dirección</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span>Institución</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span>Detalles</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
@@ -45,8 +56,11 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="d-flex justify-content-end m-3">
+                    <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+                </div>
             </div>
-            <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
         </div>
 
         <!-- Paso 2: Institución y Estación -->
@@ -82,10 +96,11 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
-                <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
+                    <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -122,10 +137,11 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">Atrás</button>
-                <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">Atrás</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+                </div>
             </div>
         </div>
     </form>

@@ -4,7 +4,7 @@
 <div class="container-fluid px-4">
     <!-- Filtros -->
     <div class="card shadow mb-4">
-        <div class="card-header bg-primary text-white py-3">
+        <div class="card-header py-3">
             <h5 class="m-0 font-weight-bold"><i class="fas fa-filter"></i> Filtros de Búsqueda</h5>
         </div>
         <div class="card-body">
@@ -49,8 +49,8 @@
         <!-- Gráfica -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="m-0 font-weight-bold text-primary">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 font-weight-bold">
                         <i class="fas fa-chart-bar"></i> Porcentaje de Incidencias Atendidas
                     </h5>
                     @can('descargar grafica incidencia')
@@ -70,8 +70,8 @@
         <!-- Resumen Estadístico -->
         <div class="col-lg-4 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header bg-white py-3">
-                    <h5 class="m-0 font-weight-bold text-primary">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold">
                         <i class="fas fa-info-circle"></i> Resumen Estadístico
                     </h5>
                 </div>
@@ -105,8 +105,8 @@
 
     <!-- Tabla Detalles -->
     <div class="card shadow mb-4">
-        <div class="card-header bg-white py-3">
-            <h5 class="m-0 font-weight-bold text-primary">
+        <div class="card-header py-3">
+            <h5 class="m-0 font-weight-bold">
                 <i class="fas fa-table"></i> Detalle por Mes
             </h5>
         </div>

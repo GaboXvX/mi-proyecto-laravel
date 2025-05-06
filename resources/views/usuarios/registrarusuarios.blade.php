@@ -73,7 +73,7 @@
             </div>
             <input type="hidden" name="estado" value="activo">
 
-            <button type="button" class="btn btn-action btn-next" onclick="validarYAvanzar()">
+            <button type="button" class="btn-next" onclick="validarYAvanzar()">
                 Siguiente <i class="bi bi-arrow-right"></i>
             </button>
         </div>
@@ -104,13 +104,14 @@
                 </div>
             @endfor
 
-            
-            <button type="button" class="btn btn-action btn-prev" onclick="retrocederPaso()">
-                <i class="bi bi-arrow-left"></i> Anterior
-            </button>
-            <button type="submit" class="btn btn-action btn-submit">
-                <i class="bi bi-check-circle"></i> Registrar Usuario
-            </button>
+            <div class="btn-cont">
+                <button type="button" class="btn-prev" onclick="retrocederPaso()">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i> Registrar Usuario
+                </button>
+            </div>
         </div>
     </form>
 </div>

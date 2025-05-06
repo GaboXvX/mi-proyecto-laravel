@@ -1,6 +1,5 @@
 <style>
     .security-questions {
-        background-color: white;
         border-radius: 5px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
@@ -12,7 +11,6 @@
         padding: 1rem;
         border: 1px solid #e9ecef;
         border-radius: 5px;
-        background-color: #f8fafc;
     }
     
     .question-group label {

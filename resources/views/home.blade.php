@@ -45,4 +45,9 @@
         // Actualizar el total de peticiones cada 30 segundos
         setInterval(actualizarTotalPeticiones, 30000);
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            GridStack.init();
+        });
+    </script>
 @endsection

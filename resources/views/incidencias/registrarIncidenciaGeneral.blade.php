@@ -1,28 +1,41 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2 class="mb-4">Registrar Incidencia General</h2>
 
     <div id="alert-container"></div>
-
-    <!-- Paso visual -->
-    <div class="mb-4">
-        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-            <li class="nav-item">
-                <a class="nav-link active" data-step="1">1. Dirección</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="2">2. Institución</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="3">3. Detalles</a>
-            </li>
-        </ul>
-    </div>
+    
     <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST">
         @csrf
         <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <!-- Paso visual -->
+        <div>
+            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+                <li class="nav-item">
+                    <a class="nav-link active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span>Dirección</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span>Institución</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span>Detalles</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
@@ -44,11 +57,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-primary" id="next-to-step-2">
-                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
-                </button>
+                <div class="d-flex justify-content-end m-3">
+                    <button type="button" class="btn btn-primary" id="next-to-step-2">
+                        Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -76,15 +89,15 @@
                         </select>
                     </div>
                 </div>
-            </div>
 
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-1">
-                    <i class="bi bi-chevron-left me-1"></i> Atrás
-                </button>
-                <button type="button" class="btn btn-primary btn-sm" id="next-to-step-3">
-                    Siguiente <i class="bi bi-chevron-right ms-1"></i>
-                </button>
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-1">
+                        <i class="bi bi-chevron-left me-1"></i> Atrás
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" id="next-to-step-3">
+                        Siguiente <i class="bi bi-chevron-right ms-1"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -119,15 +132,15 @@
                         </select>
                     </div>
                 </div>
-            </div>
 
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">
-                    <i class="bi bi-chevron-left me-1"></i> Atrás
-                </button>
-                <button type="submit" class="btn btn-success btn-sm">
-                    <i class="bi bi-check-circle me-1"></i> Registrar Incidencia
-                </button>
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">
+                        <i class="bi bi-chevron-left me-1"></i> Atrás
+                    </button>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="bi bi-check-circle me-1"></i> Registrar Incidencia
+                    </button>
+                </div>
             </div>
     </form>
 </div>

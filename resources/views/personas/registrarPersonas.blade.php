@@ -1,111 +1,111 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
-            <div class="card">
-                <div class="card-header py-3">
-                    <h2 class="mb-0">Registrar Nueva Persona</h2>
+<div class="table-container">
+    <h2 class="mb-3">Registrar Persona</h2>
+
+    <div class="card-body px-4">
+        <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
+            @csrf
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="cedula" class="form-label">Cédula:</label>
+                    <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
                 </div>
-
-                <div class="card-body px-4">
-                    <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
-                        @csrf
-                        
-                        <div id="global-alerts" class="alert d-none"></div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="categoria" class="form-label">Categoría:</label>
-                                <select name="categoria" id="categoria" class="form-select" required>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="genero" class="form-label">Género:</label>
-                                <select name="genero" id="genero" class="form-select" required>
-                                    <option value="M">Masculino</option>
-                                    <option value="F">Femenino</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="nombre" class="form-label">Nombre:</label>
-                                <input type="text" id="nombre" name="nombre" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="apellido" class="form-label">Apellido:</label>
-                                <input type="text" id="apellido" name="apellido" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="text" id="cedula" name="cedula" class="form-control" required maxlength="8">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="correo" class="form-label">Correo Electrónico:</label>
-                                <input type="email" id="correo" name="correo" class="form-control" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-
-                        
-                        <div class="mb-3">
-                            <label for="telefono" class="form-label">Teléfono:</label>
-                            <input type="tel" id="telefono" name="telefono" class="form-control" required>
-                        </div>
-                          
-                        <livewire:dropdown-persona/>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="calle" class="form-label">Calle:</label>
-                                <input type="text" id="calle" name="calle" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="manzana" class="form-label">Manzana:</label>
-                                <input type="text" id="manzana" name="manzana" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="bloque" class="form-label">Bloque:</label>
-                                <input type="text" id="bloque" name="bloque" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
-                                <input type="number" id="num_vivienda" name="num_vivienda" class="form-control" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="es_principal" class="form-label">¿Es la dirección principal?</label>
-                            <select name="es_principal" id="es_principal" class="form-select" required>
-                                <option value="1">Sí</option>
-                                <option value="0">No</option>
-                            </select>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('personas.index') }}" class="btn btn-secondary me-md-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary" id="submitRegistroPersona">Registrar</button>
-                        </div>
-                    </form>
+                <div class="col-md-6">
+                    <label for="categoria" class="form-label">Categoría:</label>
+                    <select name="categoria" id="categoria" class="form-select" required>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
-        </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" maxlength="12" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="apellido" class="form-label">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" class="form-control" maxlength="12" required>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="correo" class="form-label">Correo:</label>
+                    <input type="email" id="correo" name="correo" class="form-control" maxlength="25" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="genero" class="form-label">Género:</label>
+                    <select name="genero" id="genero" class="form-select" required>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="telefono" class="form-label">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="es_principal" class="form-label">¿Dirección principal?</label>
+                    <select name="es_principal" id="es_principal" class="form-select" required>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+            </div>
+
+            <livewire:dropdown-persona/>
+
+            <div class="accordion mb-3" id="direccionAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingDireccion">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDireccion">
+                            Dirección
+                        </button>
+                    </h2>
+                    <div id="collapseDireccion" class="accordion-collapse collapse" data-bs-parent="#direccionAccordion">
+                        <div class="accordion-body">
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-6">
+                                    <label for="calle" class="form-label">Calle:</label>
+                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="manzana" class="form-label">Manzana:</label>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="bloque" class="form-label">Bloque:</label>
+                                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a href="{{ route('personas.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+        </form>
     </div>
 </div>
+
 
 <script>
     document.getElementById('registroPersonaForm').addEventListener('submit', async function(event) {

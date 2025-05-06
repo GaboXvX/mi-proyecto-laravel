@@ -2,12 +2,10 @@
     .profile-table {
         width: 100%;
         margin-bottom: 1.5rem;
-        background-color: white;
     }
     
     .profile-table th {
         width: 30%;
-        background-color: #f1f1f1;
         padding: 0.75rem;
     }
     

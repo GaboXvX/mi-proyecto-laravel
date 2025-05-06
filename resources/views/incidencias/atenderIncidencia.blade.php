@@ -1,75 +1,97 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="table-container mt-5">
-    <h2 class="mb-4">Atender Incidencia</h2>
-    <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
-    <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
-
-    <form id="multi-step-form" action="{{ route('incidencias.atender.guardar', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        <!-- Paso 1: Datos del personal -->
-        <div id="step-1" class="step">
-            <h4 class="text-primary mb-3">Paso 1: Datos del Personal</h4>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" name="nombre" id="nombre" class="form-control form-control-sm" >
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="apellido" class="form-label">Apellido:</label>
-                    <input type="text" name="apellido" id="apellido" class="form-control form-control-sm" >
-                </div>
-
-                <div class="col-md-2 mb-3">
-                    <label for="nacionalidad" class="form-label">Nac.:</label>
-                    <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm" >
-                        <option value="V">V</option>
-                        <option value="E">E</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label for="cedula" class="form-label">Cédula:</label>
-                    <input type="text" name="cedula" id="cedula" class="form-control form-control-sm" required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="telefono" class="form-label">Teléfono:</label>
-                    <input type="text" name="telefono" id="telefono" class="form-control form-control-sm" >
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-primary btn-sm" onclick="nextStep()">Siguiente</button>
-            </div>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">Atender Incidencia</h4>
         </div>
+        <div class="card-body">
+            <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
+            <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
 
-        <!-- Paso 2: Atención -->
-        <div id="step-2" class="step d-none">
-            <h4 class="text-primary mb-3">Paso 2: Atención de la Incidencia</h4>
+            <form id="multi-step-form" action="{{ route('incidencias.atender.guardar', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
+                @csrf
 
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción de la atención:</label>
-                <textarea name="descripcion" id="descripcion" class="form-control form-control-sm" rows="3" required></textarea>
-            </div>
+                <!-- Paso 1 -->
+                <div id="step-1" class="step">
+                    <h5 class="h5 text-primary">Paso 1: Datos del Personal</h4>
 
-            <div class="mb-3">
-                <label for="prueba_fotografica" class="form-label">Prueba fotográfica:</label>
-                <input type="file" name="prueba_fotografica" id="prueba_fotografica" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg" required>
-                <small class="text-muted">Formatos permitidos: JPEG, PNG, JPG (máx. 2MB)</small>
-            </div>
+                    <div class="d-flex justify-content-end mb-2">
+                        <button type="button" class="btn btn-info btn-sm" onclick="cargarDatosUsuario()">
+                            <i class="bi bi-person-fill me-1"></i> Personal Autorizado
+                        </button>
+                    </div>
 
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="previousStep()">Anterior</button>
-                <button type="submit" class="btn btn-success btn-sm" id="submit-btn">Guardar Atención</button>
-            </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-4">
+                            <label for="cedula" class="form-label">Cédula <span class="text-danger">*</span></label>
+                            <input type="text" name="cedula" id="cedula" class="form-control" required pattern="\d+" placeholder="Ej: 12345678">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="nacionalidad" class="form-label">Nacionalidad <span class="text-danger">*</span></label>
+                            <select name="nacionalidad" id="nacionalidad" class="form-select" required>
+                                <option value="" selected disabled>Seleccione...</option>
+                                <option value="V">Venezolano (V)</option>
+                                <option value="E">Extranjero (E)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                            <input type="tel" name="telefono" id="telefono" class="form-control" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-6">
+                            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" id="nombre" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
+                            <input type="text" name="apellido" id="apellido" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">
+                            Siguiente <i class="bi bi-arrow-right-circle ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Paso 2 -->
+                <div id="step-2" class="step d-none">
+                    <h4 class="h5 text-primary">Paso 2: Atención de la Incidencia</h4>
+
+                    <div class="mb-3 mt-2">
+                        <label for="descripcion" class="form-label">Descripción de la atención <span class="text-danger">*</span></label>
+                        <textarea name="descripcion" id="descripcion" class="form-control" rows="4" required placeholder="Describe cómo fue atendida la incidencia..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="prueba_fotografica" class="form-label">Prueba fotográfica <span class="text-danger">*</span></label>
+                        <input type="file" name="prueba_fotografica" id="prueba_fotografica" class="form-control" accept=".jpg,.jpeg,.png" required>
+                        <small class="form-text text-muted">Formatos permitidos: JPG, JPEG, PNG. Máx: 2MB.</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep()">
+                            <i class="bi bi-arrow-left-circle me-1"></i> Anterior
+                        </button>
+                        <button type="submit" class="btn btn-success" id="submit-btn">
+                            <i class="bi bi-save me-1"></i> Guardar Atención
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+
 
 @if(session('success'))
     <div class="alert alert-success mt-3">{{ session('success') }}</div>

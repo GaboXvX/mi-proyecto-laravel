@@ -162,55 +162,90 @@ class DomicilioController extends Controller
     protected function validarReglasCategoria($categoria, $request, &$errors, $personaId)
     {
         $config = $categoria->reglasConfiguradas;
-
-        // Validar si requiere comunidad
+    
+        // 1. Validar si la categoría requiere comunidad
         if ($config->requiere_comunidad && empty($request->comunidad)) {
-            $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría requiere que seleccione una comunidad'];
+            $errors['comunidad'] = ['Esta categoría requiere que seleccione una comunidad'];
+            return;
         }
-
-        // Validar unicidad en comunidad
+    
+        // 2. Validar unicidad en comunidad (solo activos de otras personas)
         if ($config->unico_en_comunidad && $request->comunidad) {
-            $existente = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
+            $existeActivoOtraPersona = categoriaExclusivaPersona::where('id_categoria_persona', $categoria->id_categoria_persona)
                 ->where('id_comunidad', $request->comunidad)
                 ->where('es_activo', true)
-                ->where('id_persona', '!=', $personaId) // Excluir a la persona actual
+                ->where('id_persona', '!=', $personaId)
                 ->exists();
-
-            if ($existente) {
-                $errors['categoria'] = [$config->mensaje_error ?? 'Ya existe un ' . $categoria->nombre_categoria . ' en la comunidad seleccionada'];
+    
+            if ($existeActivoOtraPersona) {
+                $errors['categoria'] = ['Ya existe un ' . $categoria->nombre_categoria . ' activo en esta comunidad (asignado a otra persona)'];
+                return;
+            }
+        }
+    
+        // 3. Verificar si ya tiene esta categoría activa en esta comunidad (sin generar error)
+        $existeActivoMismaComunidad = categoriaExclusivaPersona::where('id_persona', $personaId)
+            ->where('id_categoria_persona', $categoria->id_categoria_persona)
+            ->where('id_comunidad', $request->comunidad)
+            ->where('es_activo', true)
+            ->exists();
+    
+        if ($existeActivoMismaComunidad) {
+            // No hacemos nada, simplemente continuamos
+            return;
+        }
+    
+        // 4. Validar otras categorías exclusivas activas (si aplica)
+        if ($config->una_por_persona) {
+            $otraCategoriaActiva = categoriaExclusivaPersona::where('id_persona', $personaId)
+                ->where('id_categoria_persona', '!=', $categoria->id_categoria_persona)
+                ->where('es_activo', true)
+                ->exists();
+    
+            if ($otraCategoriaActiva) {
+                $errors['categoria'] = ['La persona ya tiene otra categoría exclusiva activa'];
             }
         }
     }
 
-    protected function aplicarReglasCategoria($categoria, $persona, $request)
-    {
-        // Si la categoría no tiene reglas configuradas, no registrar nada
-        if (!$categoria->reglasConfiguradas) {
-            return;
-        }
 
-        // Primero desactivar cualquier regla previa para esta persona y categoría
-        categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
-            ->where('id_categoria_persona', $categoria->id_categoria_persona)
-            ->update(['es_activo' => false]);
+protected function aplicarReglasCategoria($categoria, $persona, $request)
+{
+    if (!$categoria->reglasConfiguradas) return;
 
-        // Crear nueva regla especial
-        $reglaData = [
-            'id_persona' => $persona->id_persona,
-            'id_categoria_persona' => $categoria->id_categoria_persona,
-            'es_activo' => true,
-            'id_usuario' => auth()->id(),
-            'fecha_aprobacion' => now(),
-            'tipo_regla' => 'asignacion_comunidad'
-        ];
+    // Primero verificamos si ya existe un registro activo para esta combinación
+    $existeActivo = categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+        ->where('id_categoria_persona', $categoria->id_categoria_persona)
+        ->where('id_comunidad', $request->comunidad)
+        ->where('es_activo', true)
+        ->exists();
 
-        // Si la categoría requiere comunidad, la añadimos
-        if ($categoria->reglasConfiguradas->requiere_comunidad) {
-            $reglaData['id_comunidad'] = $request->comunidad;
-        }
-
-        categoriaExclusivaPersona::create($reglaData);
+    // Si ya existe, no hacemos ningún cambio
+    if ($existeActivo) {
+        return;
     }
+
+    // Si no existe, procedemos con la lógica normal
+    categoriaExclusivaPersona::where('id_persona', $persona->id_persona)
+        ->where('es_activo', true)
+        ->update(['es_activo' => false]);
+
+    $reglaData = [
+        'id_persona' => $persona->id_persona,
+        'id_categoria_persona' => $categoria->id_categoria_persona,
+        'es_activo' => true,
+        'id_usuario' => auth()->id(),
+        'fecha_aprobacion' => now(),
+        'tipo_regla' => 'asignacion_comunidad'
+    ];
+
+    if ($categoria->reglasConfiguradas->requiere_comunidad) {
+        $reglaData['id_comunidad'] = $request->comunidad;
+    }
+
+    categoriaExclusivaPersona::create($reglaData);
+}
+    
 
     protected function crearDomicilio($request, $persona)
     {

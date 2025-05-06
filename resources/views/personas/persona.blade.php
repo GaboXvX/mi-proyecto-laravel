@@ -131,14 +131,15 @@
                                     </td>
                                     <td>
                                         @php
-                                            $categoriaExclusiva = $domicilio->persona->categoriasExclusivasPersonas
+                                            $categoriasExclusivas = $domicilio->persona->categoriasExclusivasPersonas
                                                 ->where('id_comunidad', $domicilio->id_comunidad)
-                                                ->where('es_activo', true)
-                                                ->first();
+                                                ->where('es_activo', true);
                                         @endphp
-                                        @if($categoriaExclusiva)
-                                        <small class="text-muted"> {{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
-                                            
+                                        
+                                        @if($categoriasExclusivas->count() > 0)
+                                            @foreach($categoriasExclusivas as $categoriaExclusiva)
+                                                <small class="text-muted">{{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
+                                            @endforeach
                                         @else
                                             regular
                                         @endif

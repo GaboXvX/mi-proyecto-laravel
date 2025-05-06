@@ -16,17 +16,17 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" name="nombre" id="nombre" class="form-control form-control-sm" required>
+                    <input type="text" name="nombre" id="nombre" class="form-control form-control-sm" >
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="apellido" class="form-label">Apellido:</label>
-                    <input type="text" name="apellido" id="apellido" class="form-control form-control-sm" required>
+                    <input type="text" name="apellido" id="apellido" class="form-control form-control-sm" >
                 </div>
 
                 <div class="col-md-2 mb-3">
                     <label for="nacionalidad" class="form-label">Nac.:</label>
-                    <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm" required>
+                    <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm" >
                         <option value="V">V</option>
                         <option value="E">E</option>
                     </select>
@@ -39,7 +39,7 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="telefono" class="form-label">Teléfono:</label>
-                    <input type="text" name="telefono" id="telefono" class="form-control form-control-sm" required>
+                    <input type="text" name="telefono" id="telefono" class="form-control form-control-sm" >
                 </div>
             </div>
 

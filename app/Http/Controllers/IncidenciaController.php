@@ -495,10 +495,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 {
     // Validar que los campos no estén vacíos
     $request->validate([
-        'apellido' => 'required|string|max:255',
-        'nombre' => 'required|string|max:255',
+     
         'cedula' => 'required|string|max:255',
-        'telefono' => 'required|string|max:255',
         'nacionalidad' => 'required|string|max:2',
     ]);
 

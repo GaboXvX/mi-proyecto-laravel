@@ -22,6 +22,8 @@ return new class extends Migration
             $table->boolean('requiere_comunidad')->default(false);
             $table->boolean('unico_en_comunidad')->default(false);
             $table->boolean('unico_en_sistema')->default(false);
+$table->boolean('una_categoria_por_comunidad_persona')->default(false); // Una categoría por persona en una comunidad
+
             $table->string('mensaje_error')->nullable();
             
             $table->timestamps();

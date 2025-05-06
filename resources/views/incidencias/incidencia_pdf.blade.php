@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -71,6 +72,34 @@
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
+
+        /* Estilos para badges de estado y nivel */
+        .badge-priority {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .time-remaining {
+            font-weight: bold;
+        }
+
+        .time-critical {
+            color: #dc3545;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
     </style>
     <title>Comprobante de Incidencia</title>
 </head>
@@ -79,7 +108,7 @@
     <div class="container">
         <div class="header">
             <h1>Comprobante de Incidencia</h1>
-            <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia ?? 'N/A' }}</p>
+            <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
         </div>
 
         <div class="details-section">
@@ -87,9 +116,36 @@
             <p><strong>Código de Incidencia:</strong> {{ $incidencia->cod_incidencia }}</p>
             <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
             <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipo_incidencia }}</p>
-            <p><strong>Nivel de Prioridad:</strong> {{ $incidencia->nivel_prioridad }}</p>
-            <p><strong>Estado:</strong> {{ $incidencia->estado }}</p>
+            
+            <!-- Nivel de Prioridad con estilo -->
+            <p><strong>Nivel de Prioridad:</strong> 
+                <span class="badge-priority" style="background-color: {{ $incidencia->nivelIncidencia->color }}">
+                    {{ $incidencia->nivelIncidencia->nombre }} (Nivel {{ $incidencia->nivelIncidencia->nivel }})
+                </span>
+            </p>
+            
+            <!-- Estado con estilo -->
+            <p><strong>Estado:</strong> 
+                <span class="badge-status" style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}">
+                    {{ $incidencia->estadoIncidencia->nombre }}
+                </span>
+            </p>
+            
             <p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->format('d/m/Y H:i') }}</p>
+            
+            <!-- Tiempo restante si aplica -->
+            @if(!($incidencia->estadoIncidencia->nombre=='atendido') && $incidencia->fecha_vencimiento)
+            <p><strong>Tiempo Estimado:</strong> 
+                    <span class="time-remaining @if(now()->gt($incidencia->fecha_vencimiento) || now()->diffInHours($incidencia->fecha_vencimiento) < 12) time-critical @endif">
+                        @if(now()->gt($incidencia->fecha_vencimiento))
+                            VENCIDO
+                        @else
+                            {{ now()->diff($incidencia->fecha_vencimiento)->format('%d días %h horas %i minutos') }}
+                        @endif
+                    </span>
+                </p>
+                <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->format('d/m/Y H:i') }}</p>
+            @endif
         </div>
 
         @if(isset($incidencia->persona))

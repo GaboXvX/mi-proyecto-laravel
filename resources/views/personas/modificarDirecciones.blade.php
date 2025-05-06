@@ -121,22 +121,22 @@
 
                         <div class="mb-3">
                             <label for="calle" class="form-label">Calle:</label>
-                            <input type="text" id="calle" name="calle" class="form-control" required>
+                            <input type="text" id="calle" name="calle" class="form-control" required maxlength="15">
                         </div>
 
                         <div class="mb-3">
                             <label for="manzana" class="form-label">Manzana:</label>
-                            <input type="text" id="manzana" name="manzana" class="form-control" required>
+                            <input type="text" id="manzana" name="manzana" class="form-control" required maxlength="15">
                         </div>
 
                         <div class="mb-3">
                             <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
-                            <input type="text" id="bloque" name="bloque" class="form-control">
+                            <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
                         </div>
 
                         <div class="mb-3">
                             <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
-                            <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required>
+                            <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
                         </div>
 
                         <div class="mb-3" id="categoria-container">

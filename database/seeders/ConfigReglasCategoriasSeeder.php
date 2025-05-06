@@ -22,6 +22,7 @@ public function run()
             'id_categoria_persona' => $categoria->id_categoria_persona,
             'requiere_comunidad' => $categoria->nombre_categoria === 'Líder Comunitario',
             'unico_en_comunidad' => $categoria->nombre_categoria === 'Líder Comunitario',
+            'una_categoria_por_comunidad_persona' => $categoria->nombre_categoria === 'Líder Comunitario',
             'mensaje_error' => $categoria->nombre_categoria === 'Líder Comunitario' 
                 ? 'Ya existe un líder en esta comunidad' 
                 : null

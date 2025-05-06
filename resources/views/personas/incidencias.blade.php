@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2 class="text-center">Incidencias de {{ $persona->nombre }} {{ $persona->apellido }}</h2>
 
     @if($incidencias->isEmpty())
@@ -28,9 +28,14 @@
                         <td>{{ $incidencia->nivel_prioridad }}</td>
                         <td>{{ $incidencia->estado }}</td>
                         <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
+                        <td class="d-flex justify-content-center">
+                            <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-success btn-sm me-2" title="Descargar comprobante">
+                                <i class="bi bi-download"></i>
+                            </a>
                             @if($incidencia->estado !== 'Atendido')
-                                <a href="{{ route('incidencias.edit', [$incidencia->slug, 'from' => 'persona']) }}" class="btn btn-primary">Modificar incidencia</a>
+                                <a href="{{ route('incidencias.edit', [$incidencia->slug, 'from' => 'persona']) }}" class="btn btn-warning btn-sm" title="Modificar incidencia">
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                </a>
                                 <form method="POST" action="{{ route('incidencias.update', $incidencia->slug) }}">
                                     @csrf
                                     @method('PUT')
@@ -38,9 +43,6 @@
                                     <input type="hidden" name="redirect_source" value="personas.show">
                                 </form>
                             @endif
-                            <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-success btn-sm" title="Descargar comprobante">
-                                <i class="bi bi-download"></i> Descargar
-                            </a>
                         </td>
                     </tr>
                 @endforeach

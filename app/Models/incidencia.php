@@ -10,7 +10,10 @@ class incidencia extends Model
 
     protected $table = 'incidencias';
     protected $primaryKey = 'id_incidencia';
-
+    protected $casts = [
+        'fecha_vencimiento' => 'datetime',
+    ];
+    
     protected $fillable = [
         'id_persona',
         'id_categoria_exclusiva', // Relación con categorias_exclusivas_personas
@@ -19,10 +22,13 @@ class incidencia extends Model
         'slug',
         'tipo_incidencia',
         'descripcion',
-        'nivel_prioridad',
         'id_institucion',
         'id_institucion_estacion',
-        'estado',
+        'id_estado_incidencia',
+        'id_nivel_incidencia',
+        'cod_incidencia',
+        'fecha_vencimiento',
+        'ultimo_recordatorio',
         'created_at',
         'updated_at'
     ];
@@ -86,4 +92,25 @@ public function institucionEstacion()
 {
     return $this->hasOne(InstitucionEstacion::class, 'id_institucion_estacion', 'id_institucion_estacion');
 }
+    /**
+     * Relación con el modelo EstadoIncidencia.
+     */
+    public function estadoIncidencia()
+    {
+        return $this->belongsTo(EstadoIncidencia::class, 'id_estado_incidencia');
+    }
+    /**
+     * Relación con el modelo NivelIncidencia.
+     */
+    public function nivelIncidencia()
+    {
+        return $this->belongsTo(NivelIncidencia::class, 'id_nivel_incidencia');
+    }
+    /**
+     * Relación con el modelo CategoriaExclusivaPersona.
+     */
+    public function categoriaExclusivaPersona()
+    {
+        return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
+    }
 }

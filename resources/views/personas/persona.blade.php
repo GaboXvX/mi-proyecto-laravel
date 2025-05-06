@@ -196,23 +196,23 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="calle" class="form-label">Calle:</label>
-                                    <input type="text" id="calle" name="calle" class="form-control" required>
+                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="14">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" >
+                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="14">
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
-                                <input type="text" id="bloque" name="bloque" class="form-control">
+                                <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
                             </div>
 
                             <div class="mb-3">
                                 <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
-                                <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required>
+                                <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
                             </div>
 
                             <div class="mb-3" id="categoria-container">
@@ -249,23 +249,23 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="calle" class="form-label">Calle:</label>
-                                    <input type="text" id="calle" name="calle" class="form-control" required>
+                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="14">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" >
+                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="14">
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="bloque" class="form-label">Bloque: <small>(Solo si vive en apartamento)</small></label>
-                                <input type="text" id="bloque" name="bloque" class="form-control">
+                                <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
                             </div>
 
                             <div class="mb-3">
                                 <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
-                                <input type="number" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required min="1" step="1">
+                                <input type="number" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
                             </div>
 
                             <div class="row mb-3">
@@ -306,6 +306,11 @@
                         <form action="{{ route('personas.update', $persona->slug) }}" method="POST">
                             @csrf
                             @method('PUT')
+
+                            <div class="mb-3">
+                                <label for="cedula" class="form-label">Cédula:</label>
+                                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required maxlength="8">
+                            </div>
                             
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -319,15 +324,10 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required maxlength="8">
-                            </div>
-
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="correo" class="form-label">Correo Electrónico:</label>
-                                    <input type="email" id="correo" name="correo" class="form-control" value="{{ old('correo', $persona->correo) }}" required>
+                                    <input type="email" id="correo" name="correo" class="form-control" value="{{ old('correo', $persona->correo) }}" required maxlength="15">
                                 </div>
 
                                 <div class="col-md-6">

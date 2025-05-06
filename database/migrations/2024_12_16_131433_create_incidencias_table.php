@@ -18,16 +18,15 @@ return new class extends Migration
             $table->unsignedBigInteger('id_direccion')->nullable();
             $table->unsignedBigInteger('id_categoria_exclusiva')->nullable();
             $table->unsignedBigInteger('id_institucion');
-
             $table->unsignedBigInteger('id_institucion_estacion')->nullable();
-
+            $table->unsignedBigInteger('id_nivel_incidencia')->nullable();
+            $table->unsignedBigInteger('id_estado_incidencia')->nullable();
             $table->string('slug')->unique();
             $table->string('cod_incidencia')->unique();
             $table->string('tipo_incidencia');
             $table->text('descripcion');
-            $table->integer('nivel_prioridad');
-            $table->string('estado');
-
+            $table->dateTime('fecha_vencimiento');
+            $table->string('ultimo_recordatorio')->nullable();
             $table->timestamps();
         });
     }

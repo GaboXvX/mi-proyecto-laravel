@@ -1,30 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2 class="mb-4">Registrar Incidencia</h2>
 
     <div id="alert-container"></div>
-
-    <!-- Paso visual -->
-    <div class="mb-4">
-        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-            <li class="nav-item">
-                <a class="nav-link active" data-step="1">1. Dirección</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="2">2. Institución</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="3">3. Detalles</a>
-            </li>
-        </ul>
-    </div>
 
     <form id="form-registrar-incidencia" action="{{ route('incidencias.store') }}" method="POST">
         @csrf
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <input type="hidden" name="id_persona" value="{{ $persona->id_persona }}" />
+
+        <!-- Paso visual -->
+        <div>
+            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+                <li class="nav-item">
+                    <a class="nav-link active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span>Dirección</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span>Institución</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span>Detalles</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
@@ -46,9 +58,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+
+                <div class="d-flex justify-content-end m-3">
+                    <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -76,10 +89,11 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
-                <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+                
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
+                    <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -108,18 +122,19 @@
                         <label for="nivel_prioridad" class="form-label">Nivel de Prioridad:</label>
                         <select id="nivel_prioridad" name="nivel_prioridad" class="form-select" required>
                             <option value="" disabled selected>--Seleccione--</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
+                            @foreach($prioridades as $prioridad)
+                                 <option value="{{ $prioridad->id_nivel_incidencia }}">{{ $prioridad->nivel }}/{{$prioridad->nombre}}</option>
+                             @endforeach
+                             
+                         </select>
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
-                <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
+                
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary" id="back-to-step-2">Atrás</button>
+                    <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
+                </div>
             </div>
         </div>
     </form>

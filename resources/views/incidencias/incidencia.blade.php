@@ -111,6 +111,42 @@
             background-color: #5a6268;
         }
 
+        /* Nuevos estilos para nivel y estado */
+        .priority-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .time-remaining {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .time-critical {
+            color: #dc3545;
+            font-weight: bold;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
         @media print {
             .button-container {
                 display: none;
@@ -212,7 +248,7 @@
         <div class="container" id="comprobante-container">
             <div class="header">
                 <h1>Comprobante de Incidencia</h1>
-                <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia}}</p>
+                <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
             </div>
 
             <div class="details-section">
@@ -220,9 +256,36 @@
                 <p><strong>Código de Incidencia:</strong> {{ $incidencia->cod_incidencia }}</p>
                 <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
                 <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipo_incidencia }}</p>
-                <p><strong>Nivel de Prioridad:</strong> {{ $incidencia->nivel_prioridad }}</p>
-                <p><strong>Estado:</strong> {{ $incidencia->estado }}</p>
+                
+                <!-- Mostrar Nivel de Prioridad con estilo -->
+                <p><strong>Nivel de Prioridad:</strong> 
+                    <span class="priority-badge" style="background-color: {{ $nivel->color }}; color: white;">
+                        {{ $nivel->nombre }} (Nivel {{ $nivel->nivel }})
+                    </span>
+                </p>
+                
+                <!-- Mostrar Estado con estilo -->
+                <p><strong>Estado:</strong> 
+                    <span class="status-badge" style="background-color: {{ $estado->color ?? '#6c757d' }}; color: white;">
+                        {{ $estado->nombre }}
+                    </span>
+                </p>
+                
                 <p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->format('d/m/Y H:i') }}</p>
+                
+                <!-- Mostrar Tiempo Restante si aplica -->
+                @if(!($incidencia->estadoIncidencia->nombre=='atendido') && $incidencia->fecha_vencimiento)
+                    <p><strong>Tiempo Estimado:</strong> 
+                        <span class="time-remaining @if(now()->diffInHours($incidencia->fecha_vencimiento) < 12) time-critical @endif">
+                            @if(now()->gt($incidencia->fecha_vencimiento))
+                                VENCIDO
+                            @else
+                                {{ $tiempoRestante->format('%d días %h horas %i minutos') }}
+                            @endif
+                        </span>
+                    </p>
+                    <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->format('d/m/Y H:i') }}</p>
+                @endif
             </div>
 
             @if(isset($incidencia->persona))

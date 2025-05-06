@@ -108,7 +108,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
             // Route::get('persona/{slug}/incidencia/{incidencia_slug}', 'show')->name('incidencias.show');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
-            Route::get('/modificarincidencialider/{slug}', 'edit')->name('incidenciaslider.edit');
             Route::get('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderVista'])->name('incidencias.atender.vista');
             Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderGuardar'])->name('incidencias.atender.guardar');
             Route::get('/incidencias/{slug}/ver', [IncidenciaController::class, 'ver'])->name('incidencias.ver');

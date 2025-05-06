@@ -20,6 +20,32 @@
     .last-update { font-size: 0.8rem; color: #6c757d; text-align: right; margin-top: 10px; }
     .filters-container { margin-bottom: 20px; }
     .table-container { margin-top: 20px; }
+    
+    /* Nuevos estilos para badges */
+    .priority-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        display: inline-block;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        display: inline-block;
+    }
+    .time-critical {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .time-warning {
+        color: #ffc107;
+        font-weight: bold;
+    }
 </style>
 
 @if (session('success'))
@@ -36,7 +62,7 @@
         <h2>Lista de Incidencias</h2>
         <div>
             <a href="{{ route('incidencias.create') }}" class="btn btn-success" title="Registrar incidencia">
-                <i class="bi bi-file-earmark-plus"></i>
+                <i class="bi bi-file-earmark-plus"></i> 
             </a>
         </div>
     </div>
@@ -58,13 +84,25 @@
                         <label for="estado" class="form-label">Estado:</label>
                         <select class="form-select" id="estado" name="estado">
                             <option value="Todos">Todos</option>
-                            <option value="Atendido">Atendido</option>
-                            <option value="Por atender">Por atender</option>
+                            @foreach($estados as $estado)
+                                <option value="{{ $estado->nombre }}">{{ $estado->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Prioridad -->
+                    <div class="col-md-3">
+                        <label for="prioridad" class="form-label">Prioridad:</label>
+                        <select class="form-select" id="prioridad" name="prioridad">
+                            <option value="Todos">Todos</option>
+                            @foreach($niveles as $nivel)
+                                <option value="{{ $nivel->nombre }}">{{ $nivel->nombre }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     <!-- Filtro por Fechas -->
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <label class="form-label">Rango de Fechas:</label>
                         <div class="input-group">
                             <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
@@ -85,6 +123,7 @@
             <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
             <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
             <input type="hidden" id="pdf-estado" name="estado">
+            <input type="hidden" id="pdf-prioridad" name="prioridad">
             <input type="hidden" id="pdf-codigo" name="codigo">
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-file-earmark-pdf"></i> Generar PDF
@@ -94,91 +133,110 @@
     </div>
 
     <!-- Tabla de Incidencias -->
-    <div class="container">
-            <table class="table table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Creación</th>
-                        <th>Registrado por</th>
-                        <th>Persona</th>
-                        <th>Acciones</th>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Creación</th>
+                    <th>Registrado por</th>
+                    <th>Persona</th>
+                    <th>Tiempo restante</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="incidencias-tbody">
+                @foreach ($incidencias as $incidencia)
+                    <tr data-incidencia-id="{{ $incidencia->slug }}">
+                        <td>{{ $incidencia->cod_incidencia }}</td>
+                        <td>{{ $incidencia->tipo_incidencia }}</td>
+                        <td>{{ Str::limit($incidencia->descripcion, 50) }}</td>
+                        
+                        <!-- Columna de Prioridad -->
+                        <td>
+                            <span class="priority-badge" style="background-color: {{ $incidencia->nivelIncidencia->color ?? '#6c757d' }}">
+                                {{ $incidencia->nivelIncidencia->nombre ?? 'N/A' }}
+                            </span>
+                        </td>
+                        
+                        <!-- Columna de Estado -->
+                        <td>
+                            <span class="status-badge" style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}">
+                                {{ $incidencia->estadoIncidencia->nombre ?? 'N/A' }}
+                            </span>
+                        </td>
+                        
+                        <td>{{ $incidencia->created_at->format('d-m-Y H:i') }}</td>
+                        <td>
+                            @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                                {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
+                                <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
+                            @else
+                                <em>No registrado</em>
+                            @endif
+                        </td>
+                        <td>
+                            @if($incidencia->persona)
+                                {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
+                                <strong>V-</strong>{{ $incidencia->persona->cedula }}
+                            @else
+                                <em>Incidencia General</em>
+                            @endif
+                        </td>
+                        
+                        <!-- Columna de Tiempo Restante -->
+                        <td>
+                           {{$incidencia->fecha_vencimiento ?? 'N/A'}} 
+                        </td>
+                        
+                        <!-- Columna de Acciones -->
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('incidencias.ver', $incidencia->slug) }}">
+                                            <i class="bi bi-eye me-2"></i>Ver
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('incidencias.descargar', $incidencia->slug) }}">
+                                            <i class="bi bi-download me-2"></i>Descargar
+                                        </a>
+                                    </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('incidencias.atender.vista', $incidencia->slug) }}">
+                                                <i class="bi bi-check-circle me-2"></i>Atender
+                                            </a>
+                                        </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('incidencias.edit', $incidencia->slug) }}">
+                                            <i class="bi bi-pencil-square me-2"></i>Modificar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody id="incidencias-tbody">
-                    @foreach ($incidencias as $incidencia)
-                        <tr data-incidencia-id="{{ $incidencia->slug }}">
-                            <td>{{ $incidencia->cod_incidencia }}</td>
-                            <td>{{ $incidencia->tipo_incidencia }}</td>
-                            <td>{{ $incidencia->descripcion }}</td>
-                            <td>{{ $incidencia->nivel_prioridad }}</td>
-                            <td class="incidencia-status {{ $incidencia->estado == 'Por atender' ? 'status-pending' : 'status-resolved' }}">
-                                {{ $incidencia->estado }}
-                            </td>
-                            <td>{{ \Carbon\Carbon::parse($incidencia->created_at)->format('d-m-Y H:i:s') }}</td>
-                            <td>
-                                @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
-                                    {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                    <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                                @else
-                                    <em>No registrado</em>
-                                @endif
-                            </td>
-                            <td>
-                                @if($incidencia->persona)
-                                    {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
-                                    <strong>V-</strong>{{ $incidencia->persona->cedula }}
-                                @else
-                                    <em>Incidencia General</em>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('incidencias.ver', $incidencia->slug) }}">
-                                                <i class="bi bi-eye me-2"></i>Ver
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('incidencias.descargar', $incidencia->slug) }}">
-                                                <i class="bi bi-download me-2"></i>Descargar
-                                            </a>
-                                        </li>
-                                        @if($incidencia->estado == 'Por atender')
-                                            <li>
-                                                <a class="dropdown-item" href="{{ route('incidencias.atender.vista', $incidencia->slug) }}">
-                                                    <i class="bi bi-check-circle me-2"></i>Atender
-                                                </a>
-                                            </li>
-                                        @else
-                                            <li>
-                                                <button class="dropdown-item disabled">
-                                                    <i class="bi bi-check-circle me-2"></i>Atendido
-                                                </button>
-                                            </li>
-                                        @endif
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('incidencias.edit', $incidencia->slug) }}">
-                                                <i class="bi bi-pencil-square me-2"></i>Modificar
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+    
+    <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
+    
+    <!-- Paginación -->
+    @if($incidencias instanceof \Illuminate\Pagination\LengthAwarePaginator)
+        <div class="d-flex justify-content-center mt-3">
+            {{ $incidencias->links() }}
+        </div>
+    @endif
 </div>
 
 <script src="{{ asset('js/incidencias.js') }}"></script>

@@ -1,29 +1,40 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="table-container mt-5">
     <h2>Editar Incidencia</h2>
 
     <div id="alert-container"></div>
 
-    <!-- Paso visual -->
-    <div class="mb-4">
-        <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-            <li class="nav-item">
-                <a class="nav-link active" data-step="1">1. Dirección</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="2">2. Institución</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" data-step="3">3. Detalles</a>
-            </li>
-        </ul>
-    </div>
-
     <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST">
         @csrf
         @method('PUT')
+
+        <!-- Paso visual -->
+        <div>
+            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
+                <li class="nav-item">
+                    <a class="nav-link active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <span>Dirección</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="2">
+                        <div class="step-circle">2</div>
+                        <span>Institución</span>
+                        <div class="connector"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" data-step="3">
+                        <div class="step-circle">3</div>
+                        <span>Detalles</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
@@ -45,9 +56,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+
+                <div class="d-flex justify-content-end m-3">
+                    <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -63,7 +75,8 @@
                         <select id="institucion" name="institucion" class="form-select" required>
                             <option value="" disabled>--Seleccione una institución--</option>
                             @foreach ($instituciones as $institucion)
-                                <option value="{{ $institucion->id_institucion }}" {{ $incidencia->institucion->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
+                                <option value="{{ $institucion->id_institucion }}" 
+                                    {{ $incidencia->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
                                     {{ $institucion->nombre }}
                                 </option>
                             @endforeach
@@ -76,17 +89,18 @@
                             <option value="" disabled>--Seleccione una estación--</option>
                             @foreach ($estaciones as $estacion)
                                 <option value="{{ $estacion->id_institucion_estacion }}" 
-                                    {{ $incidencia->institucionEstacion && $incidencia->institucionEstacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
+                                    {{ $incidencia->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
                                     {{ $estacion->nombre }} (Municipio: {{ $estacion->municipio->nombre }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
-                <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary" id="back-to-step-1">Atrás</button>
+                    <button type="button" class="btn btn-primary" id="next-to-step-3">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -114,19 +128,20 @@
                     <div class="mb-3">
                         <label for="nivel_prioridad" class="form-label">Nivel de Prioridad:</label>
                         <select id="nivel_prioridad" name="nivel_prioridad" class="form-select" required>
-                            <option value="" disabled>--Seleccione--</option>
-                            <option value="1" {{ $incidencia->nivel_prioridad == '1' ? 'selected' : '' }}>1</option>
-                            <option value="2" {{ $incidencia->nivel_prioridad == '2' ? 'selected' : '' }}>2</option>
-                            <option value="3" {{ $incidencia->nivel_prioridad == '3' ? 'selected' : '' }}>3</option>
-                            <option value="4" {{ $incidencia->nivel_prioridad == '4' ? 'selected' : '' }}>4</option>
-                            <option value="5" {{ $incidencia->nivel_prioridad == '5' ? 'selected' : '' }}>5</option>
+                            @foreach($prioridades as $prioridad)
+                                <option value="{{ $prioridad->id_nivel_incidencia }}"
+                                    {{ $incidencia->id_nivel_incidencia == $prioridad->id_nivel_incidencia ? 'selected' : '' }}>
+                                    {{ $prioridad->nivel }}/{{$prioridad->nombre}}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">Atrás</button>
-                <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+
+                <div class="d-flex justify-content-between m-3">
+                    <button type="button" class="btn btn-secondary btn-sm" id="back-to-step-2">Atrás</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+                </div>
             </div>
         </div>
     </form>
@@ -144,6 +159,17 @@
         function showStep(stepIndex) {
             steps.forEach((step, index) => {
                 step.classList.toggle('d-none', index !== stepIndex);
+            });
+            
+            // Actualizar indicador de pasos
+            document.querySelectorAll('#stepIndicator .nav-link').forEach((link, index) => {
+                if (index < stepIndex + 1) {
+                    link.classList.remove('disabled');
+                    link.classList.add('active');
+                } else {
+                    link.classList.add('disabled');
+                    link.classList.remove('active');
+                }
             });
         }
 

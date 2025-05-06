@@ -3,11 +3,11 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="card shadow-lg">
-        <div class="card-header bg-gradient-primary text-white">
+        <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">
-                    <i class="bi bi-activity me-2"></i>Registro de Movimientos en Tiempo Real
-                </h3>
+                <h5 class="mb-0">
+                    Registro de Movimientos en Tiempo Real
+                </h5>
                 <div>
                     <span class="badge bg-white text-primary fs-6">
                         <i class="bi bi-arrow-clockwise me-1"></i>
@@ -163,7 +163,7 @@
             </div>
         </div>
 
-        <div class="card-footer bg-light">
+        <div class="card-footer">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted">
                     Mostrando <span id="current-count">{{ $movimientos->count() }}</span> de <span id="total-count">{{ $movimientos->total() }}</span> registros

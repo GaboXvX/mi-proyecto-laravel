@@ -37,7 +37,7 @@
 
                     <div class="row g-3 mt-2">
                         <div class="col-md-3">
-                            <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
+                            <label for="cedula" class="form-label small mb-0" maxlength="8">Cédula <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-md-4">
                             <input type="text" name="cedula" id="cedula" class="form-control form-control-sm py-2" required pattern="\d+" placeholder="Ej: 12345678">

@@ -11,6 +11,15 @@
     <link rel="stylesheet" href="{{ asset('css/gridstack.min.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Minaguas</title>
+    <script>
+        (function () {
+            const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+            if (window.innerWidth > 768 && isCollapsed) {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        })();
+        </script>
+        
 </head>
 <body>
     <aside class="sidebar d-flex flex-column p-3" id="sidebar">
@@ -35,12 +44,12 @@
 
             <!-- Consultar -->
             <li class="nav-item">
-                <a href="#layouts" class="nav-link {{ $consultarActivo ? 'active' : '' }}" data-bs-toggle="collapse" aria-expanded="{{ $consultarActivo ? 'true' : 'false' }}">
+                <a href="#layouts" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="bi bi-search me-2"></i>
                     <span>Consultar</span>
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="collapse {{ $consultarActivo ? 'show' : '' }}" id="layouts">
+                <div class="collapse" id="layouts">
                     <ul class="navbar-nav ps-3 mt-2">
                         @can('ver empleados')
                         <li>
@@ -94,7 +103,7 @@
     </aside>
 
     <!-- Main content -->
-    <main class="main-content flex-fill">
+    <main class="main-content flex-fill" id="mainContent">
         <div class="topbar d-flex align-items-center justify-content-between px-3 py-2 shadow-sm">
             <button class="btn btn-light-outline" id="menuToggle">
                 <i class="bi bi-list"></i>
@@ -209,8 +218,42 @@
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>
 <script src="{{ asset('js/gridstack-all.min.js') }}"></script>
-<script src="{{ asset('js/script.js') }}"></script>
+{{-- <script src="{{ asset('js/script.js') }}"></script> --}}
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+    
+        // Restaurar estado al cargar
+        if (window.innerWidth > 768) {
+            const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+            if (isCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('collapsed');
+            }
+        } else {
+            const isActive = localStorage.getItem('sidebar-mobile-active') === 'true';
+            if (isActive) {
+                sidebar.classList.add('active');
+            }
+        }
+    
+        // Toggle y guardar estado
+        menuToggle.addEventListener('click', function () {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+                localStorage.setItem('sidebar-mobile-active', sidebar.classList.contains('active'));
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('collapsed');
+                localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            }
+        });
+    });
+    </script>
+    
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Marcar notificación como leída
@@ -300,5 +343,36 @@
             });
         })();
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuId = 'layouts';
+            const collapseElement = document.getElementById(menuId);
+            const toggleElement = document.querySelector(`[href="#${menuId}"]`);
+        
+            if (!collapseElement || !toggleElement) return;
+        
+            const openedByBlade = collapseElement.classList.contains('show');
+            const currentRouteIsPartOfMenu = toggleElement.classList.contains('active');
+        
+            // Solo usar localStorage si Laravel no lo abrió ni está en una ruta activa
+            if (!openedByBlade && !currentRouteIsPartOfMenu) {
+                const isOpen = localStorage.getItem('sidebar-' + menuId) === 'open';
+                if (isOpen) {
+                    collapseElement.classList.add('show');
+                    toggleElement.setAttribute('aria-expanded', 'true');
+                }
+            }
+        
+            // Eventos Bootstrap correctos para guardar estado real
+            collapseElement.addEventListener('shown.bs.collapse', () => {
+                localStorage.setItem('sidebar-' + menuId, 'open');
+            });
+        
+            collapseElement.addEventListener('hidden.bs.collapse', () => {
+                localStorage.setItem('sidebar-' + menuId, 'closed');
+            });
+        });
+        </script>
+        
 </body>
 </html>

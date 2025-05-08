@@ -108,8 +108,9 @@
                         <label for="tipo_incidencia" class="form-label">Tipo de Incidencia:</label>
                         <select id="tipo_incidencia" name="tipo_incidencia" class="form-select" required>
                             <option value="" disabled selected>--Seleccione--</option>
-                            <option value="agua potable">Agua Potable</option>
-                            <option value="agua servida">Agua Servida</option>
+                            @foreach($tipos as $tipo)
+                                 <option value="{{ $tipo->id_tipo_incidencia }}">{{ $tipo->nombre }}</option>
+                             @endforeach
                         </select>
                     </div>
 

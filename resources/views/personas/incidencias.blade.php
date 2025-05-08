@@ -23,10 +23,10 @@
                 @foreach($incidencias as $incidencia)
                     <tr>
                         <td>{{ $incidencia->cod_incidencia }}</td>
-                        <td>{{ $incidencia->tipo_incidencia }}</td>
+                        <td>{{ $incidencia->tipoIncidencia->nombre }}</td>
                         <td>{{ $incidencia->descripcion }}</td>
-                        <td>{{ $incidencia->nivel_prioridad }}</td>
-                        <td>{{ $incidencia->estado }}</td>
+                        <td>{{ $incidencia->nivelIncidencia->nombre }}</td>
+                        <td>{{ $incidencia->estadoIncidencia->nombre}}</td>
                         <td>{{ $incidencia->created_at->format('d/m/Y H:i') }}</td>
                         <td class="d-flex justify-content-center">
                             <a href="{{ route('incidencias.descargar', ['slug' => $incidencia->slug]) }}" class="btn btn-success btn-sm me-2" title="Descargar comprobante">

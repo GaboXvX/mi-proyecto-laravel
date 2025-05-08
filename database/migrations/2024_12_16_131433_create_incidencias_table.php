@@ -21,9 +21,9 @@ return new class extends Migration
             $table->unsignedBigInteger('id_institucion_estacion')->nullable();
             $table->unsignedBigInteger('id_nivel_incidencia')->nullable();
             $table->unsignedBigInteger('id_estado_incidencia')->nullable();
+            $table->unsignedBigInteger('id_tipo_incidencia');
             $table->string('slug')->unique();
             $table->string('cod_incidencia')->unique();
-            $table->string('tipo_incidencia');
             $table->text('descripcion');
             $table->dateTime('fecha_vencimiento');
             $table->string('ultimo_recordatorio')->nullable();

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreign('id_institucion_estacion')->references('id_institucion_estacion')->on('instituciones_estaciones')->onDelete('cascade');
             $table->foreign('id_estado_incidencia')->references('id_estado_incidencia')->on('estados_incidencias')->onDelete('cascade');
             $table->foreign('id_nivel_incidencia')->references('id_nivel_incidencia')->on('niveles_incidencias')->onDelete('cascade');
+            $table->foreign('id_tipo_incidencia')->references('id_tipo_incidencia')->on('tipos_incidencias')->onDelete('cascade');
         });
     }
 

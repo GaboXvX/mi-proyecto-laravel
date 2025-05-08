@@ -115,7 +115,7 @@
             <h3>Información de la Incidencia:</h3>
             <p><strong>Código de Incidencia:</strong> {{ $incidencia->cod_incidencia }}</p>
             <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
-            <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipo_incidencia }}</p>
+            <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipoIncidencia->nombre }}</p>
             
             <!-- Nivel de Prioridad con estilo -->
             <p><strong>Nivel de Prioridad:</strong> 

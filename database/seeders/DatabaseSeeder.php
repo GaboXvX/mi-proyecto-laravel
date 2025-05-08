@@ -20,6 +20,7 @@ use Database\Seeders\MunicipioSeeder;
 use Database\Seeders\PreguntaSeguridadSeeder;
 use Database\Seeders\RespuestasSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\tiposIncidenciasSeeder;
 use Database\Seeders\UsuarioSeeder;
 use PSpell\Config;
 
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
             ConfigReglasCategoriasSeeder::class,
             InstitucionSeeder::class,
             InstitucionEstacionSeeder::class,
+            tiposIncidenciasSeeder::class,
         ]);
     }
 }

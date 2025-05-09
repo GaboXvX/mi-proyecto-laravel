@@ -37,7 +37,7 @@
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
                     <label for="correo" class="form-label">Correo:</label>
-                    <input type="email" id="correo" name="correo" class="form-control" maxlength="25" required>
+                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
                 </div>
                 <div class="col-md-6">
                     <label for="genero" class="form-label">Género:</label>
@@ -105,7 +105,6 @@
         </form>
     </div>
 </div>
-
 
 <script>
     document.getElementById('registroPersonaForm').addEventListener('submit', async function(event) {

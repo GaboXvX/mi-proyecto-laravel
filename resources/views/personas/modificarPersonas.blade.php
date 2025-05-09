@@ -23,7 +23,7 @@
     <div class="mb-3">
         <label for="correo" class="form-label">Correo Electrónico:</label>
         <input type="email" id="correo" name="correo" class="form-control"
-            value="{{ old('correo', $persona->correo) }}" required maxlength="16">
+            value="{{ old('correo', $persona->correo) }}" required maxlength="350">
     </div>
 
     <div class="mb-3">

@@ -20,15 +20,11 @@
                            value="{{ $endDate->toDateString() }}" class="form-control">
                 </div>
                 <div class="col-md-2">
-                    <label for="tipo_incidencia_id" class="form-label">Tipo de incidencia:</label>
-                    <select id="tipo_incidencia_id" name="tipo_incidencia_id" class="form-select">
+                    <label for="tipo_incidencia" class="form-label">Tipo de incidencia:</label>
+                    <select id="tipo_incidencia" name="tipo_incidencia" class="form-select">
                         <option value="">Todos</option>
-                        @foreach($tiposIncidencia as $tipo)
-                            <option value="{{ $tipo->id_tipo_incidencia }}" 
-                                {{ $tipoIncidenciaId == $tipo->id_tipo_incidencia ? 'selected' : '' }}>
-                                {{ $tipo->nombre }}
-                            </option>
-                        @endforeach
+                        <option value="agua potable" {{ $tipoIncidencia == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
+                        <option value="agua servida" {{ $tipoIncidencia == 'agua servida' ? 'selected' : '' }}>Agua Servida</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -37,30 +33,6 @@
                         <option value="">Todos</option>
                         <option value="con" {{ $denunciante == 'con' ? 'selected' : '' }}>Con denunciante</option>
                         <option value="sin" {{ $denunciante == 'sin' ? 'selected' : '' }}>Sin denunciante</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="institucion_id" class="form-label">Institución:</label>
-                    <select id="institucion_id" name="institucion_id" class="form-select">
-                        <option value="">Todas</option>
-                        @foreach($instituciones as $institucion)
-                            <option value="{{ $institucion->id_institucion }}" 
-                                {{ $institucionId == $institucion->id_institucion ? 'selected' : '' }}>
-                                {{ $institucion->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="estacion_id" class="form-label">Estación:</label>
-                    <select id="estacion_id" name="estacion_id" class="form-select" {{ !$institucionId ? 'disabled' : '' }}>
-                        <option value="">Todas</option>
-                        @foreach($estaciones as $estacion)
-                            <option value="{{ $estacion->id_institucion_estacion }}" 
-                                {{ $estacionId == $estacion->id_institucion_estacion ? 'selected' : '' }}>
-                                {{ $estacion->nombre }}
-                            </option>
-                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -120,12 +92,7 @@
                         <h6 class="font-weight-bold">Mejor Mes:</h6>
                         <p>
                             @if(count($porcentajes) > 0)
-                                @php
-                                    $maxKey = array_search(max($porcentajes), $porcentajes);
-                                    $parts = explode('|', $maxKey);
-                                    $monthYear = $parts[0];
-                                @endphp
-                                {{ $monthYear }} ({{ max($porcentajes) }}%)
+                                {{ $labels[array_search(max($porcentajes), $porcentajes)] }} ({{ max($porcentajes) }}%)
                             @else
                                 N/A
                             @endif
@@ -140,7 +107,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h5 class="m-0 font-weight-bold">
-                <i class="fas fa-table"></i> Detalle por Mes, Institución y Estación
+                <i class="fas fa-table"></i> Detalle por Mes
             </h5>
         </div>
         <div class="card-body">
@@ -152,31 +119,26 @@
                             <th>Institución</th>
                             <th>Estación</th>
                             <th>Incidencias Atendidas</th>
-                            <th>Total Incidencias (Estación)</th>
+                            <th>Total Incidencias</th>
                             <th>Porcentaje</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($labels as $uniqueKey => $label)
-                            @php
-                                $parts = explode('|', $uniqueKey);
-                                $monthYear = $parts[0];
-                                $totalMesEstacion = $detalles[$uniqueKey]['total_mes_estacion'] ?? 0;
-                            @endphp
+                        @foreach($labels as $index => $label)
                             <tr>
-                                <td>{{ $monthYear }}</td>
-                                <td>{{ $detalles[$uniqueKey]['institucion'] ?? 'N/A' }}</td>
-                                <td>{{ $detalles[$uniqueKey]['estacion'] ?? 'N/A' }}</td>
-                                <td>{{ $dataAtendidas[$uniqueKey] }}</td>
-                                <td>{{ $totalMesEstacion }}</td>
+                                <td>{{ $label }}</td>
+                                <td>{{ $detalles[$label]['institucion'] ?? 'N/A' }}</td>
+                                <td>{{ $detalles[$label]['estacion'] ?? 'N/A' }}</td>
+                                <td>{{ $dataAtendidas[$index] }}</td>
+                                <td>{{ $dataAtendidas[$index] > 0 ? round($dataAtendidas[$index] / ($porcentajes[$index] / 100)) : 0 }}</td>
                                 <td>
                                     <div class="progress">
                                         <div class="progress-bar bg-success" role="progressbar" 
-                                             style="width: {{ $porcentajes[$uniqueKey] }}%" 
-                                             aria-valuenow="{{ $porcentajes[$uniqueKey] }}" 
+                                             style="width: {{ $porcentajes[$index] }}%" 
+                                             aria-valuenow="{{ $porcentajes[$index] }}" 
                                              aria-valuemin="0" 
                                              aria-valuemax="100">
-                                            {{ $porcentajes[$uniqueKey] }}%
+                                            {{ $porcentajes[$index] }}%
                                         </div>
                                     </div>
                                 </td>
@@ -206,202 +168,160 @@ document.addEventListener('DOMContentLoaded', function() {
         order: [[0, 'asc']]
     });
 
-    // Cargar estaciones cuando cambia la institución
-    $('#institucion_id').change(function() {
-        const institucionId = $(this).val();
-        const estacionSelect = $('#estacion_id');
-        
-        if (!institucionId) {
-            estacionSelect.empty().append('<option value="">Todas</option>').prop('disabled', true);
-            return;
-        }
-
-        // Mostrar loading
-        estacionSelect.prop('disabled', true).empty().append('<option value="">Cargando...</option>');
-
-        // Cargar estaciones asíncronamente
-        $.get(`/api/estaciones-por-institucion/${institucionId}`, function(data) {
-            estacionSelect.empty().append('<option value="">Todas</option>');
-            data.forEach(estacion => {
-                estacionSelect.append(`<option value="${estacion.id}">${estacion.nombre}</option>`);
-            });
-            estacionSelect.prop('disabled', false);
-        }).fail(function() {
-            estacionSelect.empty().append('<option value="">Error al cargar</option>');
-        });
-    });
-
     // Chart.js
-    const ctx = document.getElementById('chart1').getContext('2d');
-    const labels = @json(array_values($labels));
-    const dataAtendidas = @json(array_values($dataAtendidas));
-    const porcentajes = @json(array_values($porcentajes));
-    const detalles = @json($detalles);
+    // Chart.js - Versión corregida
+const ctx = document.getElementById('chart1').getContext('2d');
 
-    // Verificar si hay datos para mostrar
-    if (labels.length === 0) {
-        document.getElementById('chart1').closest('.card-body').innerHTML = `
-            <div class="alert alert-warning">
-                No hay datos disponibles para mostrar el gráfico con los filtros actuales.
-            </div>
-        `;
-    } else {
-        // Configuración del gráfico con imagen de fondo
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Incidencias Atendidas',
-                        data: dataAtendidas,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Porcentaje de Atención',
-                        data: porcentajes,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderWidth: 2,
-                        type: 'line',
-                        pointRadius: 4,
-                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        type: 'linear',
+// Verificar si hay datos para mostrar
+if (@json($labels).length === 0) {
+    document.getElementById('chart1').closest('.card-body').innerHTML = `
+        <div class="alert alert-warning">
+            No hay datos disponibles para mostrar el gráfico con los filtros actuales.
+        </div>
+    `;
+} else {
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: @json($labels),
+            datasets: [
+                {
+                    label: 'Incidencias Atendidas',
+                    data: @json($dataAtendidas),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Porcentaje de Atención',
+                    data: @json($porcentajes),
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    type: 'line',
+                    pointRadius: 4,
+                    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
                         display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Cantidad de Incidencias'
-                        },
-                        beginAtZero: true
+                        text: 'Cantidad de Incidencias'
                     },
-                    y1: {
-                        type: 'linear',
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
                         display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Porcentaje (%)'
-                        },
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawOnChartArea: false
-                        }
+                        text: 'Porcentaje (%)'
                     },
-                    x: {
-                        grid: { display: false }
+                    min: 0,
+                    max: 100,
+                    grid: {
+                        drawOnChartArea: false
                     }
                 },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) label += ': ';
-                                if (context.parsed.y !== null) {
-                                    label += context.datasetIndex === 0 ? 
-                                        context.parsed.y + ' incidencias' : 
-                                        context.parsed.y + '%';
-                                }
-                                return label;
-                            },
-                            afterLabel: function(context) {
-                                const index = context.dataIndex;
-                                const uniqueKey = Object.keys(@json($labels))[index];
-                                const detalle = detalles[uniqueKey];
-                                return [
-                                    'Total incidencias (estación): ' + (detalle?.total_mes_estacion || 0),
-                                    'Institución: ' + (detalle?.institucion || 'N/A'),
-                                    'Estación: ' + (detalle?.estacion || 'N/A'),
-                                    'Tipo: ' + (detalle?.tipo_incidencia || 'N/A')
-                                ].join('\n');
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += context.datasetIndex === 0 ? 
+                                    context.parsed.y + ' incidencias' : 
+                                    context.parsed.y + '%';
                             }
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            const index = context.dataIndex;
+                            return [
+                                'Total incidencias: ' + Math.round(@json($dataAtendidas)[index] / (@json($porcentajes)[index] * 100),
+                                'Institución: ' + @json($detalles)[context.label].institucion,
+                                'Estación: ' + @json($detalles)[context.label].estacion
+                            ].join('\n');
                         }
                     }
                 }
             }
-        });
+        }
+    });
 
-        // Exportar PDF con imagen del gráfico
-        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape');
 
-            // Título y datos del reporte
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(18);
-            doc.text('Reporte de Incidencias Atendidas', 15, 15);
+    // Exportar PDF
+    document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
 
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(12);
-            doc.text(`Período: ${@json($startDate->isoFormat('D MMMM YYYY'))} - ${@json($endDate->isoFormat('D MMMM YYYY'))}`, 15, 25);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('Reporte de Incidencias Atendidas', 15, 15);
 
-            @isset($tipoIncidenciaId)
-            @if($tipoIncidenciaId)
-                doc.text(`Tipo: {{ $tiposIncidencia->firstWhere('id_tipo_incidencia', $tipoIncidenciaId)->nombre ?? 'N/A' }}`, 15, 35);
-            @endif
-            @endisset
-            
-            if ('{{ $denunciante }}') {
-                doc.text(`Denunciante: {{ $denunciante == 'con' ? 'Con denunciante' : 'Sin denunciante' }}`, 15, 45);
-            }
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.text(`Período: ${@json($startDate->isoFormat('D MMMM YYYY'))} - ${@json($endDate->isoFormat('D MMMM YYYY'))}`, 15, 25);
 
-            // Agregar imagen del gráfico
-            const chartImg = chart.toBase64Image();
-            doc.addImage(chartImg, 'JPEG', 15, 55, 180, 90);
+        if ('{{ $tipoIncidencia }}') {
+            doc.text(`Tipo: {{ ucfirst($tipoIncidencia) }}`, 15, 35);
+        }
 
-            // Detalle de datos
-            doc.setFontSize(10);
-            doc.text('Detalle por Mes, Institución y Estación', 15, 155);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Mes', 15, 165);
-            doc.text('Institución', 50, 165);
-            doc.text('Estación', 90, 165);
-            doc.text('Atendidas', 130, 165);
-            doc.text('Total', 150, 165);
-            doc.text('%', 170, 165);
-            doc.setFont('helvetica', 'normal');
+        if ('{{ $denunciante }}') {
+            doc.text(`Denunciante: {{ $denunciante == 'con' ? 'Con denunciante' : 'Sin denunciante' }}`, 15, 45);
+        }
 
-            let y = 175;
-            @foreach($labels as $uniqueKey => $label)
-                @php
-                    $parts = explode('|', $uniqueKey);
-                    $monthYear = $parts[0];
-                    $totalMesEstacion = $detalles[$uniqueKey]['total_mes_estacion'] ?? 0;
-                @endphp
-                doc.text('{{ $monthYear }}', 15, y);
-                doc.text('{{ $detalles[$uniqueKey]['institucion'] ?? 'N/A' }}', 50, y);
-                doc.text('{{ $detalles[$uniqueKey]['estacion'] ?? 'N/A' }}', 90, y);
-                doc.text('{{ $dataAtendidas[$uniqueKey] }}', 130, y);
-                doc.text('{{ $totalMesEstacion }}', 150, y);
-                doc.text('{{ $porcentajes[$uniqueKey] }}%', 170, y);
-                y += 10;
-            @endforeach
+        const chartImg = chart.toBase64Image();
+        doc.addImage(chartImg, 'JPEG', 15, 55, 180, 90);
 
-            doc.save('reporte_incidencias_{{ now()->format('YmdHis') }}.pdf');
-        });
-    }
+        doc.setFontSize(10);
+        doc.text('Detalle por Mes', 15, 155);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Mes', 15, 165);
+        doc.text('Institución', 60, 165);
+        doc.text('Estación', 100, 165);
+        doc.text('Atendidas', 140, 165);
+        doc.text('Total', 160, 165);
+        doc.text('%', 180, 165);
+        doc.setFont('helvetica', 'normal');
+
+        let y = 175;
+        @foreach($labels as $index => $label)
+            doc.text('{{ $label }}', 15, y);
+            doc.text('{{ $detalles[$label]['institucion'] ?? 'N/A' }}', 60, y);
+            doc.text('{{ $detalles[$label]['estacion'] ?? 'N/A' }}', 100, y);
+            doc.text('{{ $dataAtendidas[$index] }}', 140, y);
+            doc.text(Math.round({{ $dataAtendidas[$index] }} / ({{ $porcentajes[$index] }} / 100)).toString(), 160, y);
+            doc.text('{{ $porcentajes[$index] }}%', 180, y);
+            y += 10;
+        @endforeach
+
+        doc.save('reporte_incidencias_{{ now()->format('YmdHis') }}.pdf');
+    });
 
     // Validación de fechas
     document.getElementById('filterForm').addEventListener('submit', function(e) {
@@ -432,10 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
         align-items: center;
         justify-content: center;
     }
-    #chart1 {
+    #incidenciasChart {
         max-height: 400px;
         width: 100% !important;
-       
     }
     .dataTables_wrapper .dataTables_filter input {
         border-radius: 0.25rem;

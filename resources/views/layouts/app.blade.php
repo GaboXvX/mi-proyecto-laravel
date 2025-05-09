@@ -58,12 +58,12 @@
 
             <!-- Consultar -->
             <li class="nav-item">
-                <a href="#layouts" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
+            <a href="#layouts" class="nav-link {{ $consultarActivo ? '' : 'collapsed' }}" data-bs-toggle="collapse" aria-expanded="{{ $consultarActivo ? 'true' : 'false' }}">
                     <i class="bi bi-search me-2"></i>
                     <span>Consultar</span>
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="collapse" id="layouts">
+                <div class="collapse {{ $consultarActivo ? 'show' : '' }}" id="layouts">
                     <ul class="navbar-nav ps-3 mt-2">
                         @can('ver empleados')
                         <li>
@@ -232,41 +232,8 @@
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>
 <script src="{{ asset('js/gridstack-all.min.js') }}"></script>
-{{-- <script src="{{ asset('js/script.js') }}"></script> --}}
+<script src="{{ asset('js/script.js') }}"></script> 
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-    
-        // Restaurar estado al cargar
-        if (window.innerWidth > 768) {
-            const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-            if (isCollapsed) {
-                sidebar.classList.add('collapsed');
-                mainContent.classList.add('collapsed');
-            }
-        } else {
-            const isActive = localStorage.getItem('sidebar-mobile-active') === 'true';
-            if (isActive) {
-                sidebar.classList.add('active');
-            }
-        }
-    
-        // Toggle y guardar estado
-        menuToggle.addEventListener('click', function () {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('active');
-                localStorage.setItem('sidebar-mobile-active', sidebar.classList.contains('active'));
-            } else {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('collapsed');
-                localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
-            }
-        });
-    });
-    </script>
     
 <script>
     document.addEventListener('DOMContentLoaded', function () {

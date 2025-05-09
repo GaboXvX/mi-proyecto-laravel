@@ -70,67 +70,76 @@
     <!-- Filtros -->
     <div class="filters-container">
         <div class="card-body">
-            <form id="filtros-form">
-                @csrf
+            <form id="filtros-form" method="GET" action="{{ route('incidencias.index') }}">
                 <div class="row">
-                    <!-- Filtro por Código -->
+                    <!-- Código -->
                     <div class="col-md-3">
                         <label for="codigo-busqueda" class="form-label">Código:</label>
-                        <input type="text" id="codigo-busqueda" class="form-control" placeholder="Buscar por código">
+                        <input type="text" id="codigo-busqueda" name="codigo" class="form-control"
+                               value="{{ request('codigo') }}" placeholder="Buscar por código">
                     </div>
-
-                    <!-- Filtro por Estado -->
+            
+                    <!-- Estado -->
                     <div class="col-md-3">
                         <label for="estado" class="form-label">Estado:</label>
                         <select class="form-select" id="estado" name="estado">
                             <option value="Todos">Todos</option>
                             @foreach($estados as $estado)
-                                <option value="{{ $estado->nombre }}">{{ $estado->nombre }}</option>
+                                <option value="{{ $estado->nombre }}" {{ request('estado') == $estado->nombre ? 'selected' : '' }}>
+                                    {{ $estado->nombre }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- Filtro por Prioridad -->
+            
+                    <!-- Prioridad -->
                     <div class="col-md-3">
                         <label for="prioridad" class="form-label">Prioridad:</label>
                         <select class="form-select" id="prioridad" name="prioridad">
                             <option value="Todos">Todos</option>
                             @foreach($niveles as $nivel)
-                                <option value="{{ $nivel->nombre }}">{{ $nivel->nombre }}</option>
+                                <option value="{{ $nivel->nombre }}" {{ request('prioridad') == $nivel->nombre ? 'selected' : '' }}>
+                                    {{ $nivel->nombre }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- Filtro por Fechas -->
+            
+                    <!-- Rango de fechas -->
                     <div class="col-md-3">
                         <label class="form-label">Rango de Fechas:</label>
                         <div class="input-group">
-                            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
+                            <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control"
+                                   value="{{ request('fecha_inicio') }}">
                             <span class="input-group-text">a</span>
-                            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control">
+                            <input type="date" id="fecha_fin" name="fecha_fin" class="form-control"
+                                   value="{{ request('fecha_fin') }}">
                         </div>
                     </div>
                 </div>
+               
             </form>
+            
         </div>
     </div>
 
     <!-- Botón para Generar PDF -->
-    <div class="d-flex justify-content-end mb-3">
-        @can('descargar listado incidencias')
-        <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST" style="display: inline;">
-            @csrf
-            <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio">
-            <input type="hidden" id="pdf-fecha-fin" name="fecha_fin">
-            <input type="hidden" id="pdf-estado" name="estado">
-            <input type="hidden" id="pdf-prioridad" name="prioridad">
-            <input type="hidden" id="pdf-codigo" name="codigo">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-file-earmark-pdf"></i> Generar PDF
-            </button>
-        </form>
-        @endcan
-    </div>
+<div class="d-flex justify-content-end mb-3">
+    @can('descargar listado incidencias')
+    <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST">
+        @csrf
+        <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
+        <input type="hidden" id="pdf-fecha-fin" name="fecha_fin" value="{{ request('fecha_fin') }}">
+        <input type="hidden" id="pdf-estado" name="estado" value="{{ request('estado') }}">
+        <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
+        <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+        </button>
+    </form>
+    @endcan
+</div>
+
 
     <!-- Tabla de Incidencias -->
     <div class="table-responsive">
@@ -153,7 +162,7 @@
                 @foreach ($incidencias as $incidencia)
                     <tr data-incidencia-id="{{ $incidencia->slug }}">
                         <td>{{ $incidencia->cod_incidencia }}</td>
-                        <td>{{ $incidencia->tipo_incidencia }}</td>
+                        <td>{{ $incidencia->tipoIncidencia->nombre }}</td>
                         <td>{{ Str::limit($incidencia->descripcion, 50) }}</td>
                         
                         <!-- Columna de Prioridad -->

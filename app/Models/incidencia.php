@@ -20,7 +20,7 @@ class incidencia extends Model
         'id_direccion',
         'id_usuario',
         'slug',
-        'tipo_incidencia',
+        'id_tipo_incidencia',
         'descripcion',
         'id_institucion',
         'id_institucion_estacion',
@@ -113,4 +113,12 @@ public function institucionEstacion()
     {
         return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
     }
+    /**
+     * Relación con el modelo TipoIncidencia.
+     */
+    public function tipoIncidencia()
+    {
+        return $this->belongsTo(tipoIncidencia::class, 'id_tipo_incidencia');
+    }
+
 }

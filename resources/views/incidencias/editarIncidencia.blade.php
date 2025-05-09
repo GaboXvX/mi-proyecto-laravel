@@ -9,7 +9,7 @@
     <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST">
         @csrf
         @method('PUT')
-
+        <input type="hidden" name="id_persona" id="id_persona" value="{{ $incidencia->id_persona }}">
         <!-- Paso visual -->
         <div>
             <ul class="nav nav-pills justify-content-center" id="stepIndicator">
@@ -43,8 +43,7 @@
                     <h5 class="mb-0">Dirección del Incidente</h5>
                 </div>
                 <div class="card-body">
-                    <livewire:dropdown-persona/>
-
+                    <livewire:dropdown-persona :personaSeleccionada="$incidencia->id_persona"/>
                     <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="calle" class="form-label">Calle:</label>
@@ -115,8 +114,12 @@
                         <label for="tipo_incidencia" class="form-label">Tipo de Incidencia:</label>
                         <select id="tipo_incidencia" name="tipo_incidencia" class="form-select" required>
                             <option value="" disabled>--Seleccione--</option>
-                            <option value="agua potable" {{ $incidencia->tipo_incidencia == 'agua potable' ? 'selected' : '' }}>Agua Potable</option>
-                            <option value="agua servida" {{ $incidencia->tipo_incidencia == 'agua servida' ? 'selected' : '' }}>Agua Servida</option>
+                            @foreach ($tipos as $tipo)
+                               
+                                <option value="{{ $tipo->id_tipo_incidencia }}">{{ $tipo->nombre }} </option>
+                                  
+                               
+                            @endforeach
                         </select>
                     </div>
 

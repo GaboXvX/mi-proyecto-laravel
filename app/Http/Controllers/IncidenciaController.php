@@ -20,6 +20,7 @@ use App\Models\Notificacion;
 use App\Models\Persona;
 use App\Models\personalReparacion;
 use App\Models\ReparacionIncidencia;
+use App\Models\tipoIncidencia;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
@@ -43,7 +44,8 @@ class IncidenciaController extends Controller
             'direccion',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
-            'estadoIncidencia'
+            'estadoIncidencia',
+            'tipoIncidencia'
         ])
         ->when($request->codigo, function ($query, $codigo) {
             return $query->where('cod_incidencia', 'like', "%$codigo%");
@@ -77,11 +79,11 @@ class IncidenciaController extends Controller
     {
         $direcciones = Direccion::all();
         $prioridades = nivelIncidencia::all();
-
+        $tipos= tipoIncidencia::all();
         $persona = Persona::where('slug', $slug)->first();
         $instituciones = Institucion::all(); // Obtener todas las instituciones
 
-        return view('incidencias.registrarIncidencia', compact('persona', 'instituciones', 'direcciones', 'prioridades'));
+        return view('incidencias.registrarIncidencia', compact('persona', 'instituciones', 'direcciones', 'prioridades', 'tipos'));
     }
 
 
@@ -92,8 +94,9 @@ class IncidenciaController extends Controller
         $direcciones = Direccion::all();
         $estados = Estado::all();
         $prioridades = nivelIncidencia::all();
+        $tipos = tipoIncidencia::all();
         // Retornar la vista para registrar una incidencia general
-        return view('incidencias.registrarIncidenciaGeneral', compact('instituciones', 'direcciones', 'estados', 'prioridades'));
+        return view('incidencias.registrarIncidenciaGeneral', compact('instituciones', 'direcciones', 'estados', 'prioridades', 'tipos'));
     }
 
     public function store(Request $request)
@@ -110,7 +113,6 @@ class IncidenciaController extends Controller
             'urbanizacion' => 'nullable|exists:urbanizaciones,id_urbanizacion',
             'sector' => 'nullable|exists:sectores,id_sector',
             'comunidad' => 'nullable|exists:comunidades,id_comunidad',
-            'tipo_incidencia' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
             'institucion' => 'required|exists:instituciones,id_institucion',
@@ -161,7 +163,7 @@ class IncidenciaController extends Controller
         $incidencia->id_persona = $request->input('id_persona');
         $incidencia->slug = $slug;
         $incidencia->cod_incidencia = $codigo;
-        $incidencia->tipo_incidencia = $request->input('tipo_incidencia');
+        $incidencia->id_tipo_incidencia = $request->input('tipo_incidencia');
         $incidencia->descripcion = Str::lower($request->input('descripcion'));
         $incidencia->id_nivel_incidencia = $nivel->id_nivel_incidencia;
         $incidencia->id_estado_incidencia = $estadoInicial->id_estado_incidencia;
@@ -226,10 +228,6 @@ class IncidenciaController extends Controller
         }
     }
 
-
-
-
-
     public function edit($slug)
     {
         try {
@@ -246,7 +244,8 @@ class IncidenciaController extends Controller
                 'institucionEstacion.municipio',
                 'nivelIncidencia',
                 'estadoIncidencia',
-                'usuario'
+                'usuario',
+                'tipoIncidencia'
             ])->where('slug', $slug)->first();
     
             if (!$incidencia) {
@@ -269,16 +268,17 @@ class IncidenciaController extends Controller
                 
             $prioridades = NivelIncidencia::orderBy('horas_vencimiento', 'desc')->get();
             $estados = EstadoIncidencia::orderBy('nombre')->get();
-    
+            $tipos = tipoIncidencia::orderBy('nombre')->get();
             // Obtener estaciones relacionadas con la institución actual (para precargar)
             $estacionesRelacionadas = $incidencia->id_institucion 
                 ? InstitucionEstacion::where('id_institucion', $incidencia->id_institucion)
                     ->with('municipio')
                     ->get()
                 : collect();
-    
+            
             return view('incidencias.editarIncidencia', [
                 'incidencia' => $incidencia,
+                'tipos'=>$tipos,
                 'instituciones' => $instituciones,
                 'estaciones' => $estaciones,
                 'prioridades' => $prioridades,
@@ -306,60 +306,56 @@ class IncidenciaController extends Controller
 
 
     public function update(Request $request, $slug)
-{
-    try {
-        // Buscar la incidencia
-        $incidencia = Incidencia::where('slug', $slug)->first();
-
-        if (!$incidencia) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Incidencia no encontrada.',
-            ], 404);
-        }
-
-        // Validar los datos del request
-        $validatedData = $request->validate([
-            'id_persona' => 'nullable|exists:personas,id_persona',
-            'calle' => 'required|string|max:255',
-            'punto_de_referencia' => 'nullable|string|max:255',
-            'estado' => 'required|exists:estados,id_estado',
-            'municipio' => 'required|exists:municipios,id_municipio',
-            'parroquia' => 'required|exists:parroquias,id_parroquia',
-            'urbanizacion' => 'nullable|exists:urbanizaciones,id_urbanizacion',
-            'sector' => 'nullable|exists:sectores,id_sector',
-            'comunidad' => 'nullable|exists:comunidades,id_comunidad',
-            'tipo_incidencia' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
-            'institucion' => 'required|exists:instituciones,id_institucion',
-            'estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
-        ]);
-
-        $slug = Str::slug(Str::lower($request->input('descripcion')));
-        $originalSlug = $slug;
-        $counter = 1;
-
-        while (Incidencia::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
-        }
-
-        // Generar un código único
-        $codigo = Str::random(8);
-        while (Incidencia::where('cod_incidencia', $codigo)->exists()) {
-            $codigo = Str::random(8);
-        }
-
-        // Obtener el nivel de incidencia
-        $nivel = NivelIncidencia::findOrFail($request->input('nivel_prioridad'));
-
-        // Obtener el estado inicial (por ejemplo, estado "Pendiente" con ID 1)
-        $estadoInicial = estadoIncidencia::where('nombre', 'Pendiente')->firstOrFail();
-
-        // Buscar o crear la dirección
-        $direccion = Direccion::firstOrCreate(
-            [
+    {
+        try {
+            // Buscar la incidencia con relaciones necesarias
+            $incidencia = Incidencia::with(['nivelIncidencia', 'tipoIncidencia'])
+                ->where('slug', $slug)
+                ->first();
+    
+            if (!$incidencia) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Incidencia no encontrada.',
+                ], 404);
+            }
+    
+            // Validar los datos del request
+            $validatedData = $request->validate([
+                'id_persona' => 'nullable|exists:personas,id_persona',
+                'calle' => 'required|string|max:255',
+                'punto_de_referencia' => 'nullable|string|max:255',
+                'estado' => 'required|exists:estados,id_estado',
+                'municipio' => 'required|exists:municipios,id_municipio',
+                'parroquia' => 'required|exists:parroquias,id_parroquia',
+                'urbanizacion' => 'nullable|exists:urbanizaciones,id_urbanizacion',
+                'sector' => 'nullable|exists:sectores,id_sector',
+                'comunidad' => 'nullable|exists:comunidades,id_comunidad',
+                'descripcion' => 'required|string',
+                'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
+                'institucion' => 'required|exists:instituciones,id_institucion',
+                'estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+            ]);
+    
+            // Solo generar nuevo slug si cambió la descripción
+            $nuevoSlug = $incidencia->slug;
+            if ($incidencia->descripcion !== $request->input('descripcion')) {
+                $nuevoSlug = Str::slug(Str::lower($request->input('descripcion')));
+                $originalSlug = $nuevoSlug;
+                $counter = 1;
+    
+                while (Incidencia::where('slug', $nuevoSlug)->where('id_incidencia', '!=', $incidencia->id_incidencia)->exists()) {
+                    $nuevoSlug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+            }
+    
+            // Obtener modelos relacionados
+            $nivel = NivelIncidencia::findOrFail($request->input('nivel_prioridad'));
+            $tipoIncidencia = tipoIncidencia::findOrFail($request->input('tipo_incidencia'));
+    
+            // Buscar o crear la dirección
+            $direccion = Direccion::firstOrCreate([
                 'calle' => $request->input('calle'),
                 'id_estado' => $request->input('estado'),
                 'id_municipio' => $request->input('municipio'),
@@ -368,44 +364,49 @@ class IncidenciaController extends Controller
                 'id_sector' => $request->input('sector'),
                 'id_comunidad' => $request->input('comunidad'),
                 'punto_de_referencia' => $request->input('punto_de_referencia'),
-            ]
-        );
-
-        // Actualizar los datos de la incidencia
-        $incidencia->update([
-            'slug' => $slug,
-            'cod_incidencia' => $codigo,
-            'id_persona' => $request->input('id_persona'),
-            'tipo_incidencia' => $request->input('tipo_incidencia'),
-            'descripcion' => Str::lower($request->input('descripcion')),
-            'id_nivel_incidencia' => $nivel->id_nivel_incidencia,
-            'id_direccion' => $direccion->id_direccion,
-            'id_usuario' => auth()->id(),
-            'id_institucion' => $request->input('institucion'),
-            'id_institucion_estacion' => $request->input('estacion'),
-        ]);
-
-        // Registrar movimiento
-        Movimiento::create([
-            'id_incidencia' => $incidencia->id_incidencia,
-            'id_usuario' => auth()->id(),
-            'descripcion' => 'Se actualizó una incidencia',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => '✅ Incidencia actualizada correctamente.',
-            'redirect_url' => route('incidencias.show', $incidencia->slug),
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Error al actualizar la incidencia:', ['error' => $e->getMessage()]);
-        return response()->json([
-            'success' => false,
-            'message' => '⚠️ Error al actualizar la incidencia: ' . $e->getMessage(),
-        ], 500);
+            ]);
+    
+            // Actualizar los datos de la incidencia
+            $datosActualizacion = [
+                'slug' => $nuevoSlug,
+                'id_persona' => $request->input('id_persona'),
+                'id_tipo_incidencia' => $tipoIncidencia->id_tipo_incidencia,
+                'descripcion' => Str::lower($request->input('descripcion')),
+                'id_nivel_incidencia' => $nivel->id_nivel_incidencia,
+                'id_direccion' => $direccion->id_direccion,
+                'id_institucion' => $request->input('institucion'),
+                'id_institucion_estacion' => $request->input('estacion'),
+            ];
+    
+            // Actualizar fecha de vencimiento solo si cambió la prioridad
+            if ($incidencia->id_nivel_incidencia != $nivel->id_nivel_incidencia) {
+                $datosActualizacion['fecha_vencimiento'] = now()->addHours($nivel->horas_vencimiento);
+            }
+    
+            $incidencia->update($datosActualizacion);
+    
+            // Registrar movimiento
+            Movimiento::create([
+                'id_incidencia' => $incidencia->id_incidencia,
+                'id_usuario' => auth()->id(),
+                'descripcion' => 'Se actualizó una incidencia',
+                'fecha_movimiento' => now(),
+            ]);
+    
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Incidencia actualizada correctamente.',
+                'redirect_url' => route('incidencias.show', $nuevoSlug),
+            ]);
+    
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar la incidencia:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => '⚠️ Error al actualizar la incidencia: ' . $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
 public function atenderGuardar(Request $request, $slug)
@@ -543,7 +544,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                 'direccion',
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',
-                'estadoIncidencia'
+                'estadoIncidencia',
+                'tipoIncidencia'
             ])
             ->when($request->codigo, function ($query, $codigo) {
                 return $query->where('cod_incidencia', 'like', "%$codigo%");
@@ -571,8 +573,9 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
                 return [
                     'cod_incidencia' => $incidencia->cod_incidencia,
-                    'tipo_incidencia' => $incidencia->tipo_incidencia,
-                    'descripcion' => $incidencia->descripcion,
+                    'tipo_incidencia' => $incidencia->tipoIncidencia ? [
+                        'nombre' => $incidencia->tipoIncidencia->nombre
+                    ] : null,                    'descripcion' => $incidencia->descripcion,
                     'created_at' => $incidencia->created_at,
                     'fecha_vencimiento' => $incidencia->fecha_vencimiento,
                     'slug' => $incidencia->slug,
@@ -713,7 +716,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                 'persona',
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',  // Relación con el nivel de prioridad
-                'estadoIncidencia'  // Relación con el estado actual
+                'estadoIncidencia',
+                'tipoIncidencia',
             ])->where('slug', $slug)->first();
     
             if (!$incidencia) {
@@ -735,7 +739,9 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                 'persona' => $persona,
                 'tiempoRestante' => $tiempoRestante,
                 'nivel' => $incidencia->nivelIncidencia,  // Acceso directo al nivel
-                'estado' => $incidencia->estadoIncidencia // Acceso directo al estado
+                'estado' => $incidencia->estadoIncidencia,
+                'tipo' => $incidencia->tipoIncidencia,  // Acceso directo al tipo de incidencia
+                // Acceso directo al estado
             ]);
         } catch (\Exception $e) {
             Log::error('Error en IncidenciaController@show: ' . $e->getMessage());
@@ -751,7 +757,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                 'persona',
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',  // Relación con el nivel de prioridad
-                'estadoIncidencia'  // Relación con el estado actual
+                'estadoIncidencia',  // Relación con el estado actual
+                'tipoIncidencia',  // Relación con el tipo de incidencia
             ])->where('slug', $slug)->first();
     
             if (!$incidencia) {
@@ -775,120 +782,212 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
     
 
     public function showChart(Request $request)
-    {
-        Carbon::setLocale('es');
-        
-        // Validación de fechas con valores por defecto
-        $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()))->startOfDay();
-        $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()))->endOfDay();
-        
-        $tipoIncidencia = $request->input('tipo_incidencia', '');
-        $denunciante = $request->input('denunciante', '');
-        $institucionId = $request->input('institucion_id', '');
-        $estacionId = $request->input('estacion_id', '');
+{
+    Carbon::setLocale('es');
     
-        // Consulta base para incidencias atendidas usando la relación estadoIncidencia
-        $queryAtendidas = Incidencia::with(['estadoIncidencia', 'institucion', 'estacion'])
-            ->whereHas('estadoIncidencia', function($q) {
-                $q->where('nombre', 'Atendido');
-            })
-            ->whereBetween('created_at', [$startDate, $endDate]);
+    // Validación de fechas con valores por defecto
+    $startDate = Carbon::parse($request->input('start_date', Carbon::now()->startOfYear()))->startOfDay();
+    $endDate = Carbon::parse($request->input('end_date', Carbon::now()->endOfMonth()))->endOfDay();
     
-        // Consulta para total de incidencias (para calcular porcentaje)
-        $queryTotal = Incidencia::with(['institucion', 'estacion'])
-            ->whereBetween('created_at', [$startDate, $endDate]);
-    
-        // Filtros adicionales
-        if ($tipoIncidencia) {
-            $queryAtendidas->where('tipo_incidencia', $tipoIncidencia);
-            $queryTotal->where('tipo_incidencia', $tipoIncidencia);
+    // Validar fechas
+    if ($startDate > $endDate) {
+        if ($request->ajax()) {
+            return response()->json(['error' => 'La fecha de inicio no puede ser posterior a la fecha de fin'], 422);
         }
-    
-        if ($denunciante === 'con') {
-            $queryAtendidas->whereNotNull('id_persona');
-            $queryTotal->whereNotNull('id_persona');
-        } elseif ($denunciante === 'sin') {
-            $queryAtendidas->whereNull('id_persona');
-            $queryTotal->whereNull('id_persona');
-        }
-    
-        if ($institucionId) {
-            $queryAtendidas->where('id_institucion', $institucionId);
-            $queryTotal->where('id_institucion', $institucionId);
-        }
-    
-        if ($estacionId) {
-            $queryAtendidas->where('id_institucion_estacion', $estacionId);
-            $queryTotal->where('id_institucion_estacion', $estacionId);
-        }
-    
-        // Obtener datos mensuales de incidencias atendidas
-        $incidenciasAtendidas = $queryAtendidas->selectRaw('
-                YEAR(created_at) as year, 
-                MONTH(created_at) as month, 
-                COUNT(*) as total,
-                id_institucion,
-                id_institucion_estacion
-            ')
-            ->groupBy('year', 'month', 'id_institucion', 'id_institucion_estacion')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-    
-        // Obtener totales mensuales para calcular porcentajes
-        $totalesMensuales = $queryTotal->selectRaw('
-                YEAR(created_at) as year, 
-                MONTH(created_at) as month, 
-                COUNT(*) as total
-            ')
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get()
-            ->keyBy(function($item) {
-                return $item->year . '-' . $item->month;
-            });
-    
-        // Preparar datos para la gráfica
-        $labels = [];
-        $dataAtendidas = [];
-        $porcentajes = [];
-        $detalles = [];
-    
-        foreach ($incidenciasAtendidas as $incidencia) {
-            $monthName = Carbon::createFromFormat('m', $incidencia->month)->locale('es')->isoFormat('MMMM');
-            $key = $monthName . ' ' . $incidencia->year;
-            
-            $labels[] = $key;
-            $dataAtendidas[] = $incidencia->total;
-            
-            // Calcular porcentaje
-            $mesKey = $incidencia->year . '-' . $incidencia->month;
-            $totalMes = $totalesMensuales[$mesKey]->total ?? 0;
-            $porcentaje = $totalMes > 0 ? round(($incidencia->total / $totalMes) * 100, 2) : 0;
-            $porcentajes[] = $porcentaje;
-    
-            // Agregar detalles institucionales
-            $detalles[$key] = [
-                'institucion' => $incidencia->institucion->nombre ?? 'N/A',
-                'estacion' => $incidencia->estacion->nombre ?? 'N/A',
-                'total' => $incidencia->total
-            ];
-        }
-    
-        return view('incidencias.grafica_incidencia_resueltas', compact(
-            'labels', 
-            'dataAtendidas', 
-            'porcentajes',
-            'detalles',
-            'startDate', 
-            'endDate', 
-            'tipoIncidencia',
-            'denunciante',
-            'institucionId',
-            'estacionId'
-        ));
+        return back()->with('error', 'La fecha de inicio no puede ser posterior a la fecha de fin');
     }
+    
+    // Obtener parámetros de filtro
+    $filters = [
+        'tipo_incidencia_id' => $request->input('tipo_incidencia_id', ''),
+        'denunciante' => $request->input('denunciante', ''),
+        'institucion_id' => $request->input('institucion_id', ''),
+        'estacion_id' => $request->input('estacion_id', '')
+    ];
+
+    // Obtener datos
+    $data = $this->getChartData($startDate, $endDate, $filters);
+
+    // Para peticiones AJAX
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'startDate' => $startDate->format('Y-m-d'),
+            'endDate' => $endDate->format('Y-m-d')
+        ]);
+    }
+
+    // Para peticiones normales
+    return view('incidencias.grafica_incidencia_resueltas', array_merge($data, [
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'tiposIncidencia' => TipoIncidencia::orderBy('nombre')->get(),
+        'instituciones' => Institucion::orderBy('nombre')->get(),
+        'estaciones' => $filters['institucion_id'] 
+            ? InstitucionEstacion::where('id_institucion', $filters['institucion_id'])->orderBy('nombre')->get()
+            : collect(),
+        'tipoIncidenciaId' => $filters['tipo_incidencia_id'],
+        'denunciante' => $filters['denunciante'],
+        'institucionId' => $filters['institucion_id'],
+        'estacionId' => $filters['estacion_id']
+    ]));
+}
+
+protected function getChartData($startDate, $endDate, $filters)
+{
+    // Consultas base
+    $queryAtendidas = Incidencia::with(['estadoIncidencia', 'institucion', 'estacion', 'tipoIncidencia'])
+        ->whereHas('estadoIncidencia', function($q) {
+            $q->where('nombre', 'Atendido');
+        })
+        ->whereBetween('created_at', [$startDate, $endDate]);
+
+    $queryTotal = Incidencia::with(['institucion', 'estacion', 'tipoIncidencia'])
+        ->whereBetween('created_at', [$startDate, $endDate]);
+
+    // Crear una copia para totales por estación
+    $queryTotalEstacion = clone $queryTotal;
+
+    // Aplicar filtros - ahora con 3 argumentos
+    $this->applyFilters($queryAtendidas, $queryTotal, $filters);
+    $this->applyFilters($queryAtendidas, $queryTotalEstacion, $filters);
+
+    // Obtener datos
+    $incidenciasAtendidas = $this->getAtendidasData($queryAtendidas);
+    $totalesMensuales = $this->getTotalesMensuales($queryTotal);
+    $totalesPorEstacion = $this->getTotalesPorEstacion($queryTotalEstacion);
+
+    return $this->prepareChartData($incidenciasAtendidas, $totalesMensuales, $totalesPorEstacion);
+}
+
+// Método applyFilters modificado para recibir 3 parámetros
+protected function applyFilters(&$queryAtendidas, &$queryTotal, $filters)
+{
+    // Filtro por tipo de incidencia
+    if (!empty($filters['tipo_incidencia_id'])) {
+        $callback = function($q) use ($filters) {
+            $q->where('id_tipo_incidencia', $filters['tipo_incidencia_id']);
+        };
+        
+        $queryAtendidas->whereHas('tipoIncidencia', $callback);
+        $queryTotal->whereHas('tipoIncidencia', $callback);
+    }
+
+    // Filtro por denunciante
+    if ($filters['denunciante'] === 'con') {
+        $queryAtendidas->whereNotNull('id_persona');
+        $queryTotal->whereNotNull('id_persona');
+    } elseif ($filters['denunciante'] === 'sin') {
+        $queryAtendidas->whereNull('id_persona');
+        $queryTotal->whereNull('id_persona');
+    }
+
+    // Filtro por institución
+    if (!empty($filters['institucion_id'])) {
+        $queryAtendidas->where('id_institucion', $filters['institucion_id']);
+        $queryTotal->where('id_institucion', $filters['institucion_id']);
+    }
+
+    // Filtro por estación
+    if (!empty($filters['estacion_id'])) {
+        $queryAtendidas->where('id_institucion_estacion', $filters['estacion_id']);
+        $queryTotal->where('id_institucion_estacion', $filters['estacion_id']);
+    }
+}
+
+// Los demás métodos se mantienen igual
+protected function getAtendidasData($query)
+{
+    return $query->selectRaw('
+            YEAR(created_at) as year, 
+            MONTH(created_at) as month,
+            id_institucion,
+            id_institucion_estacion,
+            COUNT(*) as total
+        ')
+        ->groupBy('year', 'month', 'id_institucion', 'id_institucion_estacion')
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get();
+}
+
+protected function getTotalesMensuales($query)
+{
+    return $query->selectRaw('
+            YEAR(created_at) as year, 
+            MONTH(created_at) as month,
+            COUNT(*) as total
+        ')
+        ->groupBy('year', 'month')
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get()
+        ->keyBy(function($item) {
+            return $item->year . '-' . $item->month;
+        });
+}
+
+protected function getTotalesPorEstacion($query)
+{
+    return $query->selectRaw('
+            YEAR(created_at) as year, 
+            MONTH(created_at) as month,
+            id_institucion,
+            id_institucion_estacion,
+            COUNT(*) as total
+        ')
+        ->groupBy('year', 'month', 'id_institucion', 'id_institucion_estacion')
+        ->orderBy('year')
+        ->orderBy('month')
+        ->get()
+        ->keyBy(function($item) {
+            $monthName = Carbon::createFromFormat('m', $item->month)->locale('es')->isoFormat('MMMM');
+            return $monthName . ' ' . $item->year . '|' . $item->id_institucion . '|' . $item->id_institucion_estacion;
+        });
+}
+
+protected function prepareChartData($incidenciasAtendidas, $totalesMensuales, $totalesPorEstacion)
+{
+    $labels = [];
+    $dataAtendidas = [];
+    $porcentajes = [];
+    $detalles = [];
+
+    foreach ($incidenciasAtendidas as $incidencia) {
+        $monthName = Carbon::createFromFormat('m', $incidencia->month)->locale('es')->isoFormat('MMMM');
+        $key = $monthName . ' ' . $incidencia->year;
+        
+        $uniqueKey = $key . '|' . $incidencia->id_institucion . '|' . $incidencia->id_institucion_estacion;
+        
+        $labels[$uniqueKey] = $key;
+        $dataAtendidas[$uniqueKey] = $incidencia->total;
+        
+        // Calcular porcentaje
+        $mesKey = $incidencia->year . '-' . $incidencia->month;
+        $totalMes = $totalesMensuales[$mesKey]->total ?? 0;
+        $porcentajes[$uniqueKey] = $totalMes > 0 ? round(($incidencia->total / $totalMes) * 100, 2) : 0;
+
+        // Obtener total específico por estación
+        $totalEstacion = $totalesPorEstacion[$uniqueKey]->total ?? 0;
+
+        // Agregar detalles
+        $detalles[$uniqueKey] = [
+            'institucion' => $incidencia->institucion->nombre ?? 'N/A',
+            'estacion' => $incidencia->estacion->nombre ?? 'N/A',
+            'total' => $incidencia->total,
+            'total_mes_estacion' => $totalEstacion,
+            'tipo_incidencia' => $incidencia->tipoIncidencia->nombre ?? 'N/A'
+        ];
+    }
+
+    return [
+        'labels' => $labels,
+        'dataAtendidas' => $dataAtendidas,
+        'porcentajes' => $porcentajes,
+        'detalles' => $detalles
+    ];
+}
 
     public function buscar(Request $request)
     {

@@ -8,36 +8,22 @@
         <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
             @csrf
 
-            <div class="row g-3 mb-2">
-                <div class="col-md-6">
-                    <label for="cedula" class="form-label">Cédula:</label>
-                    <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="categoria" class="form-label">Categoría:</label>
-                    <select name="categoria" id="categoria" class="form-select" required>
-                        @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
+            {{-- Datos Personales --}}
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" maxlength="12" required>
+                    <input type="text" id="nombre" name="nombre" class="form-control solo-letras" maxlength="12" required>
                 </div>
                 <div class="col-md-6">
                     <label for="apellido" class="form-label">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" class="form-control" maxlength="12" required>
+                    <input type="text" id="apellido" name="apellido" class="form-control solo-letras" maxlength="12" required>
                 </div>
             </div>
 
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
-                    <label for="correo" class="form-label">Correo:</label>
-                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
+                    <label for="cedula" class="form-label">Cédula:</label>
+                    <input type="text" id="cedula" name="cedula" class="form-control solo-numeros" maxlength="8" required>
                 </div>
                 <div class="col-md-6">
                     <label for="genero" class="form-label">Género:</label>
@@ -50,8 +36,24 @@
 
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
+                    <label for="correo" class="form-label">Correo:</label>
+                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
+                </div>
+                <div class="col-md-6">
                     <label for="telefono" class="form-label">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
+                    <input type="tel" id="telefono" name="telefono" class="form-control solo-numeros" maxlength="11" required>
+                </div>
+            </div>
+
+            {{-- Categoría y dirección principal --}}
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="categoria" class="form-label">Categoría:</label>
+                    <select name="categoria" id="categoria" class="form-select" required>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label for="es_principal" class="form-label">¿Dirección principal?</label>
@@ -62,42 +64,33 @@
                 </div>
             </div>
 
+            {{-- Dropdown con Livewire --}}
             <livewire:dropdown-persona/>
 
-            <div class="accordion mb-3" id="direccionAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingDireccion">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDireccion">
-                            Dirección
-                        </button>
-                    </h2>
-                    <div id="collapseDireccion" class="accordion-collapse collapse" data-bs-parent="#direccionAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-3 mb-2">
-                                <div class="col-md-6">
-                                    <label for="calle" class="form-label">Calle:</label>
-                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="bloque" class="form-label">Bloque:</label>
-                                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
-                                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            {{-- Dirección completa --}}
+            <div class="row g-3 mb-2 mt-2">
+                <div class="col-md-6">
+                    <label for="calle" class="form-label">Calle:</label>
+                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
+                </div>
+                <div class="col-md-6">
+                    <label for="manzana" class="form-label">Manzana:</label>
+                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
                 </div>
             </div>
 
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="bloque" class="form-label">Bloque:</label>
+                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
+                </div>
+                <div class="col-md-6">
+                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
+                </div>
+            </div>
+
+            {{-- Botones --}}
             <div class="d-flex justify-content-end">
                 <a href="{{ route('personas.index') }}" class="btn btn-secondary me-2">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Registrar</button>

@@ -4,6 +4,21 @@
     <meta charset="UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script>
+    (() => {
+        const storedTheme = localStorage.getItem('theme');
+        const getPreferredTheme = () => {
+            if (storedTheme) return storedTheme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+        const theme = getPreferredTheme();
+        if (theme === 'auto') {
+            document.documentElement.removeAttribute('data-bs-theme');
+        } else {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        }
+    })();
+    </script>
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}"/>
@@ -18,8 +33,7 @@
                 document.documentElement.classList.add('sidebar-collapsed');
             }
         })();
-        </script>
-        
+    </script>
 </head>
 <body>
     <aside class="sidebar d-flex flex-column p-3" id="sidebar">
@@ -112,7 +126,7 @@
                 <!-- tema -->
                 <div class="dropdown me-3">
                     <button class="btn btn-light-outline dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Cambiar tema">
-                        <i class="bi bi-circle-half" aria-hidden="true"></i>
+                        <i class="bi bi-circle-half" id="bd-theme-icon" aria-hidden="true"></i>
                         <span class="visually-hidden" id="bd-theme-text">Tema</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
@@ -309,31 +323,55 @@
 </script>
 <script>
         (() => {
-            'use strict';
+        'use strict';
 
-            const storedTheme = localStorage.getItem('theme');
+        const storedTheme = localStorage.getItem('theme');
 
-            const getPreferredTheme = () => {
-                if (storedTheme) return storedTheme;
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const getPreferredTheme = () => {
+            if (storedTheme) return storedTheme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        const updateThemeIcon = (theme) => {
+            const icon = document.getElementById('bd-theme-icon');
+            const text = document.getElementById('bd-theme-text');
+            if (!icon || !text) return;
+
+            switch (theme) {
+                case 'light':
+                    icon.className = 'bi bi-brightness-high me-2';
+                    text.textContent = 'Claro';
+                    break;
+                case 'dark':
+                    icon.className = 'bi bi-moon-stars me-2';
+                    text.textContent = 'Oscuro';
+                    break;
+                default:
+                    icon.className = 'bi bi-circle-half me-2';
+                    text.textContent = 'Auto';
+                    break;
             }
+        };
 
-            const setTheme = theme => {
-                if (theme === 'auto') {
-                    document.documentElement.removeAttribute('data-bs-theme');
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme);
-                }
+        const setTheme = (theme) => {
+            if (theme === 'auto') {
+                document.documentElement.removeAttribute('data-bs-theme');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme);
             }
+            updateThemeIcon(theme);
+        };
 
-            setTheme(getPreferredTheme());
+        const currentTheme = getPreferredTheme();
+        setTheme(currentTheme);
 
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                if (storedTheme !== 'light' && storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme());
-                }
-            });
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (!storedTheme || storedTheme === 'auto') {
+                setTheme(getPreferredTheme());
+            }
+        });
 
+        window.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('[data-bs-theme-value]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const theme = btn.getAttribute('data-bs-theme-value');
@@ -341,7 +379,8 @@
                     setTheme(theme);
                 });
             });
-        })();
+        });
+    })();
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -372,7 +411,6 @@
                 localStorage.setItem('sidebar-' + menuId, 'closed');
             });
         });
-        </script>
-        
+    </script> 
 </body>
 </html>

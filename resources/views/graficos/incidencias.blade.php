@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="table-container">
+<div class="container-fluid">
     <h2 class="mb-4">Estadísticas de Incidencias</h2>
 
     <!-- Filtros -->
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Resumen -->
-    <div class="row mb-4 g-3">
+    <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-white bg-primary">
                 <div class="card-body">
@@ -99,7 +99,8 @@
                 <div class="card-body">
                     <h5 class="card-title">Pendientes</h5>
                     <p class="card-text display-4">{{ $incidenciasPendientes }}</p>
-                    <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
+                                        <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
+
                 </div>
             </div>
         </div>

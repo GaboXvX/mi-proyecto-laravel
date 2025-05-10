@@ -124,6 +124,7 @@
     </div>
 
     <!-- Botón para Generar PDF -->
+    <!-- Botón para Generar PDF -->
 <div class="d-flex justify-content-end mb-3">
     @can('descargar listado incidencias')
     <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST">

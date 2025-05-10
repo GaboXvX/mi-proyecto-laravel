@@ -24,8 +24,8 @@ class StorePersonaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|max:12',
-            'apellido' => 'required|string|max:12',
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
             'cedula' => 'required|integer|unique:personas,cedula',
             'correo' => 'required|email|max:255|unique:personas,correo',
             'telefono' => 'required|digits:11',

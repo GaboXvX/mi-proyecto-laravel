@@ -49,14 +49,18 @@
                                 <option value="E">Extranjero (E)</option>
                             </select>
                         </div>
-                    </div>    
+                    </div>
+
+                    
+
+                  
 
                     <div class="row g-3 mt-2">
                         <div class="col-md-3">
                             <label for="telefono" class="form-label small mb-0">Teléfono <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-md-4">
-                            <input type="tel" name="telefono" id="telefono" class="form-control form-control-sm py-2" required maxlength="11" placeholder="Ej: 04141234567">
+                            <input type="tel" name="telefono" id="telefono" class="form-control form-control-sm py-2" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
                         </div>
                     </div>
 
@@ -65,7 +69,7 @@
                             <label for="nombre" class="form-label small mb-0">Nombre <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-md-5">
-                            <input type="text" name="nombre" id="nombre" class="form-control form-control-sm py-2" required maxlength="12">
+                            <input type="text" name="nombre" id="nombre" class="form-control form-control-sm py-2" required>
                         </div>
                     </div>
 
@@ -74,7 +78,7 @@
                             <label for="apellido" class="form-label small mb-0">Apellido <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-md-5">
-                            <input type="text" name="apellido" id="apellido" class="form-control form-control-sm py-2" required maxlength="12">
+                            <input type="text" name="apellido" id="apellido" class="form-control form-control-sm py-2" required>
                         </div>
                     </div>
 

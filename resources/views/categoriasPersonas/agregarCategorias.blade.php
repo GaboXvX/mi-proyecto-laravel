@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="table-container">
-    <h2>Nueva Categoría de Persona</h2>
+<div class="container">
+    <h1>Nueva Categoría de Persona</h1>
 
     <form method="POST" action="{{ route('categorias-personas.store') }}">
         @csrf
 
         <div class="mb-3">
             <label for="nombre_categoria" class="form-label">Nombre</label>
-            <input type="text" name="nombre_categoria" id="nombre_categoria" class="form-control solo-letras" value="{{ old('nombre_categoria') }}" required>
+            <input type="text" name="nombre_categoria" id="nombre_categoria" class="form-control" value="{{ old('nombre_categoria') }}" required>
         </div>
 
         <div class="mb-3">

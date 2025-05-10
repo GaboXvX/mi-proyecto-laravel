@@ -14,7 +14,7 @@
     </div>
 
     <div class="mb-4">
-        <input type="search" id="buscar" placeholder="Buscar por cédula" class="form-control solo-numeros d-inline-block" style="width: auto;">
+        <input type="search" id="buscar" placeholder="Buscar por cédula" class="form-control d-inline-block" style="width: auto;">
     </div>
 
     <div id="personas-lista">

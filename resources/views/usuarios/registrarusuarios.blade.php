@@ -80,6 +80,7 @@
 
         <!-- Paso 2: Preguntas de Seguridad -->
         <div class="form-step" id="step2">
+            <h2>Preguntas de Seguridad</h2>
             <p>Seleccione 3 preguntas de seguridad y proporcione sus respuestas.</p>
             
             @for ($i = 1; $i <= 3; $i++)

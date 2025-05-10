@@ -248,7 +248,7 @@ footer {
 /* Estilos para el formulario de registro (multistep) */
 .registration-container {
     margin: 0 auto;
-    padding: 30px;
+    padding: 25px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -273,11 +273,9 @@ footer {
     display: block;
 }
 
-.form-step,
-.form-header p {
+.form-step p {
     color: #28446e;
-    font-size: 16px;
-    margin: 8px;
+    font-size: 18px;
 }
 
 @keyframes fadeIn {

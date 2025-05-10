@@ -228,6 +228,10 @@ class IncidenciaController extends Controller
         }
     }
 
+
+
+
+
     public function edit($slug)
     {
         try {

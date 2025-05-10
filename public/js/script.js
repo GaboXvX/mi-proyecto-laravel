@@ -1,67 +1,64 @@
 //ocultar y ver la sidebar
-document.addEventListener('DOMContentLoaded', function () {
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
 
-    // Restaurar estado al cargar
-    if (window.innerWidth > 768) {
-        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('collapsed');
-        }
-    } else {
-        const isActive = localStorage.getItem('sidebar-mobile-active') === 'true';
-        if (isActive) {
-            sidebar.classList.add('active');
-        }
-    }
-
-    // Toggle y guardar estado
-    menuToggle.addEventListener('click', function () {
+    menuToggle.addEventListener("click", function () {
         if (window.innerWidth <= 768) {
-            sidebar.classList.toggle('active');
-            localStorage.setItem('sidebar-mobile-active', sidebar.classList.contains('active'));
+            sidebar.classList.toggle("active");  // Para movil
         } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('collapsed');
-            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            sidebar.classList.toggle("collapsed");  // Para escritorio
+            mainContent.classList.toggle("collapsed");
         }
     });
 });
 
-//validacion de campos de cedula/telefono/nombre y apellidos
-document.addEventListener('DOMContentLoaded', function () {
-    // Letras solamente (nombre, apellido, etc.)
-    const letraInputs = document.querySelectorAll('.solo-letras');
-    letraInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            // Reemplaza todo lo que no sea letra o espacio
-            this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+//graficos
+const chartConfig = {
+    type: 'bar',
+    data: {
+      labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+      datasets: [{
+        label: 'Incidencias',
+        data: [12, 19, 3, 5, 2],
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      }
+    }
+  };
 
-            // Respeta el maxlength
-            const maxLength = this.getAttribute('maxlength');
-            if (maxLength && this.value.length > maxLength) {
-                this.value = this.value.slice(0, maxLength);
-            }
-        });
-    });
+// Inicializar gráficos
+new Chart(document.getElementById('chart1'), chartConfig);
 
-    // Números solamente (cédula, teléfono, etc.)
-    const numeroInputs = document.querySelectorAll('.solo-numeros');
-    numeroInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            // Reemplaza todo lo que no sea número
-            this.value = this.value.replace(/[^0-9]/g, '');
+//no permite que la fecha de inicio sea mayor que la fecha de fin
+document.getElementById("fecha_inicio").addEventListener("change", function() {
+  let fecha_inicio = new Date(this.value);
+  let fecha_fin = new Date(document.getElementById("fecha_fin").value);
 
-            // Respeta el maxlength
-            const maxLength = this.getAttribute('maxlength');
-            if (maxLength && this.value.length > maxLength) {
-                this.value = this.value.slice(0, maxLength);
-            }
-        });
-    });
+  if (fecha_fin && fecha_inicio > fecha_fin) {
+      alert("La fecha de inicio no puede ser mayor que la fecha de fin.");
+      this.value = "";
+  }
+});
+//no permite que la fecha de fin sea menor que la fecha de inicio
+document.getElementById("fecha_fin").addEventListener("change", function() {
+  let fecha_inicio = new Date(document.getElementById("fecha_inicio").value);
+  let fecha_fin = new Date(this.value);
+
+  if (fecha_inicio && fecha_fin < fecha_inicio) {
+      alert("La fecha de fin no puede ser menor que la fecha de inicio.");
+      this.value = "";
+  }
 });
 
 document.getElementById('cedula').addEventListener('blur', async function () {

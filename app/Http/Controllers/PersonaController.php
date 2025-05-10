@@ -67,7 +67,7 @@ class PersonaController extends Controller
             $domicilio = $this->crearDomicilio($request, $persona);
             
             // Aplicar reglas de categoría si existen y la categoría no es "Regular"
-            if ($categoria->reglasConfiguradas && $categoria->nombre_categoria !== 'Regular') {
+            if ($categoria->reglasConfiguradas && $categoria->nombre_categoria ) {
                 $this->aplicarReglasCategoria($categoria, $persona, $request);
             }
             
@@ -127,7 +127,9 @@ class PersonaController extends Controller
 protected function validarReglasCategoria($categoria, $request, &$errors)
 {
     $config = $categoria->reglasConfiguradas;
-    
+    if (!$config) {
+        return;
+    }
     // Validar si requiere comunidad
     if ($config->requiere_comunidad && empty($request->comunidad)) {
         $errors['comunidad'] = [$config->mensaje_error ?? 'Esta categoría requiere que seleccione una comunidad'];
@@ -159,6 +161,12 @@ protected function validarReglasCategoria($categoria, $request, &$errors)
     
     protected function aplicarReglasCategoria($categoria, $persona, $request)
     {
+         $reglas = $categoria->reglasConfiguradas;
+
+    // Si no hay reglas configuradas, no aplicar nada
+    if (!$reglas) {
+        return;
+    }
         $reglaData = [
             'id_persona' => $persona->id_persona,
             'id_categoria_persona' => $categoria->id_categoria_persona,

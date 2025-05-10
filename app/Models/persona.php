@@ -24,7 +24,7 @@ class Persona extends Model
         'cedula',
         'correo',
         'telefono',
-        'id_categoriaPersona',
+        'id_categoria_persona',
     ];
 
     public $timestamps = true;
@@ -58,10 +58,12 @@ class Persona extends Model
         return $this->hasMany(movimiento::class, 'id_persona');
     }
 
-    public function categoria()
-    {
-        return $this->belongsTo(categoriaPersona::class, 'id_categoriaPersona');
-    }
+   // Modelo Persona
+public function categoria()
+{
+    return $this->belongsTo(CategoriaPersona::class, 'id_categoria_persona', 'id_categoria_persona');
+}
+
 
     public function categoriasExclusivasPersonas()
     {

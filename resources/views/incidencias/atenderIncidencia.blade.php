@@ -13,6 +13,7 @@
             <form id="multi-step-form" action="{{ route('incidencias.atender.guardar', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
+                {{-- Paso 1 --}}
                 <div id="step-1" class="step">
                     <h6 class="h6 text-primary mb-3">Paso 1: Datos del Personal</h6>
 
@@ -23,11 +24,26 @@
                     </div>
 
                     <div class="row g-3 mt-2">
+                          <div id="empleado-info" class="alert alert-info mt-3 d-none">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span id="empleado-mensaje"></span>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3">
+                            <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-md-4 d-flex">
+                            <input type="text" name="cedula" id="cedula" class="form-control form-control-sm py-2" required pattern="\d+" placeholder="Ej: 12345678" oninput="limpiarAlertaEmpleado()"> {{-- MODIFICADO --}}
+                            <button type="button" class="btn btn-primary btn-sm ms-2" onclick="buscarEmpleado()">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
                         <div class="col-md-3">
                             <label for="nacionalidad" class="form-label small mb-0">Nacionalidad <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-md-3">
-                            <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm py-2" required>
+                            <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm py-2" required onchange="limpiarAlertaEmpleado()"> {{-- MODIFICADO --}}
                                 <option value="" selected disabled>Seleccione...</option>
                                 <option value="V">Venezolano (V)</option>
                                 <option value="E">Extranjero (E)</option>
@@ -35,14 +51,9 @@
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="cedula" class="form-label small mb-0" maxlength="8">Cédula <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" name="cedula" id="cedula" class="form-control form-control-sm py-2" required pattern="\d+" placeholder="Ej: 12345678">
-                        </div>
-                    </div>
+                    
+
+                  
 
                     <div class="row g-3 mt-2">
                         <div class="col-md-3">
@@ -78,6 +89,7 @@
                     </div>
                 </div>
 
+                {{-- Paso 2 --}}
                 <div id="step-2" class="step d-none">
                     <h6 class="h6 text-primary mb-3">Paso 2: Atención de la Incidencia</h6>
 
@@ -106,7 +118,6 @@
     </div>
 </div>
 
-
 @if(session('success'))
     <div class="alert alert-success mt-3">{{ session('success') }}</div>
 @endif
@@ -117,6 +128,7 @@
     </div>
 @endif
 
+{{-- Scripts --}}
 <script>
 function nextStep() {
     document.getElementById('step-1').classList.add('d-none');
@@ -128,7 +140,69 @@ function previousStep() {
     document.getElementById('step-1').classList.remove('d-none');
 }
 
-document.getElementById('multi-step-form').addEventListener('submit', function() {
+// NUEVO: Limpia la alerta al cambiar los campos
+function limpiarAlertaEmpleado() {
+    const info = document.getElementById('empleado-info');
+    const mensaje = document.getElementById('empleado-mensaje');
+    mensaje.textContent = '';
+    info.classList.add('d-none');
+}
+
+// MODIFICADO: ahora usa nacionalidad + cedula como ID único
+function buscarEmpleado() {
+    const cedula = document.getElementById('cedula').value.trim();
+    const empleadoInfo = document.getElementById('empleado-info');
+    const empleadoMensaje = document.getElementById('empleado-mensaje');
+
+    if (!cedula) {
+        empleadoInfo.className = 'alert alert-danger mt-3';
+        empleadoMensaje.textContent = 'Por favor ingrese la cédula';
+        empleadoInfo.classList.remove('d-none');
+        return;
+    }
+
+    empleadoInfo.className = 'alert alert-info mt-3';
+    empleadoMensaje.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Buscando empleado...';
+    empleadoInfo.classList.remove('d-none');
+
+    fetch(`/personal-de-reparaciones/buscar/${cedula}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.encontrado) {
+                empleadoInfo.className = 'alert alert-success mt-3';
+                empleadoMensaje.textContent = `Empleado encontrado: ${data.nombre} ${data.apellido}. Puede ser asignado.`;
+
+                document.getElementById('nombre').value = data.nombre;
+                document.getElementById('apellido').value = data.apellido;
+                document.getElementById('telefono').value = data.telefono || '';
+                document.getElementById('nacionalidad').value = data.nacionalidad;
+
+                document.getElementById('nombre').readOnly = true;
+                document.getElementById('apellido').readOnly = true;
+            } else {
+                empleadoInfo.className = 'alert alert-warning mt-3';
+                empleadoMensaje.textContent = 'Personal no registrado. Puede proceder a registrarlo.';
+
+                document.getElementById('nombre').value = '';
+                document.getElementById('apellido').value = '';
+                document.getElementById('telefono').value = '';
+                document.getElementById('nacionalidad').value = '';
+
+                document.getElementById('nombre').readOnly = false;
+                document.getElementById('apellido').readOnly = false;
+            }
+        })
+        .catch(error => {
+            empleadoInfo.className = 'alert alert-danger mt-3';
+            empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
+            console.error(error);
+        });
+}
+
+
+// Manejo del formulario
+document.getElementById('multi-step-form').addEventListener('submit', function(event) {
+    event.preventDefault();
     const submitBtn = document.getElementById('submit-btn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
@@ -140,31 +214,12 @@ document.getElementById('multi-step-form').addEventListener('submit', function()
         showConfirmButton: false,
         didOpen: () => Swal.showLoading()
     });
-});
-</script>
-<script>
-document.getElementById('multi-step-form').addEventListener('submit', function(event) {
-    event.preventDefault();  // Evita el envío del formulario por defecto
 
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+    const formData = new FormData(this);
 
-    // Creamos un FormData para enviar los datos del formulario, incluyendo los archivos
-    const formData = new FormData();
-    formData.append('descripcion', document.getElementById('descripcion').value);
-    formData.append('prueba_fotografica', document.getElementById('prueba_fotografica').files[0]);
-    formData.append('cedula', document.getElementById('cedula').value);
-    formData.append('nombre', document.getElementById('nombre').value);
-    formData.append('apellido', document.getElementById('apellido').value);
-    formData.append('nacionalidad', document.getElementById('nacionalidad').value);
-    formData.append('telefono', document.getElementById('telefono').value);
-    formData.append('_token', '{{ csrf_token() }}');  // Añadir el token CSRF
-
-    // Realizamos la solicitud AJAX
-    fetch('{{ route('incidencias.atender.guardar', $incidencia->slug) }}', {
+    fetch(this.action, {
         method: 'POST',
-        body: formData  // Enviamos el FormData
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
@@ -173,34 +228,22 @@ document.getElementById('multi-step-form').addEventListener('submit', function(e
                 icon: 'success',
                 title: '¡Éxito!',
                 text: data.message,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.href = data.redirect;  // Redirige a la lista de incidencias
-            });
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => window.location.href = data.redirect);
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Hubo un error al atender la incidencia.',
-            }).then(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Guardar Atención';
-            });
+            throw new Error(data.message || 'Error desconocido.');
         }
     })
     .catch(error => {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Hubo un problema al procesar la solicitud.',
-        }).then(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Guardar Atención';
+            text: error.message || 'Error al procesar la solicitud.'
         });
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Guardar Atención';
     });
 });
-
 </script>
-
 @endsection

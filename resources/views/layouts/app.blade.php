@@ -80,6 +80,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('categorias-personas.index') }}" class="nav-link px-3 {{ Route::is('categorias-personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                categorias Personas
+                            </a>
+                        <li>
                             <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Incidencias
@@ -106,7 +111,7 @@
             <!-- Estadísticas -->
             @can('ver grafica incidencia')
             <li class="nav-item">
-                <a href="{{ route('estadisticas') }}" class="nav-link {{ Route::is('estadisticas') ? 'active' : '' }}">
+                <a href="{{ route('graficos.incidencias') }}" class="nav-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-line me-2"></i>
                     Estadísticas
                 </a>

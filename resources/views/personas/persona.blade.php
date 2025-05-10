@@ -141,7 +141,7 @@
                                                 <small class="text-muted">{{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
                                             @endforeach
                                         @else
-                                            regular
+                                            {{$persona->categoria->nombre_categoria}}
                                         @endif
                                     </td>
                                     <td>

@@ -258,11 +258,11 @@ class IncidenciaController extends Controller
             }
     
             // Verificar permisos de edición
-            if (!auth()->user()->can('editar incidencias') && 
-                $incidencia->id_usuario !== auth()->id()) {
-                return redirect()->route('incidencias.ver', $incidencia->slug)
-                    ->withErrors(['error' => 'No tiene permisos para editar esta incidencia.']);
-            }
+            // if (!auth()->user()->can('editar incidencias') && 
+            //     $incidencia->id_usuario !== auth()->id()) {
+            //     return redirect()->route('incidencias.ver', $incidencia->slug)
+            //         ->withErrors(['error' => 'No tiene permisos para editar esta incidencia.']);
+            // }
     
             // Obtener datos necesarios para los selects
             $instituciones = Institucion::orderBy('nombre')->get();

@@ -101,7 +101,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         // Rutas de incidencias
         Route::controller(IncidenciaController::class)->group(function () {
             Route::get('/incidencias', 'index');
-            Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit')->middleware('can:cambiar estado de incidencias');
+            Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit');
             Route::post('/filtrar-incidencia', 'filtrar')->name('filtrar.incidencia');
             Route::post('/incidencias/{slug}/atender', 'atender')->name('incidencias.atender');
             Route::post('/incidencias/download', 'download')->name('incidencias.download');

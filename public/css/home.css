@@ -273,9 +273,11 @@ footer {
     display: block;
 }
 
-.form-step p {
+.form-step,
+.form-header p {
     color: #28446e;
-    font-size: 18px;
+    font-size: 16px;
+    margin: 8px;
 }
 
 @keyframes fadeIn {

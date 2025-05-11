@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="table-container">
     <h1 class="mb-4">Categorías de Personas</h1>
     <a href="{{ route('categorias-personas.create') }}" class="btn btn-primary mb-3">Nueva Categoría</a>
 

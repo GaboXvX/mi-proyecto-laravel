@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="table-container">
     <h1>Nueva Categoría de Persona</h1>
 
     <form method="POST" action="{{ route('categorias-personas.store') }}">

@@ -43,7 +43,12 @@
                     <h5 class="mb-0">Dirección del Incidente</h5>
                 </div>
                 <div class="card-body">
-                    <livewire:dropdown-persona :personaSeleccionada="$incidencia->id_persona"/>
+                <livewire:dropdown 
+                    :parroquia-id="$parroquiaActual->id_parroquia ?? null"
+                    :urbanizacion-id="$urbanizacionActual->id_urbanizacion ?? null"
+                    :sector-id="$sectorActual->id_sector ?? null"
+                    :comunidad-id="$comunidadActual->id_comunidad ?? null"/>
+                    
                     <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="calle" class="form-label">Calle:</label>

@@ -161,7 +161,7 @@ body {
 .main-content .card-access .item h5{
     font-size: 18px;
     font-weight: 500;
-    color: #364670;
+    color: var(--tittle);
     margin: 15px 0 8px;
 }
 
@@ -231,6 +231,14 @@ body {
 
 .filters-container .input-group {
     width: 100%;
+}
+
+.table-responsive{
+    overflow: visible;
+}
+
+.table-responsive .dropdown{
+    position: absolute;
 }
 
 /* estilos del step en las incidencias */

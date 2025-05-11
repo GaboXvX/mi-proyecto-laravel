@@ -61,7 +61,10 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end m-3">
+                <div class="d-flex justify-content-between m-3">
+                    <a href="{{ route('incidencias.index', $incidencia->slug) }}" class="btn btn-secondary btn-sm py-2 px-3">
+                        Cancelar
+                    </a>
                     <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
                 </div>
             </div>

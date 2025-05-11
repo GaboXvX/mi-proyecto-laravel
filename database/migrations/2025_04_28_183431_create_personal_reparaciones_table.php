@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_institucion');
             $table->unsignedBigInteger('id_institucion_estacion')->nullable();
+            $table->string('slug')->unique();
             $table->string('nombre', 50);
             $table->string('apellido', 50);
             $table->string('nacionalidad');

@@ -11,7 +11,10 @@ class Institucion extends Model
 
     protected $table = 'instituciones';
     protected $primaryKey = 'id_institucion';
-    protected $fillable = ['nombre'];
+    protected $fillable = [ 
+    'nombre', 
+    'logo_path', 
+    'encabezado_html',];
 
     /**
      * Relación uno a muchos con InstitucionesEstaciones.

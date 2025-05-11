@@ -507,7 +507,13 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 
     // Buscar la persona por cédula
     $personal = personalReparacion::where('cedula', $request->input('cedula'))->first();
-
+    $slug= Str::slug(Str::lower($request->input('nombre') . ' ' . $request->input('apellido')));
+    $originalSlug = $slug;
+    $counter = 1;
+    while (personalReparacion::where('slug', $slug)->exists()) {
+        $slug = $originalSlug . '-' . $counter;
+        $counter++;
+    }
     // Si la persona no existe, crearla
     if (!$personal) {
         $personal = personalReparacion::create([
@@ -515,6 +521,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'id_institucion' => $institucion->id_institucion,
             'id_institucion_estacion' => $institucionEstacion->id_institucion_estacion,
             'cedula' => $request->input('cedula'),
+            'slug' => $slug,
             'nombre' => $request->input('nombre'),
             'apellido' => $request->input('apellido'),
             'nacionalidad' => $request->input('nacionalidad'),

@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('instituciones', function (Blueprint $table) {
             $table->bigIncrements('id_institucion');
             $table->string('nombre')->unique();
+             $table->string('logo_path')->nullable();
+              $table->text('encabezado_html')->nullable();
             $table->timestamps();
         });
     }

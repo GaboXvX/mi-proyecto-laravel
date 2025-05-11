@@ -18,7 +18,8 @@ use App\Http\Controllers\RecuperarGetController;
 use App\Http\Controllers\RenovacionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
- use App\Http\Controllers\GraficoIncidenciasController;
+use App\Http\Controllers\GraficoIncidenciasController;
+use App\Http\Controllers\institucionController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // routes/web.php
@@ -50,7 +51,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
     });
-    Route::post('peticiones', [PeticionController::class,'store'])->name('peticiones.store');
+    Route::post('peticiones', [PeticionController::class, 'store'])->name('peticiones.store');
 
     Route::middleware(['auth'])->group(function () {
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -158,17 +159,25 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Rutas de movimientos por usuario (individual)
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
-   
-    Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
-Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
-    Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
-    Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
-    Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
-    Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
-    Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
-Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
- });
 
-Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
+        Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
+        Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
+        Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
+        Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
+        Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
+        Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
+        Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
+        Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
+        Route::resource('personal-reparacion', PersonalController::class, [ 'parameters' => ['slug'] ]);
+        Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
+        Route::get('personal-reparacion/estaciones/{institucion}', 
+    [PersonalController::class, 'getEstacionesPorInstitucion'])
+    ->name('personal-reparacion.estaciones');
+    Route::controller(institucionController::class)->prefix('instituciones')->group(function () {
+    Route::get('/', 'index')->name('instituciones.index');
+    Route::put('/{id_institucion}/logo', 'updateLogo')->name('instituciones.updateLogo');
+    Route::put('/{id_institucion}/membrete', 'updateMembrete')->name('instituciones.updateMembrete');
+});
 
+    });
 });

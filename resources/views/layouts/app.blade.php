@@ -91,6 +91,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('personal-reparacion.index') }}" class="nav-link px-3 {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-diamond me-2"></i>
+                                personal Reparación
+                            </a>
+                        <li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
                                 <i class="bi bi-envelope me-2"></i>
                                 Peticiones
@@ -233,6 +238,7 @@
     </main>
 
 <!-- Scripts -->
+
 <script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>

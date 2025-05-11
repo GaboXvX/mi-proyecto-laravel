@@ -23,6 +23,7 @@ return new class extends Migration
         DB::table('estados_incidencias')->insert([
             ['nombre' => 'pendiente', 'color' => '#FFC107'], // Amarillo (advertencia)
             ['nombre' => 'atendido', 'color' => '#28A745'],  // Verde (éxito)
+            ['nombre'=>'retrasado','color'=>'#DC3545']
         ]);
     }
 

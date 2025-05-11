@@ -192,7 +192,7 @@
 
                             <input type="hidden" id="domicilio_id" name="domicilio_id">
 
-                            <livewire:dropdown-persona />
+                            <livewire:dropdown-persona/>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">

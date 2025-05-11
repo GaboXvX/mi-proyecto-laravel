@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="table-container">
-    <h1>Editar Categoría</h1>
+    <h2>Editar Categoría</h2>
 
     <form action="{{ route('categorias-personas.update', $categoria->slug) }}" method="POST">
         @csrf
@@ -32,8 +32,10 @@
             <input type="text" name="mensaje_error" id="mensaje_error" class="form-control" value="{{ old('mensaje_error', $categoria->reglasConfiguradas->mensaje_error ?? '') }}">
         </div>
 
-        <button type="submit" class="btn btn-primary">Actualizar</button>
-        <a href="{{ route('categorias-personas.index') }}" class="btn btn-secondary">Cancelar</a>
+        <div class="d-flex justify-content-between">
+            <a href="{{ route('categorias-personas.index') }}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
     </form>
 </div>
 @endsection

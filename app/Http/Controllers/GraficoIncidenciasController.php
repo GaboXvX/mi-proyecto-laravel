@@ -122,9 +122,9 @@ class GraficoIncidenciasController extends Controller
     $niveles = NivelIncidencia::where('activo', true)->orderBy('id_nivel_incidencia')->get();
 
     $data = [
-        'labels' => [], // Asegurarse de inicializar el array de labels
-        'values' => [], // Asegurarse de inicializar el array de values
-        'colors' => [], // Asegurarse de inicializar el array de colors
+        'labels' => [],
+        'values' => [],
+        'colors' => [],
         'detalles' => []
     ];
 
@@ -134,7 +134,7 @@ class GraficoIncidenciasController extends Controller
         if ($count > 0) {
             $data['labels'][] = $estado->nombre;
             $data['values'][] = $count;
-            $data['colors'][] = $this->getEstadoColor($estado->nombre);
+            $data['colors'][] = $estado->color ?? $this->getEstadoColor($estado->nombre); // Usa el color del modelo o el predeterminado
             
             // Detalle por niveles
             foreach ($niveles as $nivel) {

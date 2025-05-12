@@ -8,33 +8,29 @@
         <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
             @csrf
 
-            {{-- Datos Personales --}}
-            <div class="row g-3 mb-2">
-                <div class="col-md-6">
-                    <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control solo-letras" maxlength="12" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="apellido" class="form-label">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" class="form-control solo-letras" maxlength="12" required>
-                </div>
-            </div>
-
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
                     <label for="cedula" class="form-label">Cédula:</label>
-                    <input type="text" id="cedula" name="cedula" class="form-control solo-numeros" maxlength="8" required>
+                    <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
+                </div>
+              
+            </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" maxlength="12" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="correo" class="form-label">Correo:</label>
-                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
+                    <label for="apellido" class="form-label">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" class="form-control" maxlength="12" required>
                 </div>
             </div>
 
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
-                    <label for="telefono" class="form-label">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control solo-numeros" maxlength="11" required>
+                    <label for="correo" class="form-label">Correo:</label>
+                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
                 </div>
                 <div class="col-md-6">
                     <label for="genero" class="form-label">Género:</label>
@@ -47,20 +43,8 @@
 
             <div class="row g-3 mb-2">
                 <div class="col-md-6">
-                    <label for="categoria" class="form-label">Categoría:</label>
-                    <select name="id_categoria_persona" id="categoria" class="form-select" required>
-                        <option value="">Seleccione una categoría</option>
-                        <option value="0">Ninguno</option>
-                        @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id_categoria_persona }}" 
-                                data-requiere-comunidad="{{ $categoria->reglasConfiguradas->requiere_comunidad ?? 0 }}"
-                                data-unico-en-comunidad="{{ $categoria->reglasConfiguradas->unico_en_comunidad ?? 0 }}"
-                                data-unico-en-sistema="{{ $categoria->reglasConfiguradas->unico_en_sistema ?? 0 }}">
-                                {{ $categoria->nombre_categoria }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div id="categoria-error" class="invalid-feedback"></div>
+                    <label for="telefono" class="form-label">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
                 </div>
                 <div class="col-md-6">
                     <label for="es_principal" class="form-label">¿Dirección principal?</label>
@@ -71,29 +55,39 @@
                 </div>
             </div>
 
-            {{-- Selector de ubicación con Livewire --}}
             <livewire:dropdown-persona/>
 
-            {{-- Dirección --}}
-            <div class="row g-3 mb-2 mt-3">
-                <div class="col-md-6">
-                    <label for="calle" class="form-label">Calle:</label>
-                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
-                </div>
-                <div class="col-md-6">
-                    <label for="manzana" class="form-label">Manzana:</label>
-                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
-                </div>
-            </div>
-
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label for="bloque" class="form-label">Bloque:</label>
-                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
-                </div>
-                <div class="col-md-6">
-                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
-                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
+            <div class="accordion mb-3" id="direccionAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingDireccion">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDireccion">
+                            Dirección
+                        </button>
+                    </h2>
+                    <div id="collapseDireccion" class="accordion-collapse collapse" data-bs-parent="#direccionAccordion">
+                        <div class="accordion-body">
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-6">
+                                    <label for="calle" class="form-label">Calle:</label>
+                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="manzana" class="form-label">Manzana:</label>
+                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="bloque" class="form-label">Bloque:</label>
+                                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -106,28 +100,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('registroPersonaForm');
-    const categoriaSelect = document.getElementById('categoria');
-    const comunidadInput = document.querySelector('[name="comunidad"]');
-
-    // Validación en tiempo real de la categoría
-    categoriaSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const requiereComunidad = selectedOption.getAttribute('data-requiere-comunidad') === '1';
-        const unicoEnComunidad = selectedOption.getAttribute('data-unico-en-comunidad') === '1';
-        const unicoEnSistema = selectedOption.getAttribute('data-unico-en-sistema') === '1';
-
-        if (requiereComunidad && !comunidadInput.value) {
-            document.getElementById('categoria-error').textContent = 'Esta categoría requiere seleccionar una comunidad';
-            categoriaSelect.classList.add('is-invalid');
-        } else {
-            document.getElementById('categoria-error').textContent = '';
-            categoriaSelect.classList.remove('is-invalid');
-        }
-    });
-
-    form.addEventListener('submit', async function(event) {
+    document.getElementById('registroPersonaForm').addEventListener('submit', async function(event) {
         event.preventDefault();
     
         const form = event.target;
@@ -148,20 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     
         try {
-            // Validación adicional de categoría antes de enviar
-            const selectedCategoria = categoriaSelect.value;
-            const selectedOption = categoriaSelect.options[categoriaSelect.selectedIndex];
-            const requiereComunidad = selectedOption.getAttribute('data-requiere-comunidad') === '1';
-            const comunidadId = document.querySelector('[name="comunidad"]').value;
-
-            if (selectedCategoria === "0") {
-                // Ninguna categoría seleccionada - permitir
-            } else if (requiereComunidad && !comunidadId) {
-                document.getElementById('categoria-error').textContent = 'Esta categoría requiere seleccionar una comunidad';
-                categoriaSelect.classList.add('is-invalid');
-                throw new Error('Validación fallida');
-            }
-
             const response = await fetch(form.action, {
                 method: 'POST',
                 headers: {
@@ -240,19 +199,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
         } catch (error) {
             console.error('Error de Fetch:', error);
-            if (error.message !== 'Validación fallida') {
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Error de Conexión',
-                    text: 'No se pudo completar la operación. Por favor verifica tu conexión e intenta nuevamente.',
-                    confirmButtonText: 'Entendido'
-                });
-            }
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error de Conexión',
+                text: 'No se pudo completar la operación. Por favor verifica tu conexión e intenta nuevamente.',
+                confirmButtonText: 'Entendido'
+            });
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Registrar';
         }
     });
-});
-</script>
+    </script>
+    
+
 @endsection

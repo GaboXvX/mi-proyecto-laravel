@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePersonaRequest;
 use App\Http\Requests\updatePersonaRequest;
-use App\Models\categoriaExclusivaPersona;
-use App\Models\categoriaPersona;
 use App\Models\Comunidad;
 use App\Models\Domicilio;
 use App\Models\movimiento;
@@ -25,135 +23,56 @@ class PersonaController extends Controller
 {
     public function create()
     {
-        $categorias = categoriaPersona::all();
-        return view('personas.registrarPersonas', compact('categorias'));
+        return view('personas.registrarPersonas');
     }
 
-   public function store(Request $request)
-{
-    DB::beginTransaction();
-    try {
-        $errors = [];
-        
-        // Validación básica de datos personales
-        $validationErrors = $this->validarDatosPersonales($request);
-        if (!empty($validationErrors)) {
-            $errors = array_merge($errors, $validationErrors);
-        }
-        
-        // Validar que el domicilio sea principal si se asigna categoría
-        if ($request->id_categoria_persona && $request->id_categoria_persona !== "0" && $request->es_principal != 1) {
-            $errors['es_principal'] = ['Para asignar una categoría, el domicilio debe ser principal'];
-        }
-        
-        // Validación de categoría
-        $this->validarCategoria($request, $errors);
-        
-        if (!empty($errors)) {
+    public function store(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $errors = [];
+            
+            // Validación básica de datos personales
+            $validationErrors = $this->validarDatosPersonales($request);
+            if (!empty($validationErrors)) {
+                $errors = array_merge($errors, $validationErrors);
+            }
+            
+            // Si hay errores, retornarlos de forma clara
+            if (!empty($errors)) {
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Error de validación',
+                    'message' => 'Por favor corrige los siguientes errores:',
+                    'errors' => $errors
+                ], 422);
+            }
+
+            // Proceso de creación si no hay errores
+            $persona = $this->crearPersona($request);
+            $domicilio = $this->crearDomicilio($request, $persona);
+            
+            $this->registrarMovimiento($persona, 'Registro de persona');
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'title' => 'Registro exitoso',
+                'message' => 'La persona ha sido registrada correctamente',
+                'redirect_url' => route('personas.index')
+            ], 201);
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            Log::error('Error en la base de datos: '.$e->getMessage());
             return response()->json([
                 'success' => false,
-                'title' => 'Error de validación',
-                'message' => 'Por favor corrige los siguientes errores:',
-                'errors' => $errors
-            ], 422);
-        }
-
-        // Proceso de creación
-        $persona = $this->crearPersona($request);
-        $domicilio = $this->crearDomicilio($request, $persona);
-        
-        // Asignar categoría si no es "Ninguno"
-        if ($request->id_categoria_persona && $request->id_categoria_persona !== "0") {
-            $persona->id_categoria_persona = $request->id_categoria_persona;
-            $persona->save();
-            
-            // Crear registro en categorias_exclusivas_personas
-            categoriaExclusivaPersona::create([
-                'id_persona' => $persona->id_persona,
-                'id_categoria_persona' => $request->id_categoria_persona,
-                'id_comunidad' => $request->comunidad,
-                'tipo_regla' => 'asignacion_directa',
-                'valor_regla' => 'activo',
-                'es_activo' => true,
-                'fecha_aprobacion' => now(),
-                'id_usuario' => auth()->id()
-            ]);
-        }
-        
-        $this->registrarMovimiento($persona, 'Registro de persona');
-        
-        DB::commit();
-        
-        return response()->json([
-            'success' => true,
-            'title' => 'Registro exitoso',
-            'message' => 'La persona ha sido registrada correctamente',
-            'redirect_url' => route('personas.index')
-        ], 201);
-
-    } catch (\Illuminate\Database\QueryException $e) {
-        DB::rollBack();
-        Log::error('Error en la base de datos: '.$e->getMessage());
-        return response()->json([
-            'success' => false,
-            'title' => 'Error de base de datos',
-            'message' => 'Ocurrió un error al guardar los datos. Por favor intente nuevamente.'
-        ], 500);
-    }
-}
-
-protected function validarCategoria($request, &$errors)
-{
-    $idCategoria = $request->id_categoria_persona;
-    $idComunidad = $request->comunidad;
-    
-    if ($idCategoria === "0" || empty($idCategoria)) {
-        return;
-    }
-    
-    $categoria = CategoriaPersona::with('reglasConfiguradas')->find($idCategoria);
-    
-    if (!$categoria) {
-        $errors['id_categoria_persona'] = ['La categoría seleccionada no existe'];
-        return;
-    }
-    
-    // Validar reglas de la categoría
-    if ($categoria->reglasConfiguradas) {
-        $reglas = $categoria->reglasConfiguradas;
-        
-        // Validar si requiere comunidad
-        if ($reglas->requiere_comunidad && !$idComunidad) {
-            $errors['id_categoria_persona'] = ['Esta categoría requiere seleccionar una comunidad'];
-            return;
-        }
-        
-        // Validar si es única en el sistema
-        if ($reglas->unico_en_sistema) {
-            $existe = categoriaExclusivaPersona::where('id_categoria_persona', $idCategoria)
-                ->where('es_activo', true)
-                ->exists();
-                
-            if ($existe) {
-                $errors['id_categoria_persona'] = ['Esta categoría ya está asignada a otra persona en el sistema'];
-                return;
-            }
-        }
-        
-        // Validar si es única en la comunidad
-        if ($idComunidad && $reglas->unico_en_comunidad) {
-            $existe = categoriaExclusivaPersona::where('id_categoria_persona', $idCategoria)
-                ->where('id_comunidad', $idComunidad)
-                ->where('es_activo', true)
-                ->exists();
-                
-            if ($existe) {
-                $errors['id_categoria_persona'] = ['Esta categoría ya está asignada a otra persona en esta comunidad'];
-                return;
-            }
+                'title' => 'Error de base de datos',
+                'message' => 'Ocurrió un error al guardar los datos. Por favor intente nuevamente.'
+            ], 500);
         }
     }
-}
     
     // Métodos auxiliares:
     
@@ -264,12 +183,11 @@ protected function validarCategoria($request, &$errors)
     public function show($slug)
     {
         $persona = Persona::where('slug', $slug)->firstOrFail();
-        $categorias = categoriaPersona::all();
         $domicilios = Domicilio::where('id_persona', $persona->id_persona)
             ->with('estado', 'municipio', 'parroquia', 'urbanizacion', 'sector', 'comunidad')
             ->paginate(10);
 
-        return view('personas.persona', compact('persona', 'domicilios', 'categorias'));
+        return view('personas.persona', compact('persona', 'domicilios'));
     }
 
     public function edit($slug)

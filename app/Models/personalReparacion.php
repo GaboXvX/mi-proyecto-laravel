@@ -12,6 +12,7 @@ class personalReparacion extends Model
     protected $primaryKey = 'id_personal_reparacion';
     protected $fillable = [
         'id_usuario',
+        'slug',
         'id_institucion',
         'id_institucion_estacion',
         'nombre',
@@ -23,6 +24,11 @@ class personalReparacion extends Model
     /**
      * Relación uno a muchos con Incidencia.
      */
+    // En tu modelo PersonalReparacion.php
+public function getRouteKeyName()
+{
+    return 'slug'; // Esto hará que las rutas usen 'slug' en lugar de 'id'
+}
     public function incidencias()
     {
         return $this->hasMany(incidencia::class, 'id_personal_reparacion', 'id_personal_reparacion');

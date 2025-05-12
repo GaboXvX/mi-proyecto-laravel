@@ -4,8 +4,10 @@ use App\Http\Controllers\CategoriaPersonaController;
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
 use App\Http\Controllers\DomicilioController;
+use App\Http\Controllers\GraficoIncidenciasController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
+use App\Http\Controllers\institucionController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
@@ -18,46 +20,47 @@ use App\Http\Controllers\RecuperarGetController;
 use App\Http\Controllers\RenovacionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
- use App\Http\Controllers\GraficoIncidenciasController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
-    // routes/web.php
+    // Rutas públicas (sin autenticación)
     Route::controller(RenovacionController::class)->group(function () {
         Route::get('/renovar-solicitud', 'mostrarFormulario')->name('renovacion.mostrar');
         Route::post('/renovar-solicitud', 'procesarFormulario')->name('renovacion.procesar');
     });
 
     Route::get('/buscar-empleado', [PeticionController::class, 'buscarEmpleado'])->name('buscar.empleado');
+    Route::post('peticiones', [PeticionController::class, 'store'])->name('peticiones.store');
 
-    // Rutas de autenticación
+    // Rutas de autenticación y recuperación (guest)
     Route::middleware('guest')->group(function () {
+        // Login
         Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
         Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
         Route::get('/login', [LoginController::class, 'index'])->name('login');
         Route::get('registrar', [UserController::class, 'create'])->name('usuarios.create');
 
-        // Rutas de recuperación de contraseña
-        Route::controller(RecuperarController::class)->group(function () {
-            Route::get('/recuperar-contraseña', 'ingresarCedula')->name('recuperar.ingresarCedula');
-            Route::post('/recuperar-contraseña/preguntas', 'procesarFormulario')->name('recuperar.preguntas');
-            Route::post('/recuperar/validar-respuesta', 'validarRespuesta')->name('recuperar.validarRespuesta');
-            Route::post('/cambiar-email/{usuarioId}', 'actualizarCorreo')->name('cambiar.email');
-            Route::post('/recuperar-clave', 'mostrarCambioClave')->name('recuperar.recuperarClave');
-            Route::get('/cambiar-clave/{token}', 'mostrarCambioClave')->name('cambiar-clave');
-            Route::post('/cambiar-clave', 'mostrarCambioClave')->name('cambiar-clave');
-            Route::post('/cambiar-clave/{usuarioId}', 'update')->name('cambiar.update');
-        });
-
+        // Recuperación de contraseña
+        Route::get('/recuperar-contraseña', [RecuperarController::class, 'ingresarCedula'])->name('recuperar.ingresarCedula');
+        Route::post('/recuperar-contraseña/preguntas', [RecuperarController::class, 'procesarFormulario'])->name('recuperar.preguntas');
         Route::get('/recuperar-contraseña/redirigir', [RecuperarGetController::class, 'redirigirRecuperarClave'])->name('recuperar.redirigirRecuperarClave');
+        Route::post('/recuperar/validar-respuesta', [RecuperarController::class, 'validarRespuesta'])->name('recuperar.validarRespuesta');
+        Route::get('/cambiar-clave/{token}', [RecuperarController::class, 'mostrarCambioClave'])->name('cambiar-clave');
+        
+        // Rutas para actualizar contraseña/correo (deben estar accesibles sin auth)
+        Route::post('/cambiar-clave/{usuarioId}', [RecuperarController::class, 'update'])->name('cambiar.update');
+        Route::post('/cambiar-email/{usuarioId}', [RecuperarController::class, 'actualizarCorreo'])->name('cambiar.email');
     });
-    Route::post('peticiones', [PeticionController::class,'store'])->name('peticiones.store');
 
+    // Rutas protegidas (requieren autenticación)
     Route::middleware(['auth'])->group(function () {
+        // Autenticación
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+        
+        // Home
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/home/total-peticiones', [HomeController::class, 'obtenerTotalPeticiones'])->name('home.totalPeticiones');
 
-        // Rutas de peticiones
+        // Peticiones
         Route::controller(PeticionController::class)->group(function () {
             Route::get('peticiones', 'index')->name('peticiones.index');
             Route::post('aceptar/{id}', 'aceptar')->name('peticion.aceptar');
@@ -66,7 +69,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/validar-campo-asincrono', 'validarCampoAsincrono')->name('validar.campo.asincrono');
         });
 
-        // Rutas de personas
+        // Personas
         Route::controller(PersonaController::class)->group(function () {
             Route::get('/personas/registrar', 'create')->name('personas.create');
             Route::post('/personas', 'store')->name('personas.store');
@@ -79,7 +82,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         });
         Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug'])->except(['create', 'store', 'destroy']);
 
-        // Rutas de usuarios
+        // Usuarios
         Route::controller(UserController::class)->middleware('can:ver empleados')->group(function () {
             Route::get('/usuarios/{slug}/movimientos', 'movimientos')->name('usuarios.movimientos');
             Route::post('/desactivar/{id}', 'desactivar')->name('usuarios.desactivar')->middleware('can:desactivar empleados');
@@ -97,10 +100,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             return redirect()->route('usuarios.movimientos', auth()->user()->slug);
         })->name('mis.movimientos');
 
-        // Rutas de incidencias
+        // Incidencias
         Route::controller(IncidenciaController::class)->group(function () {
             Route::get('/incidencias', 'index');
-            Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit')->middleware('can:cambiar estado de incidencias');
+            Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit');
             Route::post('/filtrar-incidencia', 'filtrar')->name('filtrar.incidencia');
             Route::post('/incidencias/{slug}/atender', 'atender')->name('incidencias.atender');
             Route::post('/incidencias/download', 'download')->name('incidencias.download');
@@ -109,11 +112,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/incidencias/generar-pdf', 'generarPDF')->name('incidencias.generarPDF')->middleware('can:descargar listado incidencias');
             Route::get('/incidencias/chart', 'showChart')->name('estadisticas')->middleware('can:ver grafica incidencia');
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
-            // Route::get('persona/{slug}/incidencia/{incidencia_slug}', 'show')->name('incidencias.show');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
-            Route::get('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderVista'])->name('incidencias.atender.vista')->middleware('incidencia.no-atendida');
-            Route::post('/incidencias/{slug}/atender', [IncidenciaController::class, 'atenderGuardar'])->name('incidencias.atender.guardar');
-            Route::get('/incidencias/{slug}/ver', [IncidenciaController::class, 'ver'])->name('incidencias.ver');
+            Route::get('/incidencias/{slug}/atender', 'atenderVista')->name('incidencias.atender.vista')->middleware('incidencia.no-atendida');
+            Route::post('/incidencias/{slug}/atender', 'atenderGuardar')->name('incidencias.atender.guardar');
+            Route::get('/incidencias/{slug}/ver', 'ver')->name('incidencias.ver');
         });
         Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit', 'destroy'])->parameters(['incidencias' => 'slug']);
         Route::get('/instituciones-estaciones/direccion/{direccion}', [IncidenciaController::class, 'getInstitucionesEstacionesPorDireccion']);
@@ -123,7 +125,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('incidencias/{slug}/edit', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
         Route::get('incidencia/{slug}', [IncidenciaController::class, 'show'])->name('incidencias.show');
 
-        // Rutas de direcciones
+        // Direcciones
         Route::controller(DomicilioController::class)->group(function () {
             Route::get('personas/agregardomicilio/{slug}', 'index')->name('personas.agregarDireccion');
             Route::post('personas/guardardomicilio/{id}', 'store')->name('guardarDireccion');
@@ -133,7 +135,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/check-lider-status', 'checkLiderStatus');
         });
 
-        // Rutas de configuración
+        // Configuración
         Route::controller(configController::class)->group(function () {
             Route::get('/configuracion', 'index')->name('usuarios.configuracion');
             Route::post('/usuarios/{usuario}/cambiar', 'actualizar')->name('usuarios.cambiar');
@@ -141,7 +143,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/usuarios/restaurar/{id_usuario}', 'restaurar')->name('usuarios.restaurar')->middleware('can:restaurar usuarios');
         });
 
-        // Rutas de notificaciones
+        // Notificaciones
         Route::prefix('notificaciones')->group(function () {
             Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
             Route::get('/marcar-leida/{id}', [NotificacionController::class, 'marcarComoLeida'])->name('notificaciones.marcar-leida');
@@ -149,26 +151,37 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/contador', [NotificacionController::class, 'getContadorNoLeidas'])->name('notificaciones.contador');
         });
 
-        // Rutas de movimientos
+        // Movimientos
         Route::controller(movimientoController::class)->group(function () {
             Route::get('/mis-movimientos', 'index')->name('mis.movimientos');
             Route::get('/mis-movimientos/exportar', 'exportar')->name('movimientos.exportar');
             Route::get('/mis-movimientos/descargar/{id}', 'descargar')->name('movimientos.descargar');
         });
-
-        // Rutas de movimientos por usuario (individual)
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
-   
-    Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
-Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
-    Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
-    Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
-    Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
-    Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
-    Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
-Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
+
+        // Otras rutas
+        Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
+        Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
+        Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
+        Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
+        Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
+        Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
+        Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
+        Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
+        Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
+        Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
+        Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
+            ->name('personal-reparacion.estaciones');
+        
+        // Instituciones
+        Route::controller(institucionController::class)->prefix('instituciones')->group(function () {
+            Route::get('/', 'index')->name('instituciones.index');
+            Route::put('/{id_institucion}/logo', 'updateLogo')->name('instituciones.updateLogo');
+            Route::put('/{id_institucion}/membrete', 'updateMembrete')->name('instituciones.updateMembrete');
+        });
+        Route::get('/incidencias/{id}/download', [IncidenciaController::class, 'downloadPdf'])
+    ->name('incidencias.download');
+Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);
+
  });
-
-Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
-
 });

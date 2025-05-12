@@ -45,10 +45,10 @@ class Persona extends Model
     }
 
 
-    public function direccion()
-    {
-        return $this->hasMany(direccion::class, 'id_persona');
-    }
+    public function domicilios()
+{
+    return $this->hasMany(Domicilio::class, 'id_persona');
+}
     public function user()
     {
         return $this->belongsTo(User::class, 'id_usuario');

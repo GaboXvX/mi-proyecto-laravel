@@ -18,6 +18,7 @@ class InstitucionSeeder extends Seeder
             ['nombre' => 'INASA'],
             ['nombre' => 'Hidrofalcon'],
             ['nombre' => 'Hidrolara'],
+            ['nombre'=>'Minaguas'],
         ];
 
         DB::table('instituciones')->insert($instituciones);

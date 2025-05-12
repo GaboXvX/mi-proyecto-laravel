@@ -49,97 +49,110 @@
     </div>
 
     <script src="{{ asset('js/home.js') }}"></script>
-    <script>
-        // Alternar entre formularios según el selector
-        document.getElementById('accionSelector').addEventListener('change', function () {
-            const accion = this.value;
+  <script>
+    // Alternar entre formularios según el selector
+    document.getElementById('accionSelector').addEventListener('change', function () {
+        const accion = this.value;
+        document.getElementById('cambiarPasswordForm').style.display = accion === 'password' ? 'block' : 'none';
+        document.getElementById('cambiarEmailForm').style.display = accion === 'email' ? 'block' : 'none';
+    });
 
-            document.getElementById('cambiarPasswordForm').style.display = accion === 'password' ? 'block' : 'none';
-            document.getElementById('cambiarEmailForm').style.display = accion === 'email' ? 'block' : 'none';
-        });
+    // Manejo del envío del formulario de contraseña
+    document.getElementById('cambiarPasswordForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
 
-        // Manejo del envío del formulario de contraseña
-        document.getElementById('cambiarPasswordForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        if (formData.get('password') !== formData.get('password_confirmation')) {
+            alert("Las contraseñas no coinciden.");
+            return;
+        }
 
-            const form = e.target;
-            const formData = new FormData(form);
-
-            if (formData.get('password') !== formData.get('password_confirmation')) {
-                alert("Las contraseñas no coinciden.");
-                return;
-            }
-
-            fetch("{{ route('cambiar.update', ['usuarioId' => $usuario->id_usuario]) }}", {
+        try {
+            const response = await fetch("{{ route('cambiar.update', ['usuarioId' => $usuario->id_usuario]) }}", {
                 method: "POST",
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const mensajeDiv = document.getElementById('mensajePassword');
-                mensajeDiv.innerHTML = "";
+                body: new URLSearchParams(formData)
+            });
 
-                if (data.success) {
-                    mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url;
-                    }, 2000);
-                } else {
-                    let errores = "";
+            const data = await response.json();
+            const mensajeDiv = document.getElementById('mensajePassword');
+            mensajeDiv.innerHTML = "";
+
+            if (data.success) {
+                mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || "{{ route('login') }}";
+                }, 2000);
+            } else {
+                let errores = "";
+                if (data.errors) {
                     for (const [campo, mensajes] of Object.entries(data.errors)) {
                         errores += `<div class="alert alert-danger">${mensajes.join("<br>")}</div>`;
                     }
-                    mensajeDiv.innerHTML = errores;
+                } else {
+                    errores = `<div class="alert alert-danger">${data.message || 'Error desconocido'}</div>`;
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-        });
-
-        // Manejo del envío del formulario de correo
-        document.getElementById('cambiarEmailForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const form = e.target;
-            const formData = new FormData(form);
-
-            if (formData.get('email') !== formData.get('email_confirmation')) {
-                alert("Los correos electrónicos no coinciden.");
-                return;
+                mensajeDiv.innerHTML = errores;
             }
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById('mensajePassword').innerHTML = 
+                `<div class="alert alert-danger">Error en la conexión. Intente nuevamente.</div>`;
+        }
+    });
 
-            fetch("{{ route('cambiar.email', ['usuarioId' => $usuario->id_usuario]) }}", {
+    // Manejo del envío del formulario de correo
+    document.getElementById('cambiarEmailForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+
+        if (formData.get('email') !== formData.get('email_confirmation')) {
+            alert("Los correos electrónicos no coinciden.");
+            return;
+        }
+
+        try {
+            const response = await fetch("{{ route('cambiar.email', ['usuarioId' => $usuario->id_usuario]) }}", {
                 method: "POST",
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Accept": "application/json",
+                    "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const mensajeDiv = document.getElementById('mensajeEmail');
-                mensajeDiv.innerHTML = "";
+                body: new URLSearchParams(formData)
+            });
 
-                if (data.success) {
-                    mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url;
-                    }, 2000);
-                } else {
-                    let errores = "";
+            const data = await response.json();
+            const mensajeDiv = document.getElementById('mensajeEmail');
+            mensajeDiv.innerHTML = "";
+
+            if (data.success) {
+                mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                setTimeout(() => {
+                    window.location.href = data.redirect_url || "{{ route('login') }}";
+                }, 2000);
+            } else {
+                let errores = "";
+                if (data.errors) {
                     for (const [campo, mensajes] of Object.entries(data.errors)) {
                         errores += `<div class="alert alert-danger">${mensajes.join("<br>")}</div>`;
                     }
-                    mensajeDiv.innerHTML = errores;
+                } else {
+                    errores = `<div class="alert alert-danger">${data.message || 'Error desconocido'}</div>`;
                 }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-        });
-    </script>
+                mensajeDiv.innerHTML = errores;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById('mensajeEmail').innerHTML = 
+                `<div class="alert alert-danger">Error en la conexión. Intente nuevamente.</div>`;
+        }
+    });
+</script>
 @endsection

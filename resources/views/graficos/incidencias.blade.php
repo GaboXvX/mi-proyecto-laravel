@@ -139,8 +139,8 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('js/chart.umd.min.js') }}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Gráfico por estado
     const estadoCtx = document.getElementById('estadoChart').getContext('2d');

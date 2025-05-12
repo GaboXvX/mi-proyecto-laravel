@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_incidencia')->nullable(); 
             $table->unsignedBigInteger('id_personal_reparacion')->nullable(); // Relación con el personal de reparación
             $table->string('slug')->unique(); // Slug único para la reparación
-            $table->text('descripcion'); // Descripción de la reparación
+            $table->text('descripcion',350); // Descripción de la reparación
             $table->string('prueba_fotografica'); // Ruta de la prueba fotográfica
             $table->timestamps(); // Timestamps para created_at y updated_at
 

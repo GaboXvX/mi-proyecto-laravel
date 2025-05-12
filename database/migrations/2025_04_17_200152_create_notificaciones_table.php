@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
             $table->string('tipo_notificacion');
             $table->string('titulo');
-            $table->string('mensaje');
+            $table->string('mensaje',320);
             $table->boolean('mostrar_a_todos')->default(false);
             $table->unsignedBigInteger('id_incidencia')->nullable();
             $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');

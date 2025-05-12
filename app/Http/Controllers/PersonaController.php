@@ -280,4 +280,32 @@ class PersonaController extends Controller
 
         return view('personas.incidencias', compact('persona', 'incidencias'));
     }
+    public function verificarCedula(Request $request)
+{
+    // Validar que la cédula es un valor numérico de 8 dígitos
+    $request->validate([
+        'cedula' => 'required|numeric|digits:8'
+    ]);
+
+    $cedula = $request->input('cedula');
+
+    // Buscar si la cédula ya existe en la base de datos
+    $persona = Persona::where('cedula', $cedula)->first();
+
+    if ($persona) {
+        // Si la cédula ya existe
+        return response()->json(['existe' => true]);
+    } else {
+        // Si la cédula no existe
+        return response()->json(['existe' => false]);
+    }
+}
+  public function verificarCorreo(Request $request)
+    {
+        $correo = $request->input('correo');
+        $existe = Persona::where('correo', $correo)->exists();
+
+        return response()->json(['existe' => $existe]);
+    }
+
 }

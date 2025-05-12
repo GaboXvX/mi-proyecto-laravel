@@ -79,7 +79,12 @@
                                 Personas
                             </a>
                         </li>
-                        
+                        <li>
+                            <a href="{{ route('categorias-personas.index') }}" class="nav-link px-3 {{ Route::is('categorias-personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                categorias Personas
+                            </a>
+                        <li>
                             <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Incidencias
@@ -91,6 +96,12 @@
                                 personal Reparación
                             </a>
                         <li>
+                            <li>
+                                <a href="{{route(('instituciones.index'))}}"class="nav-link px-3 {{ Route::is('instituciones.index') ? 'active' : '' }}">
+                                    <i class="bi bi-building me-2"></i>
+                                    Instituciones
+                                </a>
+                            </li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
                                 <i class="bi bi-envelope me-2"></i>
                                 Peticiones

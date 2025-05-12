@@ -184,6 +184,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);
 Route::post('/verificar-cedula', [PersonaController::class, 'verificarCedula'])->name('verificarCedula');
 Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])->name('verificarCorreo');
-
- });
+// En routes/web.php, dentro del grupo de rutas protegidas (auth)
+Route::get('/api/estaciones-por-institucion/{id}', [InstitucionController::class, 'getByInstitucion']); });
 });

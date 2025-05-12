@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institucion;
+use App\Models\InstitucionEstacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -43,5 +44,13 @@ class institucionController extends Controller
         $institucion->update(['encabezado_html' => $request->encabezado_html]);
 
         return back()->with('success', '¡Membrete actualizado correctamente!');
+    }
+     public function getByInstitucion($institucionId)
+    {
+        $estaciones = InstitucionEstacion::where('id_institucion', $institucionId)
+            ->select('id_institucion_estacion', 'nombre')
+            ->get();
+
+        return response()->json($estaciones);
     }
 }

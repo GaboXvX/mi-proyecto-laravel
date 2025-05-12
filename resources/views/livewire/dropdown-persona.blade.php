@@ -5,7 +5,7 @@
             <label for="estado" class="form-label">Estado:</label>
             <select name="estado" id="estado" class="form-select" wire:model.live="estadoId" required>
                 <option value="">Seleccione un estado</option>
-                @foreach($estados as $estado)
+                @foreach($estados ?? [] as $estado)
                     <option value="{{ $estado->id_estado }}">{{ $estado->nombre }}</option>
                 @endforeach
             </select>

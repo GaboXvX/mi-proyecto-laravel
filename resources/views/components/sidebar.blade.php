@@ -79,7 +79,12 @@
                                 Personas
                             </a>
                         </li>
-                        
+                        <li>
+                            <a href="{{ route('categorias-personas.index') }}" class="nav-link px-3 {{ Route::is('categorias-personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                categorias Personas
+                            </a>
+                        <li>
                             <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
                                 Incidencias
@@ -240,150 +245,3 @@
 <script src="{{ asset('js/gridstack-all.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
-    
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Marcar notificación como leída
-        document.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', function () {
-                const notificationId = this.dataset.notificationId;
-                if (notificationId) {
-                    fetch(`/notificaciones/marcar-leida/${notificationId}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        }
-                    }).then(() => {
-                        this.classList.remove('unread');
-                        updateNotificationCount();
-                    });
-                }
-            });
-        });
-
-        // Marcar todas como leídas
-        document.getElementById('markAllAsRead')?.addEventListener('click', function () {
-            fetch('/notificaciones/marcar-todas-leidas', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.classList.remove('unread');
-                });
-                updateNotificationCount();
-            });
-        });
-
-        // Contador en vivo
-        function updateNotificationCount() {
-            fetch('/notificaciones/contador')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.querySelector('#dropdownNotifications .badge');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        badge.style.display = data.count > 0 ? 'block' : 'none';
-                    }
-                });
-        }
-
-        setInterval(updateNotificationCount, 60000);
-    });
-</script>
-<script>
-        (() => {
-        'use strict';
-
-        const storedTheme = localStorage.getItem('theme');
-
-        const getPreferredTheme = () => {
-            if (storedTheme) return storedTheme;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        };
-
-        const updateThemeIcon = (theme) => {
-            const icon = document.getElementById('bd-theme-icon');
-            const text = document.getElementById('bd-theme-text');
-            if (!icon || !text) return;
-
-            switch (theme) {
-                case 'light':
-                    icon.className = 'bi bi-brightness-high me-2';
-                    text.textContent = 'Claro';
-                    break;
-                case 'dark':
-                    icon.className = 'bi bi-moon-stars me-2';
-                    text.textContent = 'Oscuro';
-                    break;
-                default:
-                    icon.className = 'bi bi-circle-half me-2';
-                    text.textContent = 'Auto';
-                    break;
-            }
-        };
-
-        const setTheme = (theme) => {
-            if (theme === 'auto') {
-                document.documentElement.removeAttribute('data-bs-theme');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', theme);
-            }
-            updateThemeIcon(theme);
-        };
-
-        const currentTheme = getPreferredTheme();
-        setTheme(currentTheme);
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (!storedTheme || storedTheme === 'auto') {
-                setTheme(getPreferredTheme());
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('[data-bs-theme-value]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const theme = btn.getAttribute('data-bs-theme-value');
-                    localStorage.setItem('theme', theme);
-                    setTheme(theme);
-                });
-            });
-        });
-    })();
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuId = 'layouts';
-            const collapseElement = document.getElementById(menuId);
-            const toggleElement = document.querySelector(`[href="#${menuId}"]`);
-        
-            if (!collapseElement || !toggleElement) return;
-        
-            const openedByBlade = collapseElement.classList.contains('show');
-            const currentRouteIsPartOfMenu = toggleElement.classList.contains('active');
-        
-            // Solo usar localStorage si Laravel no lo abrió ni está en una ruta activa
-            if (!openedByBlade && !currentRouteIsPartOfMenu) {
-                const isOpen = localStorage.getItem('sidebar-' + menuId) === 'open';
-                if (isOpen) {
-                    collapseElement.classList.add('show');
-                    toggleElement.setAttribute('aria-expanded', 'true');
-                }
-            }
-        
-            // Eventos Bootstrap correctos para guardar estado real
-            collapseElement.addEventListener('shown.bs.collapse', () => {
-                localStorage.setItem('sidebar-' + menuId, 'open');
-            });
-        
-            collapseElement.addEventListener('hidden.bs.collapse', () => {
-                localStorage.setItem('sidebar-' + menuId, 'closed');
-            });
-        });
-    </script> 
-</body>
-</html>

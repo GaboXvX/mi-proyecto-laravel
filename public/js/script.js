@@ -64,6 +64,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Función para habilitar respuesta cuando se selecciona pregunta
+function habilitarRespuesta(selectElement) {
+    const respuestaInput = selectElement.closest('.question-group').querySelector('input[type="text"]');
+    respuestaInput.disabled = !selectElement.value;
+}
 
 //no permite que la fecha de inicio sea mayor que la fecha de fin
 document.getElementById("fecha_inicio").addEventListener("change", function() {

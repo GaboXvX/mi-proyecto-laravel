@@ -22,8 +22,10 @@ class HomeController extends Controller
         // Contar el número total de personas
         $totalPersonas = Persona::count();
 
+        $datosTemporales = $this->getDatosTemporales();
+
         // Pasar los valores a la vista
-        return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas'));
+        return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas', 'datosTemporales'));
     }
 
     public function obtenerTotalPeticiones()
@@ -31,5 +33,50 @@ class HomeController extends Controller
         // Contar el número de usuarios con id_estado_usuario == 3
         $totalPeticiones = User::where('id_estado_usuario', 3)->count();
         return response()->json(['totalPeticiones' => $totalPeticiones]);
+    }
+
+    protected function getDatosTemporales()
+    {
+        $datos = Incidencia::selectRaw('
+                DATE_FORMAT(incidencias.created_at, "%Y-%m-%d") as fecha,
+                SUM(CASE WHEN estado_incidencia.nombre = "Atendido" THEN 1 ELSE 0 END) as atendidas,
+                SUM(CASE WHEN estado_incidencia.nombre = "Pendiente" THEN 1 ELSE 0 END) as pendientes
+            ')
+            ->join('estados_incidencias as estado_incidencia', 'incidencias.id_estado_incidencia', '=', 'estado_incidencia.id_estado_incidencia')
+            ->groupBy('fecha')
+            ->orderBy('fecha')
+            ->get();
+
+        $labels = [];
+        $atendidas = [];
+        $pendientes = [];
+
+        foreach ($datos as $dato) {
+            $labels[] = $dato->fecha;
+            $atendidas[] = $dato->atendidas;
+            $pendientes[] = $dato->pendientes;
+        }
+
+        return [
+            'labels' => $labels,
+            'series' => [
+                [
+                    'name' => 'Atendidas',
+                    'data' => $atendidas,
+                    'color' => '#28a745',
+                    'borderColor' => '#28a745',
+                    'backgroundColor' => 'transparent',
+                    'tension' => 0.4
+                ],
+                [
+                    'name' => 'Pendientes',
+                    'data' => $pendientes,
+                    'color' => '#ffc107',
+                    'borderColor' => '#ffc107',
+                    'backgroundColor' => 'transparent',
+                    'tension' => 0.4
+                ]
+            ]
+        ];
     }
 }

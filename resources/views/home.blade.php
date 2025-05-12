@@ -30,12 +30,12 @@
             </a>
         </div>
 
-        <div class="card-access mt-4">
+        <div class="table-container mt-4">
             <div class="item" style="width: 100%;">
                 <div class="d-flex justify-content-between align-items-center w-100 mb-3">
                     <h5 class="mb-0">Evolución Temporal</h5>
-                    <a href="#" class="btn btn-sm btn-outline-primary">
-                        Ver Gráficos Detallados
+                    <a href="{{ route('graficos.incidencias') }}" class="btn btn-sm btn-outline-primary">
+                        Ver Gráficos Detallados 
                     </a>
                 </div>
                 <div style="width: 100%; height: 300px;">
@@ -61,71 +61,44 @@
     </script>
     @if (!empty($datosTemporales['labels']) && !empty($datosTemporales['series']))
     <script>
-        // Verifica en consola qué se está recibiendo desde PHP
-        const datosTemporales = @json($datosTemporales);
+        const datosTemporales = @json($datosTemporales ?? ['labels' => [], 'series' => []]);
         console.log("Datos desde el backend:", datosTemporales);
 
-        const ctx = document.getElementById('temporalChart').getContext('2d');
+        const ctx = document.getElementById('temporalChart')?.getContext('2d');
 
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: datosTemporales.labels,
-                datasets: datosTemporales.series.map(serie => ({
-                    label: serie.name,
-                    data: serie.data,
-                    borderColor: serie.borderColor || serie.color || 'blue',
-                    backgroundColor: serie.backgroundColor || 'transparent',
-                    fill: false,
-                    tension: serie.tension || 0.4,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }))
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Resumen: Atendidas vs Pendientes',
-                        font: {
-                            size: 16
-                        }
-                    },
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
+        if (ctx && datosTemporales.labels.length) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datosTemporales.labels,
+                    datasets: datosTemporales.series.map(serie => ({
+                        label: serie.name,
+                        data: serie.data,
+                        borderColor: serie.borderColor || 'blue',
+                        backgroundColor: serie.backgroundColor || 'transparent',
+                        fill: false,
+                        tension: serie.tension || 0.4
+                    }))
                 },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
-                },
-                scales: {
-                    x: {
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
                         title: {
                             display: true,
-                            text: 'Fecha'
+                            text: 'Resumen: Atendidas vs Pendientes'
                         },
-                        grid: {
-                            display: false
+                        legend: {
+                            position: 'top'
                         }
                     },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Cantidad de Incidencias'
-                        },
-                        beginAtZero: true
+                    scales: {
+                        x: { title: { display: true, text: 'Fecha' } },
+                        y: { title: { display: true, text: 'Cantidad' }, beginAtZero: true }
                     }
                 }
-            }
-        });
+            });
+        }
     </script>
 @endif
 

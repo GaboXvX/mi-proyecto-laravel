@@ -32,7 +32,7 @@
                         <form action="{{ route('guardarDireccion', $persona->id_persona) }}" method="POST">
                             @csrf
                             
-                            <livewire:dropdown-persona/>
+                            <livewire:dropdown-persona :persona="null"/>
                 
                             <div class="mb-3">
                                 <label for="calle" class="form-label">Calle:</label>

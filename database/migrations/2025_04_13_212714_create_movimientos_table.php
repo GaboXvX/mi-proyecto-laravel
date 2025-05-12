@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('id_incidencia')->nullable();
             $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
-            $table->string('descripcion', 50)->nullable();
+            $table->string('descripcion', 350)->nullable();
             $table->timestamps();
         });
     }

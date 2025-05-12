@@ -12,7 +12,7 @@ class estadoIncidencia extends Model
     protected $primaryKey = 'id_estado_incidencia';
     protected $fillable = [
         'nombre',
-        
+        'color',
     ];
     /**
      * Relación uno a muchos con Incidencia.

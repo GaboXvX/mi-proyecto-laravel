@@ -173,19 +173,14 @@
             </div>
         </div>
 </div>
-
 <script>
-    // Función para habilitar respuesta cuando se selecciona pregunta
-    function habilitarRespuesta(selectElement) {
-        const respuestaInput = selectElement.closest('.question-group').querySelector('input[type="text"]');
-        respuestaInput.disabled = !selectElement.value;
-    }
-
-    // Validación de formulario principal (existente)
+document.addEventListener('DOMContentLoaded', function () {
     const correoInput = document.getElementById('inputCorreo');
     const usuarioInput = document.getElementById('inputUsuario');
     const passwordInput = document.getElementById('inputContraseña');
     const submitButton = document.getElementById('submitButton');
+    const correoFeedback = document.getElementById('correoFeedback');
+    const usuarioFeedback = document.getElementById('usuarioFeedback');
 
     let correoOriginal = correoInput.value;
     let usuarioOriginal = usuarioInput.value;
@@ -208,10 +203,9 @@
 
     correoInput.addEventListener('input', function () {
         const correo = this.value;
-        const feedback = document.getElementById('correoFeedback');
 
         if (correo.trim() === '') {
-            feedback.textContent = '';
+            correoFeedback.textContent = '';
             correoDisponible = true;
             validarFormulario();
             return;
@@ -221,16 +215,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.disponible) {
-                    feedback.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>¡Correo disponible!';
+                    correoFeedback.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>¡Correo disponible!';
                     correoDisponible = true;
                 } else {
-                    feedback.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-2"></i>El correo ya está en uso.';
+                    correoFeedback.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-2"></i>El correo ya está en uso.';
                     correoDisponible = false;
                 }
                 validarFormulario();
             })
             .catch(() => {
-                feedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Error al validar.';
+                correoFeedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Error al validar.';
                 correoDisponible = false;
                 validarFormulario();
             });
@@ -238,10 +232,9 @@
 
     usuarioInput.addEventListener('input', function () {
         const nombreUsuario = this.value;
-        const feedback = document.getElementById('usuarioFeedback');
 
         if (nombreUsuario.trim() === '') {
-            feedback.textContent = '';
+            usuarioFeedback.textContent = '';
             usuarioDisponible = true;
             validarFormulario();
             return;
@@ -251,20 +244,24 @@
             .then(response => response.json())
             .then(data => {
                 if (data.disponible) {
-                    feedback.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>¡Usuario disponible!';
+                    usuarioFeedback.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>¡Usuario disponible!';
                     usuarioDisponible = true;
                 } else {
-                    feedback.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-2"></i>El usuario ya está en uso.';
+                    usuarioFeedback.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-2"></i>El usuario ya está en uso.';
                     usuarioDisponible = false;
                 }
                 validarFormulario();
             })
             .catch(() => {
-                feedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Error al validar.';
+                usuarioFeedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Error al validar.';
                 usuarioDisponible = false;
                 validarFormulario();
             });
     });
 
-    passwordInput.addEventListener('input', validarFormulario);
+    // 💡 Aquí estaba el problema original: no se escuchaban cambios en la contraseña
+    passwordInput.addEventListener('input', function () {
+        validarFormulario();
+    });
+});
 </script>

@@ -14,7 +14,6 @@
         }
 
         .bg-section {
-            background-color: #f8f9fa;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-bottom: 1.5rem;
@@ -68,7 +67,6 @@
         }
 
         .timeline-panel {
-            background: #f8f9fa;
             border-radius: 0.5rem;
             padding: 1rem;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
@@ -89,7 +87,7 @@
         }
 
         .address-card {
-            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
             border-radius: 0.5rem;
             padding: 1rem;
         }
@@ -106,14 +104,14 @@
         }
 
         .address-value {
-            color: #212529;
+            color: #2d5c8f;
         }
     </style>
 
-    <div class="container py-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0"><i class="fas fa-ticket-alt"></i> Detalles de la Incidencia</h2>
+    <div class="table-container py-4">
+        <div>
+            <div class="card-header">
+                <h2 class="mb-3"><i class="fas fa-ticket-alt"></i> Detalles de la Incidencia</h2>
             </div>
 
             <div class="card-body">
@@ -192,7 +190,7 @@
                 <!-- Descripción -->
                 <div class="bg-section">
                     <h4 class="section-title"><i class="fas fa-align-left me-2"></i> Descripción</h4>
-                    <div class="p-3 bg-light rounded">
+                    <div class="p-3 border rounded">
                         {{ $incidencia->descripcion }}
                     </div>
                 </div>
@@ -249,7 +247,7 @@
                                 <p><strong>Fecha de atención:</strong> {{ $reparacion->created_at->format('d/m/Y H:i:s') }}
                                 </p>
                                 <p><strong>Descripción:</strong></p>
-                                <div class="p-3 bg-light rounded mb-3">
+                                <div class="p-3 rounded mb-3">
                                     {{ $reparacion->descripcion }}
                                 </div>
                             </div>

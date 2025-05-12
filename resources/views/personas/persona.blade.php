@@ -61,8 +61,6 @@
                             <th>Género:</th>
                             <td>{{ $persona->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
                         </tr>
-                        
-                       
                         <tr>
                             <th>Responsable:</th>
                             <td>
@@ -107,7 +105,6 @@
                                 <th style="width: 5%;">N° vivienda</th>
                                 <th style="width: 5%;">Bloque</th>
                                 <th style="width: 5%;">Principal</th>
-                                <th style="width: 10%;">Categoría</th>
                                 <th style="width: 10%;">Acciones</th>
                             </tr>
                         </thead>
@@ -128,21 +125,6 @@
                                         <span class="{{ $domicilio->es_principal ? 'text-success' : 'text-danger' }}">
                                             {{ $domicilio->es_principal ? 'Sí' : 'No' }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        @php
-                                            $categoriasExclusivas = $domicilio->persona->categoriasExclusivasPersonas
-                                                ->where('id_comunidad', $domicilio->id_comunidad)
-                                                ->where('es_activo', true);
-                                        @endphp
-                                        
-                                        @if($categoriasExclusivas->count() > 0)
-                                            @foreach($categoriasExclusivas as $categoriaExclusiva)
-                                                <small class="text-muted">{{ $categoriaExclusiva->categoria->nombre_categoria }}</small><br>
-                                            @endforeach
-                                        @else
-                                            {{$persona->categoria->nombre_categoria}}
-                                        @endif
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
@@ -192,7 +174,7 @@
 
                             <input type="hidden" id="domicilio_id" name="domicilio_id">
 
-                            <livewire:dropdown-persona/>
+                            <livewire:dropdown-persona />
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -214,17 +196,6 @@
                             <div class="mb-3">
                                 <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
                                 <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
-                            </div>
-
-                            <div class="mb-3" id="categoria-container">
-                                <label for="categoria" class="form-label">Categoría:</label>
-                                <select id="categoria" name="categoria" class="form-select" required>
-                                    <option value="" disabled selected>--Seleccione--</option>
-                                    @foreach($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
-                                    @endforeach
-                                </select>
-                                
                             </div>
 
                             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -270,16 +241,6 @@
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6" id="categoria-container">
-                                    <label for="categoria" class="form-label">Categoría:</label>
-                                    <select id="categoria" name="categoria" class="form-select" required>
-                                        <option value="" disabled selected>--Seleccione--</option>
-                                        @foreach($categorias as $categoria)
-                                            <option value="{{ $categoria->id_categoria_persona }}">{{ $categoria->nombre_categoria }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
                                 <div class="col-md-6">
                                     <label for="es_principal" class="form-label">¿Es el domicilio principal?</label>
                                     <select name="es_principal" id="es_principal" class="form-select" required>
@@ -345,16 +306,12 @@
                                 </select>
                             </div>
 
-                          
-                           
-
                             <button type="submit" class="btn btn-primary w-100">Actualizar</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -416,76 +373,76 @@
 
     <script>
        document.getElementById('addDireccionForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    
-    // Mostrar loader
-    const submitButton = this.querySelector('button[type="submit"]');
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
-    submitButton.disabled = true;
-
-    try {
-        const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw data;
-        }
-
-        if (data.success) {
-            await Swal.fire({
-                icon: 'success',
-                title: data.title || '¡Éxito!',
-                text: data.message,
-                confirmButtonText: 'Aceptar'
-            });
+            e.preventDefault();
+            const formData = new FormData(this);
             
-            // Redirigir si hay URL de redirección
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            } else {
-                location.reload();
-            }
-        }
+            // Mostrar loader
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            submitButton.disabled = true;
 
-    } catch (error) {
-        let errorHtml = '<ul>';
-
-        if (error.errors) {
-            Object.values(error.errors).forEach(messages => {
-                messages.forEach(message => {
-                    errorHtml += `<li>${message}</li>`;
+            try {
+                const response = await fetch('{{ route('guardarDireccion', $persona->id_persona) }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
                 });
-            });
-        } else if (error.message) {
-            errorHtml += `<li>${error.message}</li>`;
-        } else {
-            errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
-        }
 
-        errorHtml += '</ul>';
+                const data = await response.json();
 
-        await Swal.fire({
-            icon: 'error',
-            title: error.title || 'Error al guardar',
-            html: errorHtml,
-            confirmButtonText: 'Cerrar'
+                if (!response.ok) {
+                    throw data;
+                }
+
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: data.title || '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Aceptar'
+                    });
+                    
+                    // Redirigir si hay URL de redirección
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        location.reload();
+                    }
+                }
+
+            } catch (error) {
+                let errorHtml = '<ul>';
+
+                if (error.errors) {
+                    Object.values(error.errors).forEach(messages => {
+                        messages.forEach(message => {
+                            errorHtml += `<li>${message}</li>`;
+                        });
+                    });
+                } else if (error.message) {
+                    errorHtml += `<li>${error.message}</li>`;
+                } else {
+                    errorHtml += '<li>Error desconocido al procesar la solicitud</li>';
+                }
+
+                errorHtml += '</ul>';
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: error.title || 'Error al guardar',
+                    html: errorHtml,
+                    confirmButtonText: 'Cerrar'
+                });
+            } finally {
+                // Restaurar botón
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }
         });
-    } finally {
-        // Restaurar botón
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    }
-});
     </script>
     <script>
         document.getElementById('editDireccionForm').addEventListener('submit', async function(e) {
@@ -557,34 +514,6 @@
                 // Restaurar botón
                 submitButton.innerHTML = originalText;
                 submitButton.disabled = false;
-            }
-        });
-    </script>
-    <script>
-        document.getElementById('altura').addEventListener('input', function (e) {
-            // Permitir solo números, una coma o punto, y limitar a un dígito antes y dos después
-            this.value = this.value
-                .replace(/[^0-9.,]/g, '') // Permitir solo números, coma o punto
-                .replace(/,/g, '.') // Reemplazar coma por punto para consistencia
-                .replace(/^(\d{2,})\./, '$1') // Limitar a un dígito antes del punto
-                .replace(/(\.\d{2}).*/, '$1'); // Limitar a dos dígitos después del punto
-
-            // Validar rango de altura (mínimo 0.50, máximo 2.72)
-            const altura = parseFloat(this.value);
-            if (altura < 0.5 || altura > 2.72) {
-                this.value = ''; // Limpiar el campo si está fuera del rango
-            }
-        });
-
-        document.getElementById('editPersonaModal').addEventListener('show.bs.modal', function () {
-            const alturaInput = document.getElementById('altura');
-            if (alturaInput) {
-                // Eliminar cualquier texto adicional como "cm" y validar el formato
-                alturaInput.value = alturaInput.value
-                    .replace(/[^0-9.,]/g, '') // Permitir solo números, coma o punto
-                    .replace(/,/g, '.') // Reemplazar coma por punto
-                    .replace(/^(\d{2,})\./, '$1') // Limitar a un dígito antes del punto
-                    .replace(/(\.\d{2}).*/, '$1'); // Limitar a dos dígitos después del punto
             }
         });
     </script>

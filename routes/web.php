@@ -183,6 +183,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/incidencias/{id}/download', [IncidenciaController::class, 'downloadPdf'])
     ->name('incidencias.download');
 Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);
+Route::post('/verificar-cedula', [PersonaController::class, 'verificarCedula'])->name('verificarCedula');
+Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])->name('verificarCorreo');
 
  });
 });

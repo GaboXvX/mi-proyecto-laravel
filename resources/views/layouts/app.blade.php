@@ -91,6 +91,12 @@
                                 personal Reparación
                             </a>
                         <li>
+                            <li>
+                                <a href="{{route(('instituciones.index'))}}"class="nav-link px-3 {{ Route::is('instituciones.index') ? 'active' : '' }}">
+                                    <i class="bi bi-building me-2"></i>
+                                    Instituciones
+                                </a>
+                            </li>
                             <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
                                 <i class="bi bi-envelope me-2"></i>
                                 Peticiones

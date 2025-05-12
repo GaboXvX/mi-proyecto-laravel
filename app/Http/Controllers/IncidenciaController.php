@@ -26,7 +26,7 @@ use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Storage;
 class IncidenciaController extends Controller
 {
 
@@ -270,7 +270,7 @@ class IncidenciaController extends Controller
                 ->orderBy('nombre')
                 ->get();
                 
-            $prioridades = NivelIncidencia::orderBy('horas_vencimiento', 'desc')->get();
+            $prioridades = NivelIncidencia::all();
             $estados = EstadoIncidencia::orderBy('nombre')->get();
             $tipos = tipoIncidencia::orderBy('nombre')->get();
             // Obtener estaciones relacionadas con la institución actual (para precargar)
@@ -369,7 +369,7 @@ class IncidenciaController extends Controller
                 'id_comunidad' => $request->input('comunidad'),
                 'punto_de_referencia' => $request->input('punto_de_referencia'),
             ]);
-    
+            $estadoIncidencia = estadoIncidencia::where('nombre', 'Pendiente')->first();
             // Actualizar los datos de la incidencia
             $datosActualizacion = [
                 'slug' => $nuevoSlug,
@@ -380,6 +380,7 @@ class IncidenciaController extends Controller
                 'id_direccion' => $direccion->id_direccion,
                 'id_institucion' => $request->input('institucion'),
                 'id_institucion_estacion' => $request->input('estacion'),
+                'id_estado_incidencia' => $estadoIncidencia->id_estado_incidencia,
             ];
     
             // Actualizar fecha de vencimiento solo si cambió la prioridad
@@ -1088,6 +1089,23 @@ protected function prepareChartData($incidenciasAtendidas, $totalesMensuales, $t
             return back()->withErrors(['error' => 'Error al cargar la incidencia para atender.']);
         }
     }
+public function downloadPdf($id)
+{
+    $incidencia = Incidencia::with([/* tus relaciones */])->findOrFail($id);
+    
+    // Obtener la ruta absoluta de la imagen si existe
+    if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica) {
+        $imagePath = Storage::path('public/'.$incidencia->reparacion->prueba_fotografica);
+        $imageData = base64_encode(file_get_contents($imagePath));
+        $incidencia->reparacion->imageSrc = 'data:image/'.pathinfo($imagePath, PATHINFO_EXTENSION).';base64,'.$imageData;
+    }
 
-   
+    return FacadePdf::loadView('incidencias.DetallesIncidencia', [
+        'incidencia' => $incidencia,
+        'reparacion' => $incidencia->reparacion ?? null
+    ])
+    ->setOption('isRemoteEnabled', true)
+    ->setOption('isHtml5ParserEnabled', true)
+    ->download('incidencia_'.$incidencia->cod_incidencia.'.pdf');
+}
 }

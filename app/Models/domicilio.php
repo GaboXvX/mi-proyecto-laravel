@@ -66,4 +66,5 @@ class Domicilio extends Model
     {
         return $this->belongsTo(Comunidad::class, 'id_comunidad', 'id_comunidad');
     }
+    
 }

@@ -172,4 +172,26 @@ public function getEstacionesPorInstitucion($institucionId)
         ], 500);
     }
 }
+ public function validarCedula(Request $request)
+    {
+        $cedula = $request->query('cedula');
+        $exists = \App\Models\PersonalReparacion::where('cedula', $cedula)->exists();
+
+        return response()->json([
+            'success' => true,
+            'exists' => $exists,
+            'message' => $exists ? 'La cédula ya está registrada.' : 'Cédula disponible.'
+        ]);
+    }
+public function validarCedulaDirecta($cedula)
+{
+    $exists = \App\Models\PersonalReparacion::where('cedula', $cedula)->exists();
+
+    return response()->json([
+        'success' => true,
+        'exists' => $exists,
+        'message' => $exists ? 'La cédula ya está registrada.' : 'Cédula disponible.'
+    ]);
+}
+
 }

@@ -112,58 +112,58 @@ class RecuperarController extends Controller
 
     // Método para actualizar la contraseña
     public function update(Request $request, $usuarioId)
-    {
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'password' => 'required|string|min:8|confirmed',
-        ], [
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.string' => 'La contraseña debe ser una cadena de texto.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'password' => 'required|string|min:8|confirmed',
+    ], [
+        'password.required' => 'La contraseña es obligatoria.',
+        'password.string' => 'La contraseña debe ser una cadena de texto.',
+        'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+        'password.confirmed' => 'Las contraseñas no coinciden.',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ]);
-        }
-
-        $usuario = User::findOrFail($usuarioId);
-        $usuario->password = Hash::make($request->password);
-        $usuario->save();
-
-        // Limpiar la sesión después de cambiar la contraseña
-        session()->forget(['token_cambiar_clave', 'usuario_validado']);
-        $movimiento = new movimiento();
-        $movimiento->id_usuario = auth()->user()->id_usuario;
-        $movimiento->id_empleado_autorizado = $usuario->id_empleado_autorizado;
-        $movimiento->descripcion = 'se actualizo la contraseña';
-        $movimiento->save();
+    if ($validator->fails()) {
         return response()->json([
-            'success' => true,
-            'message' => 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.',
-            'redirect_url' => route('login'),
-        ]);
+            'success' => false,
+            'errors' => $validator->errors(),
+        ], 422);
     }
 
-    // Método para actualizar el correo electrónico
-    public function actualizarCorreo(Request $request, $usuarioId)
+    $usuario = User::findOrFail($usuarioId);
+    $usuario->password = Hash::make($request->password);
+    $usuario->save();
+
+    // Registrar movimiento
+    $movimiento = new movimiento();
+    $movimiento->id_usuario = $usuario->id_usuario; // Usar el mismo usuario que cambió la contraseña
+    $movimiento->descripcion = 'Se actualizó la contraseña';
+    $movimiento->save();
+
+    // Limpiar la sesión
+    session()->forget(['token_cambiar_clave', 'usuario_validado']);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión.',
+        'redirect_url' => route('login'),
+    ]);
+}
+
+public function actualizarCorreo(Request $request, $usuarioId)
 {
     $usuario = User::findOrFail($usuarioId);
 
-    // Validar el correo electrónico
     $validator = Validator::make($request->all(), [
         'email' => [
             'required',
             'email',
             'confirmed',
+            'unique:users,email,'.$usuarioId.',id_usuario',
             function ($attribute, $value, $fail) use ($usuario) {
                 if ($value === $usuario->email) {
                     $fail('El correo ingresado es el mismo que el actual.');
                 }
             },
-            'unique:users,email',
         ],
     ], [
         'email.required' => 'El correo electrónico es obligatorio.',
@@ -176,16 +176,18 @@ class RecuperarController extends Controller
         return response()->json([
             'success' => false,
             'errors' => $validator->errors(),
-        ]);
+        ], 422);
     }
 
     $usuario->email = $request->email;
     $usuario->save();
+
+    // Registrar movimiento
     $movimiento = new movimiento();
-    $movimiento->id_usuario = auth()->user()->id_usuario;
-    $movimiento->id_usuario_afectado = $usuario->id_usuario;
-    $movimiento->descripcion = 'se actualizo el correo electrónico';
+    $movimiento->id_usuario = $usuario->id_usuario;
+    $movimiento->descripcion = 'Se actualizó el correo electrónico';
     $movimiento->save();
+
     return response()->json([
         'success' => true,
         'message' => 'Correo electrónico actualizado correctamente.',

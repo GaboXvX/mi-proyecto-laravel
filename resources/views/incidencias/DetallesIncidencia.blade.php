@@ -1,154 +1,92 @@
-@extends('layouts.app')
-
-@section('content')
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Incidencia {{ $incidencia->cod_incidencia }}</title>
     <style>
-        .card-header h2 {
-            font-weight: 600;
-            font-size: 1.5rem;
-        }
-
-        .badge {
-            padding: 0.4em 0.8em;
-            font-size: 0.85rem;
-            border-radius: 0.5rem;
-        }
-
-        .bg-section {
+        body { font-family: Arial, sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #003366; }
+        .section { margin-bottom: 15px; }
+        .section-title { 
             background-color: #f8f9fa;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #dee2e6;
-        }
-
-        .section-title {
+            padding: 5px 10px;
             border-left: 4px solid #007bff;
-            padding-left: 0.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            font-size: 1.25rem;
-            color: #343a40;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
-
-        .label-bold {
-            font-weight: 600;
-            color: #495057;
+        .badge {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
         }
-
-        .timeline {
-            position: relative;
-            padding-left: 50px;
-            list-style: none;
-        }
-
+        .row { display: flex; margin-bottom: 5px; }
+        .col-6 { width: 50%; }
+        .label-bold { font-weight: bold; min-width: 120px; display: inline-block; }
+        .address-card { background-color: #f8f9fa; padding: 10px; border-radius: 5px; }
+        .timeline { position: relative; padding-left: 30px; }
         .timeline:before {
             content: '';
             position: absolute;
+            left: 10px;
             top: 0;
             bottom: 0;
             width: 2px;
             background: #dee2e6;
-            left: 25px;
         }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
+        .timeline-item { position: relative; margin-bottom: 15px; }
         .timeline-badge {
             position: absolute;
+            left: 4px;
             width: 12px;
             height: 12px;
-            left: 19px;
             border-radius: 50%;
+            background: #007bff;
             border: 2px solid white;
-            background-color: #007bff;
-            box-shadow: 0 0 0 4px #fff;
         }
-
         .timeline-panel {
             background: #f8f9fa;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .timeline-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .info-block {
-            padding: 0.5rem 0;
-        }
-
-        .user-icon {
-            font-size: 2.5rem;
-            color: #6c757d;
-        }
-
-        .address-card {
-            background-color: #e9ecef;
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-
-        .address-item {
-            margin-bottom: 8px;
-        }
-
-        .address-label {
-            font-weight: 600;
-            color: #495057;
-            min-width: 120px;
-            display: inline-block;
-        }
-
-        .address-value {
-            color: #212529;
+            padding: 10px;
+            border-radius: 5px;
+            margin-left: 15px;
         }
     </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Detalles de la Incidencia</h1>
+        <p>Código: {{ $incidencia->cod_incidencia }}</p>
+    </div>
 
-    <div class="container py-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0"><i class="fas fa-ticket-alt"></i> Detalles de la Incidencia</h2>
+    <!-- Información Básica -->
+    <div class="section">
+        <div class="section-title">Información Básica</div>
+        <div class="row">
+            <div class="col-6">
+                <p><span class="label-bold">Tipo:</span> {{ $incidencia->tipoIncidencia->nombre }}</p>
+                <p><span class="label-bold">Fecha creación:</span> {{ $incidencia->created_at->format('d/m/Y H:i:s') }}</p>
             </div>
-
-            <div class="card-body">
-
-                <!-- Información Básica -->
-                <div class="bg-section">
-                    <h4 class="section-title"><i class="fas fa-info-circle me-2"></i> Información Básica</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><span class="label-bold">Código:</span> {{ $incidencia->cod_incidencia }}</p>
-                            <p><span class="label-bold">Tipo:</span> {{ $incidencia->tipoIncidencia->nombre }}</p>
-                            <p><span class="label-bold">Fecha creación:</span>
-                                {{ $incidencia->created_at->format('d/m/Y H:i:s') }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><span class="label-bold">Estado:</span>
-                                <span class="badge"
-                                    style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}; color: white;">
-                                    {{ $incidencia->estadoIncidencia->nombre ?? 'N/A' }}
-                                </span>
-                            </p>
-                            <p><span class="label-bold">Prioridad:</span>
-                                <span class="badge"
-                                    style="background-color: {{ $incidencia->nivelIncidencia->color ?? '#6c757d' }}; color: white;">
-                                    {{ $incidencia->nivelIncidencia->nombre ?? 'N/A' }}
-                                </span>
-                            </p>
-                            <p><span class="label-bold">Vencimiento:</span>
-                                {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->format('d/m/Y H:i:s') : 'Sin fecha' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ubicación -->
+            <div class="col-6">
+                <p><span class="label-bold">Estado:</span>
+                    <span class="badge" style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}">
+                        {{ $incidencia->estadoIncidencia->nombre ?? 'N/A' }}
+                    </span>
+                </p>
+                <p><span class="label-bold">Prioridad:</span>
+                    <span class="badge" style="background-color: {{ $incidencia->nivelIncidencia->color ?? '#6c757d' }}">
+                        {{ $incidencia->nivelIncidencia->nombre ?? 'N/A' }}
+                    </span>
+                </p>
+                <p><span class="label-bold">Vencimiento:</span>
+                    {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->format('d/m/Y H:i:s') : 'Sin fecha' }}
+                </p>
+            </div>
+        </div>
+    </div>
+ <!-- Ubicación -->
                 <div class="bg-section">
                     <h4 class="section-title"><i class="fas fa-map-marker-alt me-2"></i> Ubicación</h4>
                     <p><span class="label-bold">Institución:</span> {{ $incidencia->institucion->nombre ?? 'N/A' }}</p>
@@ -275,17 +213,18 @@
                         <!-- Imagen -->
                         <div class="mt-3">
                             <h5><i class="fas fa-camera"></i> Prueba Fotográfica</h5>
-                            @if ($reparacion->prueba_fotografica)
-                                <div class="text-center">
-                                    <img src="{{ asset('storage/' . $reparacion->prueba_fotografica) }}"
-                                        alt="Prueba fotográfica de la reparación" class="img-fluid rounded shadow"
-                                        style="max-height: 400px;">
-                                    <p class="mt-2"><small class="text-muted">Evidencia de la reparación realizada</small>
-                                    </p>
-                                </div>
-                            @else
-                                <p class="text-muted"><em>No hay imagen adjunta</em></p>
-                            @endif
+                            @if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica)
+    <div class="mt-3">
+        <h5><i class="fas fa-camera"></i> Prueba Fotográfica</h5>
+        @if(isset($incidencia->reparacion->imageSrc))
+            <img src="{{ $incidencia->reparacion->imageSrc }}" 
+                 style="max-width: 100%; max-height: 300px;">
+        @else
+            <p>Imagen no disponible para vista previa en PDF</p>
+            <p>Ruta: {{ $incidencia->reparacion->prueba_fotografica }}</p>
+        @endif
+    </div>
+@endif
                         </div>
                     </div>
                 @else
@@ -323,20 +262,11 @@
                 @endif
 
             </div>
+    <!-- Resto del contenido PDF (Ubicación, Descripción, etc.) -->
+    <!-- Adapta las secciones de tu vista original aquí -->
 
-           <div class="card-footer d-flex justify-content-between">
-    <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Volver a la lista
-    </a>
-    <a href="{{ route('incidencias.download', $incidencia->id_incidencia) }}" class="btn btn-primary">
-        <i class="fas fa-file-pdf"></i> Descargar PDF
-    </a>
-    @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) != 'atendido')
-        <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-primary">
-            <i class="fas fa-tools"></i> Atender Incidencia
-        </a>
-    @endif
-</div>
-        </div>
+    <div class="footer" style="text-align: center; margin-top: 30px; font-size: 10px; color: #6c757d;">
+        Generado el {{ now()->format('d/m/Y H:i:s') }}
     </div>
-@endsection
+</body>
+</html>

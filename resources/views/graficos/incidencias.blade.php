@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
+<div class="table-container">
     <h2 class="mb-4">Estadísticas de Incidencias</h2>
 
     <!-- Filtros -->
@@ -11,6 +11,7 @@
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('graficos.incidencias') }}">
+                <!-- Filtros de fecha, tipo y nivel -->
                 <div class="row">
                     <div class="col-md-3">
                         <label for="start_date">Fecha Inicio</label>
@@ -47,6 +48,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de institución y estación -->
                 <div class="row mt-3">
                     <div class="col-md-4">
                         <label for="institucion_id">Institución</label>
@@ -75,40 +77,39 @@
         </div>
     </div>
 
-    <!-- Resumen -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title">Total Incidencias</h5>
-                    <p class="card-text display-4">{{ $totalIncidencias }}</p>
+    <!-- detalles de las estadisticas -->
+    <div class="row d-flex">
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-primary h-100 rounded-4">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Total Incidencias</h5>
+                    <p class="card-text text-center display-4">{{ $totalIncidencias }}</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title">Atendidas</h5>
-                    <p class="card-text display-4">{{ $incidenciasAtendidas }}</p>
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-success h-100 rounded-4">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Atendidas</h5>
+                    <p class="card-text text-center display-4">{{ $incidenciasAtendidas }}</p>
                     <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Pendientes</h5>
-                    <p class="card-text display-4">{{ $incidenciasPendientes }}</p>
-                                        <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
-
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-warning h-100 rounded-4">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Pendientes</h5>
+                    <p class="card-text display-4 text-center">{{ $incidenciasPendientes }}</p>
+                    <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-danger">
-                <div class="card-body">
-                    <h5 class="card-title">Por Vencer</h5>
-                    <p class="card-text display-4">{{ $incidenciasPorVencer }}</p>
+        <div class="col-md-3 mb-2">
+            <div class="card text-white bg-danger h-100 rounded-4">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-center">Por Vencer</h5>
+                    <p class="card-text display-4 text-center">{{ $incidenciasPorVencer }}</p>
                 </div>
             </div>
         </div>
@@ -137,22 +138,9 @@
             </div>
         </div>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Evolución Temporal</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="temporalChart" height="120"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+<script src="{{ asset('js/chart.umd.min.js') }}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Gráfico por estado
     const estadoCtx = document.getElementById('estadoChart').getContext('2d');
@@ -210,85 +198,6 @@
             responsive: true
         }
     });
-
-    // Gráfico temporal
-    // Gráfico temporal de líneas
-
-    // Gráfico temporal de líneas con líneas curvas
-    const temporalCtx = document.getElementById('temporalChart').getContext('2d');
-    new Chart(temporalCtx, {
-        type: 'line',
-        data: {
-            labels: @json($datosTemporales['labels']),  // Fechas o periodos
-            datasets: [
-                {
-                    label: 'Atendidas',
-                    data: @json($datosTemporales['series'][0]['data']),
-                    borderColor: 'green',
-                    backgroundColor: 'rgba(0, 128, 0, 0.1)',
-                    fill: false,
-                    tension: 0.4, // Hace la línea curva
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                },
-                {
-                    label: 'Pendientes',
-                    data: @json($datosTemporales['series'][1]['data']),
-                    borderColor: 'orange',
-                    backgroundColor: 'rgba(255, 165, 0, 0.1)',
-                    fill: false,
-                    tension: 0.4, // Hace la línea curva
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Batalla: Atendidas vs Pendientes',
-                    font: {
-                        size: 16
-                    }
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
-                },
-                legend: {
-                    position: 'top'
-                }
-            },
-            interaction: {
-                mode: 'nearest',
-                axis: 'x',
-                intersect: false
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Fecha'
-                    },
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Cantidad de Incidencias'
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-
 
     // Cargar estaciones según institución seleccionada
     document.getElementById('institucion_id').addEventListener('change', function() {

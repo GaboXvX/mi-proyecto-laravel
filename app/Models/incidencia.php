@@ -120,5 +120,13 @@ public function institucionEstacion()
     {
         return $this->belongsTo(tipoIncidencia::class, 'id_tipo_incidencia');
     }
-
+public function personalReparacion()
+{
+    return $this->belongsTo(PersonalReparacion::class);
+}
+// Agrega esta relación al final de la clase
+public function reparacion()
+{
+    return $this->hasOne(ReparacionIncidencia::class, 'id_incidencia', 'id_incidencia');
+}
 }

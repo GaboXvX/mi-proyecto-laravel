@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Personal de Reparación</h1>
+<div class="table-container">
+    <h2>Personal de Reparación</h2>
     <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary mb-3">Nuevo Personal</a>
     
     <div class="table-responsive">

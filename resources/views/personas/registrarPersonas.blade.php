@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="table-container">
-    <h2 class="mb-3">Registrar Persona</h2>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="table-container shadow" style="width: 100%; max-width: 600px; font-size: 0.85rem;">
+        <h4 class="text-center mb-4">Registrar Persona</h4>
 
     <div class="card-body px-4">
         <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
             @csrf
 
-            <div class="row g-3 mb-2">
+            <div class="row g-2 mb-2">
                 <label for="cedula" class="form-label">Cédula:</label>
                 <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
                 <div id="cedulaStatus" style="display: none; color: green;">
@@ -19,18 +20,18 @@
                 </div>
             </div>
 
-            <div class="row g-3 mb-2">
+            <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" maxlength="12" required>
+                    <input type="text" id="nombre" name="nombre" class="form-control form-control-sm solo-letras" maxlength="12" required>
                 </div>
                 <div class="col-md-6">
                     <label for="apellido" class="form-label">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" class="form-control" maxlength="12" required>
+                    <input type="text" id="apellido" name="apellido" class="form-control form-control-sm solo-letras" maxlength="12" required>
                 </div>
             </div>
 
-            <div class="row g-3 mb-2">
+            <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label for="correo" class="form-label">Correo:</label>
                     <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
@@ -50,7 +51,7 @@
                 </div>
             </div>
 
-            <div class="row g-3 mb-2">
+            <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label for="telefono" class="form-label">Teléfono:</label>
                     <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
@@ -66,45 +67,37 @@
 
             <livewire:dropdown-persona/>
 
-            <div class="accordion mb-3" id="direccionAccordion">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingDireccion">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDireccion">
-                            Dirección
-                        </button>
-                    </h2>
-                    <div id="collapseDireccion" class="accordion-collapse collapse" data-bs-parent="#direccionAccordion">
-                        <div class="accordion-body">
-                            <div class="row g-3 mb-2">
-                                <div class="col-md-6">
-                                    <label for="calle" class="form-label">Calle:</label>
-                                    <input type="text" id="calle" name="calle" class="form-control" required maxlength="16">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="manzana" class="form-label">Manzana:</label>
-                                    <input type="text" id="manzana" name="manzana" class="form-control" maxlength="10">
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="bloque" class="form-label">Bloque:</label>
-                                    <input type="text" id="bloque" name="bloque" class="form-control" maxlength="3">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
-                                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control" maxlength="5" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row g-2 mb-2 mt-2">
+                <div class="col-md-6">
+                    <label for="calle" class="form-label">Calle:</label>
+                    <input type="text" id="calle" name="calle" class="form-control form-control-sm" required maxlength="16">
+                </div>
+                <div class="col-md-6">
+                    <label for="manzana" class="form-label">Manzana:</label>
+                    <input type="text" id="manzana" name="manzana" class="form-control form-control-sm" maxlength="10">
                 </div>
             </div>
 
-            <div class="d-flex justify-content-end">
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="bloque" class="form-label">Bloque:</label>
+                    <input type="text" id="bloque" name="bloque" class="form-control form-control-sm" maxlength="3">
+                </div>
+                <div class="col-md-6">
+                    <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                    <input type="text" id="num_vivienda" name="num_vivienda" class="form-control form-control-sm" maxlength="5" required>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
                 <a href="{{ route('personas.index') }}" class="btn btn-secondary me-2">Cancelar</a>
                 <button type="submit" id="submitBtn" class="btn btn-primary">Registrar</button>
             </div>
         </form>
+    </div>
+</div>
+
+           
     </div>
 </div>
 

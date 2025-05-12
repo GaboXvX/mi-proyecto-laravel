@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1 class="mb-4">Crear Nuevo Personal de Reparación</h1>
+<div class="table-container">
+    <h2 class="mb-4">Crear Nuevo Personal de Reparación</h2>
     
     <form id="personalReparacionForm" action="{{ route('personal-reparacion.store') }}" method="POST">
         @csrf
          
-        <div class="row g-3">
+        <div class="row g-3 justify-content-center">
             <!-- Institución y Estación -->
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
                     <select name="id_institucion" id="id_institucion" class="form-select" required>
                         <option value="">Seleccione una institución</option>
@@ -21,7 +21,7 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
                     <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-select" required disabled>
                         <option value="">Primero seleccione una institución</option>
@@ -31,22 +31,22 @@
             </div>
             
             <!-- Nombre y Apellido -->
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
-                    <input type="text" name="nombre" id="nombre" class="form-control" required>
+                    <input type="text" name="nombre" id="nombre" class="form-control solo-letras" maxlength="12" required>
                     <label for="nombre">Nombre</label>
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
-                    <input type="text" name="apellido" id="apellido" class="form-control" required>
+                    <input type="text" name="apellido" id="apellido" class="form-control solo-letras" maxlength="12" required>
                     <label for="apellido">Apellido</label>
                 </div>
             </div>
             
             <!-- Nacionalidad y Cédula -->
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
                     <select name="nacionalidad" id="nacionalidad" class="form-select" required>
                         <option value="" selected disabled>Seleccione...</option>
@@ -57,29 +57,29 @@
                 </div>
             </div>
             
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="form-floating">
-                    <input type="text" name="cedula" id="cedula" class="form-control" required>
+                    <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" maxlength="8" required>
                     <label for="cedula">Cédula</label>
                     <div id="cedulaFeedback" class="invalid-feedback"></div>
                 </div>
             </div>
             
             <!-- Teléfono -->
-            <div class="col-12">
+            <div class="col-md-10">
                 <div class="form-floating">
-                    <input type="text" name="telefono" id="telefono" class="form-control" required>
+                    <input type="text" name="telefono" id="telefono" class="form-control solo-numeros" maxlength="11" required>
                     <label for="telefono">Teléfono</label>
                 </div>
             </div>
             
             <!-- Botones -->
-            <div class="col-12 mt-4">
+            <div class="d-flex justify-content-between">
+                <a href="{{ route('personal-reparacion.index') }}" class="btn btn-outline-secondary px-4">Cancelar</a>
                 <button type="submit" id="submitBtn" class="btn btn-primary px-4">
                     <span id="submitText">Guardar</span>
                     <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
                 </button>
-                <a href="{{ route('personal-reparacion.index') }}" class="btn btn-outline-secondary px-4">Cancelar</a>
             </div>
         </div>
     </form>

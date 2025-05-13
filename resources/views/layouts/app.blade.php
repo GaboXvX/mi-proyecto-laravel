@@ -57,14 +57,7 @@
             @endphp
 
             <!-- Consultar -->
-            <li class="nav-item">
-                <a href="#layouts" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
-                    <i class="bi bi-search me-2"></i>
-                    <span>Consultar</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <div class="collapse" id="layouts">
-                    <ul class="navbar-nav ps-3 mt-2">
+           
                         @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="nav-link px-3 {{ Route::is('usuarios.index') ? 'active' : '' }}">
@@ -110,9 +103,9 @@
                             </a>
                         </li>
                         @endauth
-                    </ul>
+                    
                 </div>
-            </li>
+            
 
             <!-- Estadísticas -->
             @can('ver grafica incidencia')

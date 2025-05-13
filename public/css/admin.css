@@ -233,14 +233,6 @@ body {
     width: 100%;
 }
 
-.table-responsive{
-    overflow: visible;
-}
-
-.table-responsive .dropdown{
-    position: absolute;
-}
-
 /* estilos del step en las incidencias */
 #stepIndicator {
     display: flex;

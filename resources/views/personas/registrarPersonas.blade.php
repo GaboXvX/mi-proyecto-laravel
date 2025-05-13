@@ -8,7 +8,17 @@
         <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
             @csrf
 
-            {{-- Datos personales --}}
+            <div class="row g-2 mb-2">
+                <label for="cedula" class="form-label">Cédula:</label>
+                <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
+                <div id="cedulaStatus" style="display: none; color: green;">
+                    <small>✔️ Cédula disponible</small>
+                </div>
+                <div id="cedulaError" style="color: red; display: none;">
+                    <small>❌ Esta cédula ya está registrada</small>
+                </div>
+            </div>
+
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label">Nombre:</label>
@@ -22,10 +32,13 @@
 
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
-                    <label for="cedula" class="form-label">Cédula:</label>
-                    <input type="text" id="cedula" name="cedula" class="form-control form-control-sm solo-numeros" maxlength="8" required>
-                    <div id="cedula-feedback" class="invalid-feedback d-none">
-                        Esta cédula ya está registrada.
+                    <label for="correo" class="form-label">Correo:</label>
+                    <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
+                    <div id="correoStatus" style="display: none; color: green;">
+                        <small>✔️ Correo disponible</small>
+                    </div>
+                    <div id="correoError" style="color: red; display: none;">
+                        <small>❌ Este correo ya está registrado</small>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -39,27 +52,20 @@
 
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
-                    <label for="correo" class="form-label">Correo:</label>
-                    <input type="email" id="correo" name="correo" class="form-control form-control-sm" maxlength="350" required>
-                </div>
-                <div class="col-md-6">
                     <label for="telefono" class="form-label">Teléfono:</label>
                     <input type="tel" id="telefono" name="telefono" class="form-control form-control-sm solo-numeros" maxlength="11" required>
                 </div>
+                <div class="col-md-6">
+                    <label for="es_principal" class="form-label">¿Dirección principal?</label>
+                    <select name="es_principal" id="es_principal" class="form-select" required>
+                        <option value="1">Sí</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="mb-2">
-                <label for="es_principal" class="form-label">¿Dirección principal?</label>
-                <select name="es_principal" id="es_principal" class="form-select form-select-sm" required>
-                    <option value="1">Sí</option>
-                    <option value="0">No</option>
-                </select>
-            </div>
+            <livewire:dropdown-persona/>
 
-            {{-- Componentes Livewire --}}
-            <livewire:dropdown-persona />
-
-            {{-- Dirección --}}
             <div class="row g-2 mb-2 mt-2">
                 <div class="col-md-6">
                     <label for="calle" class="form-label">Calle:</label>
@@ -83,46 +89,97 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <a href="{{ route('personas.index') }}" class="btn btn-sm btn-secondary me-2">Cancelar</a>
-                <button type="submit" class="btn btn-sm btn-primary">Registrar</button>
+                <a href="{{ route('personas.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" id="submitBtn" class="btn btn-primary">Registrar</button>
             </div>
         </form>
     </div>
 </div>
 
+           
+    </div>
+</div>
 
 <script>
-    document.getElementById('cedula').addEventListener('input', function () {
-        const cedulaInput = this;
-        const cedula = cedulaInput.value;
-        const feedback = document.getElementById('cedula-feedback');
+    document.addEventListener("DOMContentLoaded", function() {
+        const cedulaInput = document.getElementById('cedula');
+        const submitBtn = document.getElementById('submitBtn');
+        const cedulaStatus = document.getElementById('cedulaStatus');
+        const cedulaError = document.getElementById('cedulaError');
 
-        if (cedula.length >= 6) {
-            fetch("{{ route('validar.cedula') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ cedula: cedula })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    cedulaInput.classList.add('is-invalid');
-                    feedback.classList.remove('d-none');
-                } else {
-                    cedulaInput.classList.remove('is-invalid');
-                    feedback.classList.add('d-none');
-                }
-            })
-            .catch(error => {
-                console.error('Error al validar cédula:', error);
-            });
-        } else {
-            cedulaInput.classList.remove('is-invalid');
-            feedback.classList.add('d-none');
-        }
+        cedulaInput.addEventListener('input', function() {
+            const cedula = cedulaInput.value;
+
+            if (cedula.length === 8) {
+                fetch("{{ route('verificarCedula') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ cedula: cedula })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        cedulaError.style.display = 'inline';
+                        cedulaStatus.style.display = 'none';
+                        submitBtn.disabled = true;
+                    } else {
+                        cedulaError.style.display = 'none';
+                        cedulaStatus.style.display = 'inline';
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al verificar la cédula:', error);
+                    cedulaError.textContent = 'Error al verificar la cédula';
+                });
+            } else {
+                cedulaError.style.display = 'none';
+                cedulaStatus.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        const correoInput = document.getElementById('correo');
+        const correoStatus = document.getElementById('correoStatus');
+        const correoError = document.getElementById('correoError');
+
+        correoInput.addEventListener('input', function() {
+            const correo = correoInput.value;
+
+            if (correo.length > 0) {
+                fetch("{{ route('verificarCorreo') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ correo: correo })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        correoError.style.display = 'inline';
+                        correoStatus.style.display = 'none';
+                        submitBtn.disabled = true;
+                    } else {
+                        correoError.style.display = 'none';
+                        correoStatus.style.display = 'inline';
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al verificar el correo:', error);
+                    correoError.textContent = 'Error al verificar el correo';
+                });
+            } else {
+                correoError.style.display = 'none';
+                correoStatus.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
     });
 </script>
 
@@ -134,7 +191,6 @@
         const formData = new FormData(form);
         const submitBtn = form.querySelector('button[type="submit"]');
     
-        // Limpiar errores previos
         form.querySelectorAll('.is-invalid').forEach(el => {
             el.classList.remove('is-invalid');
             const feedback = el.nextElementSibling;
@@ -142,7 +198,7 @@
         });
     
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `
+        submitBtn.innerHTML = ` 
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             Procesando...
         `;
@@ -172,7 +228,6 @@
             }
     
             if (!response.ok) {
-                // Mostrar errores de validación
                 if (data.errors) {
                     Object.entries(data.errors).forEach(([field, messages]) => {
                         const input = form.querySelector(`[name="${field}"]`);
@@ -203,7 +258,6 @@
                         firstError.focus();
                     }
                 } else {
-                    // Mostrar otros errores del servidor (no validación)
                     await Swal.fire({
                         icon: 'error',
                         title: data.title || 'Error del Servidor',
@@ -212,7 +266,6 @@
                     });
                 }
             } else {
-                // Éxito
                 await Swal.fire({
                     icon: 'success',
                     title: data.title || '¡Registro exitoso!',
@@ -237,7 +290,6 @@
             submitBtn.textContent = 'Registrar';
         }
     });
-    </script>
-    
+</script>
 
 @endsection

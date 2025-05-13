@@ -255,21 +255,45 @@ new Chart(nivelCtx, {
 
     // Cargar estaciones según institución seleccionada
     document.getElementById('institucion_id').addEventListener('change', function() {
-        const institucionId = this.value;
-        const estacionSelect = document.getElementById('estacion_id');
+    const institucionId = this.value;
+    const estacionSelect = document.getElementById('estacion_id');
+    const form = this.closest('form');
+    
+    estacionSelect.innerHTML = '<option value="">Cargando...</option>';
+    estacionSelect.disabled = true;
 
-        if (institucionId) {
-            fetch(`/api/estaciones-por-institucion/${institucionId}`)
-                .then(response => response.json())
-                .then(data => {
-                    estacionSelect.innerHTML = '<option value="">Todas</option>';
+    if (institucionId) {
+        fetch(`/api/estaciones-por-institucion/${institucionId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta');
+                return response.json();
+            })
+            .then(data => {
+                estacionSelect.innerHTML = '<option value="">Todas</option>';
+                
+                if (data && data.length > 0) {
                     data.forEach(estacion => {
-                        estacionSelect.innerHTML += `<option value="${estacion.id}">${estacion.nombre}</option>`;
+                        estacionSelect.innerHTML += 
+                            `<option value="${estacion.id_institucion_estacion}">${estacion.nombre}</option>`;
                     });
-                });
-        } else {
-            estacionSelect.innerHTML = '<option value="">Todas</option>';
-        }
-    });
+                } else {
+                    estacionSelect.innerHTML = '<option value="">No hay estaciones</option>';
+                }
+                
+                estacionSelect.disabled = false;
+                // Forzar envío del formulario después de cargar
+                form.dispatchEvent(new Event('submit'));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                estacionSelect.innerHTML = '<option value="">Error al cargar</option>';
+                estacionSelect.disabled = false;
+            });
+    } else {
+        estacionSelect.innerHTML = '<option value="">Todas</option>';
+        estacionSelect.disabled = false;
+        form.dispatchEvent(new Event('submit'));
+    }
+});
 </script>
 @endsection

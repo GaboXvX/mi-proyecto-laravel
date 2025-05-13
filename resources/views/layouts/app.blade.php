@@ -37,69 +37,78 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <aside class="sidebar d-flex flex-column p-3" id="sidebar">
-        <div class="d-flex align-items-center mb-3 text-decoration-none text-white">
+    <aside class="custom-sidebar" id="sidebar">
+        <div class="sidebar-header">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
-            <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
+            <span class="sidebar-title">MinAguas</span>
         </div>
-        <hr class="text-secondary">
-        <ul class="nav nav-pills flex-column gap-2">
+
+        <hr>
+        
+        <ul class="sidebar-nav">
             <!-- Panel -->
-            <li class="nav-item">
-                <a href="{{ route('home') }}" class="nav-link {{ Route::is('home') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2 me-2"></i>
+            <li class="sidebar-item">
+                <a href="{{ route('home') }}" class="sidebar-link {{ Route::is('home') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
                     <span>Panel</span>
                 </a>
             </li>
 
             @php
-                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'incidencias.index', 'peticiones.index', 'mis.movimientos');
+                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'instituciones.index' , 'personal-reparacion.index' , 'incidencias.index', 'peticiones.index', 'mis.movimientos');
             @endphp
 
             <!-- Consultar -->
-            <li class="nav-item">
-            <a href="#layouts" class="nav-link {{ $consultarActivo ? '' : 'collapsed' }}" data-bs-toggle="collapse" aria-expanded="{{ $consultarActivo ? 'true' : 'false' }}">
-                    <i class="bi bi-search me-2"></i>
+            <li class="sidebar-item">
+                <a href="#layouts" class="sidebar-link has-dropdown {{ $consultarActivo ? 'open' : '' }}" data-target="layouts">
+                    <i class="bi bi-search"></i>
                     <span>Consultar</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
+                    <i class="bi bi-chevron-down dropdown-icon"></i>
                 </a>
-                <div class="collapse {{ $consultarActivo ? 'show' : '' }}" id="layouts">
-                    <ul class="navbar-nav ps-3 mt-2">
+                <div class="sidebar-dropdown {{ $consultarActivo ? 'show' : '' }}" id="layouts">
+                    <ul class="dropdown-nav">
                         @can('ver empleados')
                         <li>
-                            <a href="{{ route('usuarios.index') }}" class="nav-link px-3 {{ Route::is('usuarios.index') ? 'active' : '' }}">
-                                <i class="bi bi-people me-2"></i>
+                            <a href="{{ route('usuarios.index') }}" class="sidebar-link {{ Route::is('usuarios.index') ? 'active' : '' }}">
+                                <i class="bi bi-people"></i>
                                 Empleados
                             </a>
                         </li>
                         @endcan
                         <li>
-                            <a href="{{ route('personas.index') }}" class="nav-link px-3 {{ Route::is('personas.index') ? 'active' : '' }}">
-                                <i class="bi bi-person-circle me-2"></i>
+                            <a href="{{ route('personas.index') }}" class="sidebar-link {{ Route::is('personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-circle"></i>
                                 Personas
                             </a>
                         </li>
-                        
-                            <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
+                        <li>
+                            <a href="{{ route('incidencias.index') }}" class="sidebar-link {{ Route::is('incidencias.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-triangle"></i>
                                 Incidencias
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('personal-reparacion.index') }}" class="nav-link px-3 {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
-                                <i class="bi bi-exclamation-diamond me-2"></i>
-                                personal Reparación
+                            <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-diamond"></i>
+                                Personal Reparación
                             </a>
+                        </li>
                         <li>
-                            <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
-                                <i class="bi bi-envelope me-2"></i>
+                            <a href="{{ route('instituciones.index') }}" class="sidebar-link {{ Route::is('instituciones.index') ? 'active' : '' }}">
+                                <i class="bi bi-building"></i>
+                                Instituciones
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('peticiones.index') }}" class="sidebar-link {{ Route::is('peticiones.index') ? 'active' : '' }}">
+                                <i class="bi bi-envelope"></i>
                                 Peticiones
                             </a>
                         </li>
                         @auth
                         <li>
-                            <a href="{{ route('mis.movimientos') }}" class="nav-link px-3 {{ Route::is('mis.movimientos') ? 'active' : '' }}">
-                                <i class="bi bi-clock-history me-2"></i>
+                            <a href="{{ route('mis.movimientos') }}" class="sidebar-link {{ Route::is('mis.movimientos') ? 'active' : '' }}">
+                                <i class="bi bi-clock-history"></i>
                                 Mis Movimientos
                             </a>
                         </li>
@@ -110,15 +119,15 @@
 
             <!-- Estadísticas -->
             @can('ver grafica incidencia')
-            <li class="nav-item">
-                <a href="{{ route('graficos.incidencias') }}" class="nav-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart-line me-2"></i>
+            <li class="sidebar-item">
+                <a href="{{ route('graficos.incidencias') }}" class="sidebar-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line"></i>
                     Estadísticas
                 </a>
             </li>
             @endcan
         </ul>
-        <hr class="text-secondary">
+        <hr>
     </aside>
 
     <!-- Main content -->
@@ -240,7 +249,26 @@
 <script src="{{ asset('js/gridstack-all.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
-    
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggles = document.querySelectorAll(".has-dropdown");
+
+        toggles.forEach(toggle => {
+            toggle.addEventListener("click", function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute("data-target");
+                const dropdown = document.getElementById(targetId);
+
+                if (dropdown) {
+                    dropdown.classList.toggle("show");
+                    this.classList.toggle("open");
+                }
+            });
+        });
+    });
+</script>
+  
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Marcar notificación como leída

@@ -5,21 +5,11 @@
     <div class="table-container p-4 shadow" style="width: 100%; max-width: 600px;">
         <h2 class="text-center mb-4">Editar Personal de Reparación</h2>
         
-        <form action="{{ route('personal-reparacion.update', $personalReparacion->id_personal_reparacion) }}" method="POST">
+        <form action="{{ route('personal-reparacion.update', $personalReparacion) }}" method="POST">
             @csrf
             @method('PUT')
             
-            <div class="form-group mb-2">
-                <label for="id_usuario">Usuario Asociado</label>
-                <select name="id_usuario" id="id_usuario" class="form-control form-control-sm" required>
-                    <option value="">Seleccione un usuario</option>
-                    @foreach($usuarios as $usuario)
-                        <option value="{{ $usuario->id_usuario }}" {{ $personalReparacion->id_usuario == $usuario->id_usuario ? 'selected' : '' }}>
-                            {{ $usuario->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+           
             
             <div class="form-group mb-2">
                 <label for="id_institucion">Institución</label>
@@ -89,49 +79,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentEstacionId = "{{ $personalReparacion->id_institucion_estacion }}";
 
     // Función para cargar estaciones
-    function cargarEstaciones(institucionId) {
+     function cargarEstaciones(institucionId) {
         if (!institucionId) {
-            estacionSelect.innerHTML = '<option value="">Seleccione una estación</option>';
+            estacionSelect.innerHTML = '<option value="">Primero seleccione una institución</option>';
+            estacionSelect.disabled = true;
             return;
         }
 
-        // Mostrar estado de carga
         estacionSelect.disabled = true;
-        const loadingOption = document.createElement('option');
-        loadingOption.value = '';
-        loadingOption.textContent = 'Cargando estaciones...';
-        estacionSelect.innerHTML = '';
-        estacionSelect.appendChild(loadingOption);
+        estacionSelect.innerHTML = '<option value="">Cargando estaciones...</option>';
 
-        // Hacer la petición AJAX
-        fetch(`/personal-reparacion/estaciones/${institucionId}`)
+        const url = `/personal-reparacion/estaciones/${institucionId}`;
+        console.log('Cargando estaciones desde:', url);
+
+        fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Error al cargar estaciones');
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(data => {
-                // Limpiar y cargar nuevas opciones
+            .then(({ success, data }) => {
                 estacionSelect.innerHTML = '<option value="">Seleccione una estación</option>';
-                
-                data.forEach(estacion => {
-                    const option = new Option(estacion.nombre, estacion.id_institucion_estacion);
-                    estacionSelect.add(option);
-                });
 
-                // Restaurar selección previa si existe
-                if (currentEstacionId && data.some(e => e.id_institucion_estacion == currentEstacionId)) {
-                    estacionSelect.value = currentEstacionId;
+                if (success && data.length > 0) {
+                    data.forEach(estacion => {
+                        const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
+                        const option = new Option(nombre, estacion.id);
+                        estacionSelect.add(option);
+                    });
+                    estacionSelect.disabled = false;
+                } else {
+                    estacionSelect.innerHTML = '<option value="">No hay estaciones disponibles</option>';
                 }
-
-                estacionSelect.disabled = false;
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error al cargar estaciones:', error);
                 estacionSelect.innerHTML = '<option value="">Error al cargar estaciones</option>';
             });
     }
+
 
     // Event listener para cambio de institución
     institucionSelect.addEventListener('change', function() {

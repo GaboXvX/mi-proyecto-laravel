@@ -1087,21 +1087,67 @@ protected function prepareChartData($incidenciasAtendidas, $totalesMensuales, $t
     }
 public function downloadPdf($id)
 {
-    $incidencia = Incidencia::with([/* tus relaciones */])->findOrFail($id);
-    
-    // Obtener la ruta absoluta de la imagen si existe
-    if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica) {
-        $imagePath = Storage::path('public/'.$incidencia->reparacion->prueba_fotografica);
-        $imageData = base64_encode(file_get_contents($imagePath));
-        $incidencia->reparacion->imageSrc = 'data:image/'.pathinfo($imagePath, PATHINFO_EXTENSION).';base64,'.$imageData;
+    $incidencia = Incidencia::with([
+        'tipoIncidencia', 'estadoIncidencia', 'nivelIncidencia',
+        'institucion', 'estacion.municipio',
+        'direccion.estado', 'direccion.municipio', 'direccion.parroquia',
+        'direccion.urbanizacion', 'direccion.sector', 'direccion.comunidad',
+        'usuario.empleadoAutorizado',
+        'movimiento.usuario.empleadoAutorizado',
+        'reparacion.personalReparacion.institucion',
+        'reparacion.personalReparacion.InstitucionEstacion'
+    ])->findOrFail($id);
+
+    // Cargar la institución para obtener el logo y encabezado HTML
+    $institucion = $incidencia->institucion;
+
+    // Obtener el logo de la institución y convertirlo a base64
+    $logoHtml = '';
+    if ($institucion && $institucion->logo_path) {
+        $logoPath = Storage::path('public/' . $institucion->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoHtml = '<img src="data:image/' . $extension . ';base64,' . $logoData . '" height="60" alt="Logo">';
+        }
     }
 
+    // Obtener el encabezado HTML de la institución (membrete)
+    $membrete = $institucion ? $institucion->encabezado_html : '';
+
+    // Imagen de prueba fotográfica (Base64)
+    if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica) {
+        $imagePath = Storage::path('public/' . $incidencia->reparacion->prueba_fotografica);
+        if (file_exists($imagePath)) {
+            $imageData = base64_encode(file_get_contents($imagePath));
+            $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
+            $incidencia->reparacion->imageSrc = 'data:image/' . $extension . ';base64,' . $imageData;
+        }
+    }
+
+    // Membrete HTML con logo
+    $membreteHtml = '
+        <div style="text-align: center;">
+            '.$logoHtml.'<br>
+            <strong>Gobierno del Estado - Dirección de Infraestructura</strong><br>
+            Sistema de Gestión de Incidencias<br>
+            '.$membrete.'
+        </div>
+    ';
+
+    // Pasar los datos a la vista del PDF
     return FacadePdf::loadView('incidencias.DetallesIncidencia', [
         'incidencia' => $incidencia,
-        'reparacion' => $incidencia->reparacion ?? null
+        'reparacion' => $incidencia->reparacion ?? null,
+        'membrete'   => $membreteHtml
     ])
     ->setOption('isRemoteEnabled', true)
     ->setOption('isHtml5ParserEnabled', true)
-    ->download('incidencia_'.$incidencia->cod_incidencia.'.pdf');
+    ->setOption('defaultFont', 'DejaVu Sans')
+    ->download('incidencia_' . $incidencia->cod_incidencia . '.pdf');
 }
+
+
+
+
 }

@@ -70,7 +70,7 @@
                                 Nueva Contraseña
                             </label>
                             <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                name="contraseña" placeholder="Ingrese su nueva contraseña">
+                                name="contraseña" placeholder="Ingrese su nueva contraseña" maxlength="18">
                             <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
                         </div>
                     </div>
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Modal para cambiar preguntas de seguridad -->
-    <div class="modal fade" id="changeQuestionsModal" tabindex="-1" aria-labelledby="changeQuestionsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="changeQuestionsModal" tabindex="-1" aria-labelledby="changeQuestionsModalLabel" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -174,32 +174,69 @@
         </div>
 </div>
 <script>
+// DEFINIR PRIMERO LA FUNCIÓN QUE GENERABA EL ERROR
+function habilitarRespuesta(selectElement) {
+    const preguntaNum = selectElement.id.split('_')[1];
+    const respuestaInput = document.getElementById(`respuesta_${preguntaNum}`);
+    respuestaInput.disabled = selectElement.value === '';
+}
+
+// 2. LUEGO EL RESTO DEL CÓDIGO
 document.addEventListener('DOMContentLoaded', function () {
+    // Manejo del modal para accesibilidad
+    const changeQuestionsModal = document.getElementById('changeQuestionsModal');
+    
+    changeQuestionsModal.addEventListener('shown.bs.modal', function() {
+        this.removeAttribute('aria-hidden');
+        const firstSelect = this.querySelector('select');
+        if (firstSelect) {
+            firstSelect.focus();
+        }
+    });
+    
+    changeQuestionsModal.addEventListener('hidden.bs.modal', function() {
+        this.setAttribute('aria-hidden', 'true');
+    });
+
+    // Validación del formulario principal
+    function initListeners() {
     const correoInput = document.getElementById('inputCorreo');
     const usuarioInput = document.getElementById('inputUsuario');
     const passwordInput = document.getElementById('inputContraseña');
     const submitButton = document.getElementById('submitButton');
-    const correoFeedback = document.getElementById('correoFeedback');
-    const usuarioFeedback = document.getElementById('usuarioFeedback');
 
-    let correoOriginal = correoInput.value;
-    let usuarioOriginal = usuarioInput.value;
+    if (!correoInput || !usuarioInput || !passwordInput || !submitButton) {
+        console.warn('Faltan elementos del formulario');
+        return;
+    }
 
-    let correoDisponible = true;
-    let usuarioDisponible = true;
+    const correoOriginal = correoInput.getAttribute('data-original') ?? correoInput.value.trim();
+    const usuarioOriginal = usuarioInput.getAttribute('data-original') ?? usuarioInput.value.trim();
 
     function hayCambios() {
-        const correoCambio = correoInput.value !== correoOriginal;
-        const usuarioCambio = usuarioInput.value !== usuarioOriginal;
-        const passwordIngresado = passwordInput.value.trim() !== '';
-        return correoCambio || usuarioCambio || passwordIngresado;
+        return correoInput.value.trim() !== correoOriginal ||
+               usuarioInput.value.trim() !== usuarioOriginal ||
+               passwordInput.value.trim() !== '';
     }
 
-    function validarFormulario() {
-        const cambios = hayCambios();
-        const validacionesOk = correoDisponible && usuarioDisponible;
-        submitButton.disabled = !(cambios && validacionesOk);
+    function actualizarBoton() {
+        submitButton.disabled = !hayCambios();
     }
+
+    correoInput.addEventListener('input', actualizarBoton);
+    usuarioInput.addEventListener('input', actualizarBoton);
+    passwordInput.addEventListener('input', actualizarBoton);
+}
+
+// Ejecutar cuando se cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    initListeners();
+});
+
+// Volver a ejecutar después de cada actualización de Livewire
+Livewire.hook('message.processed', () => {
+    initListeners();
+});
 
     correoInput.addEventListener('input', function () {
         const correo = this.value;
@@ -259,7 +296,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    // 💡 Aquí estaba el problema original: no se escuchaban cambios en la contraseña
     passwordInput.addEventListener('input', function () {
         validarFormulario();
     });

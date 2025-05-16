@@ -65,9 +65,9 @@ class incidencia extends Model
     /**
      * Relación con el modelo Direccion.
      */
-    public function direccion()
+    public function direccionIncidencia()
     {
-        return $this->belongsTo(Direccion::class, 'id_direccion');
+        return $this->belongsTo(direccionIncidencia::class, 'id_direccion_incidencia');
     }
 
     /**

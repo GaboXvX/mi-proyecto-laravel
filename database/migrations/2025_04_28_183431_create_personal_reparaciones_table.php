@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_personal_reparacion');
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_institucion');
-            $table->unsignedBigInteger('id_institucion_estacion')->nullable();
+            $table->unsignedBigInteger('id_institucion_estacion');
             $table->string('slug')->unique();
             $table->string('nombre', 50);
             $table->string('apellido', 50);

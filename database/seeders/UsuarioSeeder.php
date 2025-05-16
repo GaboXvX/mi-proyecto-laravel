@@ -17,6 +17,7 @@ class UsuarioSeeder extends Seeder
                 'id_estado_usuario' => 1, // Aceptado
                 'id_empleado_autorizado' => 1, // Relación con empleados_autorizados
                 'slug' => 'admin',
+                'id_role' => 1, // Relación con roles
             ],
         ];
 

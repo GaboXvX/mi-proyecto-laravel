@@ -16,7 +16,6 @@ class Persona extends Model
     protected $fillable = [
         'id_direccion',
         'id_usuario',
-        'id_lider',
         'id_domicilio',
         'slug',
         'nombre',
@@ -39,11 +38,7 @@ class Persona extends Model
         return $this->hasMany(incidencia::class, 'id_persona');
     }
 
-    public function categoriasExclusivas()
-    {
-        return $this->hasMany(categoriaExclusivaPersona::class, 'id_persona', 'id_persona');
-    }
-
+   
 
     public function domicilios()
 {
@@ -59,14 +54,5 @@ class Persona extends Model
     }
 
    // Modelo Persona
-public function categoria()
-{
-    return $this->belongsTo(CategoriaPersona::class, 'id_categoria_persona', 'id_categoria_persona');
-}
 
-
-    public function categoriasExclusivasPersonas()
-    {
-        return $this->hasMany(categoriaExclusivaPersona::class, 'id_persona');
-    }
 }

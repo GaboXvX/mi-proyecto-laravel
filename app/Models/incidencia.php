@@ -52,10 +52,7 @@ class incidencia extends Model
     /**
      * Relación con el modelo categoriaExclusivaPersona.
      */
-    public function categoriaExclusiva()
-    {
-        return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
-    }
+ 
 
     /**
      * Relación con el modelo Movimiento.
@@ -109,10 +106,7 @@ public function institucionEstacion()
     /**
      * Relación con el modelo CategoriaExclusivaPersona.
      */
-    public function categoriaExclusivaPersona()
-    {
-        return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
-    }
+   
     /**
      * Relación con el modelo TipoIncidencia.
      */

@@ -48,6 +48,9 @@
                 @endforeach
             </tbody>
         </table>
+        <a href="{{ route('personas.index') }}" class="btn btn-secondary btm-sm py-2 px-3">
+            Volver
+        </a>
 
         <!-- Paginación -->
         <div class="d-flex justify-content-center">

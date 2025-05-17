@@ -257,8 +257,10 @@ class PersonaController extends Controller
 
     public function validarCedula(Request $request)
     {
-        $exists = Persona::where('cedula', $request->input('cedula'))->exists();
-        return response()->json(['exists' => $exists]);
+        $cedula = $request->input('cedula');
+        $existe = Persona::where('cedula', $cedula)->exists();
+
+        return response()->json(['exists' => $existe]);
     }
 
     public function validarCorreo(Request $request)

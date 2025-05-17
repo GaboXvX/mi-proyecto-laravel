@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id_institucion');
             $table->string('nombre')->unique();
              $table->string('logo_path')->nullable();
-              $table->text('encabezado_html')->nullable();
+              $table->text('encabezado_html',350)->nullable();
             $table->timestamps();
         });
     }

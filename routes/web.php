@@ -172,6 +172,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
             ->name('personal-reparacion.estaciones');
+            Route::post('/validar-cedula', [PersonaController::class, 'validarCedula'])->name('validar.cedula');
         
         // Instituciones
         Route::controller(institucionController::class)->prefix('instituciones')->group(function () {

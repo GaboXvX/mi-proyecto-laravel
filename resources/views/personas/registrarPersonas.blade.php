@@ -5,7 +5,6 @@
     <div class="table-container shadow" style="width: 100%; max-width: 600px; font-size: 0.85rem;">
         <h4 class="text-center mb-4">Registrar Persona</h4>
 
-    <div class="card-body px-4">
         <form id="registroPersonaForm" action="{{ route('personas.store') }}" method="POST">
             @csrf
 
@@ -44,7 +43,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="genero" class="form-label">Género:</label>
-                    <select name="genero" id="genero" class="form-select" required>
+                    <select name="genero" id="genero" class="form-select form-select-sm" required>
                         <option value="M">Masculino</option>
                         <option value="F">Femenino</option>
                     </select>
@@ -54,7 +53,7 @@
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
                     <label for="telefono" class="form-label">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
+                    <input type="tel" id="telefono" name="telefono" class="form-control form-control-sm solo-numeros" maxlength="11" required>
                 </div>
                 <div class="col-md-6">
                     <label for="es_principal" class="form-label">¿Dirección principal?</label>

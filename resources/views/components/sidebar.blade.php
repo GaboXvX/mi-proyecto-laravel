@@ -37,97 +37,93 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <aside class="custom-sidebar" id="sidebar">
-        <div class="sidebar-header">
+    <aside class="sidebar d-flex flex-column p-3" id="sidebar">
+        <div class="d-flex align-items-center mb-3 text-decoration-none text-white">
             <img src="{{ asset('img/splash.webp') }}" alt="logo" width="40px">
-            <span class="sidebar-title">MinAguas</span>
+            <span class="fs-5 fw-bold ms-2 px-3">MinAguas</span>
         </div>
-
-        <hr>
-        
-        <ul class="sidebar-nav">
+        <hr class="text-secondary">
+        <ul class="nav nav-pills flex-column gap-2">
             <!-- Panel -->
-            <li class="sidebar-item">
-                <a href="{{ route('home') }}" class="sidebar-link {{ Route::is('home') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i>
+            <li class="nav-item">
+                <a href="{{ route('home') }}" class="nav-link {{ Route::is('home') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2 me-2"></i>
                     <span>Panel</span>
                 </a>
             </li>
 
             @php
-                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'instituciones.index' , 'personal-reparacion.index' , 'incidencias.index', 'peticiones.index', 'mis.movimientos');
+                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'incidencias.index', 'peticiones.index', 'mis.movimientos');
             @endphp
 
             <!-- Consultar -->
-            <li class="sidebar-item">
-                <a href="#layouts" class="sidebar-link has-dropdown {{ $consultarActivo ? 'open' : '' }}" data-target="layouts">
-                    <i class="bi bi-search"></i>
+            <li class="nav-item">
+            <a href="#layouts" class="nav-link {{ $consultarActivo ? '' : 'collapsed' }}" data-bs-toggle="collapse" aria-expanded="{{ $consultarActivo ? 'true' : 'false' }}">
+                    <i class="bi bi-search me-2"></i>
                     <span>Consultar</span>
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
+                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="sidebar-dropdown {{ $consultarActivo ? 'show' : '' }}" id="layouts">
-                    <ul class="dropdown-nav">
+                <div class="collapse {{ $consultarActivo ? 'show' : '' }}" id="layouts">
+                    <ul class="navbar-nav ps-3 mt-2">
                         @can('ver empleados')
                         <li>
-                            <a href="{{ route('usuarios.index') }}" class="sidebar-link {{ Route::is('usuarios.index') ? 'active' : '' }}">
-                                <i class="bi bi-people"></i>
+                            <a href="{{ route('usuarios.index') }}" class="nav-link px-3 {{ Route::is('usuarios.index') ? 'active' : '' }}">
+                                <i class="bi bi-people me-2"></i>
                                 Empleados
                             </a>
                         </li>
                         @endcan
                         <li>
-                            <a href="{{ route('personas.index') }}" class="sidebar-link {{ Route::is('personas.index') ? 'active' : '' }}">
-                                <i class="bi bi-person-circle"></i>
+                            <a href="{{ route('personas.index') }}" class="nav-link px-3 {{ Route::is('personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-circle me-2"></i>
                                 Personas
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('incidencias.index') }}" class="sidebar-link {{ Route::is('incidencias.index') ? 'active' : '' }}">
-                                <i class="bi bi-exclamation-triangle"></i>
+                            <a href="{{ route('categorias-personas.index') }}" class="nav-link px-3 {{ Route::is('categorias-personas.index') ? 'active' : '' }}">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                categorias Personas
+                            </a>
+                        <li>
+                            <a href="{{ route('incidencias.index') }}" class="nav-link px-3 {{ Route::is('incidencias.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
                                 Incidencias
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
-                                <i class="bi bi-exclamation-diamond"></i>
-                                Personal Reparación
+                            <a href="{{ route('personal-reparacion.index') }}" class="nav-link px-3 {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-diamond me-2"></i>
+                                personal Reparación
                             </a>
-                        </li>
                         <li>
-                            <a href="{{ route('instituciones.index') }}" class="sidebar-link {{ Route::is('instituciones.index') ? 'active' : '' }}">
-                                <i class="bi bi-building"></i>
-                                Instituciones
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('peticiones.index') }}" class="sidebar-link {{ Route::is('peticiones.index') ? 'active' : '' }}">
-                                <i class="bi bi-envelope"></i>
+                            <a href="{{ route('peticiones.index') }}" class="nav-link px-3 {{ Route::is('peticiones.index') ? 'active' : '' }}">
+                                <i class="bi bi-envelope me-2"></i>
                                 Peticiones
                             </a>
                         </li>
                         @auth
                         <li>
-                            <a href="{{ route('mis.movimientos') }}" class="sidebar-link {{ Route::is('mis.movimientos') ? 'active' : '' }}">
-                                <i class="bi bi-clock-history"></i>
+                            <a href="{{ route('mis.movimientos') }}" class="nav-link px-3 {{ Route::is('mis.movimientos') ? 'active' : '' }}">
+                                <i class="bi bi-clock-history me-2"></i>
                                 Mis Movimientos
                             </a>
                         </li>
                         @endauth
-                    
+                    </ul>
                 </div>
-            
+            </li>
 
             <!-- Estadísticas -->
             @can('ver grafica incidencia')
-            <li class="sidebar-item">
-                <a href="{{ route('graficos.incidencias') }}" class="sidebar-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart-line"></i>
+            <li class="nav-item">
+                <a href="{{ route('graficos.incidencias') }}" class="nav-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line me-2"></i>
                     Estadísticas
                 </a>
             </li>
             @endcan
         </ul>
-        <hr>
+        <hr class="text-secondary">
     </aside>
 
     <!-- Main content -->
@@ -249,169 +245,3 @@
 <script src="{{ asset('js/gridstack-all.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggles = document.querySelectorAll(".has-dropdown");
-
-        toggles.forEach(toggle => {
-            toggle.addEventListener("click", function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute("data-target");
-                const dropdown = document.getElementById(targetId);
-
-                if (dropdown) {
-                    dropdown.classList.toggle("show");
-                    this.classList.toggle("open");
-                }
-            });
-        });
-    });
-</script>
-  
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Marcar notificación como leída
-        document.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', function () {
-                const notificationId = this.dataset.notificationId;
-                if (notificationId) {
-                    fetch(`/notificaciones/marcar-leida/${notificationId}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        }
-                    }).then(() => {
-                        this.classList.remove('unread');
-                        updateNotificationCount();
-                    });
-                }
-            });
-        });
-
-        // Marcar todas como leídas
-        document.getElementById('markAllAsRead')?.addEventListener('click', function () {
-            fetch('/notificaciones/marcar-todas-leidas', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            }).then(() => {
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.classList.remove('unread');
-                });
-                updateNotificationCount();
-            });
-        });
-
-        // Contador en vivo
-        function updateNotificationCount() {
-            fetch('/notificaciones/contador')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.querySelector('#dropdownNotifications .badge');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        badge.style.display = data.count > 0 ? 'block' : 'none';
-                    }
-                });
-        }
-
-        setInterval(updateNotificationCount, 60000);
-    });
-</script>
-<script>
-        (() => {
-        'use strict';
-
-        const storedTheme = localStorage.getItem('theme');
-
-        const getPreferredTheme = () => {
-            if (storedTheme) return storedTheme;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        };
-
-        const updateThemeIcon = (theme) => {
-            const icon = document.getElementById('bd-theme-icon');
-            const text = document.getElementById('bd-theme-text');
-            if (!icon || !text) return;
-
-            switch (theme) {
-                case 'light':
-                    icon.className = 'bi bi-brightness-high me-2';
-                    text.textContent = 'Claro';
-                    break;
-                case 'dark':
-                    icon.className = 'bi bi-moon-stars me-2';
-                    text.textContent = 'Oscuro';
-                    break;
-                default:
-                    icon.className = 'bi bi-circle-half me-2';
-                    text.textContent = 'Auto';
-                    break;
-            }
-        };
-
-        const setTheme = (theme) => {
-            if (theme === 'auto') {
-                document.documentElement.removeAttribute('data-bs-theme');
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', theme);
-            }
-            updateThemeIcon(theme);
-        };
-
-        const currentTheme = getPreferredTheme();
-        setTheme(currentTheme);
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (!storedTheme || storedTheme === 'auto') {
-                setTheme(getPreferredTheme());
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('[data-bs-theme-value]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const theme = btn.getAttribute('data-bs-theme-value');
-                    localStorage.setItem('theme', theme);
-                    setTheme(theme);
-                });
-            });
-        });
-    })();
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuId = 'layouts';
-            const collapseElement = document.getElementById(menuId);
-            const toggleElement = document.querySelector(`[href="#${menuId}"]`);
-        
-            if (!collapseElement || !toggleElement) return;
-        
-            const openedByBlade = collapseElement.classList.contains('show');
-            const currentRouteIsPartOfMenu = toggleElement.classList.contains('active');
-        
-            // Solo usar localStorage si Laravel no lo abrió ni está en una ruta activa
-            if (!openedByBlade && !currentRouteIsPartOfMenu) {
-                const isOpen = localStorage.getItem('sidebar-' + menuId) === 'open';
-                if (isOpen) {
-                    collapseElement.classList.add('show');
-                    toggleElement.setAttribute('aria-expanded', 'true');
-                }
-            }
-        
-            // Eventos Bootstrap correctos para guardar estado real
-            collapseElement.addEventListener('shown.bs.collapse', () => {
-                localStorage.setItem('sidebar-' + menuId, 'open');
-            });
-        
-            collapseElement.addEventListener('hidden.bs.collapse', () => {
-                localStorage.setItem('sidebar-' + menuId, 'closed');
-            });
-        });
-    </script> 
-</body>
-</html>

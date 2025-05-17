@@ -13,76 +13,63 @@
             <form id="multi-step-form" action="{{ route('incidencias.atender.guardar', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-info btn-sm py-2 px-3" onclick="cargarDatosUsuario()">
+                        <i class="bi bi-person-fill me-1"></i> Personal Autorizado
+                    </button>
+                </div>
+
                 {{-- Paso 1 --}}
                 <div id="step-1" class="step">
                     <h6 class="h6 text-primary mb-3">Paso 1: Datos del Personal</h6>
 
-                    <div class="d-flex justify-content-end mb-2">
-                        <button type="button" class="btn btn-info btn-sm py-2 px-3" onclick="cargarDatosUsuario()">
-                            <i class="bi bi-person-fill me-1"></i> Personal Autorizado
-                        </button>
-                    </div>
-
-                    <div class="row g-3 mt-2">
-                          <div id="empleado-info" class="alert alert-info mt-3 d-none">
+                    <div id="empleado-info" class="alert alert-info mt-3 d-none">
                         <i class="bi bi-info-circle-fill me-2"></i>
                         <span id="empleado-mensaje"></span>
                     </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-4 d-flex">
-                            <input type="text" name="cedula" id="cedula" class="form-control form-control-sm py-2" required pattern="\d+" placeholder="Ej: 12345678" oninput="limpiarAlertaEmpleado()"> {{-- MODIFICADO --}}
-                            <button type="button" class="btn btn-primary btn-sm ms-2" onclick="buscarEmpleado()">
-                                <i class="bi bi-search"></i> Buscar
-                            </button>
-                        </div>
-                    </div>
-                        <div class="col-md-3">
-                            <label for="nacionalidad" class="form-label small mb-0">Nacionalidad <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm py-2" required onchange="limpiarAlertaEmpleado()"> {{-- MODIFICADO --}}
-                                <option value="" selected disabled>Seleccione...</option>
-                                <option value="V">Venezolano (V)</option>
-                                <option value="E">Extranjero (E)</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-md-7">
+                            <div class="mb-2">
+                                <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="cedula" id="cedula" class="form-control solo-numeros py-2" maxlength="8" required pattern="\d+" placeholder="Ej: 12345678" oninput="limpiarAlertaEmpleado()">
+                                    <button type="button" class="btn btn-primary" onclick="buscarEmpleado()">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
 
-                  
+                            <div class="mb-2">
+                                <label for="nacionalidad" class="form-label small mb-0">Nacionalidad <span class="text-danger">*</span></label>
+                                <select name="nacionalidad" id="nacionalidad" class="form-select form-select-sm py-2" required onchange="limpiarAlertaEmpleado()">
+                                    <option value="" selected disabled>Seleccione...</option>
+                                    <option value="V">Venezolano (V)</option>
+                                    <option value="E">Extranjero (E)</option>
+                                </select>
+                            </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="telefono" class="form-label small mb-0">Teléfono <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="tel" name="telefono" id="telefono" class="form-control form-control-sm py-2" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
-                        </div>
-                    </div>
+                            <div class="mb-2">
+                                <label for="telefono" class="form-label small mb-0">Teléfono <span class="text-danger">*</span></label>
+                                <input type="tel" name="telefono" id="telefono" class="form-control solo-numeros form-control-sm py-2" maxlength="11" required pattern="\d{10,15}" placeholder="Ej: 04141234567">
+                            </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="nombre" class="form-label small mb-0">Nombre <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="nombre" id="nombre" class="form-control form-control-sm py-2" required>
+                            <div class="mb-2">
+                                <label for="nombre" class="form-label small mb-0">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" name="nombre" id="nombre" class="form-control solo-letras form-control-sm py-2" required>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="apellido" class="form-label small mb-0">Apellido <span class="text-danger">*</span></label>
+                                <input type="text" name="apellido" id="apellido" class="form-control solo-letras form-control-sm py-2" required>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-3">
-                            <label for="apellido" class="form-label small mb-0">Apellido <span class="text-danger">*</span></label>
-                        </div>
-                        <div class="col-md-5">
-                            <input type="text" name="apellido" id="apellido" class="form-control form-control-sm py-2" required>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end mt-3">
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ route('incidencias.index', $incidencia->slug) }}" class="btn btn-secondary btn-sm py-2 px-3">
+                            Cancelar
+                        </a>
                         <button type="button" class="btn btn-primary btn-sm py-2 px-3" onclick="nextStep()">
                             Siguiente <i class="bi bi-arrow-right-circle ms-1"></i>
                         </button>

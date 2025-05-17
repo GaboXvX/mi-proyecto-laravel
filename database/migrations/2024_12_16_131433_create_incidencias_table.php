@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_tipo_incidencia');
             $table->string('slug')->unique();
             $table->string('cod_incidencia')->unique();
-            $table->text('descripcion');
+            $table->text('descripcion',320);
             $table->dateTime('fecha_vencimiento');
             $table->string('ultimo_recordatorio')->nullable();
             $table->timestamps();

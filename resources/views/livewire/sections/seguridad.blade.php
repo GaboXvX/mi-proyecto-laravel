@@ -70,7 +70,7 @@
                                 Nueva Contraseña
                             </label>
                             <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                name="contraseña" placeholder="Ingrese su nueva contraseña">
+                                name="contraseña" placeholder="Ingrese su nueva contraseña" maxlength="18">
                             <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
                         </div>
                     </div>
@@ -174,7 +174,7 @@
         </div>
 </div>
 <script>
-// 1. DEFINIR PRIMERO LA FUNCIÓN QUE GENERABA EL ERROR
+// DEFINIR PRIMERO LA FUNCIÓN QUE GENERABA EL ERROR
 function habilitarRespuesta(selectElement) {
     const preguntaNum = selectElement.id.split('_')[1];
     const respuestaInput = document.getElementById(`respuesta_${preguntaNum}`);
@@ -199,31 +199,44 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Validación del formulario principal
+    function initListeners() {
     const correoInput = document.getElementById('inputCorreo');
     const usuarioInput = document.getElementById('inputUsuario');
     const passwordInput = document.getElementById('inputContraseña');
     const submitButton = document.getElementById('submitButton');
-    const correoFeedback = document.getElementById('correoFeedback');
-    const usuarioFeedback = document.getElementById('usuarioFeedback');
 
-    let correoOriginal = correoInput.value;
-    let usuarioOriginal = usuarioInput.value;
+    if (!correoInput || !usuarioInput || !passwordInput || !submitButton) {
+        console.warn('Faltan elementos del formulario');
+        return;
+    }
 
-    let correoDisponible = true;
-    let usuarioDisponible = true;
+    const correoOriginal = correoInput.getAttribute('data-original') ?? correoInput.value.trim();
+    const usuarioOriginal = usuarioInput.getAttribute('data-original') ?? usuarioInput.value.trim();
 
     function hayCambios() {
-        const correoCambio = correoInput.value !== correoOriginal;
-        const usuarioCambio = usuarioInput.value !== usuarioOriginal;
-        const passwordIngresado = passwordInput.value.trim() !== '';
-        return correoCambio || usuarioCambio || passwordIngresado;
+        return correoInput.value.trim() !== correoOriginal ||
+               usuarioInput.value.trim() !== usuarioOriginal ||
+               passwordInput.value.trim() !== '';
     }
 
-    function validarFormulario() {
-        const cambios = hayCambios();
-        const validacionesOk = correoDisponible && usuarioDisponible;
-        submitButton.disabled = !(cambios && validacionesOk);
+    function actualizarBoton() {
+        submitButton.disabled = !hayCambios();
     }
+
+    correoInput.addEventListener('input', actualizarBoton);
+    usuarioInput.addEventListener('input', actualizarBoton);
+    passwordInput.addEventListener('input', actualizarBoton);
+}
+
+// Ejecutar cuando se cargue la página
+document.addEventListener('DOMContentLoaded', () => {
+    initListeners();
+});
+
+// Volver a ejecutar después de cada actualización de Livewire
+Livewire.hook('message.processed', () => {
+    initListeners();
+});
 
     correoInput.addEventListener('input', function () {
         const correo = this.value;

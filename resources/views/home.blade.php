@@ -29,6 +29,20 @@
                 <p>{{ $totalPeticiones }}</p>
             </a>
         </div>
+
+        <div class="table-container mt-4">
+            <div class="item" style="width: 100%;">
+                <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+                    <h5 class="mb-0">Evolución Temporal</h5>
+                    <a href="{{ route('graficos.incidencias') }}" class="btn btn-sm btn-outline-primary">
+                        Ver Gráficos Detallados 
+                    </a>
+                </div>
+                <div style="width: 100%; height: 300px;">
+                    <canvas id="temporalChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -45,9 +59,48 @@
         // Actualizar el total de peticiones cada 30 segundos
         setInterval(actualizarTotalPeticiones, 30000);
     </script>
+    @if (!empty($datosTemporales['labels']) && !empty($datosTemporales['series']))
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            GridStack.init();
-        });
+        const datosTemporales = @json($datosTemporales ?? ['labels' => [], 'series' => []]);
+        console.log("Datos desde el backend:", datosTemporales);
+
+        const ctx = document.getElementById('temporalChart')?.getContext('2d');
+
+        if (ctx && datosTemporales.labels.length) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datosTemporales.labels,
+                    datasets: datosTemporales.series.map(serie => ({
+                        label: serie.name,
+                        data: serie.data,
+                        borderColor: serie.borderColor || 'blue',
+                        backgroundColor: serie.backgroundColor || 'transparent',
+                        fill: false,
+                        tension: serie.tension || 0.4
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Resumen: Atendidas vs Pendientes'
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Fecha' } },
+                        y: { title: { display: true, text: 'Cantidad' }, beginAtZero: true }
+                    }
+                }
+            });
+        }
     </script>
+@endif
+
+
 @endsection

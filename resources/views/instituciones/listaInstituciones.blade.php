@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-5">
-    <h2 class="mb-5 text-center font-weight-bold text-uppercase text-secondary">Panel de Instituciones</h2>
+<div class="table-container py-5">
+    <h2 class="mb-5 text-center font-weight-bold">Panel de Instituciones</h2>
 
     @if(session('success'))
         <div class="alert alert-success text-center">
@@ -13,9 +13,9 @@
     <div class="row">
         @foreach($instituciones as $institucion)
             <div class="col-lg-6 mb-4">
-                <div class="card bg-white shadow-lg border-0 rounded-4 p-4 glass-card position-relative">
+                <div class="card border rounded-4 p-4 glass-card position-relative">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-dark mb-0">{{ $institucion->nombre }}</h4>
+                        <h4 class="mb-0">{{ $institucion->nombre }}</h4>
                        <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal{{ $institucion->id_institucion }}">
     <i class="fas fa-sync-alt"></i> Logo
 </button>
@@ -32,9 +32,9 @@
                         @endif
                     </div>
 
-                    <div class="bg-light p-3 rounded mb-4">
+                    <div class="border p-3 rounded mb-4">
                         <h6 class="text-muted">Membrete Actual</h6>
-                        <div class="text-dark">
+                        <div>
                             @if($institucion->encabezado_html)
                                 {!! $institucion->encabezado_html !!}
                             @else
@@ -69,13 +69,13 @@
                     <h5 class="modal-title" id="logoModalLabel{{ $institucion->id_institucion }}">Actualizar Logo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body bg-white">
+                <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Subir nuevo logo (JPG/PNG, máx. 2MB)</label>
                         <input type="file" class="form-control" name="logo" accept="image/png, image/jpeg" required>
                     </div>
                 </div>
-                <div class="modal-footer bg-light rounded-bottom">
+                <div class="modal-footer rounded-bottom">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>

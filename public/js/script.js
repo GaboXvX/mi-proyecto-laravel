@@ -31,6 +31,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+const sidebar = document.querySelector('.custom-sidebar');
+const toggleBtn = document.querySelector('#menuToggle');
+
+// Mostrar/ocultar sidebar con el botón
+toggleBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // evitar que el clic se propague y cierre la sidebar inmediatamente
+  sidebar.classList.toggle('open');
+});
+
+// Ocultar sidebar al hacer clic fuera
+document.addEventListener('click', (e) => {
+  // Si sidebar está abierta y el clic NO está dentro de la sidebar ni en el botón, ocultar
+  if (
+    sidebar.classList.contains('open') &&
+    !sidebar.contains(e.target) &&
+    !toggleBtn.contains(e.target)
+  ) {
+    sidebar.classList.remove('open');
+  }
+});
+
 // Validación de campos de formulario
 document.addEventListener('DOMContentLoaded', function () {
     // Letras solamente (nombre, apellido, etc.)

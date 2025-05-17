@@ -414,7 +414,7 @@ public function atenderGuardar(Request $request, $slug)
 {
     $request->validate([
         'descripcion' => 'required|string|max:1000',
-        'prueba_fotografica' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        'prueba_fotografica' => 'required|image|mimes:jpeg,png,jpg|max:5120',
     ]);
 
     try {

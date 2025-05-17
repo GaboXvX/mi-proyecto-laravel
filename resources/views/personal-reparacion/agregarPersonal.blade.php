@@ -9,6 +9,24 @@
          
         <div class="row g-3 justify-content-center">
             <!-- Institución y Estación -->
+             <div class="col-md-5">
+                <div class="form-floating">
+                    <select name="nacionalidad" id="nacionalidad" class="form-select" required>
+                        <option value="" selected disabled>Seleccione...</option>
+                        <option value="V">Venezolano (V)</option>
+                        <option value="E">Extranjero (E)</option>
+                    </select>
+                    <label for="nacionalidad">Nacionalidad</label>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="form-floating">
+                    <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" maxlength="8" required>
+                    <label for="cedula">Cédula</label>
+                    <div id="cedulaFeedback" class="invalid-feedback"></div>
+                </div>
+            </div>
             <div class="col-md-5">
                 <div class="form-floating">
                     <select name="id_institucion" id="id_institucion" class="form-select" required>
@@ -46,24 +64,7 @@
             </div>
             
             <!-- Nacionalidad y Cédula -->
-            <div class="col-md-5">
-                <div class="form-floating">
-                    <select name="nacionalidad" id="nacionalidad" class="form-select" required>
-                        <option value="" selected disabled>Seleccione...</option>
-                        <option value="V">Venezolano (V)</option>
-                        <option value="E">Extranjero (E)</option>
-                    </select>
-                    <label for="nacionalidad">Nacionalidad</label>
-                </div>
-            </div>
-            
-            <div class="col-md-5">
-                <div class="form-floating">
-                    <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" maxlength="8" required>
-                    <label for="cedula">Cédula</label>
-                    <div id="cedulaFeedback" class="invalid-feedback"></div>
-                </div>
-            </div>
+           
             
             <!-- Teléfono -->
             <div class="col-md-10">

@@ -59,14 +59,7 @@
             @endphp
 
             <!-- Consultar -->
-            <li class="sidebar-item">
-                <a href="#layouts" class="sidebar-link has-dropdown {{ $consultarActivo ? 'open' : '' }}" data-target="layouts">
-                    <i class="bi bi-search"></i>
-                    <span>Consultar</span>
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
-                </a>
-                <div class="sidebar-dropdown {{ $consultarActivo ? 'show' : '' }}" id="layouts">
-                    <ul class="dropdown-nav">
+           
                         @can('ver empleados')
                         <li>
                             <a href="{{ route('usuarios.index') }}" class="sidebar-link {{ Route::is('usuarios.index') ? 'active' : '' }}">
@@ -113,9 +106,9 @@
                             </a>
                         </li>
                         @endauth
-                    </ul>
+                    
                 </div>
-            </li>
+            
 
             <!-- Estadísticas -->
             @can('ver grafica incidencia')

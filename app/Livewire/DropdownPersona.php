@@ -29,49 +29,76 @@ class DropdownPersona extends Component
     public $comunidadId;
 
     // Método que se ejecuta al inicializar el componente
-    public function mount()
-    {
-        $this->estados = Estado::all(); // Cargar todos los estados
-        $this->municipios = collect(); // Inicializar municipios como colección vacía
-        $this->parroquias = collect(); // Inicializar parroquias como colección vacía
-        $this->urbanizaciones = collect(); // Inicializar urbanizaciones como colección vacía
-        $this->sectores = collect(); // Inicializar sectores como colección vacía
-        $this->comunidades = collect(); // Inicializar comunidades como colección vacía
+    public function mount(
+        $estadoId = null, 
+        $municipioId = null, 
+        $parroquiaId = null, 
+        $urbanizacionId = null, 
+        $sectorId = null, 
+        $comunidadId = null
+    ) {
+        // Cargar todos los estados
+        $this->estados = Estado::all();
+        
+        // Establecer valores iniciales si se proporcionan
+        $this->estadoId = $estadoId;
+        $this->municipioId = $municipioId;
+        $this->parroquiaId = $parroquiaId;
+        $this->urbanizacionId = $urbanizacionId;
+        $this->sectorId = $sectorId;
+        $this->comunidadId = $comunidadId;
+        
+        // Cargar datos dependientes basados en los valores iniciales
+        if ($this->estadoId) {
+            $this->municipios = Municipio::where('id_estado', $this->estadoId)->get();
+        }
+        if ($this->municipioId) {
+            $this->parroquias = Parroquia::where('id_municipio', $this->municipioId)->get();
+        }
+        if ($this->parroquiaId) {
+            $this->urbanizaciones = Urbanizacion::where('id_parroquia', $this->parroquiaId)->get();
+        }
+        if ($this->urbanizacionId) {
+            $this->sectores = Sector::where('id_urbanizacion', $this->urbanizacionId)->get();
+        }
+        if ($this->sectorId) {
+            $this->comunidades = Comunidad::where('id_sector', $this->sectorId)->get();
+        }
     }
 
     // Método que se ejecuta cuando se actualiza el estado seleccionado
     public function updatedEstadoId($value)
     {
         $this->municipios = Municipio::where('id_estado', $value)->get();
-        $this->reset(['municipioId', 'parroquiaId', 'urbanizacionId', 'sectorId', 'comunidadId']); // Resetear valores dependientes
+        $this->reset(['municipioId', 'parroquiaId', 'urbanizacionId', 'sectorId', 'comunidadId']);
     }
 
     // Método que se ejecuta cuando se actualiza el municipio seleccionado
     public function updatedMunicipioId($value)
     {
         $this->parroquias = Parroquia::where('id_municipio', $value)->get();
-        $this->reset(['parroquiaId', 'urbanizacionId', 'sectorId', 'comunidadId']); // Resetear valores dependientes
+        $this->reset(['parroquiaId', 'urbanizacionId', 'sectorId', 'comunidadId']);
     }
 
     // Método que se ejecuta cuando se actualiza la parroquia seleccionada
     public function updatedParroquiaId($value)
     {
         $this->urbanizaciones = Urbanizacion::where('id_parroquia', $value)->get();
-        $this->reset(['urbanizacionId', 'sectorId', 'comunidadId']); // Resetear valores dependientes
+        $this->reset(['urbanizacionId', 'sectorId', 'comunidadId']);
     }
 
     // Método que se ejecuta cuando se actualiza la urbanización seleccionada
     public function updatedUrbanizacionId($value)
     {
         $this->sectores = Sector::where('id_urbanizacion', $value)->get();
-        $this->reset(['sectorId', 'comunidadId']); // Resetear valores dependientes
+        $this->reset(['sectorId', 'comunidadId']);
     }
 
     // Método que se ejecuta cuando se actualiza el sector seleccionado
     public function updatedSectorId($value)
     {
         $this->comunidades = Comunidad::where('id_sector', $value)->get();
-        $this->reset(['comunidadId']); // Resetear valores dependientes
+        $this->reset(['comunidadId']);
     }
 
     // Método que renderiza la vista

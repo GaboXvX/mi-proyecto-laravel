@@ -43,15 +43,21 @@
                     <h5 class="mb-0">Dirección del Incidente</h5>
                 </div>
                 <div class="card-body">
-                    <livewire:dropdown-persona :personaSeleccionada="$incidencia->id_persona"/>
-                    <div class="row g-3 mt-3">
+<livewire:dropdown-persona 
+    :estadoId="$incidencia->direccionIncidencia->id_estado"
+    :municipioId="$incidencia->direccionIncidencia->id_municipio"
+    :parroquiaId="$incidencia->direccionIncidencia->id_parroquia"
+    :urbanizacionId="$incidencia->direccionIncidencia->id_urbanizacion ?? null"
+    :sectorId="$incidencia->direccionIncidencia->id_sector ?? null"
+    :comunidadId="$incidencia->direccionIncidencia->id_comunidad ?? null"
+/>                    <div class="row g-3 mt-3">
                         <div class="col-md-6">
                             <label for="calle" class="form-label">Calle:</label>
-                            <input type="text" id="calle" name="calle" class="form-control" value="{{ $incidencia->direccion->calle }}" required>
+                            <input type="text" id="calle" name="calle" class="form-control" value="{{ $incidencia->direccionIncidencia->calle }}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="punto_de_referencia" class="form-label">Punto de Referencia:</label>
-                            <input type="text" id="punto_de_referencia" name="punto_de_referencia" class="form-control" value="{{ $incidencia->direccion->punto_de_referencia }}">
+                            <input type="text" id="punto_de_referencia" name="punto_de_referencia" class="form-control" value="{{ $incidencia->direccionIncidencia->punto_de_referencia }}">
                         </div>
                     </div>
                 </div>

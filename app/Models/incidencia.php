@@ -17,7 +17,7 @@ class incidencia extends Model
     protected $fillable = [
         'id_persona',
         'id_categoria_exclusiva', // Relación con categorias_exclusivas_personas
-        'id_direccion',
+        'id_direccion_incidencia',
         'id_usuario',
         'slug',
         'id_tipo_incidencia',

@@ -4,6 +4,13 @@
 <div class="table-container">
     <h2 class="mb-4">Estadísticas de Incidencias</h2>
 
+    <!-- Botón de descarga -->
+    <div class="text-end mb-3">
+        <a href="{{ route('graficos.incidencias.download') }}?{{ http_build_query(request()->query()) }}" class="btn btn-success">
+            <i class="fas fa-download"></i> Descargar Reporte
+        </a>
+    </div>
+
     <!-- Filtros -->
     <div class="card mb-4">
         <div class="card-header">
@@ -143,157 +150,155 @@
 
 <script>
     // Gráfico por estado
-    // Gráfico por estado
-const estadoCtx = document.getElementById('estadoChart').getContext('2d');
-new Chart(estadoCtx, {
-    type: 'pie',
-    data: {
-        labels: @json($incidenciasPorEstado['labels']),
-        datasets: [{
-            data: @json($incidenciasPorEstado['values']),
-            backgroundColor: @json($incidenciasPorEstado['colors']),
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const label = context.label || '';
-                        const value = context.raw || 0;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = Math.round((value / total) * 100);
-                        return `${label}: ${value} (${percentage}%)`;
-                    },
-                    afterBody: function(context) {
-                        const estado = context[0].label;
-                        const detalles = @json($incidenciasPorEstado['detalles']);
-                        let info = ['Detalle por niveles:'];
-                        
-                        if (detalles[estado]) {
-                            for (const [nivel, cantidad] of Object.entries(detalles[estado])) {
-                                if (cantidad > 0) {
-                                    const totalNivel = Object.values(detalles[estado]).reduce((a, b) => a + b, 0);
-                                    const porcentajeNivel = Math.round((cantidad / totalNivel) * 100);
-                                    info.push(`${nivel}: ${cantidad} (${porcentajeNivel}%)`);
+    const estadoCtx = document.getElementById('estadoChart').getContext('2d');
+    new Chart(estadoCtx, {
+        type: 'pie',
+        data: {
+            labels: @json($incidenciasPorEstado['labels']),
+            datasets: [{
+                data: @json($incidenciasPorEstado['values']),
+                backgroundColor: @json($incidenciasPorEstado['colors']),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        },
+                        afterBody: function(context) {
+                            const estado = context[0].label;
+                            const detalles = @json($incidenciasPorEstado['detalles']);
+                            let info = ['Detalle por niveles:'];
+                            
+                            if (detalles[estado]) {
+                                for (const [nivel, cantidad] of Object.entries(detalles[estado])) {
+                                    if (cantidad > 0) {
+                                        const totalNivel = Object.values(detalles[estado]).reduce((a, b) => a + b, 0);
+                                        const porcentajeNivel = Math.round((cantidad / totalNivel) * 100);
+                                        info.push(`${nivel}: ${cantidad} (${porcentajeNivel}%)`);
+                                    }
                                 }
+                            } else {
+                                info.push('Sin detalles disponibles');
                             }
-                        } else {
-                            info.push('Sin detalles disponibles');
+                            
+                            return info;
                         }
-                        
-                        return info;
                     }
-                }
-            },
-            legend: {
-                position: 'right',
-            },
-            datalabels: {
-                formatter: (value, ctx) => {
-                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${value}\n(${percentage}%)`;
                 },
-                color: '#fff',
-                font: {
-                    weight: 'bold',
-                    size: 12
+                legend: {
+                    position: 'right',
+                },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        const percentage = Math.round((value / total) * 100);
+                        return `${value}\n(${percentage}%)`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    }
                 }
             }
         }
-    }
-});
+    });
 
     // Gráfico por nivel
-    // Gráfico por nivel
-const nivelCtx = document.getElementById('nivelChart').getContext('2d');
-new Chart(nivelCtx, {
-    type: 'doughnut',
-    data: {
-        labels: @json($incidenciasPorNivel['labels']),
-        datasets: [{
-            data: @json($incidenciasPorNivel['values']),
-            backgroundColor: @json($incidenciasPorNivel['colors']),
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const label = context.label || '';
-                        const value = context.raw || 0;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = Math.round((value / total) * 100);
-                        return `${label}: ${value} (${percentage}%)`;
+    const nivelCtx = document.getElementById('nivelChart').getContext('2d');
+    new Chart(nivelCtx, {
+        type: 'doughnut',
+        data: {
+            labels: @json($incidenciasPorNivel['labels']),
+            datasets: [{
+                data: @json($incidenciasPorNivel['values']),
+                backgroundColor: @json($incidenciasPorNivel['colors']),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
                     }
-                }
-            },
-            legend: {
-                position: 'right',
-            },
-            datalabels: {
-                formatter: (value, ctx) => {
-                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    const percentage = Math.round((value / total) * 100);
-                    return `${value}\n(${percentage}%)`;
                 },
-                color: '#fff',
-                font: {
-                    weight: 'bold',
-                    size: 12
+                legend: {
+                    position: 'right',
+                },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        const percentage = Math.round((value / total) * 100);
+                        return `${value}\n(${percentage}%)`;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    }
                 }
             }
         }
-    }
-});
+    });
 
     // Cargar estaciones según institución seleccionada
     document.getElementById('institucion_id').addEventListener('change', function() {
-    const institucionId = this.value;
-    const estacionSelect = document.getElementById('estacion_id');
-    const form = this.closest('form');
-    
-    estacionSelect.innerHTML = '<option value="">Cargando...</option>';
-    estacionSelect.disabled = true;
+        const institucionId = this.value;
+        const estacionSelect = document.getElementById('estacion_id');
+        const form = this.closest('form');
+        
+        estacionSelect.innerHTML = '<option value="">Cargando...</option>';
+        estacionSelect.disabled = true;
 
-    if (institucionId) {
-        fetch(`/api/estaciones-por-institucion/${institucionId}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Error en la respuesta');
-                return response.json();
-            })
-            .then(data => {
-                estacionSelect.innerHTML = '<option value="">Todas</option>';
-                
-                if (data && data.length > 0) {
-                    data.forEach(estacion => {
-                        estacionSelect.innerHTML += 
-                            `<option value="${estacion.id_institucion_estacion}">${estacion.nombre}</option>`;
-                    });
-                } else {
-                    estacionSelect.innerHTML = '<option value="">No hay estaciones</option>';
-                }
-                
-                estacionSelect.disabled = false;
-                // Forzar envío del formulario después de cargar
-                form.dispatchEvent(new Event('submit'));
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                estacionSelect.innerHTML = '<option value="">Error al cargar</option>';
-                estacionSelect.disabled = false;
-            });
-    } else {
-        estacionSelect.innerHTML = '<option value="">Todas</option>';
-        estacionSelect.disabled = false;
-        form.dispatchEvent(new Event('submit'));
-    }
-});
+        if (institucionId) {
+            fetch(`/api/estaciones-por-institucion/${institucionId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta');
+                    return response.json();
+                })
+                .then(data => {
+                    estacionSelect.innerHTML = '<option value="">Todas</option>';
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(estacion => {
+                            estacionSelect.innerHTML += 
+                                `<option value="${estacion.id_institucion_estacion}">${estacion.nombre}</option>`;
+                        });
+                    } else {
+                        estacionSelect.innerHTML = '<option value="">No hay estaciones</option>';
+                    }
+                    
+                    estacionSelect.disabled = false;
+                    // Forzar envío del formulario después de cargar
+                    form.dispatchEvent(new Event('submit'));
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    estacionSelect.innerHTML = '<option value="">Error al cargar</option>';
+                    estacionSelect.disabled = false;
+                });
+        } else {
+            estacionSelect.innerHTML = '<option value="">Todas</option>';
+            estacionSelect.disabled = false;
+            form.dispatchEvent(new Event('submit'));
+        }
+    });
 </script>
 @endsection

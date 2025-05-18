@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_direccion_incidencia');
-            $table->unsignedBigInteger('id_categoria_exclusiva')->nullable();
             $table->unsignedBigInteger('id_institucion');
             $table->unsignedBigInteger('id_institucion_estacion')->nullable();
             $table->unsignedBigInteger('id_nivel_incidencia')->nullable();

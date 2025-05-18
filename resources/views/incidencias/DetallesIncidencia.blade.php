@@ -91,7 +91,7 @@
 
 <main>
     <!-- Título -->
-    <br>
+    <br><br>
     <div class="section">
         <h2 style="text-align: center;">Detalles de la Incidencia</h2>
         <p style="text-align: center;">Código: <strong>{{ $incidencia->cod_incidencia }}</strong></p>

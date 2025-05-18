@@ -282,25 +282,36 @@ class PersonaController extends Controller
 
         return view('personas.incidencias', compact('persona', 'incidencias'));
     }
-    public function verificarCedula(Request $request)
+   public function verificarCedula(Request $request)
 {
-    // Validar que la cédula es un valor numérico de 8 dígitos
+    // Validar que la cédula tenga el formato correcto (7 u 8 dígitos)
     $request->validate([
-        'cedula' => 'required|numeric|digits:8'
+        'cedula' => ['required', 'regex:/^\d{7,8}$/']
     ]);
 
-    $cedula = $request->input('cedula');
+    // Buscar la persona por cédula
+    $persona = Persona::where('cedula', $request->cedula)->first();
 
-    // Buscar si la cédula ya existe en la base de datos
-    $persona = Persona::where('cedula', $cedula)->first();
-
-    if ($persona) {
-        // Si la cédula ya existe
-        return response()->json(['existe' => true]);
-    } else {
-        // Si la cédula no existe
-        return response()->json(['existe' => false]);
+    // Si no existe la persona, retornar que no existe
+    if (!$persona) {
+        return response()->json([
+            'existe' => false,
+            'mensaje' => 'Cédula no registrada'
+        ]);
     }
+
+    // Si existe, retornar los datos básicos de la persona
+    return response()->json([
+        'existe' => true,
+        'persona' => [
+            'nombre' => $persona->nombre,
+            'apellido' => $persona->apellido,
+            'correo' => $persona->correo,
+            'telefono' => $persona->telefono,
+            'genero' => $persona->genero,
+                                                                                                                                 ],
+        'mensaje' => 'Persona encontrada en el sistema'
+    ]);
 }
   public function verificarCorreo(Request $request)
     {

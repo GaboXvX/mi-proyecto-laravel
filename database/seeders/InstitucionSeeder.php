@@ -13,12 +13,12 @@ class InstitucionSeeder extends Seeder
     public function run(): void
     {
         $instituciones = [
-            ['nombre' => 'Hidrocaribe'],
-            ['nombre' => 'Hidrollanos'],
-            ['nombre' => 'INASA'],
-            ['nombre' => 'Hidrofalcon'],
-            ['nombre' => 'Hidrolara'],
-            ['nombre'=>'Minaguas'],
+            ['nombre' => 'Hidrocaribe', 'es_propietario'=>0],
+            ['nombre' => 'Hidrollanos', 'es_propietario'=>0],
+            ['nombre' => 'INASA', 'es_propietario'=>0],
+            ['nombre' => 'Hidrofalcon', 'es_propietario'=>0],
+            ['nombre' => 'Hidrolara', 'es_propietario'=>0],
+            ['nombre'=>'Minaguas', 'es_propietario'=>1],
         ];
 
         DB::table('instituciones')->insert($instituciones);

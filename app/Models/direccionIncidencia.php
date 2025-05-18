@@ -4,12 +4,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Direccion extends Model
+class direccionIncidencia extends Model
 {
     use HasFactory;
 
-    protected $table = 'direcciones';
-    protected $primaryKey = 'id_direccion';
+    protected $table = 'direcciones_incidencias';
+    protected $primaryKey = 'id_direccion_incidencia';
     protected $fillable = [
         'id_persona',
         'id_estado',

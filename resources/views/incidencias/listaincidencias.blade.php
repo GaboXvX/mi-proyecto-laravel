@@ -76,7 +76,7 @@
                     <div class="col-md-3">
                         <label for="codigo-busqueda" class="form-label">Código:</label>
                         <input type="text" id="codigo-busqueda" name="codigo" class="form-control"
-                               value="{{ request('codigo') }}" placeholder="Buscar por código">
+                               value="{{ request('codigo') }}" placeholder="Buscar por código" maxlength="8">
                     </div>
             
                     <!-- Estado -->

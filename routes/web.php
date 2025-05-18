@@ -140,7 +140,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/configuracion', 'index')->name('usuarios.configuracion');
             Route::post('/usuarios/{usuario}/cambiar', 'actualizar')->name('usuarios.cambiar');
             Route::post('/usuarios/{usuario}/cambiar-preguntas', 'cambiarPreguntas')->name('usuarios.cambiar-preguntas');
-            Route::post('/usuarios/restaurar/{id_usuario}', 'restaurar')->name('usuarios.restaurar')->middleware('can:restaurar usuarios');
+            Route::post('/usuarios/restaurar/{id_usuario}', 'restaurar')->name('usuarios.restaurar');
         });
 
         // Notificaciones

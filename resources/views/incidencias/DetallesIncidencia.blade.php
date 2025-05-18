@@ -133,17 +133,17 @@
         <div class="box">
             <div class="row">
                 <div class="col-6">
-                    <p><span class="label-bold">Estado:</span> {{ $incidencia->direccion->estado->nombre ?? 'N/A' }}</p>
-                    <p><span class="label-bold">Municipio:</span> {{ $incidencia->direccion->municipio->nombre ?? 'N/A' }}</p>
-                    <p><span class="label-bold">Parroquia:</span> {{ $incidencia->direccion->parroquia->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Estado:</span> {{ $incidencia->direccionIncidencia->estado->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Municipio:</span> {{ $incidencia->direccionIncidencia->municipio->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Parroquia:</span> {{ $incidencia->direccionIncidencia->parroquia->nombre ?? 'N/A' }}</p>
                 </div>
                 <div class="col-6">
-                    <p><span class="label-bold">Urbanización:</span> {{ $incidencia->direccion->urbanizacion->nombre ?? 'N/A' }}</p>
-                    <p><span class="label-bold">Sector:</span> {{ $incidencia->direccion->sector->nombre ?? 'N/A' }}</p>
-                    <p><span class="label-bold">Comunidad:</span> {{ $incidencia->direccion->comunidad->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Urbanización:</span> {{ $incidencia->direccionIncidencia->urbanizacion->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Sector:</span> {{ $incidencia->direccionIncidencia->sector->nombre ?? 'N/A' }}</p>
+                    <p><span class="label-bold">Comunidad:</span> {{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</p>
                 </div>
             </div>
-            <p><span class="label-bold">Punto de Referencia:</span> {{ $incidencia->direccion->punto_de_referencia ?? 'No especificado' }}</p>
+            <p><span class="label-bold">Punto de Referencia:</span> {{ $incidencia->direccionIncidencia->punto_de_referencia ?? 'No especificado' }}</p>
         </div>
     </div>
 

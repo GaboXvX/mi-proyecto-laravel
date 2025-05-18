@@ -23,26 +23,24 @@
     }
 </style>
 @section('content')
-    <div class="container">
-        <div class="content">
+    <form id="respuestaForm" class="form-forget">
             <h2>Recuperar Contraseña</h2>
             <p>Por favor, responda la siguiente pregunta de seguridad:</p>
-        </div>
 
             <!-- Formulario de respuesta -->
-            <form id="respuestaForm" class="form-content">
+            
             <!-- Mostrar la pregunta -->
             <label for="respuesta" class="form-label" style="color: #000000;">{{ $pregunta->pregunta }}</label>
                 @csrf
                 <input type="hidden" name="usuario_id" value="{{ $usuario->id_usuario }}">
                 <input type="hidden" name="pregunta_id" value="{{ $pregunta->id_pregunta }}">
-                <input type="text" name="respuesta" id="respuesta" class="form-control" required>
+                <input type="text" name="respuesta" id="respuesta" required>
                 <button type="submit" class="btn btn-primary btn-block" style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px;">Validar Respuesta</button>
-            </form>
+            
 
             <!-- Mensajes de error o éxito -->
             <div id="mensaje" style="margin-top: 20px;"></div>
-    </div>
+    </form>
 
     <script>
         document.getElementById('respuestaForm').addEventListener('submit', function (e) {

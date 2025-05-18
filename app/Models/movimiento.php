@@ -13,7 +13,7 @@ class movimiento extends Model
     protected $primaryKey='id_movimiento';
     protected $fillable = [
         'id_usuario',
-        'id_direccion',
+        'id_direccion_incidencia',
         'id_incidencia',
         'id_persona',
         'id_usuario_afectado',

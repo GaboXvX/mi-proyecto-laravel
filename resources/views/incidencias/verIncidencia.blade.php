@@ -158,31 +158,31 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="address-item"><span class="address-label">Estado:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->estado->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->estado->nombre ?? 'N/A' }}</span>
                                 </div>
                                 <div class="address-item"><span class="address-label">Municipio:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->municipio->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->municipio->nombre ?? 'N/A' }}</span>
                                 </div>
                                 <div class="address-item"><span class="address-label">Parroquia:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->parroquia->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->parroquia->nombre ?? 'N/A' }}</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="address-item"><span class="address-label">Urbanización:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->urbanizacion->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->urbanizacion->nombre ?? 'N/A' }}</span>
                                 </div>
                                 <div class="address-item"><span class="address-label">Sector:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->sector->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->sector->nombre ?? 'N/A' }}</span>
                                 </div>
                                 <div class="address-item"><span class="address-label">Comunidad:</span> <span
-                                        class="address-value">{{ $incidencia->direccion->comunidad->nombre ?? 'N/A' }}</span>
+                                        class="address-value">{{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-3">
                             <span class="address-label">Punto de Referencia:</span>
                             <span
-                                class="address-value">{{ $incidencia->direccion->punto_de_referencia ?? 'No especificado' }}</span>
+                                class="address-value">{{ $incidencia->direccionIncidencia->punto_de_referencia ?? 'No especificado' }}</span>
                         </div>
                     </div>
                 </div>

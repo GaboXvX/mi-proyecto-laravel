@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreign('id_usuario_afectado')->references('id_usuario')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->foreign('id_persona')->references('id_persona')->on('personas')->onDelete('cascade');
-            $table->unsignedBigInteger('id_direccion')->nullable();
-            $table->foreign('id_direccion')->references('id_direccion')->on('direcciones')->onDelete('cascade');
+            $table->unsignedBigInteger('id_direccion_incidencia')->nullable();
+            $table->foreign('id_direccion_incidencia')->references('id_direccion_incidencia')->on('direcciones_incidencias')->onDelete('cascade');
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('id_incidencia')->nullable();
             $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');

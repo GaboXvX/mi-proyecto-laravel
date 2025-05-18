@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\StoreIncidenciaRequest;
 use App\Models\categoriaExclusivaPersona;
 use App\Models\Direccion;
+use App\Models\direccionIncidencia;
 use App\Models\Estado;
 use App\Models\estadoIncidencia;
 use App\Models\incidencia;
@@ -41,7 +42,7 @@ class IncidenciaController extends Controller
         // Consultar las incidencias con los filtros aplicados
         $incidencias = Incidencia::with([
             'persona',
-            'direccion',
+            'direccionIncidencia',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
             'estadoIncidencia',
@@ -77,7 +78,7 @@ class IncidenciaController extends Controller
 }
     public function crear($slug)
     {
-        $direcciones = Direccion::all();
+        $direcciones = direccionIncidencia::all();
         $prioridades = nivelIncidencia::all();
         $tipos= tipoIncidencia::all();
         $persona = Persona::where('slug', $slug)->first();
@@ -91,7 +92,7 @@ class IncidenciaController extends Controller
     {
         // Cargar datos necesarios para la vista, como instituciones o direcciones
         $instituciones = Institucion::all();
-        $direcciones = Direccion::all();
+        $direcciones = direccionIncidencia::all();
         $estados = Estado::all();
         $prioridades = nivelIncidencia::all();
         $tipos = tipoIncidencia::all();
@@ -120,7 +121,7 @@ class IncidenciaController extends Controller
         ]);
 
         // Buscar o crear la dirección
-        $direccion = Direccion::firstOrCreate(
+        $direccion = direccionIncidencia::firstOrCreate(
             [
                 'calle' => $request->input('calle'),
                 'id_estado' => $request->input('estado'),
@@ -167,7 +168,7 @@ class IncidenciaController extends Controller
         $incidencia->descripcion = Str::lower($request->input('descripcion'));
         $incidencia->id_nivel_incidencia = $nivel->id_nivel_incidencia;
         $incidencia->id_estado_incidencia = $estadoInicial->id_estado_incidencia;
-        $incidencia->id_direccion = $direccion->id_direccion;
+        $incidencia->id_direccion_incidencia = $direccion->id_direccion_incidencia;
         $incidencia->id_usuario = auth()->id();
         $incidencia->id_institucion = $request->input('institucion');
         $incidencia->id_institucion_estacion = $request->input('estacion');
@@ -206,7 +207,7 @@ class IncidenciaController extends Controller
     {
         try {
             // Buscar la incidencia
-            $incidencia = Incidencia::with(['persona', 'direccion.estado', 'direccion.municipio', 'direccion.parroquia', 'direccion.urbanizacion', 'direccion.sector', 'institucion', 'institucionEstacion'])
+            $incidencia = Incidencia::with(['persona', 'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia', 'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'institucion', 'institucionEstacion'])
                 ->where('slug', $slug)
                 ->first();
 
@@ -234,12 +235,12 @@ class IncidenciaController extends Controller
             // Buscar la incidencia con todas las relaciones necesarias
             $incidencia = Incidencia::with([
                 'persona',
-                'direccion.estado',
-                'direccion.municipio',
-                'direccion.parroquia',
-                'direccion.urbanizacion',
-                'direccion.sector',
-                'direccion.comunidad',
+                'direccionIncidencia.estado',
+                'direccionIncidencia.municipio',
+                'direccionIncidencia.parroquia',
+                'direccionIncidencia.urbanizacion',
+                'direccionIncidencia.sector',
+                'direccionIncidencia.comunidad',
                 'institucion',
                 'institucionEstacion.municipio',
                 'nivelIncidencia',
@@ -284,12 +285,12 @@ class IncidenciaController extends Controller
                 'prioridades' => $prioridades,
                 'estados' => $estados,
                 'estacionesRelacionadas' => $estacionesRelacionadas,
-                'estadoActual' => $incidencia->direccion->estado ?? null,
-                'municipioActual' => $incidencia->direccion->municipio ?? null,
-                'parroquiaActual' => $incidencia->direccion->parroquia ?? null,
-                'urbanizacionActual' => $incidencia->direccion->urbanizacion ?? null,
-                'sectorActual' => $incidencia->direccion->sector ?? null,
-                'comunidadActual' => $incidencia->direccion->comunidad ?? null,
+                'estadoActual' => $incidencia->direccionIncidencia->estado ?? null,
+                'municipioActual' => $incidencia->direccionIncidencia->municipio ?? null,
+                'parroquiaActual' => $incidencia->direccionIncidencia->parroquia ?? null,
+                'urbanizacionActual' => $incidencia->direccionIncidencia->urbanizacion ?? null,
+                'sectorActual' => $incidencia->direccionIncidencia->sector ?? null,
+                'comunidadActual' => $incidencia->direccionIncidencia->comunidad ?? null,
             ]);
     
         } catch (\Exception $e) {
@@ -355,7 +356,8 @@ class IncidenciaController extends Controller
             $tipoIncidencia = tipoIncidencia::findOrFail($request->input('tipo_incidencia'));
     
             // Buscar o crear la dirección
-            $direccion = Direccion::firstOrCreate([
+            $direccion = direccionIncidencia::firstOrCreate(
+            [
                 'calle' => $request->input('calle'),
                 'id_estado' => $request->input('estado'),
                 'id_municipio' => $request->input('municipio'),
@@ -364,7 +366,8 @@ class IncidenciaController extends Controller
                 'id_sector' => $request->input('sector'),
                 'id_comunidad' => $request->input('comunidad'),
                 'punto_de_referencia' => $request->input('punto_de_referencia'),
-            ]);
+            ]
+            );
             $estadoIncidencia = estadoIncidencia::where('nombre', 'Pendiente')->first();
             // Actualizar los datos de la incidencia
             $datosActualizacion = [
@@ -373,7 +376,7 @@ class IncidenciaController extends Controller
                 'id_tipo_incidencia' => $tipoIncidencia->id_tipo_incidencia,
                 'descripcion' => Str::lower($request->input('descripcion')),
                 'id_nivel_incidencia' => $nivel->id_nivel_incidencia,
-                'id_direccion' => $direccion->id_direccion,
+                'id_direccion_incidencia' => $direccion->id_direccion_incidencia,
                 'id_institucion' => $request->input('institucion'),
                 'id_institucion_estacion' => $request->input('estacion'),
                 'id_estado_incidencia' => $estadoIncidencia->id_estado_incidencia,
@@ -549,7 +552,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
     
             $incidencias = Incidencia::with([
                 'persona',
-                'direccion',
+                'direccionIncidencia',
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',
                 'estadoIncidencia',
@@ -1090,8 +1093,8 @@ public function downloadPdf($id)
     $incidencia = Incidencia::with([
         'tipoIncidencia', 'estadoIncidencia', 'nivelIncidencia',
         'institucion', 'estacion.municipio',
-        'direccion.estado', 'direccion.municipio', 'direccion.parroquia',
-        'direccion.urbanizacion', 'direccion.sector', 'direccion.comunidad',
+        'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia',
+        'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'direccionIncidencia.comunidad',
         'usuario.empleadoAutorizado',
         'movimiento.usuario.empleadoAutorizado',
         'reparacion.personalReparacion.institucion',

@@ -21,7 +21,7 @@
         <!-- Formulario para cambiar contraseña -->
         <form id="cambiarPasswordForm" class="form-content">
             <h3>Cambiar Contraseña</h3>
-            <div id="mensajePassword" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
+            <div id="mensajePassword" style="padding: 8px; color: green;"></div>
 
             @csrf
             <div class="password-container">
@@ -39,7 +39,7 @@
         <!-- Formulario para cambiar correo -->
         <form id="cambiarEmailForm" class="form-content" style="display: none;">
             <h3>Cambiar Correo Electrónico</h3>
-            <div id="mensajeEmail" style="margin-top: 20px; background-color: #e0e0e0; padding: 10px; border-radius: 5px; color:black;"></div>
+            <div id="mensajeEmail" style="padding: 8px; color:green;"></div>
 
             @csrf
             <input type="email" name="email" id="email" placeholder="Nuevo Correo Electrónico" required>

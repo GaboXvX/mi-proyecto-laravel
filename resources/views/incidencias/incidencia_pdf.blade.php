@@ -157,16 +157,16 @@
         </div>
         @endif
 
-        @if(isset($incidencia->direccion))
+        @if(isset($incidencia->direccionIncidencia))
         <div class="details-section">
             <h3>Lugar de la Incidencia:</h3>
-            <p><strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }}</p>
-            <p><strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }}</p>
-            <p><strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }}</p>
-            <p><strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }}</p>
-            <p><strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }}</p>
-            <p><strong>Calle:</strong> {{ $incidencia->direccion->calle }}</p>
-            <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccion->punto_de_referencia }}</p>
+            <p><strong>Estado:</strong> {{ $incidencia->direccionIncidencia->estado->nombre }}</p>
+            <p><strong>Municipio:</strong> {{ $incidencia->direccionIncidencia->municipio->nombre }}</p>
+            <p><strong>Parroquia:</strong> {{ $incidencia->direccionIncidencia->parroquia->nombre }}</p>
+            <p><strong>Urbanización:</strong> {{ $incidencia->direccionIncidencia->urbanizacion->nombre }}</p>
+            <p><strong>Sector:</strong> {{ $incidencia->direccionIncidencia->sector->nombre }}</p>
+            <p><strong>Calle:</strong> {{ $incidencia->direccionIncidencia->calle }}</p>
+            <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccionIncidencia->punto_de_referencia }}</p>
         </div>
         @endif
 

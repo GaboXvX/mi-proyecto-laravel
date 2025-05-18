@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('domicilios', function (Blueprint $table) {
             $table->bigIncrements('id_domicilio')->unsigned(); // Clave primaria
-            $table->unsignedBigInteger('id_persona') ->nullable();
+            $table->unsignedBigInteger('id_persona') ;
             $table->unsignedBigInteger('id_estado');
             $table->unsignedBigInteger('id_municipio');
-            $table->bigInteger('id_parroquia')->unsigned()->nullable();
-            $table->bigInteger('id_urbanizacion')->unsigned()->nullable();
-            $table->bigInteger('id_sector')->unsigned()->nullable();
-            $table->bigInteger('id_comunidad')->unsigned()->nullable();
+            $table->bigInteger('id_parroquia')->unsigned();
+            $table->bigInteger('id_urbanizacion')->unsigned();
+            $table->bigInteger('id_sector')->unsigned();
+            $table->bigInteger('id_comunidad')->unsigned();
             $table->string('calle');
             $table->string('manzana')->nullable();
             $table->string('bloque')->nullable();

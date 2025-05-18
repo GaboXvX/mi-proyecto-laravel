@@ -19,17 +19,8 @@
 </style>
 @section('content')
 
-    <div class="container">
-        <div class="content">
-          
-        
-        
+        <div class="form-forget">
             <h2>Recuperar Contraseña</h2>
-            
-            <p>Por favor, ingrese su cédula para continuar con la recuperación de su contraseña.</p>
-        </div>
-        <hr>
-        <div class="form-content">
             <!-- Mensajes de error -->
             @if ($errors->any())
                 <div class="alert alert-danger">
@@ -47,7 +38,7 @@
 
                 <!-- Cédula -->
                 <div class="row">
-                    <input type="text" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" required>
+                    <input type="text" name="cedula" placeholder="Cédula" value="{{ old('cedula') }}" maxlength="8" required>
                 </div>
 
                 <button type="submit" style="margin-top: 5px;">Continuar</button>
@@ -55,5 +46,4 @@
 
             <a href="{{ route('login') }}">Volver al inicio de sesión</a>
         </div>
-    </div>
 @endsection

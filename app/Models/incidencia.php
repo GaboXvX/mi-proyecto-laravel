@@ -17,7 +17,7 @@ class incidencia extends Model
     protected $fillable = [
         'id_persona',
         'id_categoria_exclusiva', // Relación con categorias_exclusivas_personas
-        'id_direccion',
+        'id_direccion_incidencia',
         'id_usuario',
         'slug',
         'id_tipo_incidencia',
@@ -52,10 +52,7 @@ class incidencia extends Model
     /**
      * Relación con el modelo categoriaExclusivaPersona.
      */
-    public function categoriaExclusiva()
-    {
-        return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
-    }
+ 
 
     /**
      * Relación con el modelo Movimiento.
@@ -68,9 +65,9 @@ class incidencia extends Model
     /**
      * Relación con el modelo Direccion.
      */
-    public function direccion()
+    public function direccionIncidencia()
     {
-        return $this->belongsTo(Direccion::class, 'id_direccion');
+        return $this->belongsTo(direccionIncidencia::class, 'id_direccion_incidencia');
     }
 
     /**
@@ -109,10 +106,7 @@ public function institucionEstacion()
     /**
      * Relación con el modelo CategoriaExclusivaPersona.
      */
-    public function categoriaExclusivaPersona()
-    {
-        return $this->belongsTo(categoriaExclusivaPersona::class, 'id_categoria_exclusiva');
-    }
+   
     /**
      * Relación con el modelo TipoIncidencia.
      */

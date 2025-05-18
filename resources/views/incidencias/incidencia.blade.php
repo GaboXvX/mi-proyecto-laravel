@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-<style>
+    <style>
         /* Estilos personalizados */
         .container {
             width: 100%;
@@ -33,7 +33,6 @@
         .details-section {
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #f9f9f9;
             border-radius: 8px;
             border: 1px solid #eee;
         }
@@ -63,37 +62,6 @@
         .button-container {
             text-align: center;
             margin-top: 40px;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            font-size: 14px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            display: inline-block;
-            margin: 10px;
-        }
-
-        .btn-download {
-            background-color: #28a745;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-download:hover {
-            background-color: #218838;
-        }
-
-        .btn-back {
-            background-color: #6c757d;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-back:hover {
-            background-color: #5a6268;
         }
 
         /* Nuevos estilos para nivel y estado */
@@ -138,8 +106,7 @@
             }
         }
     </style>
-
-        <div class="container" id="comprobante-container">
+   
             <div class="header">
                 <h1>Comprobante de Incidencia</h1>
                 <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
@@ -191,16 +158,16 @@
             </div>
             @endif
 
-            @if(isset($incidencia->direccion))
+            @if(isset($incidencia->direccionIncidencia))
             <div class="details-section">
                 <h3>Lugar de la Incidencia:</h3>
-                <p><strong>Estado:</strong> {{ $incidencia->direccion->estado->nombre }}</p>
-                <p><strong>Municipio:</strong> {{ $incidencia->direccion->municipio->nombre }}</p>
-                <p><strong>Parroquia:</strong> {{ $incidencia->direccion->parroquia->nombre }}</p>
-                <p><strong>Urbanización:</strong> {{ $incidencia->direccion->urbanizacion->nombre }}</p>
-                <p><strong>Sector:</strong> {{ $incidencia->direccion->sector->nombre }}</p>
-                <p><strong>Calle:</strong> {{ $incidencia->direccion->calle }}</p>
-                <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccion->punto_de_referencia }}</p>
+                <p><strong>Estado:</strong> {{ $incidencia->direccionIncidencia->estado->nombre }}</p>
+                <p><strong>Municipio:</strong> {{ $incidencia->direccionIncidencia->municipio->nombre }}</p>
+                <p><strong>Parroquia:</strong> {{ $incidencia->direccionIncidencia->parroquia->nombre }}</p>
+                <p><strong>Urbanización:</strong> {{ $incidencia->direccionIncidencia->urbanizacion->nombre }}</p>
+                <p><strong>Sector:</strong> {{ $incidencia->direccionIncidencia->sector->nombre }}</p>
+                <p><strong>Calle:</strong> {{ $incidencia->direccionIncidencia->calle }}</p>
+                <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccionIncidencia->punto_de_referencia }}</p>
             </div>
             @endif
 
@@ -217,12 +184,13 @@
             <div class="footer">
                 <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
             </div>
-        </div>
+       
 
         <div class="button-container">
-            <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-download">Descargar PDF</a>
-            <a href="{{ route('incidencias.index') }}" class="btn btn-back">Volver</a>
+            <a href="{{ route('incidencias.descargar', $incidencia->slug) }}" class="btn btn-success">Descargar PDF</a>
+            <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">Volver</a>
         </div>
     </main>
 
+    
 @endsection

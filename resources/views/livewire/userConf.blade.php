@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="table-container mt-4">
 
     <h2 class="text-center mb-3">Configuración de Cuenta</h2>
 

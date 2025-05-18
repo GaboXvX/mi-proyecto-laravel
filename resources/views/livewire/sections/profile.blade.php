@@ -14,7 +14,7 @@
     }
 </style>
 
-<div class="table-container">
+<div class="container">
     <!-- Mostrar datos del usuario -->
     <table class="profile-table table table-bordered">
                 <tr>

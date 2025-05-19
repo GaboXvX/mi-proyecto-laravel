@@ -179,7 +179,21 @@
                     <p><em>No hay estación asignada.</em></p>
                 @endif
             </div>
-
+            @if($incidencia->institucionesApoyo->isNotEmpty())
+<div class="details-section">
+    <h3>Instituciones de Apoyo:</h3>
+    <ul>
+        @foreach($incidencia->institucionesApoyo as $institucionApoyo)
+            <li>
+                <strong>Institución:</strong> {{ $institucionApoyo->institucion->nombre }}
+                @if($institucionApoyo->Estacion)
+                    <br><strong>Estación:</strong> {{ $institucionApoyo->Estacion->nombre }}
+                @endif
+            </li>
+        @endforeach
+    </ul>
+</div>
+@endif
             <div class="footer">
                 <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
             </div>

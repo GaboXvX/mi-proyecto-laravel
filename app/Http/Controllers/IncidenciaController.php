@@ -13,6 +13,7 @@ use App\Models\incidencia;
 use App\Models\incidencia_persona;
 use App\Models\IncidenciaGeneral;
 use App\Models\Institucion;
+use App\Models\institucionApoyo;
 use App\Models\InstitucionEstacion;
 use App\Models\lider_comunitario;
 use App\Models\movimiento;
@@ -100,10 +101,10 @@ class IncidenciaController extends Controller
         return view('incidencias.registrarIncidenciaGeneral', compact('instituciones', 'direcciones', 'estados', 'prioridades', 'tipos'));
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     try {
-        // Validar los datos del request
+        // Validar los datos del request incluyendo las instituciones de apoyo
         $request->validate([
             'id_persona' => 'nullable|exists:personas,id_persona',
             'calle' => 'required|string|max:255',
@@ -118,7 +119,32 @@ class IncidenciaController extends Controller
             'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
             'institucion' => 'required|exists:instituciones,id_institucion',
             'estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+            'instituciones_apoyo' => 'nullable|array',
+            'instituciones_apoyo.*' => 'exists:instituciones,id_institucion',
+            'estaciones_apoyo' => 'nullable|array',
+            'estaciones_apoyo.*' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
         ]);
+
+        $forceRegister = $request->boolean('force_register');
+        $duplicada = $this->esIncidenciaDuplicada($request);
+
+        if ($duplicada && !$forceRegister) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $duplicada->cod_incidencia,
+                'is_duplicate' => true,
+                'codigo_duplicado' => $duplicada->cod_incidencia,
+                'slug_duplicado' => $duplicada->slug,
+                'ver_url' => route('incidencias.ver', $duplicada->slug),
+                'duplicate_data' => [
+                    'codigo' => $duplicada->cod_incidencia,
+                    'descripcion' => $duplicada->descripcion,
+                    'fecha_creacion' => $duplicada->created_at->format('d/m/Y H:i'),
+                    'estado' => $duplicada->estadoIncidencia->nombre,
+                    'prioridad' => $duplicada->nivelIncidencia->nombre
+                ]
+            ], 422);
+        }
 
         // Buscar o crear la dirección
         $direccion = direccionIncidencia::firstOrCreate(
@@ -175,6 +201,23 @@ class IncidenciaController extends Controller
         $incidencia->fecha_vencimiento = $fechaVencimiento;
         $incidencia->save();
 
+        // Registrar instituciones de apoyo si existen
+        if ($request->has('instituciones_apoyo')) {
+            $institucionesApoyo = $request->input('instituciones_apoyo');
+            $estacionesApoyo = $request->input('estaciones_apoyo', []);
+
+            foreach ($institucionesApoyo as $index => $idInstitucion) {
+                $idEstacion = $estacionesApoyo[$index] ?? null;
+
+                institucionApoyo::create([
+                    'id_incidencia' => $incidencia->id_incidencia,
+                    'id_institucion' => $idInstitucion,
+                    'id_institucion_estacion' => $idEstacion,
+                    
+                ]);
+            }
+        }
+
         // Registrar movimiento inicial
         Movimiento::create([
             'id_incidencia' => $incidencia->id_incidencia,
@@ -202,12 +245,75 @@ class IncidenciaController extends Controller
         ], 500);
     }
 }
+// En IncidenciaController.php
+
+protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
+{
+    // Primero buscamos la dirección
+    $direccion = direccionIncidencia::where([
+        'calle' => $request->input('calle'),
+        'id_estado' => $request->input('estado'),
+        'id_municipio' => $request->input('municipio'),
+        'id_parroquia' => $request->input('parroquia'),
+        'id_urbanizacion' => $request->input('urbanizacion'),
+        'id_sector' => $request->input('sector'),
+        'id_comunidad' => $request->input('comunidad'),
+        'punto_de_referencia' => $request->input('punto_de_referencia'),
+    ])->first();
+
+    if (!$direccion) {
+        return null;
+    }
+
+    // Buscamos incidencias que coincidan y no estén atendidas
+    $query = Incidencia::with(['estadoIncidencia', 'institucionesApoyo'])
+        ->where([
+            'id_direccion_incidencia' => $direccion->id_direccion_incidencia,
+            'id_institucion' => $request->input('institucion'),
+            'id_institucion_estacion' => $request->input('estacion'),
+            'id_tipo_incidencia' => $request->input('tipo_incidencia'),
+            'id_nivel_incidencia' => $request->input('nivel_prioridad'),
+        ])
+        ->whereHas('estadoIncidencia', function($q) {
+            $q->where('nombre', '!=', 'Atendido')
+              ->where('nombre', '!=', 'Resuelto');
+        })
+        ->where('descripcion', 'like', '%' . $request->input('descripcion') . '%');
+
+    // Excluir la incidencia actual si se proporciona un ID
+    if ($excludeId) {
+        $query->where('id_incidencia', '!=', $excludeId);
+    }
+
+    $incidencia = $query->first();
+
+    // Si no hay instituciones de apoyo en la solicitud, retornamos lo encontrado
+    if (!$request->has('instituciones_apoyo') || empty($request->input('instituciones_apoyo'))) {
+        return $incidencia;
+    }
+
+    // Si hay instituciones de apoyo en la solicitud, verificamos coincidencias
+    if ($incidencia) {
+        $institucionesSolicitud = $request->input('instituciones_apoyo');
+        
+        $coincidencias = $incidencia->institucionesApoyo()
+            ->whereIn('id_institucion', $institucionesSolicitud)
+            ->count();
+        
+        if ($coincidencias > 0) {
+            return $incidencia;
+        }
+    }
+
+    return null;
+}
 
     public function descargar($slug)
     {
         try {
             // Buscar la incidencia
-            $incidencia = Incidencia::with(['persona', 'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia', 'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'institucion', 'institucionEstacion'])
+            $incidencia = Incidencia::with(['persona', 'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia', 'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'institucion', 'institucionEstacion','institucionesApoyo.institucion', 
+            'institucionesApoyo.Estacion', ])
                 ->where('slug', $slug)
                 ->first();
 
@@ -234,20 +340,22 @@ class IncidenciaController extends Controller
         try {
             // Buscar la incidencia con todas las relaciones necesarias
             $incidencia = Incidencia::with([
-                'persona',
-                'direccionIncidencia.estado',
-                'direccionIncidencia.municipio',
-                'direccionIncidencia.parroquia',
-                'direccionIncidencia.urbanizacion',
-                'direccionIncidencia.sector',
-                'direccionIncidencia.comunidad',
-                'institucion',
-                'institucionEstacion.municipio',
-                'nivelIncidencia',
-                'estadoIncidencia',
-                'usuario',
-                'tipoIncidencia'
-            ])->where('slug', $slug)->first();
+    'persona',
+    'direccionIncidencia.estado',
+    'direccionIncidencia.municipio',
+    'direccionIncidencia.parroquia',
+    'direccionIncidencia.urbanizacion',
+    'direccionIncidencia.sector',
+    'direccionIncidencia.comunidad',
+    'institucion',
+    'institucionEstacion.municipio',
+    'nivelIncidencia',
+    'estadoIncidencia',
+    'usuario',
+    'tipoIncidencia',
+    'institucionesApoyo.institucion',  // Cambiado de 'institucionApoyo' a 'institucionesApoyo'
+    'institucionesApoyo.estacion'     // Agregado para cargar la relación de estación
+])->where('slug', $slug)->first();
     
             if (!$incidencia) {
                 return redirect()->route('incidencias.index')
@@ -306,111 +414,232 @@ class IncidenciaController extends Controller
     }
 
 
-    public function update(Request $request, $slug)
-    {
-        try {
-            // Buscar la incidencia con relaciones necesarias
-            $incidencia = Incidencia::with(['nivelIncidencia', 'tipoIncidencia'])
-                ->where('slug', $slug)
-                ->first();
-    
-            if (!$incidencia) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Incidencia no encontrada.',
-                ], 404);
-            }
-    
-            // Validar los datos del request
-            $validatedData = $request->validate([
-                'id_persona' => 'nullable|exists:personas,id_persona',
-                'calle' => 'required|string|max:255',
-                'punto_de_referencia' => 'nullable|string|max:255',
-                'estado' => 'required|exists:estados,id_estado',
-                'municipio' => 'required|exists:municipios,id_municipio',
-                'parroquia' => 'required|exists:parroquias,id_parroquia',
-                'urbanizacion' => 'nullable|exists:urbanizaciones,id_urbanizacion',
-                'sector' => 'nullable|exists:sectores,id_sector',
-                'comunidad' => 'nullable|exists:comunidades,id_comunidad',
-                'descripcion' => 'required|string',
-                'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
-                'institucion' => 'required|exists:instituciones,id_institucion',
-                'estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
-            ]);
-    
-            // Solo generar nuevo slug si cambió la descripción
-            $nuevoSlug = $incidencia->slug;
-            if ($incidencia->descripcion !== $request->input('descripcion')) {
-                $nuevoSlug = Str::slug(Str::lower($request->input('descripcion')));
-                $originalSlug = $nuevoSlug;
-                $counter = 1;
-    
-                while (Incidencia::where('slug', $nuevoSlug)->where('id_incidencia', '!=', $incidencia->id_incidencia)->exists()) {
-                    $nuevoSlug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-            }
-    
-            // Obtener modelos relacionados
-            $nivel = NivelIncidencia::findOrFail($request->input('nivel_prioridad'));
-            $tipoIncidencia = tipoIncidencia::findOrFail($request->input('tipo_incidencia'));
-    
-            // Buscar o crear la dirección
-            $direccion = direccionIncidencia::firstOrCreate(
-            [
-                'calle' => $request->input('calle'),
-                'id_estado' => $request->input('estado'),
-                'id_municipio' => $request->input('municipio'),
-                'id_parroquia' => $request->input('parroquia'),
-                'id_urbanizacion' => $request->input('urbanizacion'),
-                'id_sector' => $request->input('sector'),
-                'id_comunidad' => $request->input('comunidad'),
-                'punto_de_referencia' => $request->input('punto_de_referencia'),
-            ]
-            );
-            $estadoIncidencia = estadoIncidencia::where('nombre', 'Pendiente')->first();
-            // Actualizar los datos de la incidencia
-            $datosActualizacion = [
-                'slug' => $nuevoSlug,
-                'id_persona' => $request->input('id_persona'),
-                'id_tipo_incidencia' => $tipoIncidencia->id_tipo_incidencia,
-                'descripcion' => Str::lower($request->input('descripcion')),
-                'id_nivel_incidencia' => $nivel->id_nivel_incidencia,
-                'id_direccion_incidencia' => $direccion->id_direccion_incidencia,
-                'id_institucion' => $request->input('institucion'),
-                'id_institucion_estacion' => $request->input('estacion'),
-                'id_estado_incidencia' => $estadoIncidencia->id_estado_incidencia,
-            ];
-    
-            // Actualizar fecha de vencimiento solo si cambió la prioridad
-            if ($incidencia->id_nivel_incidencia != $nivel->id_nivel_incidencia) {
-                $datosActualizacion['fecha_vencimiento'] = now()->addHours($nivel->horas_vencimiento);
-            }
-    
-            $incidencia->update($datosActualizacion);
-    
-            // Registrar movimiento
-            Movimiento::create([
-                'id_incidencia' => $incidencia->id_incidencia,
-                'id_usuario' => auth()->id(),
-                'descripcion' => 'Se actualizó una incidencia',
-                'fecha_movimiento' => now(),
-            ]);
-    
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Incidencia actualizada correctamente.',
-                'redirect_url' => route('incidencias.show', $nuevoSlug),
-            ]);
-    
-        } catch (\Exception $e) {
-            Log::error('Error al actualizar la incidencia:', ['error' => $e->getMessage()]);
+   public function update(Request $request, $slug)
+{
+    try {
+        // Buscar la incidencia con relaciones necesarias
+        $incidencia = Incidencia::with([
+            'nivelIncidencia', 
+            'tipoIncidencia', 
+            'institucionesApoyo',
+            'direccionIncidencia',
+            'estadoIncidencia'
+        ])->where('slug', $slug)->first();
+
+        if (!$incidencia) {
             return response()->json([
                 'success' => false,
-                'message' => '⚠️ Error al actualizar la incidencia: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'Incidencia no encontrada.',
+            ], 404);
         }
+
+        // Validar los datos del request
+        $validatedData = $request->validate([
+            'id_persona' => 'nullable|exists:personas,id_persona',
+            'calle' => 'required|string|max:255',
+            'punto_de_referencia' => 'nullable|string|max:255',
+            'estado' => 'required|exists:estados,id_estado',
+            'municipio' => 'required|exists:municipios,id_municipio',
+            'parroquia' => 'required|exists:parroquias,id_parroquia',
+            'urbanizacion' => 'nullable|exists:urbanizaciones,id_urbanizacion',
+            'sector' => 'nullable|exists:sectores,id_sector',
+            'comunidad' => 'nullable|exists:comunidades,id_comunidad',
+            'descripcion' => 'required|string',
+            'nivel_prioridad' => 'required|exists:niveles_incidencias,id_nivel_incidencia',
+            'institucion' => 'required|exists:instituciones,id_institucion',
+            'estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+            'tipo_incidencia' => 'required|exists:tipos_incidencias,id_tipo_incidencia',
+            'instituciones_apoyo' => 'nullable|array',
+            'instituciones_apoyo.*' => 'exists:instituciones,id_institucion',
+            'estaciones_apoyo' => 'nullable|array',
+            'estaciones_apoyo.*' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+        ]);
+
+        // Verificar si hay cambios relevantes que podrían crear un duplicado
+        $hayCambiosRelevantes = $this->hayCambiosRelevantes($incidencia, $request);
+        
+        if ($hayCambiosRelevantes) {
+            $forceRegister = $request->boolean('force_register');
+            $posibleDuplicado = $this->esIncidenciaDuplicada($request, $incidencia->id_incidencia);
+            
+            if ($posibleDuplicado && $posibleDuplicado->id_incidencia != $incidencia->id_incidencia && !$forceRegister) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $posibleDuplicado->cod_incidencia,
+                    'is_duplicate' => true,
+                    'codigo_duplicado' => $posibleDuplicado->cod_incidencia,
+                    'slug_duplicado' => $posibleDuplicado->slug,
+                    'ver_url' => route('incidencias.ver', $posibleDuplicado->slug),
+                    'duplicate_data' => [
+                        'codigo' => $posibleDuplicado->cod_incidencia,
+                        'descripcion' => $posibleDuplicado->descripcion,
+                        'fecha_creacion' => $posibleDuplicado->created_at->format('d/m/Y H:i'),
+                        'estado' => $posibleDuplicado->estadoIncidencia->nombre,
+                        'prioridad' => $posibleDuplicado->nivelIncidencia->nombre
+                    ]
+                ], 422);
+            }
+        }
+
+        // Solo generar nuevo slug si cambió la descripción
+        $nuevoSlug = $incidencia->slug;
+        if ($incidencia->descripcion !== $request->input('descripcion')) {
+            $nuevoSlug = Str::slug(Str::lower($request->input('descripcion')));
+            $originalSlug = $nuevoSlug;
+            $counter = 1;
+
+            while (Incidencia::where('slug', $nuevoSlug)->where('id_incidencia', '!=', $incidencia->id_incidencia)->exists()) {
+                $nuevoSlug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+        }
+
+        // Obtener modelos relacionados
+        $nivel = NivelIncidencia::findOrFail($request->input('nivel_prioridad'));
+        $tipoIncidencia = tipoIncidencia::findOrFail($request->input('tipo_incidencia'));
+
+        // Buscar o crear la dirección
+        $direccion = direccionIncidencia::firstOrCreate([
+            'calle' => $request->input('calle'),
+            'id_estado' => $request->input('estado'),
+            'id_municipio' => $request->input('municipio'),
+            'id_parroquia' => $request->input('parroquia'),
+            'id_urbanizacion' => $request->input('urbanizacion'),
+            'id_sector' => $request->input('sector'),
+            'id_comunidad' => $request->input('comunidad'),
+            'punto_de_referencia' => $request->input('punto_de_referencia'),
+        ]);
+
+        // Mantener el estado actual si no es pendiente
+        $estadoIncidencia = $incidencia->estadoIncidencia->nombre === 'Pendiente' 
+            ? estadoIncidencia::where('nombre', 'Pendiente')->first()
+            : $incidencia->estadoIncidencia;
+
+        // Actualizar los datos de la incidencia
+        $datosActualizacion = [
+            'slug' => $nuevoSlug,
+            'id_persona' => $request->input('id_persona'),
+            'id_tipo_incidencia' => $tipoIncidencia->id_tipo_incidencia,
+            'descripcion' => Str::lower($request->input('descripcion')),
+            'id_nivel_incidencia' => $nivel->id_nivel_incidencia,
+            'id_direccion_incidencia' => $direccion->id_direccion_incidencia,
+            'id_institucion' => $request->input('institucion'),
+            'id_institucion_estacion' => $request->input('estacion'),
+            'id_estado_incidencia' => $estadoIncidencia->id_estado_incidencia,
+        ];
+
+        // Actualizar fecha de vencimiento solo si cambió la prioridad
+        if ($incidencia->id_nivel_incidencia != $nivel->id_nivel_incidencia) {
+            $datosActualizacion['fecha_vencimiento'] = now()->addHours($nivel->horas_vencimiento);
+        }
+
+        // Iniciar transacción para asegurar integridad de datos
+        DB::beginTransaction();
+
+        // Actualizar la incidencia
+        $incidencia->update($datosActualizacion);
+
+        // Manejar instituciones de apoyo
+        $this->actualizarInstitucionesApoyo($incidencia, $request);
+
+        // Registrar movimiento
+        Movimiento::create([
+            'id_incidencia' => $incidencia->id_incidencia,
+            'id_usuario' => auth()->id(),
+            'descripcion' => 'Incidencia actualizada',
+            'fecha_movimiento' => now(),
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => '✅ Incidencia actualizada correctamente.',
+            'redirect_url' => route('incidencias.show', $nuevoSlug),
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al actualizar la incidencia:', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => '⚠️ Error al actualizar la incidencia: ' . $e->getMessage(),
+        ], 500);
     }
+}
+
+/**
+ * Verifica si hay cambios relevantes que podrían crear un duplicado
+ */
+protected function hayCambiosRelevantes(Incidencia $incidencia, Request $request): bool
+{
+    // Comparar campos principales
+    $camposPrincipales = [
+        'descripcion' => $incidencia->descripcion !== Str::lower($request->input('descripcion')),
+        'nivel_prioridad' => $incidencia->id_nivel_incidencia != $request->input('nivel_prioridad'),
+        'tipo_incidencia' => $incidencia->id_tipo_incidencia != $request->input('tipo_incidencia'),
+        'institucion' => $incidencia->id_institucion != $request->input('institucion'),
+        'estacion' => $incidencia->id_institucion_estacion != $request->input('estacion'),
+    ];
+
+    // Comparar datos de dirección
+    $direccion = $incidencia->direccionIncidencia;
+    $camposDireccion = [
+        'calle' => $direccion->calle !== $request->input('calle'),
+        'estado' => $direccion->id_estado != $request->input('estado'),
+        'municipio' => $direccion->id_municipio != $request->input('municipio'),
+        'parroquia' => $direccion->id_parroquia != $request->input('parroquia'),
+        'urbanizacion' => $direccion->id_urbanizacion != $request->input('urbanizacion'),
+        'sector' => $direccion->id_sector != $request->input('sector'),
+        'comunidad' => $direccion->id_comunidad != $request->input('comunidad'),
+        'punto_referencia' => $direccion->punto_de_referencia != $request->input('punto_de_referencia'),
+    ];
+
+    // Verificar cambios en instituciones de apoyo
+    $institucionesActuales = $incidencia->institucionesApoyo->pluck('id_institucion')->toArray();
+    $institucionesNuevas = $request->input('instituciones_apoyo', []);
+    
+    $cambioInstituciones = count(array_diff($institucionesActuales, $institucionesNuevas)) > 0 || 
+                         count(array_diff($institucionesNuevas, $institucionesActuales)) > 0;
+
+    // Si hay cambios en algún campo relevante
+    return in_array(true, $camposPrincipales, true) || 
+           in_array(true, $camposDireccion, true) || 
+           $cambioInstituciones;
+}
+
+protected function actualizarInstitucionesApoyo(Incidencia $incidencia, Request $request)
+{
+    try {
+        // Eliminar instituciones de apoyo existentes
+        institucionApoyo::where('id_incidencia', $incidencia->id_incidencia)->delete();
+
+        // Registrar nuevas instituciones de apoyo si existen
+        if ($request->has('instituciones_apoyo') && is_array($request->instituciones_apoyo)) {
+            $institucionesApoyo = $request->input('instituciones_apoyo');
+            $estacionesApoyo = $request->input('estaciones_apoyo', []);
+
+            foreach ($institucionesApoyo as $index => $idInstitucion) {
+                if (empty($idInstitucion)) continue;
+
+                $idEstacion = $estacionesApoyo[$index] ?? null;
+
+                institucionApoyo::create([
+                    'id_incidencia' => $incidencia->id_incidencia,
+                    'id_institucion' => $idInstitucion,
+                    'id_institucion_estacion' => $idEstacion,
+                ]);
+            }
+        }
+    } catch (\Exception $e) {
+        Log::error('Error al actualizar instituciones de apoyo', [
+            'error' => $e->getMessage(),
+            'incidencia_id' => $incidencia->id_incidencia,
+            'data' => $request->all()
+        ]);
+        throw $e; // Relanzar la excepción para que sea manejada por el método principal
+    }
+}
 
 
 public function atenderGuardar(Request $request, $slug)
@@ -719,45 +948,49 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 
 
     public function show($slug)
-    {
-        try {
-            // Buscar la incidencia con todas las relaciones necesarias
-            $incidencia = Incidencia::with([
-                'persona',
-                'usuario.empleadoAutorizado',
-                'nivelIncidencia',  // Relación con el nivel de prioridad
-                'estadoIncidencia',
-                'tipoIncidencia',
-            ])->where('slug', $slug)->first();
-    
-            if (!$incidencia) {
-                abort(404, 'Incidencia no encontrada');
-            }
-    
-            // Calcular tiempo restante (si la incidencia no está resuelta)
-            $tiempoRestante = null;
-            if (!$incidencia->estadoIncidencia->es_resuelto && $incidencia->fecha_vencimiento) {
-                $tiempoRestante = now()->diff($incidencia->fecha_vencimiento);
-            }
-    
-            // Si la incidencia está vinculada a una persona, cargar la información
-            $persona = $incidencia->id_persona ? $incidencia->persona : null;
-            
-            // Retornar la vista con todos los datos
-            return view('incidencias.incidencia', [
-                'incidencia' => $incidencia,
-                'persona' => $persona,
-                'tiempoRestante' => $tiempoRestante,
-                'nivel' => $incidencia->nivelIncidencia,  // Acceso directo al nivel
-                'estado' => $incidencia->estadoIncidencia,
-                'tipo' => $incidencia->tipoIncidencia,  // Acceso directo al tipo de incidencia
-                // Acceso directo al estado
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error en IncidenciaController@show: ' . $e->getMessage());
-            abort(500, 'Ocurrió un error al mostrar la incidencia');
+{
+    try {
+        // Buscar la incidencia con todas las relaciones necesarias
+        $incidencia = Incidencia::with([
+            'persona',
+            'usuario.empleadoAutorizado',
+            'nivelIncidencia',  // Relación con el nivel de prioridad
+            'estadoIncidencia',
+            'tipoIncidencia',
+            'institucionesApoyo.institucion', // Carga las instituciones de apoyo y su relación con Institucion
+            'institucionesApoyo.Estacion',    // Carga la relación con Estacion de cada institución de apoyo
+            'institucion',                   // Institución principal
+            'institucionEstacion',            // Estación principal
+            'direccionIncidencia.estado',     // Relaciones para la dirección
+            'direccionIncidencia.municipio',
+            'direccionIncidencia.parroquia',
+            'direccionIncidencia.urbanizacion',
+            'direccionIncidencia.sector'
+        ])->where('slug', $slug)->first();
+
+        if (!$incidencia) {
+            abort(404, 'Incidencia no encontrada');
         }
+
+        // Calcular tiempo restante (si la incidencia no está resuelta)
+        $tiempoRestante = null;
+        if (!$incidencia->estadoIncidencia->es_resuelto && $incidencia->fecha_vencimiento) {
+            $tiempoRestante = now()->diff($incidencia->fecha_vencimiento);
+        }
+
+        // Retornar la vista con todos los datos
+        return view('incidencias.incidencia', [
+            'incidencia' => $incidencia,
+            'tiempoRestante' => $tiempoRestante,
+            'nivel' => $incidencia->nivelIncidencia,
+            'estado' => $incidencia->estadoIncidencia,
+            'tipo' => $incidencia->tipoIncidencia,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error en IncidenciaController@show: ' . $e->getMessage());
+        abort(500, 'Ocurrió un error al mostrar la incidencia');
     }
+}
 
     public function ver($slug)
     {
@@ -769,6 +1002,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                 'nivelIncidencia',  // Relación con el nivel de prioridad
                 'estadoIncidencia',  // Relación con el estado actual
                 'tipoIncidencia',  // Relación con el tipo de incidencia
+                'institucionesApoyo.institucion', // Carga las instituciones de apoyo y su relación con Institucion
+                'institucionesApoyo.Estacion',    // Carga la relación con Estacion de cada institución de apoyo
             ])->where('slug', $slug)->first();
     
             if (!$incidencia) {
@@ -1097,7 +1332,9 @@ public function downloadPdf($id)
         'usuario.empleadoAutorizado',
         'movimiento.usuario.empleadoAutorizado',
         'reparacion.personalReparacion.institucion',
-        'reparacion.personalReparacion.InstitucionEstacion'
+        'reparacion.personalReparacion.InstitucionEstacion',
+        'institucionesApoyo.institucion',
+        'institucionesApoyo.Estacion',
     ])->findOrFail($id);
 
     // Obtener la institución propietaria (donde es_propietario = 1)

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PersonaController extends Controller
 {
@@ -323,6 +324,16 @@ class PersonaController extends Controller
         $existe = Persona::where('correo', $correo)->exists();
 
         return response()->json(['existe' => $existe]);
+    }
+
+    public function downloadPdf()
+    {
+        $personas = Persona::all(); // Ajusta la consulta según tus necesidades
+        
+        $pdf = Pdf::loadView('personas.listaPersonas_pdf', compact('personas'))
+                ->setPaper('a4', 'landscape'); // Opcional: 'portrait' para vertical
+        
+        return $pdf->download('lista_personas.pdf');
     }
 
 }

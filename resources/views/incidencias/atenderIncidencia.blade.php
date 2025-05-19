@@ -153,28 +153,40 @@ function buscarEmpleado() {
     empleadoInfo.classList.remove('d-none');
 
     fetch(`/personal-de-reparaciones/buscar/${cedula}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.encontrado) {
                 empleadoInfo.className = 'alert alert-success mt-3';
                 empleadoMensaje.textContent = `Empleado encontrado: ${data.nombre} ${data.apellido}. Puede ser asignado.`;
 
+                // Llenar los campos con los datos del empleado
                 document.getElementById('nombre').value = data.nombre;
                 document.getElementById('apellido').value = data.apellido;
                 document.getElementById('telefono').value = data.telefono || '';
-                document.getElementById('nacionalidad').value = data.nacionalidad;
+                
+                // Si viene la nacionalidad del backend, la establecemos
+                if (data.nacionalidad) {
+                    document.getElementById('nacionalidad').value = data.nacionalidad;
+                }
 
+                // Bloquear campos que vienen del sistema
                 document.getElementById('nombre').readOnly = true;
                 document.getElementById('apellido').readOnly = true;
             } else {
                 empleadoInfo.className = 'alert alert-warning mt-3';
                 empleadoMensaje.textContent = 'Personal no registrado. Puede proceder a registrarlo.';
 
+                // Limpiar campos (excepto cédula y nacionalidad)
                 document.getElementById('nombre').value = '';
                 document.getElementById('apellido').value = '';
                 document.getElementById('telefono').value = '';
-                document.getElementById('nacionalidad').value = '';
 
+                // Dejar campos editables
                 document.getElementById('nombre').readOnly = false;
                 document.getElementById('apellido').readOnly = false;
             }
@@ -182,7 +194,7 @@ function buscarEmpleado() {
         .catch(error => {
             empleadoInfo.className = 'alert alert-danger mt-3';
             empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
-            console.error(error);
+            console.error('Error:', error);
         });
 }
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\institucionController;
 use App\Http\Controllers\LiderController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\movimientoController;
+use App\Http\Controllers\nivelIncidenciaController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\personalController;
@@ -79,6 +80,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/persona/{slug}', 'show')->name('personas.show');
             Route::get('/personas/{slug}/incidencias', 'verIncidencias')->name('personas.incidencias');
             Route::get('/api/personas/{id}/direcciones', 'obtenerDirecciones');
+            Route::get('/personas/download-pdf', [PersonaController::class, 'downloadPdf'])->name('personas.download.pdf');
         });
         Route::resource('personas', PersonaController::class)->parameters(['personas' => 'slug'])->except(['create', 'store', 'destroy']);
 
@@ -92,6 +94,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/usuarios/{id_usuario}/asignar-permisos', 'asignarPermisosVista')->name('usuarios.asignarPermisos');
             Route::post('/usuarios/toggle-permiso-ajax', 'togglePermisoAjax')->name('usuarios.togglePermisoAjax');
             Route::post('/usuarios/cambiar/{id_usuario}', 'update')->name('usuarios.cambiar');
+            Route::get('/usuarios/download-pdf', [UserController::class, 'downloadUsuariosPdf'])->name('usuarios.download.pdf');
         });
         Route::resource('usuarios', UserController::class)->except(['create', 'store', 'update', 'destroy']);
         Route::get('/validar-usuario/{nombre_usuario}/{excluir?}', [UserController::class, 'validarUsuario']);
@@ -166,7 +169,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
             ->name('personal-reparacion.estaciones');
             Route::post('/validar-cedula', [PersonaController::class, 'validarCedula'])->name('validar.cedula');
-        
+        Route::get('/personal-de-reparaciones/buscar/{cedula}', [PersonalController::class, 'buscar']);
         // Instituciones
         Route::controller(institucionController::class)->prefix('instituciones')->group(function () {
             Route::get('/', 'index')->name('instituciones.index');
@@ -180,5 +183,10 @@ Route::post('/verificar-cedula', [PersonaController::class, 'verificarCedula'])-
 Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])->name('verificarCorreo');
 // En routes/web.php, dentro del grupo de rutas protegidas (auth)
 Route::get('/api/estaciones-por-institucion/{id}', [InstitucionController::class, 'getByInstitucion']); });
+Route::resource('niveles-incidencia', nivelIncidenciaController::class)    ->parameters(['niveles-incidencia' => 'nivelIncidencia'])
+->middleware('auth');
+Route::put('niveles-incidencia/{nivelIncidencia}/toggle-status', [NivelIncidenciaController::class, 'toggleStatus'])
+    ->name('niveles-incidencia.toggle-status')
+    ->middleware('auth');
 });
 Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])->name('graficos.incidencias.download');

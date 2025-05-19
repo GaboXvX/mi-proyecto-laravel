@@ -3,9 +3,9 @@
 
     <!-- Contenido -->
     <div class="table-container">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between mb-3">
             <h2>Lista de Empleados</h2>
-            <button class="btn btn-success">Descargar</button>
+            <button class="btn btn-success" onclick="window.location.href='{{ route('usuarios.download.pdf') }}'">Descargar</button>
         </div>
 
         @if (session('success'))

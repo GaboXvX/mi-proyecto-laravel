@@ -7,8 +7,6 @@ use Illuminate\Support\Str;
 
 class UsuarioController extends Controller
 {
-    // ...existing code...
-
     public function validarUsuario($nombre_usuario, Request $request)
     {
         $excluir = $request->query('excluir');
@@ -30,6 +28,4 @@ class UsuarioController extends Controller
             ->exists();
         return response()->json(['disponible' => !$existe]);
     }
-
-    // ...existing code...
 }

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Models\Permission as ModelsPermission;
 use Spatie\Permission\Models\Role;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -226,6 +227,16 @@ class UserController extends Controller
 
         // Devolver la vista con los movimientos
         return view('usuarios.movimientos', compact('usuario', 'movimientos'));
+    }
+
+    public function downloadUsuariosPdf()
+    {
+        $usuarios = User::with('empleadoAutorizado')->get();
+        
+        $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', compact('usuarios'))
+                   ->setPaper('a4', 'landscape');
+        
+        return $pdf->download('lista_de_empleados.pdf');
     }
     
 }

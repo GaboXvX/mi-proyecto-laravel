@@ -17,6 +17,7 @@ class ReparacionIncidencia extends Model
         'prueba_fotografica',
         'slug',
         'id_usuario',
+        'id_personal_reparacion',
     ];
 
     // Relación con incidencia_persona

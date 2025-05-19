@@ -76,7 +76,7 @@
             
             <!-- Botones -->
             <div class="d-flex justify-content-between">
-                <a href="{{ route('personal-reparacion.index') }}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                <a href="{{ route('personal-reparacion.index') }}" class="btn btn-secondary px-4">Cancelar</a>
                 <button type="submit" id="submitBtn" class="btn btn-primary px-4">
                     <span id="submitText">Guardar</span>
                     <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>

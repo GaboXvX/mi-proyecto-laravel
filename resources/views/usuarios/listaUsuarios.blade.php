@@ -3,7 +3,10 @@
 
     <!-- Contenido -->
     <div class="table-container">
-        <h2>Lista de Empleados</h2>
+        <div class="d-flex justify-content-between">
+            <h2>Lista de Empleados</h2>
+            <button class="btn btn-success">Descargar</button>
+        </div>
 
         @if (session('success'))
             <div class="alert alert-success">

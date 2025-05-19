@@ -105,9 +105,9 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="table-container">
         <div class="header">
-            <h1>Comprobante de Incidencia</h1>
+            <h2>Comprobante de Incidencia</h2>
             <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
         </div>
 

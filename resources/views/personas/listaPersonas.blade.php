@@ -60,6 +60,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="d-flex justify-content-center mt-4">
+                {{ $personas->links() }}
+            </div>
         @else
             <p class="alert alert-warning">No se encontró ninguna persona con esa cédula.</p>
         @endif
@@ -84,46 +87,55 @@
     });
 
     class BuscadorPersonas {
-        constructor(inputId, tbodyId, url, originalData) {
-            this.input = document.getElementById(inputId);
-            this.tbody = document.getElementById(tbodyId);
-            this.url = url;
-            this.originalData = originalData;
-            this.input.addEventListener('input', () => this.buscarPersonas());
-        }
+    constructor(inputId, tbodyId, url, originalData) {
+        this.input = document.getElementById(inputId);
+        this.tbody = document.getElementById(tbodyId);
+        this.url = url;
+        this.originalData = originalData;
+        this.currentPage = 1;
+        this.input.addEventListener('input', () => {
+            this.currentPage = 1; // Resetear a página 1 al buscar
+            this.buscarPersonas();
+        });
 
-        async buscarPersonas() {
-            const query = this.input.value.trim();
-            if (!query) {
-                this.mostrarResultados(this.originalData);
-                return;
+        // Delegación de eventos para los botones de paginación
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('page-link')) {
+                e.preventDefault();
+                this.currentPage = e.target.getAttribute('data-page');
+                this.buscarPersonas();
             }
+        });
+    }
 
-            try {
-                const response = await fetch(this.url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ query })
-                });
-                const personas = await response.json();
-                this.mostrarResultados(personas);
-            } catch (error) {
-                console.error('Error al buscar personas:', error);
-            }
+    async buscarPersonas() {
+        const query = this.input.value.trim();
+        try {
+            const response = await fetch(`${this.url}?page=${this.currentPage}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ query })
+            });
+            const { data, links } = await response.json();
+            this.mostrarResultados(data);
+            this.mostrarPaginacion(links);
+        } catch (error) {
+            console.error('Error:', error);
         }
+    }
 
-        mostrarResultados(personas) {
-            this.tbody.innerHTML = personas.map(persona => `
-                <tr>
-                    <td>${persona.nombre}</td>
-                    <td>${persona.apellido}</td>
-                    <td>${persona.cedula}</td>
-                    <td>${persona.correo}</td>
-                    <td>${persona.telefono}</td>
-                    <td>
+    mostrarResultados(personas) {
+        this.tbody.innerHTML = personas.map(persona => `
+            <tr>
+                <td>${persona.nombre}</td>
+                <td>${persona.apellido}</td>
+                <td>${persona.cedula}</td>
+                <td>${persona.correo}</td>
+                <td>${persona.telefono}</td>
+                <td>
                         <div class="btn-group gap-1">
                             <a href="/persona/${persona.slug}" class="btn btn-info btn-sm rounded-3"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
                                                 <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
@@ -134,10 +146,22 @@
                                                                                     </svg></a>
                             <a href="/persona/${persona.slug}/incidencias" class="btn btn-warning btn-sm rounded-3">Ver Incidencias</a>
                         </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
+                </td>
+            </tr>
+        `).join('');
     }
+
+    mostrarPaginacion(links) {
+        const paginationContainer = document.createElement('div');
+        paginationContainer.className = 'd-flex justify-content-center mt-4';
+        paginationContainer.innerHTML = links.map(link => `
+            <a href="#" class="page-link mx-1 ${link.active ? 'active' : ''}" data-page="${link.label}">${link.label}</a>
+        `).join('');
+        
+        // Reemplazar la paginación existente
+        const oldPagination = document.querySelector('.pagination');
+        if (oldPagination) oldPagination.replaceWith(paginationContainer);
+    }
+}
 </script>
 @endsection

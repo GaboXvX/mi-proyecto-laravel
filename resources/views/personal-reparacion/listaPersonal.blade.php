@@ -2,9 +2,11 @@
 
 @section('content')
 <div class="table-container">
-    <h2>Personal de Reparación</h2>
-    <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary mb-3">Nuevo Personal</a>
-    
+    <div class="d-flex justify-content-between">
+        <h2>Personal de Reparación</h2>
+        <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Nuevo</a>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>

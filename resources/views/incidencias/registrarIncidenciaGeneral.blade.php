@@ -57,7 +57,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end m-3">
+                <div class="d-flex justify-content-between m-3">
+                    <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">Cancelar</a>
                     <button type="button" class="btn btn-primary" id="next-to-step-2">
                         Siguiente <i class="bi bi-chevron-right ms-1"></i>
                     </button>

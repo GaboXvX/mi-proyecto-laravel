@@ -437,7 +437,9 @@ public function atenderGuardar(Request $request, $slug)
         // Subir la prueba fotográfica
         $rutaPrueba = $this->subirPruebaFotografica($request);
 
-        // Crear registro de reparación
+     
+        $personal=$this->registrarPersonalReparacion( $request,$institucion, $institucionEstacion,$incidencia);
+   // Crear registro de reparación
         ReparacionIncidencia::create([
             'id_incidencia' => $incidencia->id_incidencia,
             'id_usuario' => auth()->id(),
@@ -445,9 +447,8 @@ public function atenderGuardar(Request $request, $slug)
             'prueba_fotografica' => $rutaPrueba,
             'slug' => $slug,
             'id_usuario' => auth()->id(),
+            'id_personal_reparacion' => $personal->id_personal_reparacion ?? null,
         ]);
-        $this->registrarPersonalReparacion( $request,$institucion, $institucionEstacion,$incidencia);
-
         // Registrar al personal que realizó la reparación
 
         // Actualizar estado
@@ -527,13 +528,11 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'nacionalidad' => $request->input('nacionalidad'),
             'telefono' => $request->input('telefono'),
         ]);
+         return $personal;
     }
 
     // Ahora que tenemos a la persona (ya sea encontrada o creada), asignarla a la reparación
-    ReparacionIncidencia::where('id_incidencia', $incidencia->id_incidencia)
-        ->update([
-            'id_personal_reparacion' => $personal->id_personal_reparacion,
-        ]);
+  return $personal;
 }
 
 
@@ -1074,7 +1073,7 @@ protected function prepareChartData($incidenciasAtendidas, $totalesMensuales, $t
     {
         try {
             // Buscar la incidencia
-            $incidencia = Incidencia::with(['direccion', 'institucion', 'institucionEstacion'])
+            $incidencia = Incidencia::with(['direccionIncidencia', 'institucion', 'institucionEstacion'])
                 ->where('slug', $slug)
                 ->first();
 
@@ -1101,22 +1100,47 @@ public function downloadPdf($id)
         'reparacion.personalReparacion.InstitucionEstacion'
     ])->findOrFail($id);
 
-    // Cargar la institución para obtener el logo y encabezado HTML
-    $institucion = $incidencia->institucion;
+    // Obtener la institución propietaria (donde es_propietario = 1)
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
 
-    // Obtener el logo de la institución y convertirlo a base64
+    // Obtener el logo de la institución propietaria y convertirlo a base64
     $logoHtml = '';
-    if ($institucion && $institucion->logo_path) {
-        $logoPath = Storage::path('public/' . $institucion->logo_path);
+    if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+        $logoPath = Storage::path('public/' . $institucionPropietaria->logo_path);
         if (file_exists($logoPath)) {
             $logoData = base64_encode(file_get_contents($logoPath));
             $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
-            $logoHtml = '<img src="data:image/' . $extension . ';base64,' . $logoData . '" height="60" alt="Logo">';
+            $logoHtml = '<img src="data:image/' . $extension . ';base64,' . $logoData . '" style="height: 60px; margin-bottom: 10px;" alt="Logo">';
         }
     }
 
-    // Obtener el encabezado HTML de la institución (membrete)
-    $membrete = $institucion ? $institucion->encabezado_html : '';
+    // Obtener el encabezado HTML de la institución propietaria (membrete)
+    $membrete = $institucionPropietaria ? $institucionPropietaria->encabezado_html : '';
+
+    // Construir el membrete HTML completo
+    $membreteHtml = '<div style="text-align: center;">';
+    
+    // Logo de la institución propietaria
+    $membreteHtml .= $logoHtml;
+    
+    // Nombre de la institución propietaria
+    $membreteHtml .= '<div style="margin-bottom: 5px;">';
+    $membreteHtml .= '<strong>' . ($institucionPropietaria ? $institucionPropietaria->nombre : 'Sistema de Gestión de Incidencias') . '</strong>';
+    $membreteHtml .= '</div>';
+    
+    // Sistema y detalles adicionales
+    $membreteHtml .= '<div style="font-size: 12px; margin-bottom: 5px;">';
+    $membreteHtml .= 'Reporte de Incidencia';
+    $membreteHtml .= '</div>';
+    
+    // Membrete personalizado si existe
+    if ($membrete) {
+        $membreteHtml .= '<div style="font-size: 10px;">';
+        $membreteHtml .= $membrete;
+        $membreteHtml .= '</div>';
+    }
+    
+    $membreteHtml .= '</div>';
 
     // Imagen de prueba fotográfica (Base64)
     if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica) {
@@ -1127,16 +1151,6 @@ public function downloadPdf($id)
             $incidencia->reparacion->imageSrc = 'data:image/' . $extension . ';base64,' . $imageData;
         }
     }
-
-    // Membrete HTML con logo
-    $membreteHtml = '
-        <div style="text-align: center;">
-            '.$logoHtml.'<br>
-            <strong>Gobierno del Estado - Dirección de Infraestructura</strong><br>
-            Sistema de Gestión de Incidencias<br>
-            '.$membrete.'
-        </div>
-    ';
 
     // Pasar los datos a la vista del PDF
     return FacadePdf::loadView('incidencias.DetallesIncidencia', [
@@ -1150,7 +1164,108 @@ public function downloadPdf($id)
     ->download('incidencia_' . $incidencia->cod_incidencia . '.pdf');
 }
 
+public function downloadReport(Request $request)
+{
+    // Obtener los filtros del request
+    $filters = [
+        'start_date' => $request->input('start_date', now()->subMonth()->format('Y-m-d')),
+        'end_date' => $request->input('end_date', now()->format('Y-m-d')),
+        'tipo_incidencia_id' => $request->input('tipo_incidencia_id'),
+        'nivel_incidencia_id' => $request->input('nivel_incidencia_id'),
+        'institucion_id' => $request->input('institucion_id'),
+        'estacion_id' => $request->input('estacion_id')
+    ];
 
+    // Consulta base con los filtros aplicados
+    $query = Incidencia::query()
+        ->when($filters['start_date'] && $filters['end_date'], function($q) use ($filters) {
+            $q->whereBetween('created_at', [
+                Carbon::parse($filters['start_date'])->startOfDay(),
+                Carbon::parse($filters['end_date'])->endOfDay()
+            ]);
+        })
+        ->when($filters['tipo_incidencia_id'], function($q) use ($filters) {
+            $q->where('id_tipo_incidencia', $filters['tipo_incidencia_id']);
+        })
+        ->when($filters['nivel_incidencia_id'], function($q) use ($filters) {
+            $q->where('id_nivel_incidencia', $filters['nivel_incidencia_id']);
+        })
+        ->when($filters['institucion_id'], function($q) use ($filters) {
+            $q->where('id_institucion', $filters['institucion_id']);
+        })
+        ->when($filters['estacion_id'], function($q) use ($filters) {
+            $q->where('id_institucion_estacion', $filters['estacion_id']);
+        });
 
+    // Obtener el estado "Atendido" y "Pendiente"
+    $estadoAtendido = estadoIncidencia::where('nombre', 'Atendido')->first();
+    $estadoPendiente = estadoIncidencia::where('nombre', 'Pendiente')->first();
+
+    // Obtener la institución propietaria (MINAGUAS)
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+    
+    // Generar membrete HTML
+    $membreteHtml = '';
+    if ($institucionPropietaria) {
+        // Logo en base64 si existe
+        if ($institucionPropietaria->logo_path && Storage::exists('public/'.$institucionPropietaria->logo_path)) {
+            $logoPath = Storage::path('public/'.$institucionPropietaria->logo_path);
+            if (file_exists($logoPath)) {
+                $logoData = base64_encode(file_get_contents($logoPath));
+                $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+                $membreteHtml .= '<img src="data:image/'.$extension.';base64,'.$logoData.'" style="height: 60px; margin-bottom: 10px;"><br>';
+            }
+        }
+        
+        // Encabezado HTML
+        $membreteHtml .= '<div style="text-align: center;">';
+        $membreteHtml .= '<strong>'.$institucionPropietaria->nombre.'</strong><br>';
+        $membreteHtml .= '<strong>Sistema de Gestión de Incidencias</strong><br>';
+        $membreteHtml .= '<small>Reporte estadístico generado automáticamente</small>';
+        $membreteHtml .= '</div>';
+    } else {
+        $membreteHtml = '<div style="text-align: center;"><strong>Sistema de Gestión de Incidencias</strong><br>MINAGUAS</div>';
+    }
+
+    // Obtener los datos para el reporte
+    $data = [
+        'totalIncidencias' => $query->count(),
+        'incidenciasAtendidas' => $estadoAtendido ? $query->clone()->where('id_estado_incidencia', $estadoAtendido->id_estado_incidencia)->count() : 0,
+        'incidenciasPendientes' => $estadoPendiente ? $query->clone()->where('id_estado_incidencia', $estadoPendiente->id_estado_incidencia)->count() : 0,
+        'incidenciasPorVencer' => $query->clone()
+            ->where('id_estado_incidencia', $estadoPendiente->id_estado_incidencia ?? 0)
+            ->whereBetween('fecha_vencimiento', [now(), now()->addMinutes(5)])
+            ->count(),
+        'incidenciasPorEstado' => [
+            'labels' => estadoIncidencia::orderBy('id_estado_incidencia')->pluck('nombre'),
+            'values' => estadoIncidencia::orderBy('id_estado_incidencia')->get()->map(function($estado) use ($query) {
+                return $query->clone()->where('id_estado_incidencia', $estado->id_estado_incidencia)->count();
+            }),
+            'colors' => estadoIncidencia::orderBy('id_estado_incidencia')->pluck('color'),
+            'detalles' => []
+        ],
+        'incidenciasPorNivel' => [
+            'labels' => nivelIncidencia::orderBy('id_nivel_incidencia')->pluck('nombre'),
+            'values' => nivelIncidencia::orderBy('id_nivel_incidencia')->get()->map(function($nivel) use ($query) {
+                return $query->clone()->where('id_nivel_incidencia', $nivel->id_nivel_incidencia)->count();
+            }),
+            'colors' => nivelIncidencia::orderBy('id_nivel_incidencia')->pluck('color')
+        ],
+        'startDate' => $filters['start_date'],
+        'endDate' => $filters['end_date'],
+        'filters' => $filters,
+        'membrete' => $membreteHtml,
+        'institucionFiltrada' => Institucion::find($filters['institucion_id'])
+    ];
+
+    // Crear el PDF con opciones mejoradas
+    $pdf = FacadePdf::loadView('graficos.incidencias_pdf', $data)
+        ->setOption('isRemoteEnabled', true)
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('defaultFont', 'DejaVu Sans')
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
+}
 
 }

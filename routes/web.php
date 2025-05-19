@@ -160,14 +160,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
 
         // Otras rutas
-        Route::get('/personal-de-reparaciones/buscar/{cedula}', [personalController::class, 'buscar']);
-        Route::get('/categorias-personas', [CategoriaPersonaController::class, 'index'])->name('categorias-personas.index');
-        Route::get('/categorias-personas/create', [CategoriaPersonaController::class, 'create'])->name('categorias-personas.create');
-        Route::post('/categorias-personas', [CategoriaPersonaController::class, 'store'])->name('categorias-personas.store');
-        Route::get('/categorias-personas/{slug}/edit', [CategoriaPersonaController::class, 'edit'])->name('categorias-personas.edit');
-        Route::post('/categorias-personas/{slug}/update', [CategoriaPersonaController::class, 'update'])->name('categorias-personas.update');
-        Route::get('/categorias-personas/{id}/personas', [CategoriaPersonaController::class, 'personasPorCategoria'])->name('categorias-personas.personas');
-        Route::get('/categorias-personas/{id}/personas-count', [CategoriaPersonaController::class, 'getPersonasCount']);
+       
         Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
@@ -188,3 +181,4 @@ Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])-
 // En routes/web.php, dentro del grupo de rutas protegidas (auth)
 Route::get('/api/estaciones-por-institucion/{id}', [InstitucionController::class, 'getByInstitucion']); });
 });
+Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])->name('graficos.incidencias.download');

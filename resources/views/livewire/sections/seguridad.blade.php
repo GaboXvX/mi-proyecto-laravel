@@ -77,7 +77,7 @@
                 </div>
                     
                 <div class="d-flex justify-content-center mt-3">
-                    <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>
+                    <button type="submit" class="btn btn-success px-4" id="submitButton">
                         <i class="bi bi-save me-2"></i>
                         Guardar Cambios
                     </button>

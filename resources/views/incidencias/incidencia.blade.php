@@ -7,8 +7,8 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 30px;
-            background-color: #fff;
-            border: 1px solid #ddd;
+            background-color: light-dark(#fff, #1e293b);
+            border: none;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -18,9 +18,9 @@
             margin-bottom: 30px;
         }
 
-        .header h1 {
+        .header h2 {
             font-size: 32px;
-            color: #003366;
+            color: light-dark(#204a77, #f0f5fd);
             margin-bottom: 5px;
         }
 
@@ -40,7 +40,7 @@
         .details-section h3 {
             font-size: 18px;
             margin-bottom: 12px;
-            color: #003366;
+            color: light-dark(#204a77, #f0f5fd);
             border-bottom: 2px solid #003366;
             padding-bottom: 8px;
         }
@@ -86,7 +86,6 @@
             font-weight: bold;
             padding: 5px 10px;
             border-radius: 4px;
-            background-color: #f8f9fa;
             border: 1px solid #dee2e6;
         }
 
@@ -108,7 +107,7 @@
     </style>
    
             <div class="header">
-                <h1>Comprobante de Incidencia</h1>
+                <h2>Comprobante de Incidencia</h2>
                 <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
             </div>
 

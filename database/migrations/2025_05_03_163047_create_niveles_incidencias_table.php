@@ -22,7 +22,6 @@ return new class extends Migration {
             // Ej: Nivel 1-3 = 72h, Nivel 4-5 = 168h (7 días)
             
             // Frecuencia de recordatorios (en horas)
-            $table->integer('frecuencia_recordatorio')->unsigned()->default(24); // Recordar cada 24h
             
             // Configuración de colores y estado
             $table->string('color', 7)->default('#FF0000'); // Rojo por defecto

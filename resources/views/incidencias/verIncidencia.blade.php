@@ -177,6 +177,9 @@
                                 <div class="address-item"><span class="address-label">Comunidad:</span> <span
                                         class="address-value">{{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</span>
                                 </div>
+                                     <div class="address-item"><span class="address-label">Calle:</span> <span
+                                        class="address-value">{{ $incidencia->direccionIncidencia->calle ?? 'N/A' }}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-3">
@@ -186,7 +189,36 @@
                         </div>
                     </div>
                 </div>
-
+<!-- Instituciones de Apoyo -->
+@if($incidencia->institucionesApoyo && $incidencia->institucionesApoyo->count() > 0)
+<div class="bg-section">
+    <h4 class="section-title"><i class="fas fa-hands-helping me-2"></i> Instituciones de Apoyo</h4>
+    <div class="row">
+        @foreach($incidencia->institucionesApoyo as $apoyo)
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
+                    @if($apoyo->Estacion)
+                    <p class="card-text">
+                        <span class="label-bold">Estación:</span> 
+                        {{ $apoyo->Estacion->nombre }}
+                    </p>
+                    @endif
+                    @if($apoyo->institucion && $apoyo->institucion->municipio)
+                    <p class="card-text">
+                        <span class="label-bold">Ubicación:</span> 
+                        {{ $apoyo->institucion->municipio->nombre }}, 
+                        {{ $apoyo->institucion->estado->nombre }}
+                    </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
                 <!-- Descripción -->
                 <div class="bg-section">
                     <h4 class="section-title"><i class="fas fa-align-left me-2"></i> Descripción</h4>

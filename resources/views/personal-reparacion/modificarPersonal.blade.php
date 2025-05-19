@@ -24,7 +24,7 @@
             </div>
             
             <div class="form-group mb-2">
-                <label for="id_institucion_estacion">Estación (Opcional)</label>
+                <label for="id_institucion_estacion">Estación</label>
                 <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm">
                     <option value="">Seleccione una estación</option>
                     @foreach($estaciones as $estacion)

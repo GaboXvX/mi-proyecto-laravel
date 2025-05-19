@@ -123,4 +123,8 @@ public function reparacion()
 {
     return $this->hasOne(ReparacionIncidencia::class, 'id_incidencia', 'id_incidencia');
 }
+public function institucionesApoyo()
+{
+    return $this->hasMany(InstitucionApoyo::class, 'id_incidencia');
+}
 }

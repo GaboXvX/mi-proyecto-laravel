@@ -89,6 +89,13 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{route('niveles-incidencia.index')}}" class=" sidebar-link {{ Route::is('niveles-incidencia.index') ? 'active' : '' }}">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Niveles de Incidencia
+                            </a>
+                            
+                        </li>
+                        <li>
                             <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-diamond"></i>
                                 Personal Reparación

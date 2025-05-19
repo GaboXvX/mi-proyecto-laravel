@@ -29,7 +29,6 @@
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Vencimiento (horas)</th>
-                    <th>Recordatorio (horas)</th>
                     <th>Color</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -42,7 +41,6 @@
                     <td>{{ $nivel->nombre }}</td>
                     <td>{{ $nivel->descripcion }}</td>
                     <td>{{ $nivel->horas_vencimiento }}</td>
-                    <td>{{ $nivel->frecuencia_recordatorio }}</td>
                     <td>
                         <span class="badge" style="background-color: {{ $nivel->color }}; color: white;">
                             {{ $nivel->color }}

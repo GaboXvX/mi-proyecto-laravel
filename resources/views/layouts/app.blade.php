@@ -90,13 +90,13 @@
                         </li>
                         <li>
                             <a href="{{route('niveles-incidencia.index')}}" class=" sidebar-link {{ Route::is('niveles-incidencia.index') ? 'active' : '' }}">
-                                <i class="bi bi-exclamation-triangle"></i>
+<i class="bi bi-stack "></i> <!-- Pilas -->
                                 Niveles de Incidencia
                             </a>
                             
                         </li>
                         <li>
-                            <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('categorias-incidencias.index') ? 'active' : '' }}">
+                            <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('personal-reparacion.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-diamond"></i>
                                 Personal Reparación
                             </a>

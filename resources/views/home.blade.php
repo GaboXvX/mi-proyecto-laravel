@@ -30,19 +30,7 @@
             </a>
         </div>
 
-        <div class="table-container mt-4">
-            <div class="item" style="width: 100%;">
-                <div class="d-flex justify-content-between align-items-center w-100 mb-3">
-                    <h5 class="mb-0">Evolución Temporal</h5>
-                    <a href="{{ route('graficos.incidencias') }}" class="btn btn-sm btn-outline-primary">
-                        Ver Gráficos Detallados 
-                    </a>
-                </div>
-                <div style="width: 100%; height: 300px;">
-                    <canvas id="temporalChart" height="120"></canvas>
-                </div>
-            </div>
-        </div>
+        
     </main>
 
     <script>

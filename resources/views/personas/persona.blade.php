@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-    <div class="container mt-5">
+    <div class="table-container mt-5">
         @if (session('success'))
             <div class="alert alert-success mb-3">
                 {{ session('success') }}
@@ -174,14 +174,14 @@
 
                             <input type="hidden" id="domicilio_id" name="domicilio_id">
 
-<livewire:dropdown-persona 
-    :estadoId="$domicilio->id_estado ?? null"
-    :municipioId="$domicilio->id_municipio ?? null"
-    :parroquiaId="$domicilio->id_parroquia ?? null"
-    :urbanizacionId="$domicilio->id_urbanizacion ?? null"
-    :sectorId="$domicilio->id_sector ?? null"
-    :comunidadId="$domicilio->id_comunidad ?? null"
-/>
+                            <livewire:dropdown-persona 
+                                :estadoId="$domicilio->id_estado ?? null"
+                                :municipioId="$domicilio->id_municipio ?? null"
+                                :parroquiaId="$domicilio->id_parroquia ?? null"
+                                :urbanizacionId="$domicilio->id_urbanizacion ?? null"
+                                :sectorId="$domicilio->id_sector ?? null"
+                                :comunidadId="$domicilio->id_comunidad ?? null"
+                            />
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="calle" class="form-label">Calle:</label>

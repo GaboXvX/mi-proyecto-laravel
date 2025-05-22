@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="table-container shadow" style="width: 100%; max-width: 600px; font-size: 0.85rem;">
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="table-container shadow" style="width: 100%; max-width: 600px;">
         <h2 class="text-center mb-4">Registrar Persona</h2>
 
         <div class="card-body px-4">

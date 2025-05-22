@@ -10,7 +10,9 @@
                     <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
                 </svg>
             </a>
-            <button class="btn btn-success" onclick="window.location.href='{{ route('personas.download.pdf') }}'">Descargar</button>
+            <button class="btn btn-success" onclick="window.location.href='{{ route('personas.download.pdf') }}'">
+            <i class="bi bi-file-earmark-arrow-down"></i> Descargar
+            </button>
         </div>
     </div>
 

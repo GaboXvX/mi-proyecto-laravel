@@ -177,7 +177,7 @@
                                 <div class="address-item"><span class="address-label">Comunidad:</span> <span
                                         class="address-value">{{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</span>
                                 </div>
-                                     <div class="address-item"><span class="address-label">Calle:</span> <span
+                                <div class="address-item"><span class="address-label">Calle:</span> <span
                                         class="address-value">{{ $incidencia->direccionIncidencia->calle ?? 'N/A' }}</span>
                                 </div>
                             </div>
@@ -189,36 +189,37 @@
                         </div>
                     </div>
                 </div>
-<!-- Instituciones de Apoyo -->
-@if($incidencia->institucionesApoyo && $incidencia->institucionesApoyo->count() > 0)
-<div class="bg-section">
-    <h4 class="section-title"><i class="fas fa-hands-helping me-2"></i> Instituciones de Apoyo</h4>
-    <div class="row">
-        @foreach($incidencia->institucionesApoyo as $apoyo)
-        <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
-                    @if($apoyo->Estacion)
-                    <p class="card-text">
-                        <span class="label-bold">Estación:</span> 
-                        {{ $apoyo->Estacion->nombre }}
-                    </p>
-                    @endif
-                    @if($apoyo->institucion && $apoyo->institucion->municipio)
-                    <p class="card-text">
-                        <span class="label-bold">Ubicación:</span> 
-                        {{ $apoyo->institucion->municipio->nombre }}, 
-                        {{ $apoyo->institucion->estado->nombre }}
-                    </p>
-                    @endif
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endif
+                <!-- Instituciones de Apoyo -->
+                @if ($incidencia->institucionesApoyo && $incidencia->institucionesApoyo->count() > 0)
+                    <div class="bg-section">
+                        <h4 class="section-title"><i class="fas fa-hands-helping me-2"></i> Instituciones de Apoyo</h4>
+                        <div class="row">
+                            @foreach ($incidencia->institucionesApoyo as $apoyo)
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                {{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
+                                            @if ($apoyo->Estacion)
+                                                <p class="card-text">
+                                                    <span class="label-bold">Estación:</span>
+                                                    {{ $apoyo->Estacion->nombre }}
+                                                </p>
+                                            @endif
+                                            @if ($apoyo->institucion && $apoyo->institucion->municipio)
+                                                <p class="card-text">
+                                                    <span class="label-bold">Ubicación:</span>
+                                                    {{ $apoyo->institucion->municipio->nombre }},
+                                                    {{ $apoyo->institucion->estado->nombre }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
                 <!-- Descripción -->
                 <div class="bg-section">
                     <h4 class="section-title"><i class="fas fa-align-left me-2"></i> Descripción</h4>
@@ -271,7 +272,10 @@
                 </div>
 
                 <!-- Reparación (si atendida) -->
-                @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) == 'atendido' && $reparacion)
+                @if (isset($reparacion) &&
+                        $incidencia->estadoIncidencia &&
+                        strtolower($incidencia->estadoIncidencia->nombre) == 'atendido' &&
+                        $reparacion)
                     <div class="bg-section">
                         <h4 class="section-title"><i class="fas fa-tools me-2"></i> Detalles de la Reparación</h4>
                         <div class="row">
@@ -302,20 +306,29 @@
                             </div>
                         </div>
 
-                        <!-- Imagen -->
+                        <!-- Imágenes de la reparación -->
                         <div class="mt-3">
-                            <h5><i class="fas fa-camera"></i> Prueba Fotográfica</h5>
-                            @if ($reparacion->prueba_fotografica)
-                                <div class="text-center">
-                                    <img src="{{ asset('storage/' . $reparacion->prueba_fotografica) }}"
-                                        alt="Prueba fotográfica de la reparación" class="img-fluid rounded shadow"
-                                        style="max-height: 400px;">
-                                    <p class="mt-2"><small class="text-muted">Evidencia de la reparación realizada</small>
-                                    </p>
-                                </div>
-                            @else
-                                <p class="text-muted"><em>No hay imagen adjunta</em></p>
-                            @endif
+                            <h5><i class="fas fa-camera"></i> Pruebas Fotográficas de la Reparación</h5>
+                            <div class="row">
+                                @php
+                                    $fotosDespues = $reparacion->pruebasFotograficas ? $reparacion->pruebasFotograficas : collect();
+                                @endphp
+                                @forelse($fotosDespues as $foto)
+                                    @if(isset($foto->ruta))
+                                        <div class="col-md-4 mb-3">
+                                            <img src="{{ asset('storage/' . $foto->ruta) }}" class="img-fluid rounded shadow"
+                                                alt="Prueba fotográfica" style="max-height: 250px;">
+                                            @if($foto->observacion)
+                                                <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @empty
+                                    <div class="col-12">
+                                        <p class="text-muted"><em>No hay imágenes adjuntas</em></p>
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 @else
@@ -323,6 +336,33 @@
                         <i class="fas fa-exclamation-triangle"></i> Esta incidencia aún no ha sido atendida.
                     </div>
                 @endif
+
+                <!-- Imágenes de la incidencia (Antes) -->
+                <div class="bg-section">
+                    <h4 class="section-title"><i class="fas fa-camera me-2"></i> Imágenes de la Incidencia (Antes)</h4>
+                    <div class="row">
+                        @php
+                            $fotosAntes = $incidencia->pruebasFotograficas ? $incidencia->pruebasFotograficas : collect();
+                        @endphp
+                        @forelse($fotosAntes as $foto)
+                            @if($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
+                                <div class="col-md-4 mb-3">
+                                    <img src="{{ asset('storage/' . $foto->ruta) }}"
+                                         class="img-fluid rounded shadow"
+                                         alt="Imagen incidencia"
+                                         style="max-height: 250px;">
+                                    @if($foto->observacion)
+                                        <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
+                                    @endif
+                                </div>
+                            @endif
+                        @empty
+                            <div class="col-12">
+                                <p class="text-muted"><em>No hay imágenes adjuntas</em></p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
 
                 <!-- Historial -->
                 @if ($incidencia->movimiento && $incidencia->movimiento->count() > 0)
@@ -354,19 +394,19 @@
 
             </div>
 
-           <div class="card-footer d-flex justify-content-between">
-    <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Volver a la lista
-    </a>
-    <a href="{{ route('incidencias.download', $incidencia->id_incidencia) }}" class="btn btn-primary">
-        <i class="fas fa-file-pdf"></i> Descargar PDF
-    </a>
-    @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) != 'atendido')
-        <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-primary">
-            <i class="fas fa-tools"></i> Atender Incidencia
-        </a>
-    @endif
-</div>
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a la lista
+                </a>
+                <a href="{{ route('incidencias.download', $incidencia->id_incidencia) }}" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Descargar PDF
+                </a>
+                @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) != 'atendido')
+                    <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-primary">
+                        <i class="fas fa-tools"></i> Atender Incidencia
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 @endsection

@@ -16,15 +16,13 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario'); // Relación con el usuario
             $table->unsignedBigInteger('id_incidencia'); 
             $table->unsignedBigInteger('id_personal_reparacion'); // Relación con el personal de reparación
+               // Relación con la prueba fotográfica
             $table->string('slug')->unique(); // Slug único para la reparación
             $table->text('descripcion',350); // Descripción de la reparación
-            $table->string('prueba_fotografica'); // Ruta de la prueba fotográfica
             $table->timestamps(); // Timestamps para created_at y updated_at
 
             // Clave foránea
-            $table->foreign('id_incidencia')->references('id_incidencia')->on('incidencias')->onDelete('cascade');
-            $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');
-            $table->foreign('id_personal_reparacion')->references('id_personal_reparacion')->on('personal_reparaciones')->onDelete('cascade');
+           
         });
     }
 

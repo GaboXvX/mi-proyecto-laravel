@@ -6,7 +6,7 @@
 
     <div id="alert-container"></div>
     
-    <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST">
+    <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <meta name="csrf-token" content="{{ csrf_token() }}">
                 <input type="hidden" name="id_persona" value="{{ $persona->id_persona }}" />
@@ -187,6 +187,15 @@
                             @endforeach
                           
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imágenes de la incidencia (máx. 3, opcional):</label>
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control mb-1">
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control mb-1">
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control">
+                        <!-- Si quieres que al menos una imagen sea obligatoria, agrega required al primero -->
+                        <!-- <input type="file" name="pruebas_fotograficas[]" required ... > -->
                     </div>
                 </div>
 

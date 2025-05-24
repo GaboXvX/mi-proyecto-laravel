@@ -86,9 +86,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="prueba_fotografica" class="form-label small">Prueba fotográfica <span class="text-danger">*</span></label>
-                        <input type="file" name="prueba_fotografica" id="prueba_fotografica" class="form-control form-control-sm py-2" accept=".jpg,.jpeg,.png" required>
-                        <small class="form-text text-muted small">Formatos permitidos: JPG, JPEG, PNG. Máx: 2MB.</small>
+                        <label class="form-label small">Pruebas fotográficas <span class="text-danger">*</span></label>
+                        <input type="file" name="pruebas_fotograficas[]" class="form-control form-control-sm py-2" accept=".jpg,.jpeg,.png" required>
+                        <input type="file" name="pruebas_fotograficas[]" class="form-control form-control-sm py-2 mt-1" accept=".jpg,.jpeg,.png">
+                        <input type="file" name="pruebas_fotograficas[]" class="form-control form-control-sm py-2 mt-1" accept=".jpg,.jpeg,.png">
+                        <small class="form-text text-muted small">Puedes subir hasta 3 fotos. La primera es obligatoria. Máx: 2MB cada una.</small>
                     </div>
 
                     <div class="d-flex justify-content-between">

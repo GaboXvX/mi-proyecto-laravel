@@ -194,29 +194,41 @@
         @endif
     </div>
 
-    <!-- Reparación -->
-    @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) == 'atendido' && $reparacion)
-        <div class="section">
-            <div class="section-title">Detalles de la Reparación</div>
-            <p><span class="label-bold">Fecha de atención:</span> {{ $reparacion->created_at->format('d/m/Y H:i:s') }}</p>
-            <div class="box">{{ $reparacion->descripcion }}</div>
-
-            <p><span class="label-bold">Técnico:</span> {{ $reparacion->personalReparacion->nombre ?? '' }} {{ $reparacion->personalReparacion->apellido ?? '' }}</p>
-            <p><span class="label-bold">Institución:</span> {{ $reparacion->personalReparacion->institucion->nombre ?? 'N/A' }}</p>
-            <p><span class="label-bold">Estación:</span> {{ $reparacion->personalReparacion->InstitucionEstacion->nombre ?? 'N/A' }}</p>
-
-            @if ($reparacion->prueba_fotografica)
-                <div class="mt-3">
-                    <p><strong>Prueba Fotográfica:</strong></p>
-                    @if(isset($reparacion->imageSrc))
-                        <img src="{{ $reparacion->imageSrc }}" style="max-width: 100%; max-height: 300px;">
-                    @else
-                        <p>Ruta: {{ $reparacion->prueba_fotografica }}</p>
-                    @endif
+    <div class="mt-3">
+    <h5><i class="fas fa-camera"></i> Pruebas Fotográficas</h5>
+    <div class="row">
+        @if($reparacion->pruebasFotograficas->isNotEmpty())
+            @foreach($reparacion->pruebasFotograficas as $foto)
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        <img src="{{ asset('storage/'.$foto->ruta) }}" 
+                             class="card-img-top img-fluid" 
+                             alt="Prueba fotográfica"
+                             style="max-height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ $foto->observacion ?? 'Sin descripción' }}
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ $foto->created_at->format('d/m/Y H:i') }}
+                                </small>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            @endif
-        </div>
-    @endif
+            @endforeach
+        @else
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No se encontraron pruebas fotográficas asociadas a esta reparación.
+                </div>
+            </div>
+        @endif
+    </div>
+</div>
 
     <!-- Historial -->
     @if ($incidencia->movimiento && $incidencia->movimiento->count() > 0)

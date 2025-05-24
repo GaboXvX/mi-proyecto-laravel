@@ -26,6 +26,7 @@ class incidencia extends Model
         'id_institucion_estacion',
         'id_estado_incidencia',
         'id_nivel_incidencia',
+        'id_prueba_fotografica',
         'cod_incidencia',
         'fecha_vencimiento',
         'ultimo_recordatorio',
@@ -127,4 +128,15 @@ public function institucionesApoyo()
 {
     return $this->hasMany(InstitucionApoyo::class, 'id_incidencia');
 }
+    /**
+     * Relación con el modelo PruebaFotografica.
+     */
+    public function pruebasFotograficas()
+    {
+        return $this->hasMany(PruebaFotografica::class, 'id_incidencia');
+    }
+    /**
+     * Relación con el modelo InstitucionEstacion.
+     */
+    
 }

@@ -6,7 +6,7 @@
 
     <div id="alert-container"></div>
 
-    <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST">
+    <form id="form-editar-incidencia" action="{{ route('incidencias.update', $incidencia->slug) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <input type="hidden" name="id_persona" id="id_persona" value="{{ $incidencia->id_persona }}">
@@ -148,7 +148,6 @@
                         <div class="mb-3">
                             <h6>Instituciones de Apoyo:</h6>
                             <div id="lista-apoyo" class="list-group">
-                                <!-- Instituciones existentes (no se pueden eliminar) -->
                                 @foreach($incidencia->institucionesApoyo as $apoyo)
                                     <div class="list-group-item d-flex justify-content-between align-items-center" 
                                          data-institucion-id="{{ $apoyo->id_institucion }}" 
@@ -157,8 +156,8 @@
                                         <div>
                                             <strong>{{ $apoyo->institucion->nombre }}</strong> - 
                                             {{ $apoyo->estacion ? $apoyo->estacion->nombre.' ('.$apoyo->estacion->municipio->nombre.')' : 'Todas las estaciones' }}
+                                            <span class="badge bg-success ms-2">Asignada</span>
                                         </div>
-                                        <span class="badge bg-secondary">Existente</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -219,6 +218,35 @@
                 
                             @endforeach
                         </select>
+                    </div>
+
+                    <!-- NUEVO: Imágenes actuales y carga de nuevas imágenes -->
+                    <div class="mb-3">
+                        <label class="form-label">Imágenes actuales (máx. 3):</label>
+                        <div class="row">
+                            @if(isset($imagenesAntes) && $imagenesAntes->count())
+                                @foreach($imagenesAntes as $img)
+                                    <div class="col-md-4 mb-2 text-center">
+                                        <img src="{{ asset('storage/' . $img->ruta) }}" alt="Imagen" class="img-fluid rounded border mb-1" style="max-height: 150px;">
+                                        <div>
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-reemplazar-imagen" data-img-id="{{ $img->id_prueba_fotografica }}">Reemplazar</button>
+                                        </div>
+                                        <input type="file" name="reemplazo_imagen[{{ $img->id_prueba_fotografica }}]" accept="image/jpeg,image/png,image/jpg" class="form-control mt-1 d-none input-reemplazo-imagen" data-img-id="{{ $img->id_prueba_fotografica }}">
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="col-12 text-muted">No hay imágenes cargadas.</div>
+                            @endif
+                        </div>
+                        <small class="text-muted">Puedes reemplazar una imagen existente haciendo clic en "Reemplazar".</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Agregar nuevas imágenes (máx. 3 en total):</label>
+                        @php $faltan = 3 - (isset($imagenesAntes) ? $imagenesAntes->count() : 0); @endphp
+                        @for($i = 0; $i < $faltan; $i++)
+                            <input type="file" name="pruebasAntes[]" accept="image/jpeg,image/png,image/jpg" class="form-control mb-1">
+                        @endfor
+                        <small class="text-muted">Puedes subir nuevas imágenes si el total no supera 3.</small>
                     </div>
                 </div>
 
@@ -285,7 +313,10 @@
     const institucionApoyoSelect = document.getElementById('institucion_apoyo');
     const estacionApoyoSelect = document.getElementById('estacion_apoyo');
     
-    // Función para cargar estaciones de apoyo
+    // Obtener la estación principal seleccionada
+    let estacionPrincipalId = document.getElementById('estacion').value;
+
+    // Función para cargar estaciones de apoyo excluyendo la principal
     function cargarEstacionesApoyo(institucionId) {
         if (!institucionId) {
             estacionApoyoSelect.innerHTML = '<option value="">Primero seleccione una institución</option>';
@@ -310,9 +341,12 @@
 
                 if (success && data.length > 0) {
                     data.forEach(estacion => {
-                        const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
-                        const option = new Option(nombre, estacion.id);
-                        estacionApoyoSelect.add(option);
+                        // Excluir la estación principal
+                        if (estacion.id != estacionPrincipalId) {
+                            const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
+                            const option = new Option(nombre, estacion.id);
+                            estacionApoyoSelect.add(option);
+                        }
                     });
                     estacionApoyoSelect.disabled = false;
                 } else {
@@ -324,6 +358,15 @@
                 estacionApoyoSelect.innerHTML = '<option value="">Error al cargar estaciones</option>';
             });
     }
+
+    // Actualizar cuando cambia la estación principal
+
+    document.getElementById('estacion').addEventListener('change', function() {
+        estacionPrincipalId = this.value;
+        // Si ya hay una institución seleccionada en apoyo, recargar estaciones de apoyo
+        const institucionId = institucionApoyoSelect.value;
+        if (institucionId) cargarEstacionesApoyo(institucionId);
+    });
 
     // Cargar estaciones de apoyo cuando cambia la institución
     institucionApoyoSelect.addEventListener('change', function() {
@@ -368,6 +411,31 @@
                 text: 'Esta combinación de institución y estación ya fue agregada',
                 confirmButtonText: 'Entendido'
             });
+            return;
+        }
+        
+        // Si hay item en edición, reemplazarlo
+        if (window.itemApoyoEditando) {
+            // Actualizar atributos y contenido
+            window.itemApoyoEditando.setAttribute('data-institucion-id', institucionId);
+            window.itemApoyoEditando.setAttribute('data-estacion-id', estacionId);
+            window.itemApoyoEditando.innerHTML = `
+                <div><strong>${institucionNombre}</strong> - ${estacionNombre}</div>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-apoyo"><i class="bi bi-trash"></i></button>
+            `;
+            // Actualizar campos ocultos
+            const inputs = Array.from(camposOcultosApoyo.querySelectorAll('input'));
+            const idx = inputs.findIndex(input => input.name === 'instituciones_apoyo[]' && input.value === window.itemApoyoEditando.dataset.institucionId);
+            if (idx !== -1) {
+                inputs[idx].value = institucionId;
+                inputs[idx+1].value = estacionId || '';
+            }
+            // Quitar clase de edición y limpiar referencia
+            window.itemApoyoEditando.classList.remove('editando-apoyo');
+            window.itemApoyoEditando = null;
+            // Limpiar selects
+            institucionApoyoSelect.value = '';
+            estacionApoyoSelect.innerHTML = '<option value="" selected>--Seleccione una estación--</option>';
             return;
         }
         
@@ -488,24 +556,215 @@
         });
     });
 
-    // Envío del formulario con manejo de duplicados
+    // --- REEMPLAZO DE IMÁGENES ---
+    document.querySelectorAll('.btn-reemplazar-imagen').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const imgId = this.getAttribute('data-img-id');
+            const input = document.querySelector('.input-reemplazo-imagen[data-img-id="' + imgId + '"]');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        });
+    });
+    document.querySelectorAll('.input-reemplazo-imagen').forEach(input => {
+        input.addEventListener('change', function() {
+            const parent = this.closest('.col-md-4');
+            const img = parent.querySelector('img');
+            if (this.files.length > 0) {
+                // Mostrar nombre del archivo seleccionado
+                let label = parent.querySelector('.nombre-archivo-reemplazo');
+                if (!label) {
+                    label = document.createElement('div');
+                    label.className = 'nombre-archivo-reemplazo text-success small';
+                    parent.appendChild(label);
+                }
+                label.textContent = 'Archivo seleccionado: ' + this.files[0].name;
+                // Previsualizar la nueva imagen
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (img) img.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                // Si se cancela la selección, ocultar el label y restaurar la imagen original (opcional)
+                const label = parent.querySelector('.nombre-archivo-reemplazo');
+                if (label) label.remove();
+                // No restauramos la imagen original porque no la tenemos en memoria, pero podrías recargar la página si es necesario
+            }
+        });
+    });
+
+    // --- DESHABILITAR OPCIONES DE ESTACIÓN PRINCIPAL QUE YA ESTÁN COMO APOYO (MISMA INSTITUCIÓN) ---
+    function deshabilitarEstacionesPrincipalesDeApoyo() {
+        const estacionSelect = document.getElementById('estacion');
+        const institucionSelect = document.getElementById('institucion');
+        const institucionPrincipalId = institucionSelect.value;
+        // Obtener todas las estaciones de apoyo (guardadas y nuevas)
+        const estacionesApoyo = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
+            .map(item => {
+                return {
+                    institucionId: item.getAttribute('data-institucion-id'),
+                    estacionId: item.getAttribute('data-estacion-id')
+                };
+            })
+            .filter(item => item.estacionId && item.estacionId !== '');
+        // Habilitar todas primero
+        Array.from(estacionSelect.options).forEach(opt => {
+            opt.disabled = false;
+        });
+        // Deshabilitar solo las estaciones de apoyo de la misma institución
+        estacionesApoyo.forEach(item => {
+            if (item.institucionId === institucionPrincipalId) {
+                const opt = Array.from(estacionSelect.options).find(o => o.value === item.estacionId);
+                if (opt) opt.disabled = true;
+            }
+        });
+        // Si la estación seleccionada está deshabilitada, seleccionar la primera disponible
+        const selectedOption = estacionSelect.options[estacionSelect.selectedIndex];
+        if (selectedOption && selectedOption.disabled) {
+            const firstEnabled = Array.from(estacionSelect.options).find(opt => !opt.disabled && opt.value !== '');
+            if (firstEnabled) {
+                estacionSelect.value = firstEnabled.value;
+            } else {
+                estacionSelect.value = '';
+            }
+        }
+    }
+    // Llamar al cargar la página y cuando cambie la lista de apoyos
+    // (asegúrate de que solo haya un observer)
+    deshabilitarEstacionesPrincipalesDeApoyo();
+    const observer = new MutationObserver(deshabilitarEstacionesPrincipalesDeApoyo);
+    observer.observe(document.getElementById('lista-apoyo'), { childList: true });
+    document.getElementById('institucion').addEventListener('change', deshabilitarEstacionesPrincipalesDeApoyo);
+
+    // --- SINCRONIZAR ESTACIONES AL CAMBIAR INSTITUCIÓN PRINCIPAL ---
+    document.getElementById('institucion').addEventListener('change', function() {
+        const institucionId = this.value;
+        const estacionSelect = document.getElementById('estacion');
+        // Limpiar selección y opciones
+        estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una estación--</option>';
+        estacionSelect.value = '';
+        estacionSelect.disabled = true;
+        if (!institucionId) {
+            estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una institución primero--</option>';
+            return;
+        }
+        fetch(`/personal-reparacion/estaciones/${institucionId}`)
+            .then(response => response.json())
+            .then(({ success, data }) => {
+                estacionSelect.innerHTML = '<option value="" disabled selected>--Seleccione una estación--</option>';
+                if (success && data.length > 0) {
+                    data.forEach(estacion => {
+                        const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
+                        const option = new Option(nombre, estacion.id);
+                        estacionSelect.add(option);
+                    });
+                    estacionSelect.disabled = false;
+                    deshabilitarEstacionesPrincipalesDeApoyo();
+                } else {
+                    estacionSelect.innerHTML = '<option value="" disabled selected>--No hay estaciones disponibles--</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar estaciones:', error);
+                estacionSelect.innerHTML = '<option value="" disabled selected>--Error al cargar estaciones--</option>';
+            });
+    });
+
+    // --- LIMPIEZA DE APOYOS SI CAMBIA LA PRINCIPAL (FRONTEND) ---
+    document.getElementById('institucion').addEventListener('change', function() {
+        // Al cambiar la institución principal, eliminar apoyos de la misma institución
+        const institucionId = this.value;
+        const listaApoyo = document.getElementById('lista-apoyo');
+        const camposOcultosApoyo = document.getElementById('campos-ocultos-apoyo');
+        // Eliminar apoyos de la misma institución
+        Array.from(listaApoyo.children).forEach(item => {
+            if (item.getAttribute('data-institucion-id') === institucionId) {
+                // Eliminar visualmente
+                item.remove();
+            }
+        });
+        // Eliminar campos ocultos correspondientes
+        const inputs = Array.from(camposOcultosApoyo.querySelectorAll('input'));
+        for (let i = inputs.length - 2; i >= 0; i -= 2) {
+            if (inputs[i].value === institucionId) {
+                camposOcultosApoyo.removeChild(inputs[i]); // institucion
+                camposOcultosApoyo.removeChild(inputs[i+1]); // estacion
+            }
+        }
+        // --- NUEVO: Limpiar selección de estación principal si estaba como apoyo ---
+        const estacionSelect = document.getElementById('estacion');
+        // Si la estación seleccionada estaba como apoyo para la misma institución, limpiar selección
+        const estacionesApoyo = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
+            .filter(item => item.getAttribute('data-institucion-id') === institucionId)
+            .map(item => item.getAttribute('data-estacion-id'));
+        if (estacionesApoyo.includes(estacionSelect.value)) {
+            estacionSelect.value = '';
+        }
+    });
+
+    // --- MEJORAR DESHABILITACIÓN Y SELECCIÓN DE ESTACIÓN PRINCIPAL ---
+    function deshabilitarEstacionesPrincipalesDeApoyo() {
+        const estacionSelect = document.getElementById('estacion');
+        const institucionPrincipalId = document.getElementById('institucion').value;
+        const estacionesApoyo = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
+            .map(item => {
+                return {
+                    institucionId: item.getAttribute('data-institucion-id'),
+                    estacionId: item.getAttribute('data-estacion-id')
+                };
+            })
+            .filter(item => item.estacionId && item.estacionId !== '');
+        Array.from(estacionSelect.options).forEach(opt => {
+            opt.disabled = false;
+        });
+        estacionesApoyo.forEach(item => {
+            if (item.institucionId === institucionPrincipalId) {
+                const opt = Array.from(estacionSelect.options).find(o => o.value === item.estacionId);
+                if (opt) opt.disabled = true;
+            }
+        });
+        // Si la estación seleccionada está deshabilitada o ya no existe, limpiar la selección
+        const selectedOption = estacionSelect.options[estacionSelect.selectedIndex];
+        if (!estacionSelect.value || (selectedOption && selectedOption.disabled)) {
+            estacionSelect.value = '';
+        }
+    }
+
+    // --- ÚNICO SUBMIT HANDLER CON VALIDACIÓN MEJORADA ---
     const form = document.getElementById('form-editar-incidencia');
 
-    form.addEventListener('submit', async function (event) {
+    form.onsubmit = async function(event) {
+        const estacionPrincipalId = document.getElementById('estacion').value;
+        const institucionPrincipalId = document.getElementById('institucion').value;
+        // Validar conflicto: estación principal no puede ser apoyo para la misma institución
+        const conflicto = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
+            .some(item => {
+                const itemInstitucionId = item.getAttribute('data-institucion-id');
+                const itemEstacionId = item.getAttribute('data-estacion-id');
+                return itemEstacionId === estacionPrincipalId && itemInstitucionId === institucionPrincipalId;
+            });
+        if (conflicto) {
+            event.preventDefault();
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Conflicto de estación',
+                text: 'No puedes seleccionar como estación principal una estación que ya está asignada como apoyo para la misma institución.',
+                confirmButtonText: 'Entendido'
+            });
+            return false;
+        }
+        // --- ENVÍO AJAX Y ALERTA DE ÉXITO ---
         event.preventDefault();
-
-        // Mostrar loader
         const swalInstance = Swal.fire({
             title: 'Procesando',
             html: 'Actualizando la incidencia...',
             allowOutsideClick: false,
             showConfirmButton: false,
             allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => { Swal.showLoading(); }
         });
-
         try {
             const formData = new FormData(form);
             const response = await fetch(form.action, {
@@ -517,63 +776,32 @@
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
-
             const result = await response.json();
-
             if (!response.ok) {
-                // Si es un error de duplicado
                 if (result.is_duplicate) {
                     await swalInstance.close();
-                    
-                    // Mostrar modal con detalles del duplicado
                     const { value: accept } = await Swal.fire({
                         title: 'Incidencia Duplicada',
-                        html: `
-                            <div class="text-start">
-                                <p>${result.message}</p>
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                                        <h6 class="card-title">Detalles de la incidencia existente:</h6>
-                                        <p><strong>Código:</strong> ${result.duplicate_data.codigo}</p>
-                                        <p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p>
-                                        <p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p>
-                                        <p><strong>Estado:</strong> ${result.duplicate_data.estado}</p>
-                                        <p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p>
-                                        <a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                                            Ver incidencia existente
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `,
+                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
                         showCancelButton: true,
                         confirmButtonText: 'Forzar actualización',
                         cancelButtonText: 'Cancelar',
                         focusConfirm: false,
                         allowOutsideClick: false
                     });
-
                     if (accept) {
-                        // Agregar campo hidden para forzar el registro
                         const forceInput = document.createElement('input');
                         forceInput.type = 'hidden';
                         forceInput.name = 'force_register';
                         forceInput.value = '1';
                         form.appendChild(forceInput);
-                        
-                        // Reenviar el formulario
                         form.submit();
                     }
                     return;
                 }
-                
                 throw new Error(result.message || `Error en la operación: ${response.statusText}`);
             }
-
-            // Cerrar el loader
             await swalInstance.close();
-
-            // Mostrar mensaje de éxito y redirigir
             await Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
@@ -583,30 +811,16 @@
                 timer: 3000,
                 timerProgressBar: true
             });
-
-            // Redirigir después del mensaje
             if (result.redirect_url) {
                 window.location.href = result.redirect_url;
             } else {
                 window.location.reload();
             }
-
         } catch (error) {
-            // Cerrar el loader si está abierto
-            if (swalInstance.isActive()) {
-                swalInstance.close();
-            }
-            
-            console.error('Error completo:', error);
-            
+            if (swalInstance.isActive()) swalInstance.close();
             let errorMessage = 'Ocurrió un error al procesar la solicitud';
-            
-            if (error instanceof SyntaxError) {
-                errorMessage = 'Error al interpretar la respuesta del servidor';
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
-
+            if (error instanceof SyntaxError) errorMessage = 'Error al interpretar la respuesta del servidor';
+            else if (error.message) errorMessage = error.message;
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -615,7 +829,8 @@
                 allowOutsideClick: false
             });
         }
-    });
+        return false;
+    };
 });
 </script>
 @endsection

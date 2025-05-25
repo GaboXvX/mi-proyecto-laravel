@@ -144,7 +144,7 @@
 
     <!-- Tabla de Incidencias -->
     <div class="table-responsive">
-        <table class="table table-striped align-middle">
+        <table class="table table-striped align-middle" id="tabla-incidencias">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -160,94 +160,15 @@
                 </tr>
             </thead>
             <tbody id="incidencias-tbody">
-                @foreach ($incidencias as $incidencia)
-                    <tr data-incidencia-id="{{ $incidencia->slug }}">
-                        <td>{{ $incidencia->cod_incidencia }}</td>
-                        <td>{{ $incidencia->tipoIncidencia->nombre }}</td>
-                        <td>{{ Str::limit($incidencia->descripcion, 50) }}</td>
-                        
-                        <!-- Columna de Prioridad -->
-                        <td>
-                            <span class="priority-badge" style="background-color: {{ $incidencia->nivelIncidencia->color ?? '#6c757d' }}">
-                                {{ $incidencia->nivelIncidencia->nombre ?? 'N/A' }}
-                            </span>
-                        </td>
-                        
-                        <!-- Columna de Estado -->
-                        <td>
-                            <span class="status-badge" style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}">
-                                {{ $incidencia->estadoIncidencia->nombre ?? 'N/A' }}
-                            </span>
-                        </td>
-                        
-                        <td>{{ $incidencia->created_at->format('d-m-Y H:i') }}</td>
-                        <td>
-                            @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
-                                {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}
-                                <strong>V-</strong>{{ $incidencia->usuario->empleadoAutorizado->cedula }}
-                            @else
-                                <em>No registrado</em>
-                            @endif
-                        </td>
-                        <td>
-                            @if($incidencia->persona)
-                                {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}
-                                <strong>V-</strong>{{ $incidencia->persona->cedula }}
-                            @else
-                                <em>Incidencia General</em>
-                            @endif
-                        </td>
-                        
-                        <!-- Columna de Tiempo Restante -->
-                        <td>
-                           {{$incidencia->fecha_vencimiento ?? 'N/A'}} 
-                        </td>
-                        
-                        <!-- Columna de Acciones -->
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('incidencias.ver', $incidencia->slug) }}">
-                                            <i class="bi bi-eye me-2"></i>Ver
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('incidencias.descargar', $incidencia->slug) }}">
-                                            <i class="bi bi-download me-2"></i>Descargar
-                                        </a>
-                                    </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('incidencias.atender.vista', $incidencia->slug) }}">
-                                                <i class="bi bi-check-circle me-2"></i>Atender
-                                            </a>
-                                        </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('incidencias.edit', $incidencia->slug) }}">
-                                            <i class="bi bi-pencil-square me-2"></i>Modificar
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
+                <!-- El contenido será llenado por JS -->
             </tbody>
         </table>
     </div>
-    
     <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
-    
-    <!-- Paginación -->
-    @if($incidencias instanceof \Illuminate\Pagination\LengthAwarePaginator)
-        <div class="d-flex justify-content-center mt-3">
-            {{ $incidencias->links() }}
-        </div>
-    @endif
 </div>
 
+<!-- DataTables CSS y JS -->
+
 <script src="{{ asset('js/incidencias.js') }}"></script>
+
 @endsection

@@ -70,7 +70,7 @@ class IncidenciaController extends Controller
             });
         })
         ->orderBy('created_at', 'desc')
-        ->paginate(10); // Paginación para mejorar la carga
+        ; // Paginación para mejorar la carga
 
         return view('incidencias.listaincidencias', compact('incidencias', 'estados', 'niveles'));
     } catch (\Exception $e) {
@@ -748,6 +748,8 @@ public function atenderGuardar(Request $request, $slug)
         'pruebas_fotograficas.0' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         'pruebas_fotograficas.1' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         'pruebas_fotograficas.2' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+        'institucion' => 'required|exists:instituciones,id_institucion',
+        'estacion' => 'required|exists:instituciones_estaciones,id_institucion_estacion',
     ]);
 
     try {
@@ -755,16 +757,13 @@ public function atenderGuardar(Request $request, $slug)
         if (!$incidencia) {
             return response()->json(['message' => 'Incidencia no encontrada.'], 404);
         }
-        
-        $institucion = Institucion::find($incidencia->id_institucion);
-        $institucionEstacion = InstitucionEstacion::find($incidencia->id_institucion_estacion);
+        // NO asignar por defecto la institución responsable de la incidencia
+        $institucion = Institucion::find($request->input('institucion'));
+        $institucionEstacion = InstitucionEstacion::find($request->input('estacion'));
         $slug = $this->generarSlugUnico($slug);
 
-        // Guardar el personal
+        // Guardar el personal de reparación con la institución/estación seleccionadas
         $personal = $this->registrarPersonalReparacion($request, $institucion, $institucionEstacion, $incidencia);
-
-        // Guardar todas las fotos en la tabla pruebas_fotograficas y obtener la primera
-       
 
         // Guardar la reparación con referencia a la prueba fotográfica principal
         $reparacion = ReparacionIncidencia::create([
@@ -778,9 +777,8 @@ public function atenderGuardar(Request $request, $slug)
         // Actualizar estado y registrar movimiento
         $incidencia->id_estado_incidencia = estadoIncidencia::where('nombre', 'Atendido')->first()->id_estado_incidencia;
         $incidencia->save();
- $fotos = $request->file('pruebas_fotograficas', []);
+        $fotos = $request->file('pruebas_fotograficas', []);
         $idPruebaPrincipal = null;
-        
         foreach ($fotos as $i => $foto) {
             if ($foto) {
                 $ruta = $foto->store('pruebas', 'public');
@@ -790,8 +788,6 @@ public function atenderGuardar(Request $request, $slug)
                     'ruta' => $ruta,
                     'etapa_foto' => 'atencion',
                 ]);
-                
-                // Guardamos el ID de la primera foto como principal
                 if ($i === 0) {
                     $idPruebaPrincipal = $prueba->id_prueba_fotografica;
                 }
@@ -1595,5 +1591,4 @@ public function downloadReport(Request $request)
 
     return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
 }
-
 }

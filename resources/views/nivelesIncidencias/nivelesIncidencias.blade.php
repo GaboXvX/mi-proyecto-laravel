@@ -4,16 +4,25 @@
 <div class="table-container">
     <div class="d-flex mb-3 justify-content-between align-items-center">
         <h2 class="mb-4">Niveles de Incidencia</h2>
-
+        @if (count($niveles) < 10)
         <a href="{{ route('niveles-incidencia.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Nuevo
         </a>
+        @endif
     </div>
 
     @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: @json(session('success')),
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Aceptar'
+                });
+            });
+        </script>
     @endif
     @if (session('error'))
         <div class="alert alert-danger">

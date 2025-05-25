@@ -23,6 +23,8 @@ class personalController extends Controller
             'apellido' => $empleado->apellido,
             'telefono' => $empleado->telefono,
             'nacionalidad' => $empleado->nacionalidad,
+            'id_institucion' => $empleado->id_institucion,
+            'id_institucion_estacion' => $empleado->id_institucion_estacion,
         ]);
     }
 

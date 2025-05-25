@@ -8,19 +8,21 @@
         @csrf
         @method('PUT')
 
-        <div class="form-group">
-            <label for="nivel">Nivel (1-5)</label>
-            <input type="number" class="form-control" id="nivel" name="nivel"  value="{{ $nivelIncidencia->nivel }}" required>
-        </div>
+        
 
         <div class="form-group">
             <label for="nombre">Nombre</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" maxlength="30" value="{{ $nivelIncidencia->nombre }}" required>
+            <input type="text" class="form-control @error('nombre') is-invalid @enderror" id="nombre" name="nombre" maxlength="30" value="{{ old('nombre', $nivelIncidencia->nombre) }}" required oninput="this.value = this.value.replace(/\s/g, '')">
+            @error('nombre')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
-
         <div class="form-group">
             <label for="descripcion">Descripción</label>
-            <textarea class="form-control" id="descripcion" name="descripcion" maxlength="200" rows="3" required>{{ $nivelIncidencia->descripcion }}</textarea>
+            <textarea class="form-control @error('descripcion') is-invalid @enderror" id="descripcion" name="descripcion" maxlength="200" rows="3" required>{{ old('descripcion', $nivelIncidencia->descripcion) }}</textarea>
+            @error('descripcion')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="form-group">
@@ -32,7 +34,10 @@
 
         <div class="form-group">
             <label for="color">Color (hexadecimal)</label>
-            <input type="color" class="form-control" id="color" name="color" value="{{ $nivelIncidencia->color }}" style="height: 38px; width: 100px;" required>
+            <input type="color" class="form-control @error('color') is-invalid @enderror" id="color" name="color" value="{{ old('color', $nivelIncidencia->color) }}" style="height: 38px; width: 100px;" required>
+            @error('color')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="d-flex mt-3 justify-content-between">

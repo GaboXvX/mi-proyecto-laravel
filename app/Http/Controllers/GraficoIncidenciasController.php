@@ -23,6 +23,9 @@ class GraficoIncidenciasController extends Controller
         
         // Validar fechas
         if ($startDate > $endDate) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'La fecha de inicio no puede ser posterior a la fecha de fin'], 422);
+            }
             return back()->with('error', 'La fecha de inicio no puede ser posterior a la fecha de fin');
         }
         
@@ -37,6 +40,18 @@ class GraficoIncidenciasController extends Controller
         // Obtener datos para el gráfico
         $chartData = $this->getChartData($startDate, $endDate, $filters);
 
+        if ($request->ajax()) {
+            // Solo devolver los datos necesarios para el frontend JS
+            return response()->json([
+                'incidenciasPorEstado' => $chartData['incidenciasPorEstado'],
+                'incidenciasPorNivel' => $chartData['incidenciasPorNivel'],
+                'totalIncidencias' => $chartData['totalIncidencias'],
+                'incidenciasAtendidas' => $chartData['incidenciasAtendidas'],
+                'incidenciasPendientes' => $chartData['incidenciasPendientes'],
+                'incidenciasPorVencer' => $chartData['incidenciasPorVencer'],
+            ]);
+        }
+
         return view('graficos.incidencias', array_merge($chartData, [
             'startDate' => $startDate->format('Y-m-d'),
             'endDate' => $endDate->format('Y-m-d'),
@@ -50,7 +65,7 @@ class GraficoIncidenciasController extends Controller
         ]));
     }
 
-    protected function getChartData($startDate, $endDate, $filters)
+    public function getChartData($startDate, $endDate, $filters)
 {
     // Consulta base para todas las incidencias en el rango de fechas
     $query = Incidencia::with([

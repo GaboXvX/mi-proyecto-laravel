@@ -678,36 +678,46 @@
         const institucionId = this.value;
         const listaApoyo = document.getElementById('lista-apoyo');
         const camposOcultosApoyo = document.getElementById('campos-ocultos-apoyo');
-        // Eliminar apoyos de la misma institución
+        // Eliminar apoyos de la misma institución (visual y campos ocultos)
         Array.from(listaApoyo.children).forEach(item => {
             if (item.getAttribute('data-institucion-id') === institucionId) {
-                // Eliminar visualmente
+                // Eliminar campos ocultos correspondientes
+                const institucionApoyo = item.getAttribute('data-institucion-id');
+                const estacionApoyo = item.getAttribute('data-estacion-id');
+                const inputs = Array.from(camposOcultosApoyo.querySelectorAll('input'));
+                for (let i = inputs.length - 2; i >= 0; i -= 2) {
+                    if (inputs[i].value === institucionApoyo && inputs[i+1].value === estacionApoyo) {
+                        camposOcultosApoyo.removeChild(inputs[i]);
+                        camposOcultosApoyo.removeChild(inputs[i+1]);
+                    }
+                }
                 item.remove();
             }
         });
-        // Eliminar campos ocultos correspondientes
-        const inputs = Array.from(camposOcultosApoyo.querySelectorAll('input'));
-        for (let i = inputs.length - 2; i >= 0; i -= 2) {
-            if (inputs[i].value === institucionId) {
-                camposOcultosApoyo.removeChild(inputs[i]); // institucion
-                camposOcultosApoyo.removeChild(inputs[i+1]); // estacion
-            }
-        }
         // --- NUEVO: Limpiar selección de estación principal si estaba como apoyo ---
         const estacionSelect = document.getElementById('estacion');
-        // Si la estación seleccionada estaba como apoyo para la misma institución, limpiar selección
         const estacionesApoyo = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
             .filter(item => item.getAttribute('data-institucion-id') === institucionId)
             .map(item => item.getAttribute('data-estacion-id'));
         if (estacionesApoyo.includes(estacionSelect.value)) {
             estacionSelect.value = '';
         }
+        // Limpiar selects de apoyo si la institución principal fue retirada de apoyos
+        const institucionApoyoSelect = document.getElementById('institucion_apoyo');
+        const estacionApoyoSelect = document.getElementById('estacion_apoyo');
+        if (institucionApoyoSelect.value === institucionId) {
+            institucionApoyoSelect.value = '';
+            estacionApoyoSelect.innerHTML = '<option value="" selected>--Seleccione una estación--</option>';
+        }
     });
 
-    // --- MEJORAR DESHABILITACIÓN Y SELECCIÓN DE ESTACIÓN PRINCIPAL ---
+    // --- REFORZAR DESHABILITACIÓN Y LIMPIEZA DE CAMPOS OCULTOS ---
     function deshabilitarEstacionesPrincipalesDeApoyo() {
         const estacionSelect = document.getElementById('estacion');
         const institucionPrincipalId = document.getElementById('institucion').value;
+        const listaApoyo = document.getElementById('lista-apoyo');
+        const camposOcultosApoyo = document.getElementById('campos-ocultos-apoyo');
+        // Obtener todas las estaciones de apoyo (guardadas y nuevas)
         const estacionesApoyo = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
             .map(item => {
                 return {
@@ -716,9 +726,11 @@
                 };
             })
             .filter(item => item.estacionId && item.estacionId !== '');
+        // Habilitar todas primero
         Array.from(estacionSelect.options).forEach(opt => {
             opt.disabled = false;
         });
+        // Deshabilitar solo las estaciones de apoyo de la misma institución
         estacionesApoyo.forEach(item => {
             if (item.institucionId === institucionPrincipalId) {
                 const opt = Array.from(estacionSelect.options).find(o => o.value === item.estacionId);
@@ -730,15 +742,50 @@
         if (!estacionSelect.value || (selectedOption && selectedOption.disabled)) {
             estacionSelect.value = '';
         }
+        // --- NUEVO: Limpiar campos ocultos de apoyos inválidos (por si quedan desincronizados) ---
+        const inputs = Array.from(camposOcultosApoyo.querySelectorAll('input'));
+        for (let i = inputs.length - 2; i >= 0; i -= 2) {
+            const inst = inputs[i].value;
+            const est = inputs[i+1].value;
+            // Si ya no existe el item visual, eliminar campos ocultos
+            const existeVisual = Array.from(listaApoyo.children).some(item =>
+                item.getAttribute('data-institucion-id') === inst && item.getAttribute('data-estacion-id') === est
+            );
+            if (!existeVisual) {
+                camposOcultosApoyo.removeChild(inputs[i]);
+                camposOcultosApoyo.removeChild(inputs[i+1]);
+            }
+        }
     }
 
-    // --- ÚNICO SUBMIT HANDLER CON VALIDACIÓN MEJORADA ---
+    // --- VALIDACIÓN FINAL Y SINCRONIZACIÓN ANTES DE ENVIAR EL FORMULARIO ---
     const form = document.getElementById('form-editar-incidencia');
-
     form.onsubmit = async function(event) {
+        // Sincronizar campos ocultos con la lista visual antes de enviar
+        const listaApoyo = document.getElementById('lista-apoyo');
+        const camposOcultosApoyo = document.getElementById('campos-ocultos-apoyo');
+        // Eliminar todos los campos ocultos
+        while (camposOcultosApoyo.firstChild) {
+            camposOcultosApoyo.removeChild(camposOcultosApoyo.firstChild);
+        }
+        // Volver a crear los campos ocultos según la lista visual
+        Array.from(listaApoyo.children).forEach(item => {
+            const inst = item.getAttribute('data-institucion-id');
+            const est = item.getAttribute('data-estacion-id');
+            const inputInst = document.createElement('input');
+            inputInst.type = 'hidden';
+            inputInst.name = 'instituciones_apoyo[]';
+            inputInst.value = inst;
+            const inputEst = document.createElement('input');
+            inputEst.type = 'hidden';
+            inputEst.name = 'estaciones_apoyo[]';
+            inputEst.value = est || '';
+            camposOcultosApoyo.appendChild(inputInst);
+            camposOcultosApoyo.appendChild(inputEst);
+        });
+        // Validar conflicto: estación principal no puede ser apoyo para la misma institución
         const estacionPrincipalId = document.getElementById('estacion').value;
         const institucionPrincipalId = document.getElementById('institucion').value;
-        // Validar conflicto: estación principal no puede ser apoyo para la misma institución
         const conflicto = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
             .some(item => {
                 const itemInstitucionId = item.getAttribute('data-institucion-id');

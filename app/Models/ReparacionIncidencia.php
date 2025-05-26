@@ -14,7 +14,7 @@ class ReparacionIncidencia extends Model
     protected $fillable = [
         'id_incidencia',
         'descripcion',
-        'prueba_fotografica',
+        'id_prueba_fotografica',
         'slug',
         'id_usuario',
         'id_personal_reparacion',
@@ -39,4 +39,10 @@ class ReparacionIncidencia extends Model
     {
         return $this->belongsTo(personalReparacion::class, 'id_personal_reparacion');
     }
+    // Relación con la prueba fotográfica
+    public function pruebasFotograficas()
+{
+    return $this->hasMany(PruebaFotografica::class, 'id_reparacion', 'id_reparacion');
+}
+
 }

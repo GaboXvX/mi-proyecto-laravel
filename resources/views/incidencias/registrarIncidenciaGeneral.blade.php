@@ -6,34 +6,15 @@
 
     <div id="alert-container"></div>
     
-    <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST">
+    <form id="incidenciaGeneralForm" action="{{ route('incidencias.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <!-- Paso visual -->
-        <div>
-            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-                <li class="nav-item">
-                    <a class="nav-link active" data-step="1">
-                        <div class="step-circle">1</div>
-                        <span>Dirección</span>
-                        <div class="connector"></div>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" data-step="2">
-                        <div class="step-circle">2</div>
-                        <span>Institución</span>
-                        <div class="connector"></div>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" data-step="3">
-                        <div class="step-circle">3</div>
-                        <span>Detalles</span>
-                    </a>
-                </li>
-            </ul>
+        <!-- Barra de progreso -->
+        <div class="progress mb-3" style="height: 20px;">
+            <div id="stepProgressBar" class="progress-bar" role="progressbar" style="width: 50%;">
+                Paso 1 de 3
+            </div>
         </div>
 
 
@@ -188,6 +169,15 @@
                           
                         </select>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imágenes de la incidencia (máx. 3, opcional):</label>
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control mb-1">
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control mb-1">
+                        <input type="file" name="pruebas_fotograficas[]" accept="image/jpeg,image/png,image/jpg" class="form-control">
+                        <!-- Si quieres que al menos una imagen sea obligatoria, agrega required al primero -->
+                        <!-- <input type="file" name="pruebas_fotograficas[]" required ... > -->
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between m-3">
@@ -205,23 +195,6 @@
 <script src="{{ asset('js/incidencias.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const steps = document.querySelectorAll('.step');
-    const nextToStep2 = document.getElementById('next-to-step-2');
-    const nextToStep3 = document.getElementById('next-to-step-3');
-    const backToStep1 = document.getElementById('back-to-step-1');
-    const backToStep2 = document.getElementById('back-to-step-2');
-
-    function showStep(stepIndex) {
-        steps.forEach((step, index) => {
-            step.classList.toggle('d-none', index !== stepIndex);
-        });
-    }
-
-    nextToStep2.addEventListener('click', () => showStep(1));
-    nextToStep3.addEventListener('click', () => showStep(2));
-    backToStep1.addEventListener('click', () => showStep(0));
-    backToStep2.addEventListener('click', () => showStep(1));
-
     const estadoSelect = document.getElementById('estado');
     const institucionSelect = document.getElementById('institucion');
     const estacionSelect = document.getElementById('estacion');

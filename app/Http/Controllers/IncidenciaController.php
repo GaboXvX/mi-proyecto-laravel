@@ -21,6 +21,7 @@ use App\Models\nivelIncidencia;
 use App\Models\Notificacion;
 use App\Models\Persona;
 use App\Models\personalReparacion;
+use App\Models\PruebaFotografica;
 use App\Models\ReparacionIncidencia;
 use App\Models\tipoIncidencia;
 use Illuminate\Http\Request;
@@ -101,7 +102,7 @@ class IncidenciaController extends Controller
         return view('incidencias.registrarIncidenciaGeneral', compact('instituciones', 'direcciones', 'estados', 'prioridades', 'tipos'));
     }
 
-   public function store(Request $request)
+  public function store(Request $request)
 {
     try {
         // Validar los datos del request incluyendo las instituciones de apoyo
@@ -123,6 +124,11 @@ class IncidenciaController extends Controller
             'instituciones_apoyo.*' => 'exists:instituciones,id_institucion',
             'estaciones_apoyo' => 'nullable|array',
             'estaciones_apoyo.*' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+            // Para imágenes opcionales (ninguna obligatoria):
+            'pruebasAntes' => 'nullable|array|max:3',
+            'pruebasAntes.*' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            // Si quieres que al menos una imagen sea obligatoria, descomenta la siguiente línea:
+            // 'pruebasAntes.0' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
         $forceRegister = $request->boolean('force_register');
@@ -200,6 +206,35 @@ class IncidenciaController extends Controller
         $incidencia->id_institucion_estacion = $request->input('estacion');
         $incidencia->fecha_vencimiento = $fechaVencimiento;
         $incidencia->save();
+if ($request->hasFile('pruebasAntes')) {
+            foreach ($request->file('pruebasAntes') as $key => $file) {
+                if ($file) {
+                    $path = $file->store('pruebasAntes', 'public');
+                    
+                    PruebaFotografica::create([
+                        'id_incidencia' => $incidencia->id_incidencia,
+                        'ruta' => $path,
+                        'observacion' => 'Imagen ' . ($key + 1) . ' de la incidencia',
+                        'etapa_foto' => 'Antes',
+                    ]);
+                }
+            }
+        }
+
+        // Guardar imágenes de la incidencia si existen
+        if ($request->hasFile('pruebas_fotograficas')) {
+            foreach ($request->file('pruebas_fotograficas') as $key => $file) {
+                if ($file) {
+                    $ruta = $file->store('pruebasAntes', 'public');
+                    PruebaFotografica::create([
+                        'id_incidencia' => $incidencia->id_incidencia,
+                        'ruta' => $ruta,
+                        'observacion' => 'Imagen ' . ($key + 1) . ' de la incidencia',
+                        'etapa_foto' => 'Antes',
+                    ]);
+                }
+            }
+        }
 
         // Registrar instituciones de apoyo si existen
         if ($request->has('instituciones_apoyo')) {
@@ -646,49 +681,62 @@ public function atenderGuardar(Request $request, $slug)
 {
     $request->validate([
         'descripcion' => 'required|string|max:1000',
-        'prueba_fotografica' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        'pruebas_fotograficas.0' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        'pruebas_fotograficas.1' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+        'pruebas_fotograficas.2' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
     ]);
 
     try {
-        // Buscar la incidencia
         $incidencia = Incidencia::where('slug', $slug)->first();
-
         if (!$incidencia) {
-            return response()->json([
-                'message' => 'Incidencia no encontrada.'
-            ], 404);
+            return response()->json(['message' => 'Incidencia no encontrada.'], 404);
         }
+        
         $institucion = Institucion::find($incidencia->id_institucion);
         $institucionEstacion = InstitucionEstacion::find($incidencia->id_institucion_estacion);
-        // Generar un slug único
         $slug = $this->generarSlugUnico($slug);
 
-        // Subir la prueba fotográfica
-        $rutaPrueba = $this->subirPruebaFotografica($request);
+        // Guardar el personal
+        $personal = $this->registrarPersonalReparacion($request, $institucion, $institucionEstacion, $incidencia);
 
-     
-        $personal=$this->registrarPersonalReparacion( $request,$institucion, $institucionEstacion,$incidencia);
-   // Crear registro de reparación
-        ReparacionIncidencia::create([
+        // Guardar todas las fotos en la tabla pruebas_fotograficas y obtener la primera
+       
+
+        // Guardar la reparación con referencia a la prueba fotográfica principal
+        $reparacion = ReparacionIncidencia::create([
             'id_incidencia' => $incidencia->id_incidencia,
             'id_usuario' => auth()->id(),
             'descripcion' => $request->input('descripcion'),
-            'prueba_fotografica' => $rutaPrueba,
             'slug' => $slug,
-            'id_usuario' => auth()->id(),
             'id_personal_reparacion' => $personal->id_personal_reparacion ?? null,
         ]);
-        // Registrar al personal que realizó la reparación
 
-        // Actualizar estado
+        // Actualizar estado y registrar movimiento
         $incidencia->id_estado_incidencia = estadoIncidencia::where('nombre', 'Atendido')->first()->id_estado_incidencia;
         $incidencia->save();
-
-        // Registrar movimiento
+ $fotos = $request->file('pruebas_fotograficas', []);
+        $idPruebaPrincipal = null;
+        
+        foreach ($fotos as $i => $foto) {
+            if ($foto) {
+                $ruta = $foto->store('pruebas', 'public');
+                $prueba = \App\Models\PruebaFotografica::create([
+                    'id_reparacion' => $reparacion->id_reparacion,
+                    'observacion' => 'Foto ' . ($i + 1),
+                    'ruta' => $ruta,
+                    'etapa_foto' => 'atencion',
+                ]);
+                
+                // Guardamos el ID de la primera foto como principal
+                if ($i === 0) {
+                    $idPruebaPrincipal = $prueba->id_prueba_fotografica;
+                }
+            }
+        }
         movimiento::create([
             'id_incidencia' => $incidencia->id_incidencia,
             'id_usuario' => auth()->id(),
-            'descripcion' => 'Incidencia atendida con prueba fotográfica',
+            'descripcion' => 'Incidencia atendida con pruebas fotográficas',
         ]);
 
         return response()->json([
@@ -698,7 +746,6 @@ public function atenderGuardar(Request $request, $slug)
         ]);
     } catch (\Exception $e) {
         Log::error('Error al atender la incidencia:', ['error' => $e->getMessage()]);
-
         return response()->json([
             'message' => $e->getMessage() ?? 'Error al atender la incidencia.'
         ], 500);
@@ -993,37 +1040,38 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 }
 
     public function ver($slug)
-    {
-        try {
-            // Buscar la incidencia con las relaciones necesarias
-            $incidencia = Incidencia::with([
-                'persona',
-                'usuario.empleadoAutorizado',
-                'nivelIncidencia',  // Relación con el nivel de prioridad
-                'estadoIncidencia',  // Relación con el estado actual
-                'tipoIncidencia',  // Relación con el tipo de incidencia
-                'institucionesApoyo.institucion', // Carga las instituciones de apoyo y su relación con Institucion
-                'institucionesApoyo.Estacion',    // Carga la relación con Estacion de cada institución de apoyo
-            ])->where('slug', $slug)->first();
-    
-            if (!$incidencia) {
-                abort(404, 'Incidencia no encontrada.');
-            }
-    
-            // Obtener la reparación asociada si la incidencia está atendida
-            $reparacion = null;
-            if ($incidencia->estadoIncidencia->nombre == 'atendido') {
-                $reparacion = ReparacionIncidencia::where('id_incidencia', $incidencia->id_incidencia)
-                    ->with('personalReparacion')  // Aseguramos que cargue la relación con el personal
-                    ->first();
-            }
-    
-            return view('incidencias.verIncidencia', compact('incidencia', 'reparacion'));
-        } catch (\Exception $e) {
-            Log::error('Error al cargar los detalles de la incidencia:', ['error' => $e->getMessage()]);
-            return back()->withErrors(['error' => 'Error al cargar los detalles de la incidencia.']);
+{
+    try {
+        // Buscar la incidencia con las relaciones necesarias
+        $incidencia = Incidencia::with([
+            'persona',
+            'usuario.empleadoAutorizado',
+            'nivelIncidencia',
+            'estadoIncidencia',
+            'tipoIncidencia',
+            'institucionesApoyo.institucion',
+            'institucionesApoyo.Estacion',
+            'pruebasFotograficas' // Añade esta relación
+        ])->where('slug', $slug)->first();
+
+        if (!$incidencia) {
+            abort(404, 'Incidencia no encontrada.');
         }
+
+        // Obtener la reparación asociada si la incidencia está atendida
+        $reparacion = null;
+        if (strtolower($incidencia->estadoIncidencia->nombre) == 'atendido') {
+            $reparacion = ReparacionIncidencia::where('id_incidencia', $incidencia->id_incidencia)
+                ->with('personalReparacion', 'pruebasFotograficas')
+                ->first();
+        }
+
+        return view('incidencias.verIncidencia', compact('incidencia', 'reparacion'));
+    } catch (\Exception $e) {
+        Log::error('Error al cargar los detalles de la incidencia:', ['error' => $e->getMessage()]);
+        return back()->withErrors(['error' => 'Error al cargar los detalles de la incidencia.']);
     }
+}
     
 
     public function showChart(Request $request)

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('id_persona')->nullable();
             $table->unsignedBigInteger('id_direccion_incidencia');
             $table->unsignedBigInteger('id_institucion');
-            $table->unsignedBigInteger('id_institucion_estacion')->nullable();
-            $table->unsignedBigInteger('id_nivel_incidencia')->nullable();
-            $table->unsignedBigInteger('id_estado_incidencia')->nullable();
+            $table->unsignedBigInteger('id_institucion_estacion');
+            $table->unsignedBigInteger('id_nivel_incidencia');
+            $table->unsignedBigInteger('id_estado_incidencia');
             $table->unsignedBigInteger('id_tipo_incidencia');
             $table->string('slug')->unique();
             $table->string('cod_incidencia')->unique();

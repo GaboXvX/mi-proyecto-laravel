@@ -36,7 +36,7 @@ const toggleBtn = document.querySelector('#menuToggle');
 
 // Mostrar/ocultar sidebar con el botón
 toggleBtn.addEventListener('click', (e) => {
-  e.stopPropagation(); // evitar que el clic se propague y cierre la sidebar inmediatamente
+  e.stopPropagation(); 
   sidebar.classList.toggle('open');
 });
 

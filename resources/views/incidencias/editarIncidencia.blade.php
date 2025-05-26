@@ -11,32 +11,13 @@
         @method('PUT')
         <input type="hidden" name="id_persona" id="id_persona" value="{{ $incidencia->id_persona }}">
         
-        <!-- Paso visual -->
-        <div>
-            <ul class="nav nav-pills justify-content-center" id="stepIndicator">
-                <li class="nav-item">
-                    <a class="nav-link active" data-step="1">
-                        <div class="step-circle">1</div>
-                        <span>Dirección</span>
-                        <div class="connector"></div>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" data-step="2">
-                        <div class="step-circle">2</div>
-                        <span>Institución</span>
-                        <div class="connector"></div>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" data-step="3">
-                        <div class="step-circle">3</div>
-                        <span>Detalles</span>
-                    </a>
-                </li>
-            </ul>
+        <!-- Barra de progreso -->
+        <div class="progress mb-3" style="height: 20px;">
+            <div id="stepProgressBar" class="progress-bar" role="progressbar" style="width: 50%;">
+                Paso 1 de 3
+            </div>
         </div>
-
+        
         <!-- Paso 1: Dirección -->
         <div class="step" id="step-1">
             <div class="card border-0 mb-3">

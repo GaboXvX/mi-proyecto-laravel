@@ -152,7 +152,7 @@ body {
 }
 
 .main-content .separator{
-    margin: 25px 0 20px;
+    margin: 8px 0 20px;
     font-weight: 500;
     color: var(--tittle);
     font-size: 25px;
@@ -161,7 +161,7 @@ body {
 .main-content .card-access{
     display: flex;
     justify-content: space-around;
-    cursor: pointer;
+    margin-bottom: 12px;
 }
 
 .main-content .card-access .item:hover{
@@ -180,6 +180,7 @@ body {
     border-radius: 20px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(136, 148, 171, 0.2), 0 24px 20px -24px rgba(71, 82, 107, 0.1);
+    cursor: pointer;
 }
 
 .main-content .card-access .item:hover{
@@ -253,8 +254,8 @@ body {
 
 /* Contenedor del formulario */
 .form-container {
-    max-width: 600px; /* Ajusta el ancho máximo del formulario */
-    margin: 20px auto; /* Centra horizontalmente */
+    max-width: 600px;
+    margin: 20px auto;
     background: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -288,91 +289,6 @@ body {
 .filters-container .input-group {
     width: 100%;
 }
-
-/* estilos del step en las incidencias */
-#stepIndicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#stepIndicator .nav-item {
-    display: flex;
-    align-items: center;
-}
-
-#stepIndicator .nav-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    margin: 0;
-    background: none;
-    border: none;
-    cursor: default;
-    color: #495057;
-}
-
-#stepIndicator .nav-link.active {
-    color: #007bff;
-}
-
-#stepIndicator .nav-link.completed {
-    color: #28a745;
-}
-
-#stepIndicator .step-circle {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    color: #495057;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    z-index: 1;
-}
-
-#stepIndicator .nav-link.active .step-circle {
-    background-color: #007bff;
-    color: white;
-    transform: scale(1.1);
-}
-
-#stepIndicator .nav-link.completed .step-circle {
-    background-color: #28a745;
-    color: white;
-}
-
-#stepIndicator .connector {
-    height: 0.2rem;
-    background-color: #e9ecef;
-    flex-grow: 1;
-    margin: 0 1rem;
-    z-index: 0;
-}
-#stepIndicator .nav-item:last-child .connector {
-    display: none;
-}
-
-#stepIndicator .nav-link.active ~ .nav-item .connector,
-#stepIndicator .nav-link.completed ~ .nav-item .connector {
-    background-color: #007bff;
-}
-
-#stepIndicator .nav-link.completed ~ .nav-item .nav-link .step-circle {
-    background-color: #007bff;
-    color: white;
-}
-
-#stepIndicator .nav-link.completed::before {
-    font-size: 1rem;
-    margin-right: 0.3rem;
-}
-/* fin */
 
 /* formularios bootstrap */
 .card-header{

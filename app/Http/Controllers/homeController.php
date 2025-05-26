@@ -5,6 +5,8 @@ use App\Models\Incidencia;
 use App\Models\Persona;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\personalReparacion;
+use App\Models\Institucion;
 
 class HomeController extends Controller
 {
@@ -21,6 +23,10 @@ class HomeController extends Controller
 
         // Contar el número total de personas
         $totalPersonas = Persona::count();
+
+        $totalPersonal = personalReparacion::count();
+
+        $totalInstituciones = Institucion::count();
 
         $datosTemporales = $this->getDatosTemporales();
 

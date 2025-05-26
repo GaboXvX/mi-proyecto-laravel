@@ -279,66 +279,94 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Función para el seguimiento del step en las incidencias (si es necesario)
-document.addEventListener("DOMContentLoaded", function () {
-    const steps = document.querySelectorAll(".step");
-    const indicators = document.querySelectorAll("#stepIndicator .nav-link");
+document.addEventListener('DOMContentLoaded', () => {
+    // Botones
+    const btnStep2 = document.getElementById('next-to-step-2');
+    const btnStep3 = document.getElementById('next-to-step-3');
+    const btnSubmit = document.querySelector('button[type="submit"]');
 
-    if (steps.length > 0) {
-        let currentStep = 1;
+    const btnBack1 = document.getElementById('back-to-step-1');
+    const btnBack2 = document.getElementById('back-to-step-2');
 
-        function showStep(step) {
-            steps.forEach((s, i) => {
-                s.classList.toggle("d-none", i !== step - 1);
-            });
+    // Paso 1: Dirección
+    const step1Fields = [
+        'select[name="estado"]',
+        'select[name="municipio"]',
+        'select[name="parroquia"]',
+        'select[name="urbanizacion"]',
+        'select[name="sector"]',
+        'select[name="comunidad"]',
+        '#calle'
+    ];
 
-            indicators.forEach((ind, i) => {
-                ind.classList.remove("active", "disabled");
-                if (i + 1 === step) {
-                    ind.classList.add("active");
-                } else if (i + 1 < step) {
-                    ind.classList.add("completed");
-                } else {
-                    ind.classList.add("disabled");
-                }
-            });
+    // Paso 2: Institución
+    const step2Fields = [
+        '#institucion',
+        '#estacion'
+    ];
 
-            currentStep = step;
+    // Paso 3: Detalles
+    const step3Fields = [
+        '#tipo_incidencia',
+        '#descripcion',
+        '#nivel_prioridad'
+    ];
+
+    // Mostrar/Ocultar pasos y actualizar progreso
+    const showStep = (stepToShow) => {
+        document.querySelectorAll('.step').forEach(step => step.classList.add('d-none'));
+        document.getElementById(`step-${stepToShow}`).classList.remove('d-none');
+
+        // Actualizar barra de progreso
+        const progressBar = document.getElementById('stepProgressBar');
+        if (progressBar) {
+            let porcentaje = 0;
+            switch (stepToShow) {
+                case 1:
+                    porcentaje = 33;
+                    break;
+                case 2:
+                    porcentaje = 66;
+                    break;
+                case 3:
+                    porcentaje = 100;
+                    break;
+            }
+            progressBar.style.width = `${porcentaje}%`;
+            progressBar.textContent = `Paso ${stepToShow} de 3`;
         }
+    };
 
-        function validateStep(step) {
-            const form = document.getElementById("incidenciaGeneralForm");
-            const inputs = steps[step - 1].querySelectorAll("input, select, textarea");
-            let isValid = true;
-
-            inputs.forEach(input => {
-                if (!input.checkValidity()) {
-                    input.classList.add("is-invalid");
-                    isValid = false;
-                } else {
-                    input.classList.remove("is-invalid");
-                }
-            });
-
-            return isValid;
-        }
-
-        // Asignar event listeners solo si los elementos existen
-        document.getElementById("next-to-step-2")?.addEventListener("click", function () {
-            if (validateStep(1)) showStep(2);
+    // Validación de campos de cada paso
+    const validateStep = (fields, button) => {
+        const allFilled = fields.every(sel => {
+            const el = document.querySelector(sel);
+            return el && el.value.trim() !== '';
         });
 
-        document.getElementById("back-to-step-1")?.addEventListener("click", function () {
-            showStep(1);
-        });
+        if (button) button.disabled = !allFilled;
+    };
 
-        document.getElementById("next-to-step-3")?.addEventListener("click", function () {
-            if (validateStep(2)) showStep(3);
+    // Asignar validaciones en vivo
+    const attachValidation = (fields, button) => {
+        fields.forEach(sel => {
+            const el = document.querySelector(sel);
+            if (el) {
+                el.addEventListener('input', () => validateStep(fields, button));
+                el.addEventListener('change', () => validateStep(fields, button));
+            }
         });
+        validateStep(fields, button); // Validar al cargar
+    };
 
-        document.getElementById("back-to-step-2")?.addEventListener("click", function () {
-            showStep(2);
-        });
+    // Botones de navegación
+    btnStep2?.addEventListener('click', () => showStep(2));
+    btnStep3?.addEventListener('click', () => showStep(3));
+    btnBack1?.addEventListener('click', () => showStep(1));
+    btnBack2?.addEventListener('click', () => showStep(2));
 
-        showStep(1); // inicializar
-    }
+    // Activar validación de cada paso
+    attachValidation(step1Fields, btnStep2);
+    attachValidation(step2Fields, btnStep3);
+    attachValidation(step3Fields, btnSubmit);
 });

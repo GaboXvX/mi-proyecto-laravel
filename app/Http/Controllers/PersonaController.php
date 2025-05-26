@@ -112,6 +112,7 @@ class PersonaController extends Controller
         $persona->correo = $request->correo;
         $persona->telefono = $request->telefono;
         $persona->genero = $request->genero;
+        $persona->nacionalidad = $request->nacionalidad;
         $persona->id_usuario = auth()->id();
         $persona->save();
         
@@ -233,6 +234,7 @@ class PersonaController extends Controller
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
             $persona->genero = $request->input('genero');
+            $persona->nacionalidad = $request->input('nacionalidad');
             $persona->save();
             
             $movimiento = new movimiento();
@@ -314,7 +316,8 @@ class PersonaController extends Controller
             'correo' => $persona->correo,
             'telefono' => $persona->telefono,
             'genero' => $persona->genero,
-                                                                                                                                 ],
+            'nacionalidad' => $persona->nacionalidad,
+        ],
         'mensaje' => 'Persona encontrada en el sistema'
     ]);
 }

@@ -24,6 +24,6 @@ class Estado extends Model
     }
     public function direcciones()
     {
-        return $this->hasMany(Direccion::class, 'id_estado');  // 'id_estado' es la clave foránea en Direccion
+        return $this->hasMany(direccionIncidencia::class, 'id_estado');  // 'id_estado' es la clave foránea en Direccion
     }
 }

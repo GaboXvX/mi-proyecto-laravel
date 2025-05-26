@@ -51,7 +51,20 @@
                         {{ $urbanizacion->nombre }}
                     </option>
                 @endforeach
+                <option value="agregar_nueva_urbanizacion">Agregar nueva urbanización...</option>
             </select>
+            @if($urbanizacionId === 'agregar_nueva_urbanizacion')
+                <div class="input-group mt-2">
+                    <input type="text" class="form-control" placeholder="Nombre de la nueva urbanización" wire:model.defer="nuevaUrbanizacionNombre">
+                    <button class="btn btn-success" type="button" wire:click="crearUrbanizacion">Agregar</button>
+                </div>
+                @error('nuevaUrbanizacionNombre')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+                @if($mensajeUrbanizacion)
+                    <div class="text-success small">{{ $mensajeUrbanizacion }}</div>
+                @endif
+            @endif
         </div>
     </div>
     
@@ -66,7 +79,20 @@
                         {{ $sector->nombre }}
                     </option>
                 @endforeach
+                <option value="agregar_nuevo_sector">Agregar nuevo sector...</option>
             </select>
+            @if($sectorId === 'agregar_nuevo_sector')
+                <div class="input-group mt-2">
+                    <input type="text" class="form-control" placeholder="Nombre del nuevo sector" wire:model.defer="nuevoSectorNombre">
+                    <button class="btn btn-success" type="button" wire:click="crearSector">Agregar</button>
+                </div>
+                @error('nuevoSectorNombre')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+                @if($mensajeSector)
+                    <div class="text-success small">{{ $mensajeSector }}</div>
+                @endif
+            @endif
         </div>
 
         <!-- Dropdown de Comunidades -->
@@ -79,7 +105,20 @@
                         {{ $comunidad->nombre }}
                     </option>
                 @endforeach
+                <option value="agregar_nueva_comunidad">Agregar nueva comunidad...</option>
             </select>
+            @if($comunidadId === 'agregar_nueva_comunidad')
+                <div class="input-group mt-2">
+                    <input type="text" class="form-control" placeholder="Nombre de la nueva comunidad" wire:model.defer="nuevaComunidadNombre">
+                    <button class="btn btn-success" type="button" wire:click="crearComunidad">Agregar</button>
+                </div>
+                @error('nuevaComunidadNombre')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+                @if($mensajeComunidad)
+                    <div class="text-success small">{{ $mensajeComunidad }}</div>
+                @endif
+            @endif
         </div>
     </div>
 </div>

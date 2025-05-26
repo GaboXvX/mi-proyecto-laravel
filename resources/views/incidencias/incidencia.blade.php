@@ -152,7 +152,7 @@
             <div class="details-section">
                 <h3>Información de la Persona Afectada:</h3>
                 <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
-                <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+                <p><strong>Cédula:</strong><strong> {{$incidencia->persona->nacionalidad}}</strong>-{{  $incidencia->persona->cedula }}</p>
                 <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono }}</p>
             </div>
             @endif
@@ -165,6 +165,7 @@
                 <p><strong>Parroquia:</strong> {{ $incidencia->direccionIncidencia->parroquia->nombre }}</p>
                 <p><strong>Urbanización:</strong> {{ $incidencia->direccionIncidencia->urbanizacion->nombre }}</p>
                 <p><strong>Sector:</strong> {{ $incidencia->direccionIncidencia->sector->nombre }}</p>
+                <p><strong>Comunidad:</strong> {{ $incidencia->direccionIncidencia->comunidad->nombre }}</p>
                 <p><strong>Calle:</strong> {{ $incidencia->direccionIncidencia->calle }}</p>
                 <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccionIncidencia->punto_de_referencia }}</p>
             </div>

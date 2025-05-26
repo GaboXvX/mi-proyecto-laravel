@@ -12,6 +12,8 @@ class Sector extends Model
     use HasFactory;
     protected $primaryKey = 'id_sector';
     protected $table ='sectores';
+    protected $fillable = ['nombre', 'id_urbanizacion'];
+
     public function urbanizacion()
     {
         return $this->belongsTo(Urbanizacion::class, 'id_urbanizacion');
@@ -23,7 +25,7 @@ class Sector extends Model
     }
     public function direccion()
     {
-        return $this->hasMany(Direccion::class, 'id_sector');
+        return $this->hasMany(direccionIncidencia::class, 'id_sector');
     }
 }
 

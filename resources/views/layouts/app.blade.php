@@ -252,7 +252,6 @@
 <!-- Scripts -->
 <script src="{{ asset('js/script.js') }}"></script>
 <script src="{{ asset('js/chart.umd.min.js') }}"></script>
-<script src="//unpkg.com/alpinejs" defer></script>
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('js/popper.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>

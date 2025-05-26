@@ -260,7 +260,9 @@
                                     <div>
                                         <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }}
                                             {{ $incidencia->persona->apellido }}</p>
-                                        <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+                                        <p><strong>Cédula:</strong><strong>
+                                                {{ $incidencia->persona->nacionalidad }}</strong>-{{ $incidencia->persona->cedula }}
+                                        </p>
                                         <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono ?? 'N/A' }}</p>
                                     </div>
                                 </div>
@@ -311,14 +313,17 @@
                             <h5><i class="fas fa-camera"></i> Pruebas Fotográficas de la Reparación</h5>
                             <div class="row">
                                 @php
-                                    $fotosDespues = $reparacion->pruebasFotograficas ? $reparacion->pruebasFotograficas : collect();
+                                    $fotosDespues = $reparacion->pruebasFotograficas
+                                        ? $reparacion->pruebasFotograficas
+                                        : collect();
                                 @endphp
                                 @forelse($fotosDespues as $foto)
-                                    @if(isset($foto->ruta))
+                                    @if (isset($foto->ruta))
                                         <div class="col-md-4 mb-3">
-                                            <img src="{{ asset('storage/' . $foto->ruta) }}" class="img-fluid rounded shadow"
-                                                alt="Prueba fotográfica" style="max-height: 250px;">
-                                            @if($foto->observacion)
+                                            <img src="{{ asset('storage/' . $foto->ruta) }}"
+                                                class="img-fluid rounded shadow" alt="Prueba fotográfica"
+                                                style="max-height: 250px;">
+                                            @if ($foto->observacion)
                                                 <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
                                             @endif
                                         </div>
@@ -342,16 +347,16 @@
                     <h4 class="section-title"><i class="fas fa-camera me-2"></i> Imágenes de la Incidencia (Antes)</h4>
                     <div class="row">
                         @php
-                            $fotosAntes = $incidencia->pruebasFotograficas ? $incidencia->pruebasFotograficas : collect();
+                            $fotosAntes = $incidencia->pruebasFotograficas
+                                ? $incidencia->pruebasFotograficas
+                                : collect();
                         @endphp
                         @forelse($fotosAntes as $foto)
-                            @if($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
+                            @if ($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
                                 <div class="col-md-4 mb-3">
-                                    <img src="{{ asset('storage/' . $foto->ruta) }}"
-                                         class="img-fluid rounded shadow"
-                                         alt="Imagen incidencia"
-                                         style="max-height: 250px;">
-                                    @if($foto->observacion)
+                                    <img src="{{ asset('storage/' . $foto->ruta) }}" class="img-fluid rounded shadow"
+                                        alt="Imagen incidencia" style="max-height: 250px;">
+                                    @if ($foto->observacion)
                                         <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
                                     @endif
                                 </div>

@@ -267,25 +267,49 @@ function limpiarCamposPersonal() {
     document.getElementById('estacion').value = '';
 }
 function desbloquearCamposPersonal() {
-    ['nombre','apellido','telefono','nacionalidad','institucion','estacion'].forEach(id => {
+    ['nombre','apellido','telefono'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.readOnly = false;
-            el.disabled = false;
             el.classList.remove('bg-light');
+        }
+    });
+    ['nacionalidad','institucion','estacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.remove('bg-light');
+            el.removeAttribute('data-readonly');
         }
     });
 }
 function bloquearCamposPersonal() {
-    ['nombre','apellido','telefono','nacionalidad','institucion','estacion'].forEach(id => {
+    ['nombre','apellido','telefono'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.readOnly = true;
-            el.disabled = true;
             el.classList.add('bg-light');
         }
     });
+    // Para los select, solo visualmente deshabilitados, pero no disabled
+    ['nacionalidad','institucion','estacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('bg-light');
+            el.setAttribute('data-readonly', 'true');
+            el.addEventListener('mousedown', function(e) {
+                if (el.getAttribute('data-readonly') === 'true') {
+                    e.preventDefault();
+                }
+            });
+            el.addEventListener('keydown', function(e) {
+                if (el.getAttribute('data-readonly') === 'true') {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
 }
+
 function buscarEmpleadoAuto(cedula) {
     if (!cedula) return;
     const empleadoInfo = document.getElementById('empleado-info');
@@ -359,9 +383,21 @@ document.getElementById('multi-step-form').addEventListener('submit', function(e
 
     fetch(this.action, {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            // Si la respuesta no es JSON válida, intenta extraer el mensaje de error
+            return response.json().catch(() => {
+                throw new Error('Error inesperado en el servidor.');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             Swal.fire({

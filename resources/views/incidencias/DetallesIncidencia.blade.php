@@ -86,7 +86,12 @@
 </header>
 
 <footer>
-    Generado el {{ now()->format('d/m/Y H:i:s') }}
+    @isset($pie_html)
+        {!! $pie_html !!}<br>
+    @endisset
+    <span style="color: #6c757d; font-size: 0.9em;">
+        Generado el {{ now()->format('d/m/Y H:i:s') }}
+    </span>
 </footer>
 
 <main>
@@ -187,7 +192,7 @@
         <div class="section-title">Reportado por</div>
         @if ($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
             <p><span class="label-bold">Nombre:</span> {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}</p>
-            <p><span class="label-bold">Cédula:</span> V-{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
+            <p><span class="label-bold">Cédula:</span>{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
             <p><span class="label-bold">Teléfono:</span> {{ $incidencia->usuario->empleadoAutorizado->telefono ?? 'N/A' }}</p>
         @else
             <p class="text-muted"><em>Información no disponible</em></p>

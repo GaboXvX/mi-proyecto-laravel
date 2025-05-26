@@ -20,13 +20,22 @@
                     <h5 class="mb-3">Datos Personales</h5>
                     
                     <div class="row g-2 mb-2">
-                        <label for="cedula" class="form-label">Cédula:</label>
-                        <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
-                        <div id="cedulaStatus" style="display: none; color: green;">
-                            <small>✔️ Cédula disponible</small>
+                        <div class="col-md-3">
+                            <label for="nacionalidad" class="form-label">Nacionalidad:</label>
+                            <select id="nacionalidad" name="nacionalidad" class="form-select" required>
+                                <option value="V">V</option>
+                                <option value="E">E</option>
+                            </select>
                         </div>
-                        <div id="cedulaError" style="color: red; display: none;">
-                            <small>❌ Esta cédula ya está registrada</small>
+                        <div class="col-md-9">
+                            <label for="cedula" class="form-label">Cédula:</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
+                            <div id="cedulaStatus" style="display: none; color: green;">
+                                <small>✔️ Cédula disponible</small>
+                            </div>
+                            <div id="cedulaError" style="color: red; display: none;">
+                                <small>❌ Esta cédula ya está registrada</small>
+                            </div>
                         </div>
                     </div>
 
@@ -143,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const correoStatus = document.getElementById('correoStatus');
     const correoError = document.getElementById('correoError');
 
-    const requiredFields = ['cedula', 'nombre', 'apellido', 'correo', 'genero', 'telefono'];
+    const requiredFields = ['nacionalidad', 'cedula', 'nombre', 'apellido', 'correo', 'genero', 'telefono'];
 
     let datosAutocompletados = false; // Flag para saber si los campos fueron llenados automáticamente
 
@@ -153,6 +162,8 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('correo').value = '';
         document.getElementById('telefono').value = '';
         document.getElementById('genero').value = 'M';
+        document.getElementById('nacionalidad').value = 'V';
+        document.getElementById('nacionalidad').disabled = false;
     }
 
     function disablePersonalFields() {
@@ -193,11 +204,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     cedulaInput.addEventListener('input', function() {
         const cedula = cedulaInput.value;
+        const nacionalidadInput = document.getElementById('nacionalidad');
+        const nacionalidad = nacionalidadInput.value;
 
         if (cedula.length === 0) {
             if (datosAutocompletados) {
                 limpiarCamposPersonales();
                 enablePersonalFields();
+                nacionalidadInput.disabled = false;
                 datosAutocompletados = false;
             }
             cedulaError.style.display = 'none';
@@ -214,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ cedula: cedula })
+                body: JSON.stringify({ cedula: cedula, nacionalidad: nacionalidad })
             })
             .then(response => response.json())
             .then(data => {
@@ -229,14 +243,19 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('correo').value = data.persona.correo;
                     document.getElementById('telefono').value = data.persona.telefono;
                     document.getElementById('genero').value = data.persona.genero;
+                    if (data.persona.nacionalidad) {
+                        nacionalidadInput.value = data.persona.nacionalidad;
+                    }
 
                     disablePersonalFields();
+                    nacionalidadInput.disabled = true;
                     datosAutocompletados = true;
                 } else {
                     // Solo limpiar si venía de datos autocompletados
                     if (datosAutocompletados) {
                         limpiarCamposPersonales();
                         enablePersonalFields();
+                        nacionalidadInput.disabled = false;
                         datosAutocompletados = false;
                     }
 

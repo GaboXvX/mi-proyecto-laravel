@@ -43,15 +43,31 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('instituciones.updateMembrete', $institucion->id_institucion) }}" method="POST">
+                    <div class="border p-3 rounded mb-4">
+                        <h6 class="text-muted">Pie de página Actual</h6>
+                        <div>
+                            @if($institucion->pie_html)
+                                {!! $institucion->pie_html !!}
+                            @else
+                                <em class="text-muted">Sin pie de página configurado</em>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Formulario unificado para membrete y pie -->
+                    <form action="{{ route('instituciones.updateMembretePie', $institucion->id_institucion) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="membrete{{ $institucion->id_institucion }}" class="text-muted">Editar Membrete</label>
                             <textarea id="membrete{{ $institucion->id_institucion }}" name="encabezado_html" rows="3" class="form-control shadow-sm">{{ $institucion->encabezado_html }}</textarea>
                         </div>
+                        <div class="form-group mb-2">
+                            <label for="pie{{ $institucion->id_institucion }}" class="text-muted">Editar Pie de página</label>
+                            <textarea id="pie{{ $institucion->id_institucion }}" name="pie_html" rows="3" class="form-control shadow-sm">{{ $institucion->pie_html }}</textarea>
+                        </div>
                         <button type="submit" class="btn btn-success mt-2">
-                            <i class="fas fa-save"></i> Guardar
+                            <i class="fas fa-save"></i> Guardar Cambios
                         </button>
                     </form>
                 </div>

@@ -12,6 +12,8 @@ class Comunidad extends Model
     use HasFactory;
     protected $primaryKey ='id_comunidad';
     protected $table='comunidades';
+    protected $fillable = ['nombre', 'id_sector'];
+
     public function sector()
     {
         return $this->belongsTo(Sector::class, 'id_sector');

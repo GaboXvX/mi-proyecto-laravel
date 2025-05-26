@@ -36,7 +36,7 @@ class movimiento extends Model
     }
     public function direccion()
     {
-        return $this->belongsTo(Direccion::class, 'id_direccion', 'id_direccion');
+        return $this->belongsTo(direccionIncidencia::class, 'id_direccion', 'id_direccion');
     }
 
     // Relación con la incidencia afectada (si aplica)

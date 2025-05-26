@@ -45,7 +45,36 @@ class institucionController extends Controller
 
         return back()->with('success', '¡Membrete actualizado correctamente!');
     }
-     public function getByInstitucion($institucionId)
+
+    // Actualiza el pie de página (footer HTML)
+    public function updatePie(Request $request, $id_institucion)
+    {
+        $institucion = Institucion::findOrFail($id_institucion);
+        $institucion->update(['pie_html' => $request->pie_html]);
+
+        return back()->with('success', '¡Pie de página actualizado correctamente!');
+    }
+
+    // Unificado: Actualiza membrete y/o pie de página (solo si tienen valor)
+    public function updateMembretePie(Request $request, $id_institucion)
+    {
+        $institucion = Institucion::findOrFail($id_institucion);
+        $data = [];
+        // Usar has() en vez de filled() para permitir borrar el campo si el usuario lo deja vacío
+        if ($request->has('encabezado_html')) {
+            $data['encabezado_html'] = $request->encabezado_html;
+        }
+        if ($request->has('pie_html')) {
+            $data['pie_html'] = $request->pie_html;
+        }
+        if (!empty($data)) {
+            $institucion->update($data);
+            return back()->with('success', '¡Datos actualizados correctamente!');
+        }
+        return back();
+    }
+
+    public function getByInstitucion($institucionId)
     {
         $estaciones = InstitucionEstacion::where('id_institucion', $institucionId)
             ->select('id_institucion_estacion', 'nombre')

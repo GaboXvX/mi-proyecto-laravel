@@ -165,6 +165,8 @@
             <p><strong>Parroquia:</strong> {{ $incidencia->direccionIncidencia->parroquia->nombre }}</p>
             <p><strong>Urbanización:</strong> {{ $incidencia->direccionIncidencia->urbanizacion->nombre }}</p>
             <p><strong>Sector:</strong> {{ $incidencia->direccionIncidencia->sector->nombre }}</p>
+                            <p><strong>Comunidad:</strong> {{ $incidencia->direccionIncidencia->comunidad->nombre }}</p>
+
             <p><strong>Calle:</strong> {{ $incidencia->direccionIncidencia->calle }}</p>
             <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccionIncidencia->punto_de_referencia }}</p>
         </div>

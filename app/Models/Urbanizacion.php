@@ -11,6 +11,8 @@ class Urbanizacion extends Model
     use HasFactory;
     protected $primaryKey ='id_urbanizacion';
     protected $table ='urbanizaciones';
+    protected $fillable = ['nombre', 'id_parroquia'];
+
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class, 'id_parroquia');
@@ -22,7 +24,7 @@ class Urbanizacion extends Model
     }
     public function direccion()
     {
-        return $this->hasMany(Direccion::class,'id_urbanizacion');
+        return $this->hasMany(direccionIncidencia::class,'id_urbanizacion');
     }
 }
 

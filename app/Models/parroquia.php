@@ -16,7 +16,7 @@ class Parroquia extends Model
     }
     public function direccion()
     {
-        return $this->hasMany(Direccion::class, 'id_parroquia');
+        return $this->hasMany(direccionIncidencia::class, 'id_parroquia');
     }
 }
 

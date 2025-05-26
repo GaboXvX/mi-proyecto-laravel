@@ -1,4 +1,4 @@
-  document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     // Navegación entre pasos
     const steps = document.querySelectorAll('.step');
     const nextToStep2 = document.getElementById('next-to-step-2');
@@ -64,7 +64,8 @@
         estacionApoyoSelect.disabled = true;
         estacionApoyoSelect.innerHTML = '<option value="">Cargando estaciones...</option>';
 
-        const url = `/personal-reparacion/estaciones/${institucionId}`;
+        // Cambiar a la ruta API que siempre retorna JSON y es más robusta
+        const url = `/api/estaciones-por-institucion/${institucionId}`;
 
         fetch(url)
             .then(response => {
@@ -73,18 +74,17 @@
                 }
                 return response.json();
             })
-            .then(({ success, data }) => {
+            .then((data) => {
+                // data es un array de estaciones [{id_institucion_estacion, nombre}]
                 estacionApoyoSelect.innerHTML = '<option value="">Seleccione una estación</option>';
-
-                if (success && data.length > 0) {
+                if (Array.isArray(data) && data.length > 0) {
                     // Obtener las estaciones ya seleccionadas como apoyo
                     const estacionesYaSeleccionadas = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
                         .map(item => item.getAttribute('data-estacion-id'));
                     data.forEach(estacion => {
                         // Excluir la estación principal y las ya seleccionadas
-                        if (estacion.id != estacionPrincipalId && !estacionesYaSeleccionadas.includes(estacion.id.toString())) {
-                            const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
-                            const option = new Option(nombre, estacion.id);
+                        if (estacion.id_institucion_estacion != estacionPrincipalId && !estacionesYaSeleccionadas.includes(estacion.id_institucion_estacion.toString())) {
+                            const option = new Option(estacion.nombre, estacion.id_institucion_estacion);
                             estacionApoyoSelect.add(option);
                         }
                     });

@@ -14,7 +14,9 @@ class Institucion extends Model
     protected $fillable = [ 
     'nombre', 
     'logo_path', 
-    'encabezado_html',];
+    'encabezado_html',
+    'pie_html',
+];
 
     /**
      * Relación uno a muchos con InstitucionesEstaciones.

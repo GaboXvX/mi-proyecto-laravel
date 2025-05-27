@@ -135,7 +135,7 @@ class IncidenciaController extends Controller
         if ($duplicada) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $duplicada->cod_incidencia,
+                'message' => 'Ya existe una incidencia similar registrada.',
                 'is_duplicate' => true,
                 'codigo_duplicado' => $duplicada->cod_incidencia,
                 'slug_duplicado' => $duplicada->slug,
@@ -145,7 +145,8 @@ class IncidenciaController extends Controller
                     'descripcion' => $duplicada->descripcion,
                     'fecha_creacion' => $duplicada->created_at->format('d/m/Y H:i'),
                     'estado' => $duplicada->estadoIncidencia->nombre,
-                    'prioridad' => $duplicada->nivelIncidencia->nombre
+                    'prioridad' => $duplicada->nivelIncidencia->nombre,
+                    'comunidad' => $duplicada->direccionIncidencia->comunidad ? $duplicada->direccionIncidencia->comunidad->nombre : null,
                 ]
             ], 422);
         }
@@ -483,7 +484,7 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
             if ($posibleDuplicado && $posibleDuplicado->id_incidencia != $incidencia->id_incidencia) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $posibleDuplicado->cod_incidencia,
+                    'message' => 'Ya existe una incidencia similar registrada.',
                     'is_duplicate' => true,
                     'codigo_duplicado' => $posibleDuplicado->cod_incidencia,
                     'slug_duplicado' => $posibleDuplicado->slug,
@@ -491,6 +492,7 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
                     'duplicate_data' => [
                         'codigo' => $posibleDuplicado->cod_incidencia,
                         'descripcion' => $posibleDuplicado->descripcion,
+                        'comunidad' => $posibleDuplicado->direccionIncidencia->comunidad ? $posibleDuplicado->direccionIncidencia->comunidad->nombre : null,
                         'fecha_creacion' => $posibleDuplicado->created_at->format('d/m/Y H:i'),
                         'estado' => $posibleDuplicado->estadoIncidencia->nombre,
                         'prioridad' => $posibleDuplicado->nivelIncidencia->nombre

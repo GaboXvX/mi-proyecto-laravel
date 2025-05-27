@@ -338,12 +338,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!response.ok) {
                 if (result.is_duplicate) {
                     await swalInstance.close();
-                    const { value: accept } = await Swal.fire({
+                    await Swal.fire({
                         title: 'Incidencia Duplicada',
-                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
+                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Comunidad:</strong> ${result.duplicate_data.comunidad || '-'}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
+                        showCancelButton: true,
                         confirmButtonText: 'OK',
+                        cancelButtonText: 'Cancelar',
                         focusConfirm: false,
                         allowOutsideClick: false
+                    }).then((swalResult) => {
+                        if (swalResult.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/incidencias';
+                        }
                     });
                     return;
                 }

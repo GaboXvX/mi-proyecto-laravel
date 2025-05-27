@@ -143,7 +143,7 @@
 
     <!-- Tabla de Incidencias -->
     <div class="table-responsive">
-        <table class="table table-striped align-middle datatable" id="tabla-incidencias">
+        <table class="table table-striped align-middle " id="tabla-incidencias">
             <thead>
                 <tr>
                     <th>Código</th>

@@ -35,7 +35,6 @@
                     <td>{{ $persona->cedula }}</td>
                     <td>{{ $persona->telefono }}</td>
                     <td>
-                        <a href="{{ route('personal-reparacion.show', $persona->id_personal_reparacion) }}" class="btn btn-info btn-sm">Ver</a>
                         <a href="{{ route('personal-reparacion.edit', $persona) }}" class="btn btn-warning btn-sm">Editar</a>
                       
                     </td>

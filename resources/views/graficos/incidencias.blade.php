@@ -133,7 +133,7 @@
                     <h5>Incidencias por Estado</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="estadoChart" height="250"></canvas>
+                    <canvas id="estadoChart" height="250" width="100%"></canvas>
                     <!-- Leyenda nativa de Chart.js, no personalizada -->
                 </div>
             </div>
@@ -144,7 +144,7 @@
                     <h5>Incidencias por Nivel</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="nivelChart" height="250"></canvas>
+                    <canvas id="nivelChart" height="250" width="100%"></canvas>
                     <!-- Leyenda nativa de Chart.js, no personalizada -->
                 </div>
             </div>
@@ -429,7 +429,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }],
                 _totalGlobal: totalEstado
             },
-            options: buildOptions('estado')
+            options: buildOptions('estado'),
+            responsive: true,
+            maintainAspectRatio: true
         });
         addChartClickNavigation(estadoChart, 'estado');
 
@@ -446,6 +448,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }],
                 _totalGlobal: totalNivel
             },
+            responsive: true,
+            maintainAspectRatio: true,
             options: buildOptions('nivel')
         });
         addChartClickNavigation(nivelChart, 'nivel');

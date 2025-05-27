@@ -1,20 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="card shadow-lg">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    Registro de Movimientos en Tiempo Real
-                </h5>
-                <div>
-                    <span class="badge bg-white text-primary fs-6">
-                        <i class="bi bi-arrow-clockwise me-1"></i>
-                        <span id="last-update">Actualizado: {{ now()->format('H:i:s') }}</span>
-                    </span>
-                </div>
-            </div>
+<div class="table-container py-4">
+        <div class="d-flex align-items-center">
+            <h2 class="mb-0">Registro de Movimientos en Tiempo Real</h2>
         </div>
 
         <div class="card-body p-0">
@@ -51,29 +40,30 @@
                         <input type="date" class="form-control" name="fecha_fin" value="{{ request('fecha_fin') }}">
                     </div>
             
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel me-1"></i> Filtrar
-                        </button>
-                    </div>
-            
-                    <div class="col-md-3 mt-2 d-flex gap-2">
-                        <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success w-100">
-                            <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
-                        </a>
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-md-3 mt-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-funnel me-1"></i> Filtrar
+                            </button>
+                        </div>
+                
+                        <div class="col-md-3 mt-2 d-flex gap-2">
+                            <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success w-100">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle">
                     <thead class="table">
                         <tr>
-                            <th class="py-3" style="width: 15%">Fecha</th>
-                            <th class="py-3" style="width: 15%">Tipo</th>
-                            <th class="py-3" style="width: 20%">Elemento</th>
+                            <th class="py-3">Fecha</th>
+                            <th class="py-3">Tipo</th>
+                            <th class="py-3">Elemento</th>
                             <th class="py-3">Descripción</th>
-                            <th class="py-3" style="width: 10%">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="movimientos-container">
@@ -151,11 +141,6 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3">
-                                <button class="btn btn-sm btn-outline-primary rounded-circle" data-bs-toggle="tooltip" title="Ver detalles">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -173,7 +158,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 

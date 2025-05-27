@@ -75,7 +75,7 @@
             <div class="table-container">
                 <h2>Detalles de las Peticiones</h2>
 
-                <table class="table table-striped align-middle" id="tablaPeticiones">
+                <table class="table table-striped align-middle datatable" id="tablaPeticiones">
                     <thead>
                         <tr>
                             <th>Estado de Petición</th>

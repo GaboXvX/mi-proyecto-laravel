@@ -194,7 +194,7 @@
 </div>
 
 <script src="{{ asset('js/incidencias.js') }}"></script>
-<script src="{{asset('js/sweetalert2.min.js')}}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('js/registroIncidencias.js')}}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -31,7 +31,7 @@
     @endif
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover datatable">
             <thead class="thead-dark">
                 <tr>
                     <th>Nivel</th>

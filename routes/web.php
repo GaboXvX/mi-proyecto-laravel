@@ -174,7 +174,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::controller(institucionController::class)->prefix('instituciones')->group(function () {
             Route::get('/', 'index')->name('instituciones.index');
             Route::put('/{id_institucion}/logo', 'updateLogo')->name('instituciones.updateLogo');
-            Route::put('/{id_institucion}/membrete', 'updateMembrete')->name('instituciones.updateMembrete');
+            // Unificada: actualiza membrete y/o pie
+            Route::put('/{id_institucion}/membrete-pie', 'updateMembretePie')->name('instituciones.updateMembretePie');
         });
         Route::get('/incidencias/{id}/download', [IncidenciaController::class, 'downloadPdf'])
     ->name('incidencias.download');
@@ -188,5 +189,8 @@ Route::resource('niveles-incidencia', nivelIncidenciaController::class)    ->par
 Route::put('niveles-incidencia/{nivelIncidencia}/toggle-status', [NivelIncidenciaController::class, 'toggleStatus'])
     ->name('niveles-incidencia.toggle-status')
     ->middleware('auth');
+Route::put('/{id_institucion}/pie',[NivelIncidenciaController::class, 'updatePie'])->name('instituciones.updatePie');
+Route::get('/instituciones/estaciones/{institucionId}', [InstitucionController::class, 'getByInstitucion'])
+    ->name('instituciones.estaciones');
 });
 Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])->name('graficos.incidencias.download');

@@ -29,7 +29,7 @@
         <!-- Paso 1: Datos Básicos -->
         <div class="form-step active" id="step1">
             <div class="password-container">
-                <input type="text" id="cedula" name="cedula" class="form-control" placeholder="Ingrese su cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
+                <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" placeholder="Ingrese su cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
                 <span id="cedula_error" class="error-message"></span>
             </div>
 
@@ -55,14 +55,11 @@
                 <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
                 <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
                 <span id="password_error" class="error-message"></span>
+                <div id="error" class="mensaje-error"></div>
             </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <input type="text" id="altura" name="altura" class="form-control" placeholder="Altura" value="{{ old('altura') }}" required readonly>
-
-                    <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
-                </div>
+            <div class="password-container">
+                <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
             </div>
 
             <div class="password-container">
@@ -74,7 +71,7 @@
             <input type="hidden" name="estado" value="activo">
 
             <button type="button" class="btn-next" onclick="validarYAvanzar()">
-                Siguiente <i class="bi bi-arrow-right"></i>
+                Siguiente
             </button>
         </div>
 
@@ -115,6 +112,7 @@
     </form>
 </div>
 
+<script src="{{ asset('js/home.js') }}"></script>
 <script>
     // Función para mostrar notificación
    function mostrarNotificacion(mensaje, tipo) {

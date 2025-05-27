@@ -12,7 +12,9 @@ class MunicipioSeeder extends Seeder
         DB::table('municipios')->insert([
           [ 'nombre' => 'Sucre',  'id_estado' => 1, ],
             [ 'nombre' => 'Andrés Eloy Blanco',  'id_estado' => 1, ],
+            [ 'nombre' => 'Bermúdez',  'id_estado' => 2, ],
             
+
             
         ]); 
 }

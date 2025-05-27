@@ -1,4 +1,4 @@
-  document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     // Navegación entre pasos
     const steps = document.querySelectorAll('.step');
     const nextToStep2 = document.getElementById('next-to-step-2');
@@ -64,7 +64,8 @@
         estacionApoyoSelect.disabled = true;
         estacionApoyoSelect.innerHTML = '<option value="">Cargando estaciones...</option>';
 
-        const url = `/personal-reparacion/estaciones/${institucionId}`;
+        // Cambiar a la ruta API que siempre retorna JSON y es más robusta
+        const url = `/api/estaciones-por-institucion/${institucionId}`;
 
         fetch(url)
             .then(response => {
@@ -73,18 +74,17 @@
                 }
                 return response.json();
             })
-            .then(({ success, data }) => {
+            .then((data) => {
+                // data es un array de estaciones [{id_institucion_estacion, nombre}]
                 estacionApoyoSelect.innerHTML = '<option value="">Seleccione una estación</option>';
-
-                if (success && data.length > 0) {
+                if (Array.isArray(data) && data.length > 0) {
                     // Obtener las estaciones ya seleccionadas como apoyo
                     const estacionesYaSeleccionadas = Array.from(document.querySelectorAll('#lista-apoyo .list-group-item'))
                         .map(item => item.getAttribute('data-estacion-id'));
                     data.forEach(estacion => {
                         // Excluir la estación principal y las ya seleccionadas
-                        if (estacion.id != estacionPrincipalId && !estacionesYaSeleccionadas.includes(estacion.id.toString())) {
-                            const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
-                            const option = new Option(nombre, estacion.id);
+                        if (estacion.id_institucion_estacion != estacionPrincipalId && !estacionesYaSeleccionadas.includes(estacion.id_institucion_estacion.toString())) {
+                            const option = new Option(estacion.nombre, estacion.id_institucion_estacion);
                             estacionApoyoSelect.add(option);
                         }
                     });
@@ -577,53 +577,19 @@
             if (!response.ok) {
                 if (result.is_duplicate) {
                     await swalInstance.close();
-                    const { value: accept } = await Swal.fire({
-                        icon: 'warning',
+                    await Swal.fire({
                         title: 'Incidencia Duplicada',
-                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
+                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Comunidad:</strong> ${result.duplicate_data.comunidad || '-'}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
                         showCancelButton: true,
-                        confirmButtonText: 'Forzar registro',
+                        confirmButtonText: 'OK',
                         cancelButtonText: 'Cancelar',
                         focusConfirm: false,
                         allowOutsideClick: false
-                    });
-                    if (accept) {
-                        const forceInput = document.createElement('input');
-                        forceInput.type = 'hidden';
-                        forceInput.name = 'force_register';
-                        forceInput.value = '1';
-                        form.appendChild(forceInput);
-                        // --- ENVÍO AJAX FORZADO ---
-                        const formDataForce = new FormData(form);
-                        const responseForce = await fetch(form.action, {
-                            method: 'POST',
-                            body: formDataForce,
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-                        const resultForce = await responseForce.json();
-                        if (resultForce.success) {
-                            await Swal.fire({
-                                icon: 'success',
-                                title: '¡Éxito!',
-                                text: resultForce.message || 'Incidencia registrada correctamente.',
-                                confirmButtonText: 'Aceptar',
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                            if (resultForce.redirect_url) {
-                                window.location.href = resultForce.redirect_url;
-                            } else {
-                                window.location.reload();
-                            }
-                        } else {
-                            throw new Error(resultForce.message || 'Error al registrar la incidencia.');
+                    }).then((swalResult) => {
+                        if (swalResult.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/incidencias';
                         }
-                        return;
-                    }
+                    });
                     return;
                 }
                 throw new Error(result.message || `Error en la operación: ${response.statusText}`);

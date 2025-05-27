@@ -12,6 +12,8 @@ class EstadoSeeder extends Seeder
         // Crear los estados
         $estados = [
             ['nombre' => 'Sucre'],
+            ['nombre' => 'Miranda'],
+            
             
         ];
 

@@ -33,56 +33,52 @@
 <div class="table-container">
 
 <!-- Formulario principal de configuración -->
-            <form action="{{ route('usuarios.cambiar', $usuario->id_usuario) }}" method="POST" id="configuracionForm">
-                @csrf
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label for="inputCorreo" class="form-label">
-                                <i class="bi bi-envelope me-2"></i>
-                                Correo Electrónico
-                            </label>
-                            <input type="email" class="form-control form-control-sm" id="inputCorreo"
-                                name="email" value="{{ old('email', $usuario->email) }}"
-                                placeholder="Ingrese su correo electrónico" required>
-                            <small id="correoFeedback" class="form-text"></small>
-                        </div>
-                    </div>
+<form wire:submit.prevent="saveChanges" id="configuracionForm">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="inputCorreo" class="form-label">
+                    <i class="bi bi-envelope me-2"></i>
+                    Correo Electrónico
+                </label>
+                <input type="email" wire:model.defer="email" class="form-control form-control-sm" id="inputCorreo"
+                    placeholder="Ingrese su correo electrónico" required>
+                <small id="correoFeedback" class="form-text"></small>
+            </div>
+        </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label for="inputUsuario" class="form-label">
-                                <i class="bi bi-person-badge me-2"></i>
-                                Nombre de Usuario
-                            </label>
-                            <input type="text" class="form-control form-control-sm" id="inputUsuario"
-                                name="nombre_usuario"
-                                value="{{ old('nombre_usuario', $usuario->nombre_usuario) }}"
-                                placeholder="Ingrese su nombre de usuario" required>
-                            <small id="usuarioFeedback" class="form-text"></small>
-                        </div>
-                    </div>
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="inputUsuario" class="form-label">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Nombre de Usuario
+                </label>
+                <input type="text" wire:model.defer="nombre_usuario" class="form-control form-control-sm" id="inputUsuario"
+                    placeholder="Ingrese su nombre de usuario" required>
+                <small id="usuarioFeedback" class="form-text"></small>
+            </div>
+        </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label for="inputContraseña" class="form-label">
-                                <i class="bi bi-lock me-2"></i>
-                                Nueva Contraseña
-                            </label>
-                            <input type="password" class="form-control form-control-sm" id="inputContraseña"
-                                name="contraseña" placeholder="Ingrese su nueva contraseña" maxlength="18">
-                            <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
-                        </div>
-                    </div>
-                </div>
-                    
-                <div class="d-flex justify-content-center mt-3">
-                    <button type="submit" class="btn btn-success px-4" id="submitButton">
-                        <i class="bi bi-save me-2"></i>
-                        Guardar Cambios
-                    </button>
-                </div>
-            </form>
+        <div class="col-md-6">
+            <div class="form-group mb-3">
+                <label for="inputContraseña" class="form-label">
+                    <i class="bi bi-lock me-2"></i>
+                    Nueva Contraseña
+                </label>
+                <input type="password" wire:model.defer="contraseña" class="form-control form-control-sm" id="inputContraseña"
+                    placeholder="Ingrese su nueva contraseña" maxlength="18">
+                <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+        <button type="submit" class="btn btn-success px-4" id="submitButton">
+            <i class="bi bi-save me-2"></i>
+            Guardar Cambios
+        </button>
+    </div>
+</form>
 
     <!-- Sección de Preguntas de Seguridad -->
     <div class="security-questions">
@@ -173,6 +169,18 @@
             </div>
         </div>
 </div>
+
+<script>
+    Livewire.on('guardadoExitoso', () => {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Cambios guardados!',
+            text: 'Tu información se actualizó correctamente.',
+            confirmButtonColor: '#198754',
+        });
+    });
+</script>
+
 <script>
 // DEFINIR PRIMERO LA FUNCIÓN QUE GENERABA EL ERROR
 function habilitarRespuesta(selectElement) {

@@ -1,4 +1,4 @@
- document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     // Navegación entre pasos
     const steps = document.querySelectorAll('.step');
     const nextToStep2 = document.getElementById('next-to-step-2');
@@ -338,52 +338,19 @@
             if (!response.ok) {
                 if (result.is_duplicate) {
                     await swalInstance.close();
-                    const { value: accept } = await Swal.fire({
+                    await Swal.fire({
                         title: 'Incidencia Duplicada',
-                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
+                        html: `<div class="text-start"><p>${result.message}</p><div class="card mt-3"><div class="card-body"><h6 class="card-title">Detalles de la incidencia existente:</h6><p><strong>Código:</strong> ${result.duplicate_data.codigo}</p><p><strong>Descripción:</strong> ${result.duplicate_data.descripcion}</p><p><strong>Comunidad:</strong> ${result.duplicate_data.comunidad || '-'}</p><p><strong>Fecha:</strong> ${result.duplicate_data.fecha_creacion}</p><p><strong>Estado:</strong> ${result.duplicate_data.estado}</p><p><strong>Prioridad:</strong> ${result.duplicate_data.prioridad}</p><a href="${result.ver_url}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">Ver incidencia existente</a></div></div></div>`,
                         showCancelButton: true,
-                        confirmButtonText: 'Forzar actualización',
+                        confirmButtonText: 'OK',
                         cancelButtonText: 'Cancelar',
                         focusConfirm: false,
                         allowOutsideClick: false
-                    });
-                    if (accept) {
-                        const forceInput = document.createElement('input');
-                        forceInput.type = 'hidden';
-                        forceInput.name = 'force_register';
-                        forceInput.value = '1';
-                        form.appendChild(forceInput);
-                        // --- ENVÍO AJAX FORZADO ---
-                        const formDataForce = new FormData(form);
-                        const responseForce = await fetch(form.action, {
-                            method: 'POST',
-                            body: formDataForce,
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-                        const resultForce = await responseForce.json();
-                        if (resultForce.success) {
-                            await Swal.fire({
-                                icon: 'success',
-                                title: '¡Éxito!',
-                                text: resultForce.message || 'Incidencia actualizada correctamente.',
-                                confirmButtonText: 'Aceptar',
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                            if (resultForce.redirect_url) {
-                                window.location.href = resultForce.redirect_url;
-                            } else {
-                                window.location.reload();
-                            }
-                        } else {
-                            throw new Error(resultForce.message || 'Error al actualizar la incidencia.');
+                    }).then((swalResult) => {
+                        if (swalResult.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/incidencias';
                         }
-                        return;
-                    }
+                    });
                     return;
                 }
                 throw new Error(result.message || `Error en la operación: ${response.statusText}`);

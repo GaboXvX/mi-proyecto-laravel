@@ -143,7 +143,7 @@
 
     <!-- Tabla de Incidencias -->
     <div class="table-responsive">
-        <table class="table table-striped align-middle" id="tabla-incidencias">
+        <table class="table table-striped align-middle datatable" id="tabla-incidencias">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -166,29 +166,6 @@
     <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
 </div>
 
-<!-- DataTables CSS y JS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ asset('js/jquery.dataTables.min.js')}}"></script>
 <script src="{{ asset('js/incidencias.js') }}"></script>
-<script>
-    $(document).ready(function () {
-    let tabla = $('#tabla-incidencias').DataTable({
-        paging: true, 
-        ordering: false,     
-        searching: false, 
-        responsive: true,
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-        }
-    });
-
-    // Si deseas que se actualice al enviar el formulario de filtros
-    $('#filtros-form').on('change', 'input, select', function () {
-        $('#filtros-form').submit(); // esto recarga la vista y aplica filtros del lado del servidor
-    });
-});
-
-</script>
 
 @endsection

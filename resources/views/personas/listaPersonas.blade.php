@@ -23,7 +23,7 @@
     <div id="personas-lista">
         @if (!empty($personas) && count($personas) > 0)
             <div class="table-responsive">
-                <table class="table table-striped align-middle">
+                <table class="table table-striped align-middle datatable">
                     <thead>
                         <tr>
                             <th>Nombre</th>

@@ -20,13 +20,22 @@
                     <h5 class="mb-3">Datos Personales</h5>
                     
                     <div class="row g-2 mb-2">
-                        <label for="cedula" class="form-label">Cédula:</label>
-                        <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
-                        <div id="cedulaStatus" style="display: none; color: green;">
-                            <small>✔️ Cédula disponible</small>
+                        <div class="col-md-3">
+                            <label for="nacionalidad" class="form-label">Nacionalidad:</label>
+                            <select id="nacionalidad" name="nacionalidad" class="form-select" required>
+                                <option value="V">V</option>
+                                <option value="E">E</option>
+                            </select>
                         </div>
-                        <div id="cedulaError" style="color: red; display: none;">
-                            <small>❌ Esta cédula ya está registrada</small>
+                        <div class="col-md-9">
+                            <label for="cedula" class="form-label">Cédula:</label>
+                            <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
+                            <div id="cedulaStatus" style="display: none; color: green;">
+                                <small>✔️ Cédula disponible</small>
+                            </div>
+                            <div id="cedulaError" style="color: red; display: none;">
+                                <small>❌ Esta cédula ya está registrada</small>
+                            </div>
                         </div>
                     </div>
 
@@ -143,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const correoStatus = document.getElementById('correoStatus');
     const correoError = document.getElementById('correoError');
 
-    const requiredFields = ['cedula', 'nombre', 'apellido', 'correo', 'genero', 'telefono'];
+    const requiredFields = ['nacionalidad', 'cedula', 'nombre', 'apellido', 'correo', 'genero', 'telefono'];
 
     let datosAutocompletados = false; // Flag para saber si los campos fueron llenados automáticamente
 
@@ -153,6 +162,8 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('correo').value = '';
         document.getElementById('telefono').value = '';
         document.getElementById('genero').value = 'M';
+        document.getElementById('nacionalidad').value = 'V';
+        document.getElementById('nacionalidad').disabled = false;
     }
 
     function disablePersonalFields() {
@@ -193,15 +204,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     cedulaInput.addEventListener('input', function() {
         const cedula = cedulaInput.value;
+        const nacionalidadInput = document.getElementById('nacionalidad');
+        const nacionalidad = nacionalidadInput.value;
 
         if (cedula.length === 0) {
             if (datosAutocompletados) {
                 limpiarCamposPersonales();
                 enablePersonalFields();
+                nacionalidadInput.disabled = false;
                 datosAutocompletados = false;
             }
             cedulaError.style.display = 'none';
             cedulaStatus.style.display = 'none';
+            cedulaInput.classList.remove('input-verde', 'input-rojo');
             submitBtn.disabled = false;
             checkRequiredFields();
             return;
@@ -214,13 +229,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ cedula: cedula })
+                body: JSON.stringify({ cedula: cedula, nacionalidad: nacionalidad })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.existe) {
                     cedulaError.style.display = 'inline';
                     cedulaStatus.style.display = 'none';
+                    cedulaInput.classList.add('input-rojo');
+                    cedulaInput.classList.remove('input-verde');
                     submitBtn.disabled = true;
                     continuarBtn.disabled = true;
 
@@ -229,19 +246,26 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.getElementById('correo').value = data.persona.correo;
                     document.getElementById('telefono').value = data.persona.telefono;
                     document.getElementById('genero').value = data.persona.genero;
+                    if (data.persona.nacionalidad) {
+                        nacionalidadInput.value = data.persona.nacionalidad;
+                    }
 
                     disablePersonalFields();
+                    nacionalidadInput.disabled = true;
                     datosAutocompletados = true;
                 } else {
                     // Solo limpiar si venía de datos autocompletados
                     if (datosAutocompletados) {
                         limpiarCamposPersonales();
                         enablePersonalFields();
+                        nacionalidadInput.disabled = false;
                         datosAutocompletados = false;
                     }
 
                     cedulaError.style.display = 'none';
                     cedulaStatus.style.display = 'inline';
+                    cedulaInput.classList.add('input-verde');
+                    cedulaInput.classList.remove('input-rojo');
                     submitBtn.disabled = false;
                 }
 
@@ -254,6 +278,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             cedulaError.style.display = 'none';
             cedulaStatus.style.display = 'none';
+            cedulaInput.classList.remove('input-verde', 'input-rojo');
             submitBtn.disabled = false;
             checkRequiredFields();
         }
@@ -265,6 +290,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (correo.length === 0) {
             correoError.style.display = 'none';
             correoStatus.style.display = 'none';
+            correoInput.classList.remove('input-verde', 'input-rojo');
             submitBtn.disabled = false;
             checkRequiredFields();
             return;
@@ -283,11 +309,15 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.existe) {
                 correoError.style.display = 'inline';
                 correoStatus.style.display = 'none';
+                correoInput.classList.add('input-rojo');
+                correoInput.classList.remove('input-verde');
                 submitBtn.disabled = true;
                 continuarBtn.disabled = true;
             } else {
                 correoError.style.display = 'none';
                 correoStatus.style.display = 'inline';
+                correoInput.classList.add('input-verde');
+                correoInput.classList.remove('input-rojo');
                 submitBtn.disabled = false;
                 checkRequiredFields();
             }

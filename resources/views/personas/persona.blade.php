@@ -46,6 +46,10 @@
                             <td>{{ $persona->apellido }}</td>
                         </tr>
                         <tr>
+                            <th>Nacionalidad:</th>
+                            <td>{{ $persona->nacionalidad }}</td>
+                        </tr>
+                        <tr>
                             <th>Cédula:</th>
                             <td>{{ $persona->cedula }}</td>
                         </tr>
@@ -75,6 +79,7 @@
                             <th>Creado en:</th>
                             <td>{{ $persona->created_at->format('d/m/Y H:i') }}</td>
                         </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -309,6 +314,14 @@
                                 <select name="genero" id="genero" class="form-select" required>
                                     <option value="M" {{ old('genero', $persona->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
                                     <option value="F" {{ old('genero', $persona->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="nacionalidad" class="form-label">Nacionalidad:</label>
+                                <select name="nacionalidad" id="nacionalidad" class="form-select" required>
+                                    <option value="V" {{ old('nacionalidad', $persona->nacionalidad) == 'V' ? 'selected' : '' }}>V</option>
+                                    <option value="E" {{ old('nacionalidad', $persona->nacionalidad) == 'E' ? 'selected' : '' }}>E</option>
                                 </select>
                             </div>
 

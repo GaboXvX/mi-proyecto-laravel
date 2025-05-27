@@ -300,6 +300,14 @@ body {
 }
 /* fin */
 
+.input-verde{
+    border: 2px solid #28a745;
+}
+
+.input-rojo {
+    border: 2px solid #dc3545;
+}
+
 .is-invalid {
     border-color: #dc3545;
 }

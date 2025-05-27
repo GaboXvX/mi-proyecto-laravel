@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('nombre');
             $table->string('apellido');
+            $table->string('nacionalidad');
             $table->bigInteger('cedula')->unique();
             $table->char('genero');
             $table->string('correo', 320)->unique();

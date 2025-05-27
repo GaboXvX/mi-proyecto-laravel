@@ -29,5 +29,36 @@
             });
         });
     </script>
+    <script>
+        const passwordInput = document.getElementById("password");
+        const errorDiv = document.getElementById("error");
+
+        passwordInput.addEventListener("input", validarPassword);
+
+        function validarPassword() {
+            const password = passwordInput.value;
+            let mensaje = "";
+
+            if (password.length > 16) {
+            mensaje = "La contraseña no debe superar los 16 caracteres.";
+            } else if (password.length < 8) {
+            mensaje = "La contraseña debe tener al menos 8 caracteres.";
+            } else if (!/[A-Z]/.test(password)) {
+            mensaje = "Debe contener al menos una letra mayúscula.";
+            } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            mensaje = "Debe contener al menos un símbolo especial.";
+            }
+
+            if (mensaje) {
+            passwordInput.classList.add("error");
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = "block";
+            } else {
+            passwordInput.classList.remove("error");
+            errorDiv.textContent = "";
+            errorDiv.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

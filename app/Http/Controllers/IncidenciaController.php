@@ -131,13 +131,11 @@ class IncidenciaController extends Controller
             // 'pruebasAntes.0' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
-        $forceRegister = $request->boolean('force_register');
         $duplicada = $this->esIncidenciaDuplicada($request);
-
-        if ($duplicada && !$forceRegister) {
+        if ($duplicada) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $duplicada->cod_incidencia,
+                'message' => 'Ya existe una incidencia similar registrada.',
                 'is_duplicate' => true,
                 'codigo_duplicado' => $duplicada->cod_incidencia,
                 'slug_duplicado' => $duplicada->slug,
@@ -147,7 +145,8 @@ class IncidenciaController extends Controller
                     'descripcion' => $duplicada->descripcion,
                     'fecha_creacion' => $duplicada->created_at->format('d/m/Y H:i'),
                     'estado' => $duplicada->estadoIncidencia->nombre,
-                    'prioridad' => $duplicada->nivelIncidencia->nombre
+                    'prioridad' => $duplicada->nivelIncidencia->nombre,
+                    'comunidad' => $duplicada->direccionIncidencia->comunidad ? $duplicada->direccionIncidencia->comunidad->nombre : null,
                 ]
             ], 422);
         }
@@ -284,8 +283,8 @@ if ($request->hasFile('pruebasAntes')) {
 
 protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
 {
-    // Primero buscamos la dirección
-    $direccion = direccionIncidencia::where([
+    // Buscar direcciones con los mismos datos (excepto punto de referencia)
+    $direcciones = \App\Models\direccionIncidencia::where([
         'calle' => $request->input('calle'),
         'id_estado' => $request->input('estado'),
         'id_municipio' => $request->input('municipio'),
@@ -293,53 +292,36 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
         'id_urbanizacion' => $request->input('urbanizacion'),
         'id_sector' => $request->input('sector'),
         'id_comunidad' => $request->input('comunidad'),
-        'punto_de_referencia' => $request->input('punto_de_referencia'),
-    ])->first();
+    ])->get();
 
-    if (!$direccion) {
-        return null;
-    }
+    $puntoReferenciaNuevo = trim(mb_strtolower($request->input('punto_de_referencia', '')));
+    $umbralSimilitud = 80; // porcentaje mínimo de similitud
 
-    // Buscamos incidencias que coincidan y no estén atendidas
-    $query = Incidencia::with(['estadoIncidencia', 'institucionesApoyo'])
-        ->where([
-            'id_direccion_incidencia' => $direccion->id_direccion_incidencia,
-            'id_institucion' => $request->input('institucion'),
-            'id_institucion_estacion' => $request->input('estacion'),
-            'id_tipo_incidencia' => $request->input('tipo_incidencia'),
-            'id_nivel_incidencia' => $request->input('nivel_prioridad'),
-        ])
-        ->whereHas('estadoIncidencia', function($q) {
-            $q->where('nombre', '!=', 'Atendido')
-              ->where('nombre', '!=', 'Resuelto');
-        })
-        ->where('descripcion', 'like', '%' . $request->input('descripcion') . '%');
-
-    // Excluir la incidencia actual si se proporciona un ID
-    if ($excludeId) {
-        $query->where('id_incidencia', '!=', $excludeId);
-    }
-
-    $incidencia = $query->first();
-
-    // Si no hay instituciones de apoyo en la solicitud, retornamos lo encontrado
-    if (!$request->has('instituciones_apoyo') || empty($request->input('instituciones_apoyo'))) {
-        return $incidencia;
-    }
-
-    // Si hay instituciones de apoyo en la solicitud, verificamos coincidencias
-    if ($incidencia) {
-        $institucionesSolicitud = $request->input('instituciones_apoyo');
-        
-        $coincidencias = $incidencia->institucionesApoyo()
-            ->whereIn('id_institucion', $institucionesSolicitud)
-            ->count();
-        
-        if ($coincidencias > 0) {
-            return $incidencia;
+    foreach ($direcciones as $direccion) {
+        // Comparar punto de referencia con similitud de texto
+        $puntoExistente = trim(mb_strtolower($direccion->punto_de_referencia ?? ''));
+        similar_text($puntoReferenciaNuevo, $puntoExistente, $porcentaje);
+        if ($porcentaje >= $umbralSimilitud) {
+            // Buscar incidencia activa en esa dirección
+            $query = \App\Models\incidencia::with(['estadoIncidencia', 'institucionesApoyo'])
+                ->where('id_direccion_incidencia', $direccion->id_direccion_incidencia)
+                ->where('id_institucion', $request->input('institucion'))
+                ->where('id_institucion_estacion', $request->input('estacion'))
+                ->where('id_tipo_incidencia', $request->input('tipo_incidencia'))
+                ->where('id_nivel_incidencia', $request->input('nivel_prioridad'));
+            if ($excludeId) {
+                $query->where('id_incidencia', '!=', $excludeId);
+            }
+            $query->whereHas('estadoIncidencia', function($q) {
+                $q->where('nombre', '!=', 'Atendido')
+                  ->where('nombre', '!=', 'Resuelto');
+            });
+            $incidencia = $query->first();
+            if ($incidencia) {
+                return $incidencia;
+            }
         }
     }
-
     return null;
 }
 
@@ -497,13 +479,12 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
         $hayCambiosRelevantes = $this->hayCambiosRelevantes($incidencia, $request);
         
         if ($hayCambiosRelevantes) {
-            $forceRegister = $request->boolean('force_register');
             $posibleDuplicado = $this->esIncidenciaDuplicada($request, $incidencia->id_incidencia);
             
-            if ($posibleDuplicado && $posibleDuplicado->id_incidencia != $incidencia->id_incidencia && !$forceRegister) {
+            if ($posibleDuplicado && $posibleDuplicado->id_incidencia != $incidencia->id_incidencia) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ya existe una incidencia similar registrada bajo el código: ' . $posibleDuplicado->cod_incidencia,
+                    'message' => 'Ya existe una incidencia similar registrada.',
                     'is_duplicate' => true,
                     'codigo_duplicado' => $posibleDuplicado->cod_incidencia,
                     'slug_duplicado' => $posibleDuplicado->slug,
@@ -511,6 +492,7 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
                     'duplicate_data' => [
                         'codigo' => $posibleDuplicado->cod_incidencia,
                         'descripcion' => $posibleDuplicado->descripcion,
+                        'comunidad' => $posibleDuplicado->direccionIncidencia->comunidad ? $posibleDuplicado->direccionIncidencia->comunidad->nombre : null,
                         'fecha_creacion' => $posibleDuplicado->created_at->format('d/m/Y H:i'),
                         'estado' => $posibleDuplicado->estadoIncidencia->nombre,
                         'prioridad' => $posibleDuplicado->nivelIncidencia->nombre
@@ -1468,6 +1450,9 @@ public function downloadPdf($id)
     // Obtener el encabezado HTML de la institución propietaria (membrete)
     $membrete = $institucionPropietaria ? $institucionPropietaria->encabezado_html : '';
 
+    // Obtener el pie de página HTML de la institución propietaria
+    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el '.now()->format('d/m/Y H:i:s');
+
     // Filtrar imágenes 'Antes'
     $imagenesAntes = $incidencia->pruebasFotograficas->where('etapa_foto', 'Antes');
 
@@ -1480,6 +1465,7 @@ public function downloadPdf($id)
         'imagenesAntes' => $imagenesAntes,
         'logoBase64' => $logoBase64,
         'membrete' => $membrete,
+        'pie_html' => $pie_html,  // ¡Este es el parámetro que faltaba!
         'reparacion' => $reparacion,
     ])
     ->setOption('isRemoteEnabled', true)

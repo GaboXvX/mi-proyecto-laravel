@@ -33,6 +33,6 @@ class Municipio extends Model
     }
     public function direcciones()
     {
-        return $this->hasMany(Direccion::class, 'id_municipio'); 
+        return $this->hasMany(direccionIncidencia::class, 'id_municipio'); 
     }
 }

@@ -46,20 +46,21 @@ class UserConf extends Component
             'nombre_usuario' => 'required|unique:users,nombre_usuario,'.$this->usuario->id_usuario.',id_usuario',
             'contraseña' => 'nullable|min:6'
         ]);
-
-        // Actualizar usuario
+    
         $user = User::find($this->usuario->id_usuario);
         $user->email = $this->email;
         $user->nombre_usuario = $this->nombre_usuario;
-        
+    
         if (!empty($this->contraseña)) {
             $user->password = bcrypt($this->contraseña);
         }
-        
+    
         $user->save();
-
+    
         $this->isDirty = false;
-        session()->flash('message', 'Cambios guardados correctamente');
+    
+        // Emitir evento al frontend
+        $this->dispatch('guardadoExitoso');
     }
 
     public function setSection($section)

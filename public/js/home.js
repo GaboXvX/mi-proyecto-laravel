@@ -47,3 +47,36 @@ function togglePassword() {
       toggleIcon.classList.add("bi-eye-slash");
   }
 }
+
+// Validación de campos de formulario
+document.addEventListener('DOMContentLoaded', function () {
+  // Letras solamente (nombre, apellido, etc.)
+  const letraInputs = document.querySelectorAll('.solo-letras');
+  letraInputs.forEach(input => {
+      input.addEventListener('input', function () {
+          // Reemplaza todo lo que no sea letra o espacio
+          this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+
+          // Respeta el maxlength
+          const maxLength = this.getAttribute('maxlength');
+          if (maxLength && this.value.length > maxLength) {
+              this.value = this.value.slice(0, maxLength);
+          }
+      });
+  });
+
+  // Números solamente (cédula, teléfono, etc.)
+  const numeroInputs = document.querySelectorAll('.solo-numeros');
+  numeroInputs.forEach(input => {
+      input.addEventListener('input', function () {
+          // Reemplaza todo lo que no sea número
+          this.value = this.value.replace(/[^0-9]/g, '');
+
+          // Respeta el maxlength
+          const maxLength = this.getAttribute('maxlength');
+          if (maxLength && this.value.length > maxLength) {
+              this.value = this.value.slice(0, maxLength);
+          }
+      });
+  });
+});

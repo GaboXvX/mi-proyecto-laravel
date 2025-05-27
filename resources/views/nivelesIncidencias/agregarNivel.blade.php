@@ -26,11 +26,11 @@
 
         <div class="form-group">
             <label for="dias">Días para vencimiento</label>
-            <input type="number" class="form-control" id="dias" name="dias" min="0" value="{{ old('dias', 0) }}">
+            <input type="number" class="form-control solo-numeros" id="dias" name="dias" min="0" value="{{ old('dias', 0) }}">
         </div>
         <div class="form-group">
             <label for="horas_vencimiento">Horas para vencimiento</label>
-            <input type="number" class="form-control" id="horas_vencimiento" name="horas_vencimiento" min="0" value="{{ old('horas_vencimiento', 1) }}" required>
+            <input type="number" class="form-control solo-numeros" id="horas_vencimiento" name="horas_vencimiento" min="0" value="{{ old('horas_vencimiento', 1) }}" required>
         </div>
 
 
@@ -60,5 +60,23 @@
             });
         }
     });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const diasInput = document.getElementById('dias');
+    const horasInput = document.getElementById('horas_vencimiento');
+
+    diasInput.addEventListener('input', function () {
+        if (parseInt(diasInput.value) > 10) {
+            diasInput.value = 10;
+        }
+    });
+
+    horasInput.addEventListener('input', function () {
+        if (parseInt(horasInput.value) > 24) {
+            horasInput.value = 24;
+        }
+    });
+});
 </script>
 @endsection

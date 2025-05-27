@@ -135,6 +135,7 @@ class peticionController extends Controller
              'email' => $validated['email'],
              'password' => bcrypt($validated['password']),
              'id_estado_usuario' => 3, // No verificado
+             'id_role' => 2, // Asignar rol "registrador" por defecto
          ]);
  
          if (!$user) {

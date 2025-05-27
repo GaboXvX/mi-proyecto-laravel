@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nombre')->unique();
              $table->string('logo_path')->nullable();
               $table->text('encabezado_html',350)->nullable();
+            $table->text('pie_html',350)->nullable();
               $table->boolean('es_propietario');
             $table->timestamps();
         });

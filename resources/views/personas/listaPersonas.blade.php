@@ -11,7 +11,7 @@
                 </svg>
             </a>
             <button class="btn btn-success" onclick="window.location.href='{{ route('personas.download.pdf') }}'">
-            <i class="bi bi-file-earmark-arrow-down"></i> Descargar
+                <i class="bi bi-file-earmark-arrow-down"></i> Descargar
             </button>
         </div>
     </div>
@@ -152,18 +152,6 @@
                 </td>
             </tr>
         `).join('');
-    }
-
-    mostrarPaginacion(links) {
-        const paginationContainer = document.createElement('div');
-        paginationContainer.className = 'd-flex justify-content-center mt-4';
-        paginationContainer.innerHTML = links.map(link => `
-            <a href="#" class="page-link mx-1 ${link.active ? 'active' : ''}" data-page="${link.label}">${link.label}</a>
-        `).join('');
-        
-        // Reemplazar la paginación existente
-        const oldPagination = document.querySelector('.pagination');
-        if (oldPagination) oldPagination.replaceWith(paginationContainer);
     }
 }
 </script>

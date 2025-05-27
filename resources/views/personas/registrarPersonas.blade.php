@@ -31,7 +31,7 @@
                             <label for="cedula" class="form-label">Cédula:</label>
                             <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
                             <div id="cedulaStatus" style="display: none; color: green;">
-                                <small>✔️ Cédula disponible</small>
+                                <small>✔️ Cédula valida</small>
                             </div>
                             <div id="cedulaError" style="color: red; display: none;">
                                 <small>❌ Esta cédula ya está registrada</small>

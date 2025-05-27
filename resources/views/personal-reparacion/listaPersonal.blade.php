@@ -2,9 +2,14 @@
 
 @section('content')
 <div class="table-container">
-    <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Personal de Reparación</h2>
-        <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Nuevo</a>
+        <div>
+            <button class="btn btn-success" onclick="window.location.href='{{ route('personal.download.pdf') }}'">
+                <i class="bi bi-file-earmark-arrow-down"></i> Descargar
+            </button>
+            <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nuevo</a>
+        </div>
     </div>
 
     <div class="table-responsive">

@@ -34,18 +34,13 @@
             <a href="{{ route('personal-reparacion.index') }}" class="item text-decoration-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1zm3.63-4.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/></svg>
                 <h5 class="text-center">Personal reparación</h5>
-                <p></p>
+                <p>{{ $totalPersonal }}</p>
             </a>
 
             <a href="{{ route('instituciones.index') }}" class="item text-decoration-none">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zM4 5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM7.5 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zM4.5 8a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm2.5.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/><path d="M2 1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1zm11 0H3v14h3v-2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V15h3z"/></svg>
                 <h5>Instituciones</h5>
-                <p></p>
-            </a>
-
-            <!-- grafico de todas la incidencias registradas -->
-            <a href="{{ route('graficos.incidencias') }}" class="item text-decoration-none">
-                <canvas id="totalChart"></canvas>
+                <p>{{ $totalInstituciones }}</p>
             </a>
         </div>
     </main>
@@ -64,48 +59,5 @@
         // Actualizar el total de peticiones cada 30 segundos
         setInterval(actualizarTotalPeticiones, 30000);
     </script>
-    @if (!empty($datosTemporales['labels']) && !empty($datosTemporales['series']))
-    <script>
-        const datosTemporales = @json($datosTemporales ?? ['labels' => [], 'series' => []]);
-        console.log("Datos desde el backend:", datosTemporales);
-
-        const ctx = document.getElementById('temporalChart')?.getContext('2d');
-
-        if (ctx && datosTemporales.labels.length) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: datosTemporales.labels,
-                    datasets: datosTemporales.series.map(serie => ({
-                        label: serie.name,
-                        data: serie.data,
-                        borderColor: serie.borderColor || 'blue',
-                        backgroundColor: serie.backgroundColor || 'transparent',
-                        fill: false,
-                        tension: serie.tension || 0.4
-                    }))
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Resumen: Atendidas vs Pendientes'
-                        },
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        x: { title: { display: true, text: 'Fecha' } },
-                        y: { title: { display: true, text: 'Cantidad' }, beginAtZero: true }
-                    }
-                }
-            });
-        }
-    </script>
-@endif
-
 
 @endsection

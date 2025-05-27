@@ -3,11 +3,64 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .table th { background-color: #f2f2f2; }
-        .text-center { text-align: center; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .header img {
+            width: 100px;
+            height: auto;
+        }
+        .header h1 {
+            font-size: 18px;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        h2{
+            font-size: 18px;
+            margin: 2px 0;
+            color: #333;
+        }
+
+        .header p {
+            font-size: 14px;
+            margin: 5px 0;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: right;
+            font-size: 10px;
+            color: #777;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>

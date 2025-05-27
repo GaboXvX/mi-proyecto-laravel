@@ -177,6 +177,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             // Unificada: actualiza membrete y/o pie
             Route::put('/{id_institucion}/membrete-pie', 'updateMembretePie')->name('instituciones.updateMembretePie');
         });
+        Route::get('/personal/download-pdf', [PersonalController::class, 'downloadPdf'])->name('personal.download.pdf');
         Route::get('/incidencias/{id}/download', [IncidenciaController::class, 'downloadPdf'])
     ->name('incidencias.download');
 Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);

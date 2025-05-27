@@ -51,6 +51,7 @@ document.addEventListener('click', (e) => {
     sidebar.classList.remove('open');
   }
 });
+//----------------------------------------Fin--Sidebar---------------------------------------//
 
 // Validación de campos de formulario
 document.addEventListener('DOMContentLoaded', function () {

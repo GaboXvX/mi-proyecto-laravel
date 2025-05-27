@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Personal de Reparación</title>
+</head>
+<body>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,32 +59,33 @@
             padding-top: 10px;
         }
     </style>
-</head>
-<body>
+
     <div class="header">
-        <h1>Lista de Personas</h1>
+        <h1>Personal de Reparación</h1>
     </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Cédula</th>
-                <th>Correo</th>
-                <th>Teléfono</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($personas as $persona)
+    <table class="table table-striped datatable">
+            <thead>
                 <tr>
-                    <td>{{ $persona->nombre }}</td>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Institución</th>
+                    <th>Estación</th>
+                    <th>Cédula</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($personal as $persona)
+                <tr>
+                    <td>{{ $persona->nombre }} </td>
                     <td>{{ $persona->apellido }}</td>
+                    <td>{{ $persona->institucion->nombre ?? 'N/A' }}</td>
+                    <td>{{ $persona->institucionEstacion->nombre ?? 'N/A' }}</td>
                     <td>{{ $persona->cedula }}</td>
-                    <td>{{ $persona->correo }}</td>
                     <td>{{ $persona->telefono }}</td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+                @endforeach
+            </tbody>
+        </table>
 </body>
 </html>

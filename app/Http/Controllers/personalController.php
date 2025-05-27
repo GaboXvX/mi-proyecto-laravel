@@ -9,6 +9,7 @@ use App\Models\personalReparacion;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class personalController extends Controller
 {
@@ -195,5 +196,15 @@ public function validarCedulaDirecta($cedula)
         'message' => $exists ? 'La cédula ya está registrada.' : 'Cédula disponible.'
     ]);
 }
+
+    public function downloadPdf()
+    {
+        $personal = personalReparacion::all();
+        
+        $pdf = Pdf::loadView('personal-reparacion.listaPersonal_pdf', compact('personal'))
+                ->setPaper('a4', 'landscape');
+        
+        return $pdf->download('lista_personal.pdf');
+    }
 
 }

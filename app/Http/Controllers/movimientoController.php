@@ -44,7 +44,7 @@ class movimientoController extends Controller
                 $query->whereNotNull('id_persona');
                 break;
             case 'direccion':
-                $query->whereNotNull('id_direccion');
+                $query->whereNotNull('id_direccion_incidencia');
                 break;
             case 'incidencia':
                 $query->whereNotNull('id_incidencia');
@@ -52,7 +52,7 @@ class movimientoController extends Controller
             case 'sistema':
                 $query->whereNull('id_usuario_afectado')
                       ->whereNull('id_persona')
-                      ->whereNull('id_direccion')
+                      ->whereNull('id_direccion_incidencia')
                       ->whereNull('id_incidencia');
                 break;
         }
@@ -107,7 +107,7 @@ class movimientoController extends Controller
                     $query->whereNotNull('id_persona');
                     break;
                 case 'direccion':
-                    $query->whereNotNull('id_direccion');
+                    $query->whereNotNull('id_direccion_incidencia');
                     break;
                 case 'incidencia':
                     $query->whereNotNull('id_incidencia');
@@ -115,7 +115,7 @@ class movimientoController extends Controller
                 case 'sistema':
                     $query->whereNull('id_usuario_afectado')
                           ->whereNull('id_persona')
-                          ->whereNull('id_direccion')
+                          ->whereNull('id_direccion_incidencia')
                           ->whereNull('id_incidencia');
                     break;
             }
@@ -177,7 +177,7 @@ protected function applyFilters($query, Request $request)
                     $query->whereNotNull('id_persona');
                     break;
                 case 'direccion':
-                    $query->whereNotNull('id_direccion');
+                    $query->whereNotNull('id_direccion_incidencia');
                     break;
                 case 'incidencia':
                     $query->whereNotNull('id_incidencia');
@@ -185,7 +185,7 @@ protected function applyFilters($query, Request $request)
                 case 'sistema':
                     $query->whereNull('id_usuario_afectado')
                           ->whereNull('id_persona')
-                          ->whereNull('id_direccion')
+                          ->whereNull('id_direccion_incidencia')
                           ->whereNull('id_incidencia');
                     break;
             }

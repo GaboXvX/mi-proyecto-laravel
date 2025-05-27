@@ -70,7 +70,7 @@ class IncidenciaController extends Controller
             });
         })
         ->orderBy('created_at', 'desc')
-        ->paginate(10); // Paginación para mejorar la carga
+        ; // Paginación para mejorar la carga
 
         return view('incidencias.listaincidencias', compact('incidencias', 'estados', 'niveles'));
     } catch (\Exception $e) {
@@ -420,6 +420,8 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
                     ->get()
                 : collect();
             
+            // NUEVO: Pasar imágenes actuales (solo 'Antes')
+            $imagenesAntes = $incidencia->pruebasFotograficas->where('etapa_foto', 'Antes')->values();
             return view('incidencias.editarIncidencia', [
                 'incidencia' => $incidencia,
                 'tipos'=>$tipos,
@@ -434,6 +436,7 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
                 'urbanizacionActual' => $incidencia->direccionIncidencia->urbanizacion ?? null,
                 'sectorActual' => $incidencia->direccionIncidencia->sector ?? null,
                 'comunidadActual' => $incidencia->direccionIncidencia->comunidad ?? null,
+                'imagenesAntes' => $imagenesAntes,
             ]);
     
         } catch (\Exception $e) {
@@ -577,6 +580,52 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
         // Manejar instituciones de apoyo
         $this->actualizarInstitucionesApoyo($incidencia, $request);
 
+        // --- NUEVO: Manejar subida de nuevas imágenes 'Antes' ---
+        $imagenesActuales = PruebaFotografica::where('id_incidencia', $incidencia->id_incidencia)
+            ->where('etapa_foto', 'Antes')
+            ->count();
+        $maxImagenes = 3;
+        $imagenesRestantes = $maxImagenes - $imagenesActuales;
+
+        if ($imagenesRestantes > 0 && $request->hasFile('pruebasAntes')) {
+            $archivos = $request->file('pruebasAntes');
+            $guardadas = 0;
+            foreach ($archivos as $key => $file) {
+                if ($file && $imagenesActuales + $guardadas < $maxImagenes) {
+                    $path = $file->store('pruebasAntes', 'public');
+                    PruebaFotografica::create([
+                        'id_incidencia' => $incidencia->id_incidencia,
+                        'ruta' => $path,
+                        'observacion' => 'Imagen ' . ($imagenesActuales + $guardadas + 1) . ' de la incidencia',
+                        'etapa_foto' => 'Antes',
+                    ]);
+                    $guardadas++;
+                }
+            }
+        }
+        // --- FIN NUEVO ---
+
+        // --- REEMPLAZO DE IMÁGENES EXISTENTES ---
+        if ($request->has('reemplazo_imagen')) {
+            foreach ($request->file('reemplazo_imagen', []) as $id => $file) {
+                if ($file && is_numeric($id)) {
+                    $img = PruebaFotografica::find($id);
+                    if ($img && $img->id_incidencia == $incidencia->id_incidencia && $img->etapa_foto === 'Antes') {
+                        // Eliminar archivo anterior
+                        if ($img->ruta && Storage::disk('public')->exists($img->ruta)) {
+                            Storage::disk('public')->delete($img->ruta);
+                        }
+                        // Guardar nuevo archivo
+                        $nuevaRuta = $file->store('pruebasAntes', 'public');
+                        $img->ruta = $nuevaRuta;
+                        $img->observacion = 'Imagen reemplazada el ' . now()->format('d/m/Y H:i');
+                        $img->save();
+                    }
+                }
+            }
+        }
+        // --- FIN REEMPLAZO DE IMÁGENES ---
+
         // Registrar movimiento
         Movimiento::create([
             'id_incidencia' => $incidencia->id_incidencia,
@@ -646,33 +695,48 @@ protected function hayCambiosRelevantes(Incidencia $incidencia, Request $request
 protected function actualizarInstitucionesApoyo(Incidencia $incidencia, Request $request)
 {
     try {
-        // Eliminar instituciones de apoyo existentes
-        institucionApoyo::where('id_incidencia', $incidencia->id_incidencia)->delete();
-
-        // Registrar nuevas instituciones de apoyo si existen
-        if ($request->has('instituciones_apoyo') && is_array($request->instituciones_apoyo)) {
-            $institucionesApoyo = $request->input('instituciones_apoyo');
-            $estacionesApoyo = $request->input('estaciones_apoyo', []);
-
-            foreach ($institucionesApoyo as $index => $idInstitucion) {
-                if (empty($idInstitucion)) continue;
-
-                $idEstacion = $estacionesApoyo[$index] ?? null;
-
+        // Obtener las instituciones de apoyo actuales
+        $institucionesActuales = $incidencia->institucionesApoyo->pluck('id_institucion')->toArray();
+        
+        // Obtener las nuevas instituciones de apoyo del request
+        $institucionesNuevas = $request->input('instituciones_apoyo', []);
+        $estacionesNuevas = $request->input('estaciones_apoyo', []);
+        
+        // Identificar qué eliminar y qué agregar
+        $paraEliminar = array_diff($institucionesActuales, $institucionesNuevas);
+        $paraAgregar = array_diff($institucionesNuevas, $institucionesActuales);
+        
+        // Eliminar las que ya no están
+        if (!empty($paraEliminar)) {
+            institucionApoyo::where('id_incidencia', $incidencia->id_incidencia)
+                ->whereIn('id_institucion', $paraEliminar)
+                ->delete();
+        }
+        
+        // Agregar las nuevas
+        foreach ($institucionesNuevas as $index => $idInstitucion) {
+            // Verificar si ya existe esta combinación
+            $existe = institucionApoyo::where('id_incidencia', $incidencia->id_incidencia)
+                ->where('id_institucion', $idInstitucion)
+                ->where('id_institucion_estacion', $estacionesNuevas[$index] ?? null)
+                ->exists();
+                
+            if (!$existe) {
                 institucionApoyo::create([
                     'id_incidencia' => $incidencia->id_incidencia,
                     'id_institucion' => $idInstitucion,
-                    'id_institucion_estacion' => $idEstacion,
+                    'id_institucion_estacion' => $estacionesNuevas[$index] ?? null,
                 ]);
             }
         }
+        
     } catch (\Exception $e) {
         Log::error('Error al actualizar instituciones de apoyo', [
             'error' => $e->getMessage(),
             'incidencia_id' => $incidencia->id_incidencia,
             'data' => $request->all()
         ]);
-        throw $e; // Relanzar la excepción para que sea manejada por el método principal
+        throw $e;
     }
 }
 
@@ -684,6 +748,8 @@ public function atenderGuardar(Request $request, $slug)
         'pruebas_fotograficas.0' => 'required|image|mimes:jpeg,png,jpg|max:5120',
         'pruebas_fotograficas.1' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         'pruebas_fotograficas.2' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+        'institucion' => 'required|exists:instituciones,id_institucion',
+        'estacion' => 'required|exists:instituciones_estaciones,id_institucion_estacion',
     ]);
 
     try {
@@ -691,16 +757,13 @@ public function atenderGuardar(Request $request, $slug)
         if (!$incidencia) {
             return response()->json(['message' => 'Incidencia no encontrada.'], 404);
         }
-        
-        $institucion = Institucion::find($incidencia->id_institucion);
-        $institucionEstacion = InstitucionEstacion::find($incidencia->id_institucion_estacion);
+        // NO asignar por defecto la institución responsable de la incidencia
+        $institucion = Institucion::find($request->input('institucion'));
+        $institucionEstacion = InstitucionEstacion::find($request->input('estacion'));
         $slug = $this->generarSlugUnico($slug);
 
-        // Guardar el personal
+        // Guardar el personal de reparación con la institución/estación seleccionadas
         $personal = $this->registrarPersonalReparacion($request, $institucion, $institucionEstacion, $incidencia);
-
-        // Guardar todas las fotos en la tabla pruebas_fotograficas y obtener la primera
-       
 
         // Guardar la reparación con referencia a la prueba fotográfica principal
         $reparacion = ReparacionIncidencia::create([
@@ -714,9 +777,8 @@ public function atenderGuardar(Request $request, $slug)
         // Actualizar estado y registrar movimiento
         $incidencia->id_estado_incidencia = estadoIncidencia::where('nombre', 'Atendido')->first()->id_estado_incidencia;
         $incidencia->save();
- $fotos = $request->file('pruebas_fotograficas', []);
+        $fotos = $request->file('pruebas_fotograficas', []);
         $idPruebaPrincipal = null;
-        
         foreach ($fotos as $i => $foto) {
             if ($foto) {
                 $ruta = $foto->store('pruebas', 'public');
@@ -726,8 +788,6 @@ public function atenderGuardar(Request $request, $slug)
                     'ruta' => $ruta,
                     'etapa_foto' => 'atencion',
                 ]);
-                
-                // Guardamos el ID de la primera foto como principal
                 if ($i === 0) {
                     $idPruebaPrincipal = $prueba->id_prueba_fotografica;
                 }
@@ -1373,75 +1433,54 @@ protected function prepareChartData($incidenciasAtendidas, $totalesMensuales, $t
 public function downloadPdf($id)
 {
     $incidencia = Incidencia::with([
-        'tipoIncidencia', 'estadoIncidencia', 'nivelIncidencia',
-        'institucion', 'estacion.municipio',
-        'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia',
-        'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'direccionIncidencia.comunidad',
+        'pruebasFotograficas',
+        'tipoIncidencia',
+        'nivelIncidencia',
+        'estadoIncidencia',
+        'institucion',
+        'estacion.municipio',
+        'direccionIncidencia.estado',
+        'direccionIncidencia.municipio',
+        'direccionIncidencia.parroquia',
+        'direccionIncidencia.urbanizacion',
+        'direccionIncidencia.sector',
+        'direccionIncidencia.comunidad',
         'usuario.empleadoAutorizado',
-        'movimiento.usuario.empleadoAutorizado',
-        'reparacion.personalReparacion.institucion',
-        'reparacion.personalReparacion.InstitucionEstacion',
         'institucionesApoyo.institucion',
         'institucionesApoyo.Estacion',
+        'movimiento',
+        'reparacion.pruebasFotograficas',
     ])->findOrFail($id);
 
     // Obtener la institución propietaria (donde es_propietario = 1)
     $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
 
     // Obtener el logo de la institución propietaria y convertirlo a base64
-    $logoHtml = '';
+    $logoBase64 = null;
     if ($institucionPropietaria && $institucionPropietaria->logo_path) {
-        $logoPath = Storage::path('public/' . $institucionPropietaria->logo_path);
+        $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
         if (file_exists($logoPath)) {
             $logoData = base64_encode(file_get_contents($logoPath));
-            $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
-            $logoHtml = '<img src="data:image/' . $extension . ';base64,' . $logoData . '" style="height: 60px; margin-bottom: 10px;" alt="Logo">';
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
         }
     }
 
     // Obtener el encabezado HTML de la institución propietaria (membrete)
     $membrete = $institucionPropietaria ? $institucionPropietaria->encabezado_html : '';
 
-    // Construir el membrete HTML completo
-    $membreteHtml = '<div style="text-align: center;">';
-    
-    // Logo de la institución propietaria
-    $membreteHtml .= $logoHtml;
-    
-    // Nombre de la institución propietaria
-    $membreteHtml .= '<div style="margin-bottom: 5px;">';
-    $membreteHtml .= '<strong>' . ($institucionPropietaria ? $institucionPropietaria->nombre : 'Sistema de Gestión de Incidencias') . '</strong>';
-    $membreteHtml .= '</div>';
-    
-    // Sistema y detalles adicionales
-    $membreteHtml .= '<div style="font-size: 12px; margin-bottom: 5px;">';
-    $membreteHtml .= 'Reporte de Incidencia';
-    $membreteHtml .= '</div>';
-    
-    // Membrete personalizado si existe
-    if ($membrete) {
-        $membreteHtml .= '<div style="font-size: 10px;">';
-        $membreteHtml .= $membrete;
-        $membreteHtml .= '</div>';
-    }
-    
-    $membreteHtml .= '</div>';
+    // Filtrar imágenes 'Antes'
+    $imagenesAntes = $incidencia->pruebasFotograficas->where('etapa_foto', 'Antes');
 
-    // Imagen de prueba fotográfica (Base64)
-    if ($incidencia->reparacion && $incidencia->reparacion->prueba_fotografica) {
-        $imagePath = Storage::path('public/' . $incidencia->reparacion->prueba_fotografica);
-        if (file_exists($imagePath)) {
-            $imageData = base64_encode(file_get_contents($imagePath));
-            $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
-            $incidencia->reparacion->imageSrc = 'data:image/' . $extension . ';base64,' . $imageData;
-        }
-    }
+    // Obtener la reparación asociada si existe
+    $reparacion = $incidencia->reparacion ?? null;
 
     // Pasar los datos a la vista del PDF
     return FacadePdf::loadView('incidencias.DetallesIncidencia', [
         'incidencia' => $incidencia,
-        'reparacion' => $incidencia->reparacion ?? null,
-        'membrete'   => $membreteHtml
+        'imagenesAntes' => $imagenesAntes,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'reparacion' => $reparacion,
     ])
     ->setOption('isRemoteEnabled', true)
     ->setOption('isHtml5ParserEnabled', true)
@@ -1552,5 +1591,4 @@ public function downloadReport(Request $request)
 
     return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
 }
-
 }

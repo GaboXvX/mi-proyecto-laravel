@@ -197,12 +197,23 @@
     <div class="mt-3">
     <h5><i class="fas fa-camera"></i> Pruebas Fotográficas</h5>
     <div class="row">
-        @if($reparacion->pruebasFotograficas->isNotEmpty())
+        @if(isset($reparacion) && $reparacion && $reparacion->pruebasFotograficas && $reparacion->pruebasFotograficas->isNotEmpty())
             @foreach($reparacion->pruebasFotograficas as $foto)
                 <div class="col-md-4 mb-3">
                     <div class="card h-100">
-                        <img src="{{ asset('storage/'.$foto->ruta) }}" 
-                             class="card-img-top img-fluid" 
+                        @php
+                            // Si estamos generando PDF (logoBase64 está presente), usar base64 para la imagen
+                            $isPdf = isset($logoBase64);
+                            $imgSrc = '';
+                            if ($isPdf && $foto->ruta && file_exists(public_path('storage/'.$foto->ruta))) {
+                                $imgData = base64_encode(file_get_contents(public_path('storage/'.$foto->ruta)));
+                                $imgSrc = 'data:image/jpeg;base64,' . $imgData;
+                            } else {
+                                $imgSrc = asset('storage/'.$foto->ruta);
+                            }
+                        @endphp
+                        <img src="{{ $imgSrc }}"
+                             class="card-img-top img-fluid"
                              alt="Prueba fotográfica"
                              style="max-height: 250px; object-fit: cover;">
                         <div class="card-body">
@@ -247,6 +258,30 @@
             </div>
         </div>
     @endif
+
+    <!-- Imágenes de la incidencia (Antes) -->
+    <div class="section">
+        <div class="section-title">Imágenes de la Incidencia (Antes)</div>
+        <div class="row">
+            @php
+                $fotosAntes = isset($imagenesAntes)
+                    ? $imagenesAntes
+                    : ($incidencia->pruebasFotograficas ? $incidencia->pruebasFotograficas->where('etapa_foto', 'Antes') : collect());
+            @endphp
+            @forelse($fotosAntes as $foto)
+                @if($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
+                    <div class="col-6" style="margin-bottom: 10px; text-align: center;">
+                        <img src="{{ public_path('storage/' . $foto->ruta) }}" style="max-width: 100%; max-height: 180px; border: 1px solid #ccc; border-radius: 4px;">
+                        @if($foto->observacion)
+                            <div class="mt-1" style="font-size: 11px; color: #555;">{{ $foto->observacion }}</div>
+                        @endif
+                    </div>
+                @endif
+            @empty
+                <div class="col-12 text-muted"><em>No hay imágenes adjuntas</em></div>
+            @endforelse
+        </div>
+    </div>
 
 </main>
 

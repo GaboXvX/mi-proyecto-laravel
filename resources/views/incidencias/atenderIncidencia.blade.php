@@ -34,9 +34,6 @@
                                 <label for="cedula" class="form-label small mb-0">Cédula <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <input type="text" name="cedula" id="cedula" class="form-control solo-numeros py-2" maxlength="8" required pattern="\d+" placeholder="Ej: 12345678" oninput="limpiarAlertaEmpleado()">
-                                    <button type="button" class="btn btn-primary" onclick="buscarEmpleado()">
-                                        <i class="bi bi-search"></i> Buscar
-                                    </button>
                                 </div>
                             </div>
 
@@ -62,6 +59,22 @@
                             <div class="mb-2">
                                 <label for="apellido" class="form-label small mb-0">Apellido <span class="text-danger">*</span></label>
                                 <input type="text" name="apellido" id="apellido" class="form-control solo-letras form-control-sm py-2" required>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="institucion" class="form-label small mb-0">Institución de Procedencia <span class="text-danger">*</span></label>
+                                <select name="institucion" id="institucion" class="form-select form-select-sm py-2" required>
+                                    <option value="" selected disabled>Seleccione una institución</option>
+                                    @foreach(\App\Models\Institucion::orderBy('nombre')->get() as $institucion)
+                                        <option value="{{ $institucion->id_institucion }}">{{ $institucion->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label for="estacion" class="form-label small mb-0">Estación de Procedencia <span class="text-danger">*</span></label>
+                                <select name="estacion" id="estacion" class="form-select form-select-sm py-2" required>
+                                    <option value="" selected disabled>Seleccione una estación</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -196,6 +209,132 @@ function buscarEmpleado() {
         .catch(error => {
             empleadoInfo.className = 'alert alert-danger mt-3';
             empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
+            console.error('Error:', error);
+        });
+}
+
+
+// --- CARGA DINÁMICA DE ESTACIONES SEGÚN INSTITUCIÓN ---
+document.getElementById('institucion').addEventListener('change', function() {
+    const institucionId = this.value;
+    const estacionSelect = document.getElementById('estacion');
+    estacionSelect.innerHTML = '<option value="" disabled selected>Seleccione una estación</option>';
+    estacionSelect.value = '';
+    estacionSelect.disabled = true;
+    if (!institucionId) return;
+    fetch(`/personal-reparacion/estaciones/${institucionId}`)
+        .then(response => response.json())
+        .then(({ success, data }) => {
+            estacionSelect.innerHTML = '<option value="" disabled selected>Seleccione una estación</option>';
+            if (success && data.length > 0) {
+                data.forEach(estacion => {
+                    const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
+                    const option = new Option(nombre, estacion.id);
+                    estacionSelect.add(option);
+                });
+                estacionSelect.disabled = false;
+            } else {
+                estacionSelect.innerHTML = '<option value="" disabled selected>No hay estaciones disponibles</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar estaciones:', error);
+            estacionSelect.innerHTML = '<option value="" disabled selected>Error al cargar estaciones</option>';
+        });
+});
+
+// --- BÚSQUEDA AUTOMÁTICA DE PERSONAL POR CÉDULA ---
+const cedulaInput = document.getElementById('cedula');
+let timeoutBuscarEmpleado = null;
+cedulaInput.addEventListener('input', function() {
+    clearTimeout(timeoutBuscarEmpleado);
+    const cedula = this.value.trim();
+    if (cedula.length < 7) {
+        limpiarCamposPersonal();
+        desbloquearCamposPersonal();
+        return;
+    }
+    timeoutBuscarEmpleado = setTimeout(() => buscarEmpleadoAuto(cedula), 400);
+});
+
+function limpiarCamposPersonal() {
+    document.getElementById('nombre').value = '';
+    document.getElementById('apellido').value = '';
+    document.getElementById('telefono').value = '';
+    document.getElementById('nacionalidad').value = '';
+    document.getElementById('institucion').value = '';
+    document.getElementById('estacion').innerHTML = '<option value="" selected disabled>Seleccione una estación</option>';
+    document.getElementById('estacion').value = '';
+}
+function desbloquearCamposPersonal() {
+    ['nombre','apellido','telefono','nacionalidad','institucion','estacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.readOnly = false;
+            el.disabled = false;
+            el.classList.remove('bg-light');
+        }
+    });
+}
+function bloquearCamposPersonal() {
+    ['nombre','apellido','telefono','nacionalidad','institucion','estacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.readOnly = true;
+            el.disabled = true;
+            el.classList.add('bg-light');
+        }
+    });
+}
+function buscarEmpleadoAuto(cedula) {
+    if (!cedula) return;
+    const empleadoInfo = document.getElementById('empleado-info');
+    const empleadoMensaje = document.getElementById('empleado-mensaje');
+    empleadoInfo.className = 'alert alert-info mt-3';
+    empleadoMensaje.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Buscando empleado...';
+    empleadoInfo.classList.remove('d-none');
+    fetch(`/personal-de-reparaciones/buscar/${cedula}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.encontrado) {
+                empleadoInfo.className = 'alert alert-success mt-3';
+                empleadoMensaje.textContent = `Empleado encontrado: ${data.nombre} ${data.apellido}. Puede ser asignado.`;
+                document.getElementById('nombre').value = data.nombre;
+                document.getElementById('apellido').value = data.apellido;
+                document.getElementById('telefono').value = data.telefono || '';
+                document.getElementById('nacionalidad').value = data.nacionalidad || '';
+                if (data.id_institucion) {
+                    document.getElementById('institucion').value = data.id_institucion;
+                    fetch(`/personal-reparacion/estaciones/${data.id_institucion}`)
+                        .then(response => response.json())
+                        .then(({ success, data: estaciones }) => {
+                            const estacionSelect = document.getElementById('estacion');
+                            estacionSelect.innerHTML = '<option value="" disabled selected>Seleccione una estación</option>';
+                            if (success && estaciones.length > 0) {
+                                estaciones.forEach(estacion => {
+                                    const nombre = estacion.codigo ? `${estacion.nombre} (${estacion.codigo})` : estacion.nombre;
+                                    const option = new Option(nombre, estacion.id);
+                                    estacionSelect.add(option);
+                                });
+                                if (data.id_institucion_estacion) {
+                                    estacionSelect.value = data.id_institucion_estacion;
+                                }
+                            }
+                        });
+                }
+                bloquearCamposPersonal();
+            } else {
+                empleadoInfo.className = 'alert alert-warning mt-3';
+                empleadoMensaje.textContent = 'Personal no registrado. Puede proceder a registrarlo.';
+                limpiarCamposPersonal();
+                desbloquearCamposPersonal();
+            }
+        })
+        .catch(error => {
+            empleadoInfo.className = 'alert alert-danger mt-3';
+            empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
+            limpiarCamposPersonal();
+            desbloquearCamposPersonal();
             console.error('Error:', error);
         });
 }

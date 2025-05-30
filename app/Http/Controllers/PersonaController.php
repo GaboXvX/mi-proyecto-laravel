@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use App\Models\Institucion;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 
 class PersonaController extends Controller
 {
@@ -330,13 +332,33 @@ class PersonaController extends Controller
     }
 
     public function downloadPdf()
-    {
-        $personas = Persona::all(); // Ajusta la consulta según tus necesidades
-        
-        $pdf = Pdf::loadView('personas.listaPersonas_pdf', compact('personas'))
-                ->setPaper('a4', 'landscape'); // Opcional: 'portrait' para vertical
-        
-        return $pdf->download('lista_personas.pdf');
+{
+    $personas = Persona::all();
+
+    // Obtener institución propietaria
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+    // Logo base64
+    $logoBase64 = null;
+    if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+        $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
     }
+
+    $membrete = $institucionPropietaria->encabezado_html ?? '';
+    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    $pdf = Pdf::loadView('personas.listaPersonas_pdf', [
+        'personas' => $personas,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('lista_personas.pdf');
+}
 
 }

@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 class institucionController extends Controller
 {
-    // Muestra todas las instituciones con sus logos y membrêtes
-    public function index()
+    public function index(Request $request)
     {
-        $instituciones = Institucion::all();
+        $instituciones = Institucion::paginate(4);
+        
         return view('instituciones.listaInstituciones', compact('instituciones'));
     }
 

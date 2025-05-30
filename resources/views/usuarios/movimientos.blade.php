@@ -2,8 +2,11 @@
 
 @section('content')
 <div class="table-container py-4">
-        <div class="d-flex align-items-center">
+        <div class="d-flex justify-content-between align-items-center">
             <h2 class="mb-0">Registro de Movimientos en Tiempo Real</h2>
+            <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success">
+                <i class="bi bi-file-earmark-arrow-down"></i> Descargar listado
+            </a>
         </div>
 
         <div class="card-body p-0">
@@ -45,12 +48,6 @@
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="bi bi-funnel me-1"></i> Filtrar
                             </button>
-                        </div>
-                
-                        <div class="col-md-3 mt-2 d-flex gap-2">
-                            <a href="{{ route('movimientos.exportar', request()->all()) }}" class="btn btn-success w-100">
-                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Descargar listado
-                            </a>
                         </div>
                     </div>
                 </form>

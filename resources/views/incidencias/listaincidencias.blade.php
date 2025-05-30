@@ -148,12 +148,12 @@
                 <tr>
                     <th>Código</th>
                     <th>Tipo</th>
-                    <th>Descripción</th>
+                    <th>Comunidad</th>
+                    <th>Persona</th>
+                    <th>Registrado por</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
                     <th>Creación</th>
-                    <th>Registrado por</th>
-                    <th>Persona</th>
                     <th>Tiempo restante</th>
                     <th>Acciones</th>
                 </tr>

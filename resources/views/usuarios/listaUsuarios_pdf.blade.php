@@ -53,21 +53,27 @@
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .footer {
-            text-align: right;
+        
+        footer{
+            bottom: 0;
+            width: 100%;
+            text-align: center;
             font-size: 10px;
             color: #777;
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
             padding-top: 10px;
         }
     </style>
 </head>
 <body>
-    <!-- Membrete -->
     <div class="header">
-        <h1>Ministerio del Poder Popular para la Atención de las Aguas</h1>
+        <div style="text-align: center;">
+            @if(isset($logoBase64))
+                <img src="{{ $logoBase64 }}" style="height: 60px; margin-bottom: 10px;"><br>
+            @endif
+            {!! $membrete !!}
+        </div>
     </div>
+
     <h2 class="text-center">Lista de Empleados</h2>
     <table class="table">
         <thead>
@@ -100,5 +106,15 @@
             @endforeach
         </tbody>
     </table>
+
+    <footer>
+        @isset($pie_html)
+            {!! $pie_html !!}<br>
+        @endisset
+        <span style="color: #6c757d; font-size: 0.9em;">
+            Generado el {{ now()->format('d/m/Y H:i:s') }}
+        </span>
+    </footer>
+
 </body>
 </html>

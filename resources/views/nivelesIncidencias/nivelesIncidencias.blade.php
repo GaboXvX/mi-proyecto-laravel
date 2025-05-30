@@ -31,12 +31,13 @@
     @endif
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover datatable">
+        <table class="table table-striped table-hover">
             <thead class="thead-dark">
                 <tr>
                     <th>Nivel</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
+                    <th>Dias</th>
                     <th>Vencimiento (horas)</th>
                     <th>Color</th>
                     <th>Estado</th>

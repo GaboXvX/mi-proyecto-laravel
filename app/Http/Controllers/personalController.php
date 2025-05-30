@@ -197,14 +197,36 @@ public function validarCedulaDirecta($cedula)
     ]);
 }
 
-    public function downloadPdf()
-    {
-        $personal = personalReparacion::all();
-        
-        $pdf = Pdf::loadView('personal-reparacion.listaPersonal_pdf', compact('personal'))
-                ->setPaper('a4', 'landscape');
-        
-        return $pdf->download('lista_personal.pdf');
+public function downloadPdf()
+{
+    $personal = personalReparacion::all();
+
+    // Obtener institución propietaria
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+    // Convertir logo a base64
+    $logoBase64 = null;
+    if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+        $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
     }
+
+    // Membrete y pie de página
+    $membrete = $institucionPropietaria->encabezado_html ?? '';
+    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    // Generar PDF
+    $pdf = Pdf::loadView('personal-reparacion.listaPersonal_pdf', [
+        'personal' => $personal,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('lista_personal.pdf');
+}
 
 }

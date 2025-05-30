@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Movimiento;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Institucion;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Barryvdh\DomPDF\PDF;
 

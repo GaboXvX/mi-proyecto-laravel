@@ -12,6 +12,7 @@ use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Models\Permission as ModelsPermission;
 use Spatie\Permission\Models\Role;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Institucion;
 
 class UserController extends Controller
 {
@@ -230,13 +231,35 @@ class UserController extends Controller
     }
 
     public function downloadUsuariosPdf()
-    {
-        $usuarios = User::with('empleadoAutorizado')->get();
-        
-        $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', compact('usuarios'))
-                   ->setPaper('a4', 'landscape');
-        
-        return $pdf->download('lista_de_empleados.pdf');
+{
+    $usuarios = User::with('empleadoAutorizado')->get();
+
+    // Obtener la institución propietaria
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+    // Obtener el logo de la institución en base64
+    $logoBase64 = null;
+    if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+        $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
     }
-    
+
+    // Encabezado y pie de página
+    $membrete = $institucionPropietaria->encabezado_html ?? '';
+    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    // Generar el PDF
+    $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', [
+        'usuarios' => $usuarios,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('lista_de_empleados.pdf');
+}
+
 }

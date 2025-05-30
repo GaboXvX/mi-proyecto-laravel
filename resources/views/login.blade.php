@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="icon" href="{{ asset('img/icon.webp') }}" type="image/webp">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}">
 </head>
 <style>
     .alert-success{
@@ -111,8 +112,34 @@
         <p>&copy; 2024 Ministerio del Poder Popular para la Atención de las Aguas</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/home.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('desactivado') === '1') {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Has sido desactivado',
+                        text: 'Por favor consulte a un administrador para más información.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        confirmButtonText: 'Entendido'
+                    }).then(() => {
+                        // Limpiar el parámetro de la URL después de mostrar la alerta
+                        if (window.history.replaceState) {
+                            const url = new URL(window.location.href);
+                            url.searchParams.delete('desactivado');
+                            window.history.replaceState({}, document.title, url.pathname + url.search);
+                        }
+                    });
+                } else {
+                    alert('Has sido desactivado. Por favor consulte a un administrador para más información.');
+                }
+            }
+        });
+    </script>
     <script>
         // Espera 3 segundos y luego oculta la alerta
         setTimeout(function () {

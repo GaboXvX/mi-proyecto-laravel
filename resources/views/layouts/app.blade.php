@@ -69,7 +69,7 @@
                 <div class="sidebar-dropdown {{ $consultarActivo ? 'show' : '' }}" id="layouts">
                     <ul class="dropdown-nav">
                         @can('ver empleados')
-                        <li>
+                        <li data-permiso="ver empleados">
                             <a href="{{ route('usuarios.index') }}" class="sidebar-link {{ Route::is('usuarios.index') ? 'active' : '' }}">
                                 <i class="bi bi-people"></i>
                                 Empleados
@@ -127,7 +127,7 @@
 
             <!-- Estadísticas -->
             @can('ver grafica incidencia')
-            <li class="sidebar-item">
+            <li data-permiso="ver grafica incidencia" class="sidebar-item">
                 <a href="{{ route('graficos.incidencias') }}" class="sidebar-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
                     <i class="bi bi-bar-chart-line"></i>
                     Estadísticas
@@ -419,5 +419,72 @@
             });
         });
     </script> 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    setInterval(function () {
+        fetch('/usuario/estado', { credentials: 'same-origin' })
+            .then(res => {
+                if (res.status === 401) {
+                    // Ya no está autenticado
+                    window.location.href = "{{ route('login') }}?desactivado=1";
+                    return;
+                }
+                // Si la respuesta no es JSON, redirige
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    window.location.href = "{{ route('login') }}?desactivado=1";
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.activo === false) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Has sido desactivado',
+                        text: 'Por favor consulte a un administrador para más información.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: true
+                    }).then(() => {
+                        window.location.href = "{{ route('login') }}?desactivado=1";
+                    });
+                }
+            });
+    }, 5000);
+});
+</script>
+@if(auth()->check() && auth()->user()->id_estado_usuario == 2)
+    <script>
+        // Cierra la sesión y redirige
+        window.location.href = "{{ route('logout') }}";
+    </script>
+@endif
+<script>
+// === CONTROL DINÁMICO DE PERMISOS EN EL FRONT ===
+document.addEventListener('DOMContentLoaded', function () {
+    function actualizarVisibilidadPorPermisos(permisos) {
+        document.querySelectorAll('[data-permiso]').forEach(function(el) {
+            const permiso = el.getAttribute('data-permiso');
+            if (permisos.includes(permiso)) {
+                el.style.display = '';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+    function cargarPermisosYActualizar() {
+        fetch('/usuario/permisos', { credentials: 'same-origin' })
+            .then(res => res.json())
+            .then(data => {
+                if (data && Array.isArray(data.permisos)) {
+                    actualizarVisibilidadPorPermisos(data.permisos);
+                }
+            });
+    }
+    cargarPermisosYActualizar();
+    setInterval(cargarPermisosYActualizar, 5000);
+});
+</script>
 </body>
 </html>

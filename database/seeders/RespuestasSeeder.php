@@ -15,9 +15,9 @@ class RespuestasSeeder extends Seeder
     {
       
         $respuestas_de_seguridad = [
-            ['id_pregunta' => 1, 'id_usuario' => 1, 'respuesta' => 'Firulais'],
-            ['id_pregunta' => 2, 'id_usuario' => 1, 'respuesta' => 'Madrid'],
-            ['id_pregunta' => 3, 'id_usuario' => 1, 'respuesta' => 'Carlos'],
+            ['id_pregunta' => 1, 'id_usuario' => 1, 'respuesta' => \Illuminate\Support\Facades\Hash::make('Firulais')],
+            ['id_pregunta' => 2, 'id_usuario' => 1, 'respuesta' => \Illuminate\Support\Facades\Hash::make('Madrid')],
+            ['id_pregunta' => 3, 'id_usuario' => 1, 'respuesta' => \Illuminate\Support\Facades\Hash::make('Carlos')],
         ];
 
         DB::table('respuestas_de_seguridad')->insert($respuestas_de_seguridad);

@@ -12,27 +12,61 @@ use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Models\Permission as ModelsPermission;
 use Spatie\Permission\Models\Role;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->id_estado_usuario == 2) {
+                Auth::logout();
+                session()->invalidate();
+                session()->regenerateToken();
+                return redirect()->route('login')->with('error', 'Su usuario ha sido desactivado.');
+            }
+            // Si la ruta requiere permiso y no lo tiene, mostrar vista personalizada
+            $route = $request->route();
+            $action = $route ? $route->getAction() : [];
+            if (isset($action['permission']) && !auth()->user()->can($action['permission'])) {
+                return response()->view('errors.sin-permiso', [], 403);
+            }
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
-        // Verificar si la solicitud es AJAX
-        if ($request->ajax()) {
-            $peticiones = User::where('id_estado_usuario', 3)
-                              ->orWhere('id_estado_usuario', 4)
-                              ->orWhere('id_estado_usuario', 1)
-                              ->with(['estadoUsuario', 'empleadoAutorizado', 'roles']) // Cargar roles
-                              ->get();
+        $filtro = $request->input('filtro', 'todos');
+        $usuarios = User::with(['empleadoAutorizado', 'roles'])->get();
+        $idsUsuarios = $usuarios->pluck('empleadoAutorizado.id_empleado_autorizado')->filter()->toArray();
+        $empleadosSinUsuario = \App\Models\EmpleadoAutorizado::with('cargo')
+            ->whereNotIn('id_empleado_autorizado', $idsUsuarios)
+            ->get();
 
-            return response()->json($peticiones);
+        if ($filtro === 'registrados') {
+            // Solo usuarios con empleadoAutorizado
+            $usuarios = $usuarios->filter(fn($u) => $u->empleadoAutorizado)->values();
+            $empleadosSinUsuario = collect();
+        } elseif ($filtro === 'no_registrados') {
+            // Solo empleados sin usuario
+            $usuarios = collect();
+            // $empleadosSinUsuario ya está correcto
         }
 
-        // Si no es AJAX, cargar la vista como de costumbre
-        $usuarios = User::with(['empleadoAutorizado', 'roles'])->get(); // Cargar roles
-        $permisos = ModelsPermission::all(); // Obtener todos los permisos disponibles
-        $roles = Role::all(); // Obtener todos los roles
-        return view('usuarios.listaUsuarios', compact('usuarios', 'roles', 'permisos'));
+        $permisos = \Spatie\Permission\Models\Permission::all();
+        $roles = \Spatie\Permission\Models\Role::all();
+
+        // Si la petición es AJAX, devolver solo la tabla como HTML parcial
+        if ($request->ajax()) {
+            return response()->view('usuarios.partials.tabla_usuarios', [
+                'usuarios' => $usuarios,
+                'empleadosSinUsuario' => $empleadosSinUsuario
+            ]);
+        }
+
+        return view('usuarios.listaUsuarios', compact('usuarios', 'roles', 'permisos', 'empleadosSinUsuario', 'filtro'));
     }
 
     public function create()
@@ -79,8 +113,6 @@ class UserController extends Controller
     {
         try {
             $usuario = User::where('id_usuario', $id)->first();
-            
-            // Eliminar verificación de roles
             $usuario->id_estado_usuario = 2; // Estado desactivado
             $usuario->save();
             $movimiento = new movimiento();
@@ -88,6 +120,13 @@ class UserController extends Controller
             $movimiento->id_usuario_afectado = $usuario->id_usuario;
             $movimiento->descripcion = 'se desactivo un usuario';
             $movimiento->save();
+            // Si el usuario desactivado es el autenticado, cerrar su sesión
+            if (auth()->check() && auth()->user()->id_usuario == $usuario->id_usuario) {
+                Auth::logout();
+                session()->invalidate();
+                session()->regenerateToken();
+                return redirect()->route('login')->with('error', 'Su usuario ha sido desactivado.');
+            }
             return redirect()->route('usuarios.index')->with('success', 'Usuario desactivado correctamente');
         } catch (\Exception $e) {
             return redirect()->route('usuarios.index')->with('error', 'Error al desactivar el usuario: ' . $e->getMessage());
@@ -238,5 +277,31 @@ class UserController extends Controller
         
         return $pdf->download('lista_de_empleados.pdf');
     }
-    
+    public function renovarIntentos($id_usuario)
+    {
+        $usuario = User::findOrFail($id_usuario);
+        try {
+            $usuario->intentos_renovacion = 0;
+            $usuario->save();
+            return redirect()->route('usuarios.index')->with('success', 'Intentos de recuperación renovados correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('usuarios.index')->with('error', 'No se pudo renovar los intentos: ' . $e->getMessage());
+        }
+    }
+
+    // Devuelve los permisos actuales del usuario autenticado (para AJAX)
+    public function misPermisos(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['permisos' => []]);
+        }
+        // Si es admin, devolver todos los permisos
+        if ($user->hasRole('admin')) {
+            $todos = \Spatie\Permission\Models\Permission::pluck('name');
+            return response()->json(['permisos' => $todos]);
+        }
+        $permisos = $user->permissions->pluck('name');
+        return response()->json(['permisos' => $permisos]);
+    }
 }

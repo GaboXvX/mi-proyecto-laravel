@@ -61,9 +61,9 @@
                 </div>
 
                 <div class="d-flex justify-content-between m-3">
-                    <a href="{{ route('incidencias.index') }}" class="btn btn-secondary btn-sm py-2 px-3">
-                        Cancelar
-                    </a>
+                   <a href="{{ request()->headers->get('referer') && str_contains(request()->headers->get('referer'), '/personas') ? request()->headers->get('referer') : route('personas.index') }}" class="btn btn-secondary btn-sm py-2 px-3">
+    Cancelar
+</a>
                     <button type="button" class="btn btn-primary" id="next-to-step-2">Siguiente</button>
                 </div>
             </div>

@@ -75,12 +75,12 @@ class RecuperarController extends Controller
             'pregunta_id' => 'required|exists:preguntas_de_seguridad,id_pregunta',
         ]);
 
-        $respuestaCorrecta = RespuestaDeSeguridad::where('id_usuario', $request->usuario_id)
-                                                  ->where('id_pregunta', $request->pregunta_id)
-                                                  ->value('respuesta');
+        $respuestaHash = \App\Models\RespuestaDeSeguridad::where('id_usuario', $request->usuario_id)
+            ->where('id_pregunta', $request->pregunta_id)
+            ->value('respuesta');
 
-        if ($respuestaCorrecta && $respuestaCorrecta === $request->respuesta) {
-            $token = Str::random(40);
+        if ($respuestaHash && \Illuminate\Support\Facades\Hash::check($request->respuesta, $respuestaHash)) {
+            $token = \Illuminate\Support\Str::random(40);
             session(['token_cambiar_clave' => $token, 'usuario_validado' => $request->usuario_id]);
 
             return response()->json([

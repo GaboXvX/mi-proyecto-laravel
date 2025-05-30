@@ -65,13 +65,13 @@ class peticionController extends Controller
        }
    
        // Asegúrate que estos campos coincidan con tu BD
+       $yaRegistrado = \App\Models\User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists();
        return response()->json([
            'nombre' => $empleado->nombre,
            'apellido' => $empleado->apellido,
            'genero' => $empleado->genero,
-           'fecha_nacimiento' => $empleado->fecha_nacimiento,
-           'altura' => $empleado->altura,
-           'cargo' => $empleado->cargo->nombre_cargo,
+           'cargo' => $empleado->cargo ? $empleado->cargo->nombre_cargo : '',
+           'ya_registrado' => $yaRegistrado
        ]);
    }
 
@@ -153,7 +153,7 @@ class peticionController extends Controller
              RespuestaDeSeguridad::create([
                  'id_usuario' => $user->id_usuario,
                  'id_pregunta' => $validated["pregunta_$i"],
-                 'respuesta' => $validated["respuesta_$i"],
+                 'respuesta' => \Illuminate\Support\Facades\Hash::make($validated["respuesta_$i"]),
              ]);
          }
  

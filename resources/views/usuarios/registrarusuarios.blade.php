@@ -59,18 +59,14 @@
 
             <div class="row">
                 <div class="form-group">
-                    <input type="text" id="altura" name="altura" class="form-control" placeholder="Altura" value="{{ old('altura') }}" required readonly>
-
                     <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
-                </div>
-            </div>
-
-            <div class="password-container">
-                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control" value="{{ old('fecha_nacimiento') }}" required max="{{ date('Y-m-d') }}" readonly>
-            </div>
-            <div class="password-container">
+                
                 <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
             </div>
+            </div>
+
+           
+            
             <input type="hidden" name="estado" value="activo">
 
             <button type="button" class="btn-next" onclick="validarYAvanzar()">
@@ -130,14 +126,6 @@
     }, 3000);
 }
 
-    // Validar altura
-    function validarAltura() {
-        let alturaInput = document.getElementById('altura');
-        if (alturaInput.value < 0) {
-            alturaInput.value = 0;
-        }
-    }
-
     // Mostrar/ocultar contraseña
     function mostrarIconoOjo() {
         const passwordInput = document.getElementById('password');
@@ -167,20 +155,23 @@
     function buscarEmpleado() {
     const cedula = document.getElementById('cedula').value.trim();
     const cedulaError = document.getElementById('cedula_error');
+    const btnSiguiente = document.querySelector('.btn-next');
 
     // Limpiar campos
-    ['nombre', 'apellido', 'genero', 'fecha_nacimiento', 'altura'].forEach(id => {
+    ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
         document.getElementById(id).value = '';
     });
 
     cedulaError.textContent = '';
     cedulaError.classList.remove('active');
+    btnSiguiente.disabled = false;
 
     if (!cedula) return;
 
     cedulaError.textContent = 'Buscando...';
     cedulaError.style.color = '#3498db';
     cedulaError.classList.add('active');
+    btnSiguiente.disabled = true;
 
     fetch(`/buscar-empleado?cedula=${encodeURIComponent(cedula)}`, {
         headers: {
@@ -197,26 +188,34 @@
     })
     .then(data => {
         if (data.error) throw new Error(data.error);
-
+        if (data.ya_registrado) {
+            cedulaError.textContent = 'Este empleado ya tiene un usuario registrado.';
+            cedulaError.style.color = '#e74c3c';
+            cedulaError.classList.add('active');
+            btnSiguiente.disabled = true;
+            // Limpiar campos
+            ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            return;
+        }
         // Asignar valores a los campos
         document.getElementById('nombre').value = data.nombre || '';
         document.getElementById('apellido').value = data.apellido || '';
         document.getElementById('genero').value = data.genero || '';
-        document.getElementById('fecha_nacimiento').value = data.fecha_nacimiento || '';
-        document.getElementById('altura').value = data.altura || '';
         document.getElementById('cargo').value = data.cargo || '';
-        // Mantener el formato original de la altura
 
         cedulaError.textContent = '';
         cedulaError.classList.remove('active');
+        btnSiguiente.disabled = false;
     })
     .catch(error => {
         console.error("Error:", error);
         cedulaError.textContent = error.message;
         cedulaError.style.color = '#e74c3c';
         cedulaError.classList.add('active');
-
-        ['nombre', 'apellido', 'genero', 'fecha_nacimiento', 'altura'].forEach(id => {
+        btnSiguiente.disabled = true;
+        ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
             document.getElementById(id).value = '';
         });
     });

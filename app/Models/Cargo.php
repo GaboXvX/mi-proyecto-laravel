@@ -12,7 +12,7 @@ class Cargo extends Model
     protected $primaryKey = 'id_cargo';
 
     protected $fillable = [
-        'nombre',
+        'nombre_cargo',
     ];
 
     public function empleadosAutorizados()

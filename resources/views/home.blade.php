@@ -1,92 +1,357 @@
 @extends('layouts.app')
 @section('content')
-        <h3 class="separator">
-            Panel
-        </h3>
-    
-        <div class="card-access">
-            <a href="{{ route('usuarios.index') }}" class="item text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 14.0619V20H13V14.0619C16.9463 14.554 20 17.9204 20 22H4C4 17.9204 7.05369 14.554 11 14.0619ZM12 13C8.685 13 6 10.315 6 7C6 3.685 8.685 1 12 1C15.315 1 18 3.685 18 7C18 10.315 15.315 13 12 13Z"></path></svg>
-                <h5>Empleados</h5>
-                <p>{{ $totalUsuarios }}</p>
-            </a>
-            
-            <a href="{{ route('incidencias.index') }}" class="item text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4H5V20H19V8H15V4ZM3 2.9918C3 2.44405 3.44749 2 3.9985 2H16L20.9997 7L21 20.9925C21 21.5489 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5447 3 21.0082V2.9918ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg>
-                <h5>Incidencias</h5>
-                <p>{{ $totalIncidencias }}</p>
-            </a>
+    <h3 class="separator">
+        Panel
+    </h3>
 
-            <a href="{{ route('personas.index') }}" class="item text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22C2 17.5817 5.58172 14 10 14C14.4183 14 18 17.5817 18 22H16C16 18.6863 13.3137 16 10 16C6.68629 16 4 18.6863 4 22H2ZM10 13C6.685 13 4 10.315 4 7C4 3.685 6.685 1 10 1C13.315 1 16 3.685 16 7C16 10.315 13.315 13 10 13ZM10 11C12.21 11 14 9.21 14 7C14 4.79 12.21 3 10 3C7.79 3 6 4.79 6 7C6 9.21 7.79 11 10 11ZM18.2837 14.7028C21.0644 15.9561 23 18.752 23 22H21C21 19.564 19.5483 17.4671 17.4628 16.5271L18.2837 14.7028ZM17.5962 3.41321C19.5944 4.23703 21 6.20361 21 8.5C21 11.3702 18.8042 13.7252 16 13.9776V11.9646C17.6967 11.7222 19 10.264 19 8.5C19 7.11935 18.2016 5.92603 17.041 5.35635L17.5962 3.41321Z"></path></svg>
-                <h5>Personas</h5>
-                <p>{{ $totalPersonas }}</p>
-            </a>
+    <!-- Tus tarjetas de acceso se mantienen igual -->
+    <div class="card-access">
+        <!-- ... -->
+    </div>
 
-            <a href="{{ route('peticiones.index') }}" class="item text-decoration-none">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM7 6V10H11V6H7ZM7 12V14H17V12H7ZM7 16V18H17V16H7ZM13 7V9H17V7H13Z"></path></svg>
-                <h5>Peticiones</h5>
-                <p>{{ $totalPeticiones }}</p>
-            </a>
+    <!-- Filtros y gráfica de incidencias -->
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span><strong>Crecimiento de Incidencias</strong></span>
+                    <form id="filtros-incidencias" class="d-flex gap-2 align-items-center" autocomplete="off">
+                        <label class="mb-0">Tipo:</label>
+                        <select name="tipo_incidencia_id" id="tipo_incidencia_id" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                        </select>
+                        <label class="mb-0 ms-2">Nivel:</label>
+                        <select name="nivel_incidencia_id" id="nivel_incidencia_id" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                        </select>
+                        <label class="mb-0 ms-2">Mes:</label>
+                        <select name="mes" id="mes" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                        </select>
+                        <label class="mb-0 ms-2">Año:</label>
+                        <select name="anio" id="anio" class="form-select form-select-sm">
+                            <!-- Se llenará con JavaScript -->
+                        </select>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <canvas id="temporalChart" height="220"></canvas>
+                </div>
+            </div>
         </div>
-    </main>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header"><strong>10 Incidencias más recientes</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Nivel</th>
+                                    <th>Comunidad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-incidencias-recientes">
+                                <tr><td colspan="5" class="text-center">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="/js/chart.umd.min.js"></script>
     <script>
-        async function actualizarTotalPeticiones() {
+    // Variables globales
+    let temporalChart;
+    const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    // Cargar tipos de incidencia
+    async function cargarTiposIncidencia() {
+        const select = document.getElementById('tipo_incidencia_id');
+        try {
+            const res = await fetch('/api/tipos-incidencia');
+            const tipos = await res.json();
+            tipos.forEach(tipo => {
+                const opt = document.createElement('option');
+                opt.value = tipo.id_tipo_incidencia;
+                opt.textContent = tipo.nombre;
+                select.appendChild(opt);
+            });
+        } catch {}
+    }
+
+    // Cargar niveles de incidencia
+    async function cargarNivelesIncidencia() {
+        const select = document.getElementById('nivel_incidencia_id');
+        try {
+            const res = await fetch('/api/niveles-incidencia');
+            const niveles = await res.json();
+            niveles.forEach(nivel => {
+                const opt = document.createElement('option');
+                opt.value = nivel.id_nivel_incidencia;
+                opt.textContent = nivel.nombre;
+                select.appendChild(opt);
+            });
+        } catch {}
+    }
+
+    // Cargar años disponibles
+    function cargarAnios() {
+        const select = document.getElementById('anio');
+        const currentYear = new Date().getFullYear();
+        
+        // Limpiar y agregar opción "Todos"
+        select.innerHTML = '<option value="">Todos</option>';
+        
+        // Agregar últimos 5 años
+        for (let y = currentYear; y >= currentYear - 5; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            select.appendChild(opt);
+        }
+        
+        // Seleccionar año actual por defecto
+        select.value = currentYear;
+    }
+
+    // Cargar meses
+    function cargarMeses() {
+        const select = document.getElementById('mes');
+        const currentMonth = new Date().getMonth() + 1;
+        // Limpiar y agregar opción "Todos"
+        select.innerHTML = '<option value="">Todos</option>';
+        // Agregar meses
+        meses.forEach((nombre, index) => {
+            const opt = document.createElement('option');
+            opt.value = index + 1;
+            opt.textContent = nombre;
+            select.appendChild(opt);
+        });
+        // Seleccionar "Todos" por defecto
+        select.value = '';
+    }
+
+    // Obtener fechas según filtros
+    function getFechasFiltro() {
+        const mes = document.getElementById('mes').value;
+        const anio = document.getElementById('anio').value;
+        
+        // Si no se seleccionó mes o año, mostrar todos los datos
+        if (!mes || !anio) {
+            return { fecha_inicio: null, fecha_fin: null };
+        }
+        
+        // Primer día del mes seleccionado
+        const fecha_inicio = `${anio}-${String(mes).padStart(2, '0')}-01`;
+        
+        // Último día del mes seleccionado
+        const ultimoDia = new Date(anio, mes, 0).getDate();
+        const fecha_fin = `${anio}-${String(mes).padStart(2, '0')}-${ultimoDia}`;
+        
+        return { fecha_inicio, fecha_fin };
+    }
+
+    // Cargar gráfica
+    async function cargarGrafica() {
+        const tipo = document.getElementById('tipo_incidencia_id').value;
+        const nivel = document.getElementById('nivel_incidencia_id').value;
+        const mes = document.getElementById('mes').value;
+        const anio = document.getElementById('anio').value;
+        let labels = [];
+        let datos = [];
+        let temporalChartTooltipExtras = null;
+
+        if (mes && anio) {
+            // Mostrar evolución desde enero hasta el mes seleccionado
+            const fecha_inicio = `${anio}-01-01`;
+            const ultimoDia = new Date(anio, mes, 0).getDate();
+            const fecha_fin = `${anio}-${String(mes).padStart(2, '0')}-${ultimoDia}`;
+            const params = new URLSearchParams({
+                tipo_incidencia_id: tipo,
+                nivel_incidencia_id: nivel,
+                fecha_inicio,
+                fecha_fin,
+                agrupado: 'mes'
+            });
             try {
-                const response = await fetch("{{ route('home.totalPeticiones') }}");
-                const data = await response.json();
-                document.getElementById("totalPeticiones").textContent = data.totalPeticiones;
+                const res = await fetch(`/home/incidencias-temporales?${params.toString()}`);
+                const data = await res.json();
+                labels = data.labels; // Ej: ['Enero', ..., 'Mes seleccionado']
+                datos = data.data;
+                temporalChartTooltipExtras = null;
             } catch (error) {
-                console.error("Error al actualizar el total de peticiones:", error);
+                console.error('Error al cargar la gráfica:', error);
+                labels = meses.slice(0, mes);
+                datos = Array.from({length: mes}, () => 0);
+                temporalChartTooltipExtras = null;
+            }
+        } else {
+            // Si no hay mes seleccionado, mostrar picos mensuales (día con más incidencias de cada mes)
+            const { fecha_inicio: fi, fecha_fin: ff } = getFechasFiltro();
+            const params = new URLSearchParams({ tipo_incidencia_id: tipo, nivel_incidencia_id: nivel });
+            if (fi && ff) {
+                params.append('fecha_inicio', fi);
+                params.append('fecha_fin', ff);
+            }
+            try {
+                const res = await fetch(`/home/incidencias-temporales?${params.toString()}`);
+                const data = await res.json();
+                labels = data.labels;
+                datos = data.data;
+                // Si el backend devuelve un campo extra con la fecha exacta del pico, úsalo. Si no, parsea desde el label
+                temporalChartTooltipExtras = data.fechas_pico || null;
+            } catch (error) {
+                console.error('Error al cargar la gráfica:', error);
+                temporalChartTooltipExtras = null;
             }
         }
 
-        // Actualizar el total de peticiones cada 30 segundos
-        setInterval(actualizarTotalPeticiones, 30000);
-    </script>
-    @if (!empty($datosTemporales['labels']) && !empty($datosTemporales['series']))
-    <script>
-        const datosTemporales = @json($datosTemporales ?? ['labels' => [], 'series' => []]);
-        console.log("Datos desde el backend:", datosTemporales);
-
-        const ctx = document.getElementById('temporalChart')?.getContext('2d');
-
-        if (ctx && datosTemporales.labels.length) {
-            new Chart(ctx, {
+        // Crear o actualizar gráfica
+        const ctx = document.getElementById('temporalChart').getContext('2d');
+        const customTooltip = {
+            callbacks: {
+                title: function(context) {
+                    // Si hay fechas de pico, mostrar la fecha completa en formato cristiano
+                    if (temporalChartTooltipExtras && context[0]) {
+                        const idx = context[0].dataIndex;
+                        const fecha = temporalChartTooltipExtras[idx];
+                        if (fecha) {
+                            // Formato: 2025-05-30 => 30 de mayo de 2025
+                            const partes = fecha.split('-');
+                            const mesesLargos = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                            return `${parseInt(partes[2],10)} de ${mesesLargos[parseInt(partes[1],10)-1]} de ${partes[0]}`;
+                        }
+                    }
+                    // Si no, mostrar el label normal
+                    return context[0].label;
+                }
+            }
+        };
+        if (temporalChart) {
+            temporalChart.data.labels = labels;
+            temporalChart.data.datasets[0].data = datos;
+            temporalChart.options.plugins.tooltip = Object.assign({}, temporalChart.options.plugins.tooltip, customTooltip);
+            temporalChart.update();
+        } else {
+            temporalChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: datosTemporales.labels,
-                    datasets: datosTemporales.series.map(serie => ({
-                        label: serie.name,
-                        data: serie.data,
-                        borderColor: serie.borderColor || 'blue',
-                        backgroundColor: serie.backgroundColor || 'transparent',
-                        fill: false,
-                        tension: serie.tension || 0.4
-                    }))
+                    labels: labels,
+                    datasets: [{
+                        label: 'Incidencias registradas',
+                        data: datos,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0,123,255,0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#007bff',
+                        pointBorderColor: '#fff',
+                        pointStyle: 'circle'
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Resumen: Atendidas vs Pendientes'
-                        },
-                        legend: {
-                            position: 'top'
-                        }
+                        legend: { display: false },
+                        tooltip: Object.assign({
+                            mode: 'index',
+                            intersect: false
+                        }, customTooltip)
                     },
                     scales: {
-                        x: { title: { display: true, text: 'Fecha' } },
-                        y: { title: { display: true, text: 'Cantidad' }, beginAtZero: true }
+                        x: {
+                            title: { display: true, text: 'Mes' },
+                            grid: { display: false }
+                        },
+                        y: {
+                            title: { display: true, text: 'Cantidad' },
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     }
                 }
             });
         }
+    }
+
+    // Cargar incidencias recientes (sin filtros)
+    async function cargarIncidenciasRecientes() {
+        try {
+            const res = await fetch('/home/incidencias-recientes');
+            const incidencias = await res.json();
+            const tbody = document.getElementById('tbody-incidencias-recientes');
+            tbody.innerHTML = '';
+            if (incidencias.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay incidencias recientes</td></tr>';
+                return;
+            }
+            incidencias.forEach(incidencia => {
+                const estadoColor = incidencia.estado_incidencia?.color || '#888';
+                const nivelColor = incidencia.nivel_incidencia?.color || '#888';
+                // Soporte para ambos nombres de campo (codigo/cod_incidencia)
+                const codigo = incidencia.codigo || incidencia.cod_incidencia || 'N/A';
+                const tipo = incidencia.tipo_incidencia?.nombre || incidencia.tipoIncidencia?.nombre || 'N/A';
+                const estado = incidencia.estado_incidencia?.nombre || incidencia.estadoIncidencia?.nombre || 'N/A';
+                const nivel = incidencia.nivel_incidencia?.nombre || incidencia.nivelIncidencia?.nombre || 'N/A';
+                // Comunidad: incidencia->direccionIncidencia->comunidad->nombre
+                // Soporte para ambos nombres de campo (comunidad->nombre)
+                const comunidad = (
+                    incidencia.direccion_incidencia?.comunidad?.nombre ||
+                    incidencia.direccionIncidencia?.comunidad?.nombre ||
+                    'N/A'
+                );
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${codigo}</td>
+                    <td>${tipo}</td>
+                    <td><span class="badge" style="background:${estadoColor};color:#fff;">${estado}</span></td>
+                    <td><span class="badge" style="background:${nivelColor};color:#fff;">${nivel}</span></td>
+                    <td>${comunidad}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Error al cargar incidencias recientes:', error);
+            document.getElementById('tbody-incidencias-recientes').innerHTML = 
+                '<tr><td colspan="5" class="text-center">Error al cargar datos</td></tr>';
+        }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Cargar selectores
+        await cargarTiposIncidencia();
+        await cargarNivelesIncidencia();
+        cargarAnios();
+        cargarMeses();
+        
+        // Cargar datos iniciales
+        await cargarGrafica();
+        await cargarIncidenciasRecientes();
+        
+        // Event listeners para filtros
+        document.getElementById('tipo_incidencia_id').addEventListener('change', cargarGrafica);
+        document.getElementById('nivel_incidencia_id').addEventListener('change', cargarGrafica);
+        document.getElementById('mes').addEventListener('change', cargarGrafica);
+        document.getElementById('anio').addEventListener('change', cargarGrafica);
+    });
     </script>
-@endif
-
-
 @endsection

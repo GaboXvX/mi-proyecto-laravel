@@ -111,7 +111,7 @@ class IncidenciaController extends Controller
         $request->validate([
             'id_persona' => 'nullable|exists:personas,id_persona',
             'calle' => 'required|string|max:255',
-            'punto_de_referencia' => 'nullable|string|max:255',
+            'punto_de_referencia' => 'required|string|max:255',
             'estado' => 'required|exists:estados,id_estado',
             'municipio' => 'required|exists:municipios,id_municipio',
             'parroquia' => 'required|exists:parroquias,id_parroquia',

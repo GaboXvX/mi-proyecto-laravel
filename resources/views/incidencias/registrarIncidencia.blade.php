@@ -36,7 +36,7 @@
                         </div>
                         <div class="col-md-6">
                             <label for="punto_de_referencia" class="form-label">Punto de Referencia:</label>
-                            <input type="text" id="punto_de_referencia" name="punto_de_referencia" class="form-control" value="">
+                            <input type="text" id="punto_de_referencia" name="punto_de_referencia" class="form-control" value="" required>
                         </div>
                     </div>
                 </div>

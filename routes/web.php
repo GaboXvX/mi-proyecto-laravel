@@ -66,10 +66,10 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Peticiones
         Route::controller(PeticionController::class)->group(function () {
-            Route::get('peticiones', 'index')->name('peticiones.index');
-            Route::post('aceptar/{id}', 'aceptar')->name('peticion.aceptar');
-            Route::post('/peticion/{id}', 'rechazar')->name('peticiones.rechazar');
-            Route::get('/peticiones/obtener', 'obtenerPeticiones')->name('peticiones.obtener');
+            Route::get('peticiones', 'index')->name('peticiones.index')->middleware('can:ver peticiones');
+            Route::post('aceptar/{id}', 'aceptar')->name('peticion.aceptar')->middleware('can:aceptar peticion');
+            Route::post('/peticion/{id}', 'rechazar')->name('peticiones.rechazar')->middleware('can:rechazar peticiones');
+            Route::get('/peticiones/obtener', 'obtenerPeticiones')->name('peticiones.obtener')->middleware('can:ver peticiones');
             Route::post('/validar-campo-asincrono', 'validarCampoAsincrono')->name('validar.campo.asincrono');
         });
 
@@ -89,7 +89,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Usuarios
         Route::controller(UserController::class)->middleware('can:ver empleados')->group(function () {
-            Route::get('/usuarios/{slug}/movimientos', 'movimientos')->name('usuarios.movimientos');
+            Route::get('/usuarios/{slug}/movimientos', 'movimientos')->name('usuarios.movimientos')->middleware('can:ver movimientos empleados');
             Route::post('/desactivar/{id}', 'desactivar')->name('usuarios.desactivar')->middleware('can:desactivar empleados');
             Route::post('/activar/{id}', 'activar')->name('usuarios.activar')->middleware('can:habilitar empleados');
             Route::post('/usuarios/{id}/asignar-permiso', 'asignarPermiso')->name('usuarios.asignarPermiso');
@@ -119,7 +119,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/incidencias', 'index');
             Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit');
             Route::post('/filtrar-incidencia', 'filtrar')->name('filtrar.incidencia');
-            Route::post('/incidencias/{slug}/atender', 'atender')->name('incidencias.atender');
+            Route::post('/incidencias/{slug}/atender', 'atender')->name('incidencias.atender')->middleware('can:cambiar estado de incidencias');
             Route::post('/incidencias/download', 'download')->name('incidencias.download');
             Route::get('/incidencias/descargar/{slug}', 'descargar')->name('incidencias.descargar')->middleware('can:descargar grafica incidencia');
             Route::post('/filtrar-incidencias-por-fechas', 'filtrarPorFechas')->name('filtrar.incidencias.fechas');
@@ -127,8 +127,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/incidencias/chart', 'showChart')->name('estadisticas')->middleware('can:ver grafica incidencia');
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
-            Route::get('/incidencias/{slug}/atender', 'atenderVista')->name('incidencias.atender.vista')->middleware('incidencia.no-atendida');
-            Route::post('/incidencias/{slug}/atender', 'atenderGuardar')->name('incidencias.atender.guardar');
+            Route::get('/incidencias/{slug}/atender', 'atenderVista')->name('incidencias.atender.vista')->middleware(['incidencia.no-atendida', 'can:cambiar estado de incidencias']);
+            Route::post('/incidencias/{slug}/atender', 'atenderGuardar')->name('incidencias.atender.guardar')->middleware('can:cambiar estado de incidencias');
             Route::get('/incidencias/{slug}/ver', 'ver')->name('incidencias.ver');
         });
         Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit', 'destroy'])->parameters(['incidencias' => 'slug']);
@@ -154,7 +154,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/configuracion', 'index')->name('usuarios.configuracion');
             Route::post('/usuarios/{usuario}/cambiar', 'actualizar')->name('usuarios.cambiar');
             Route::post('/usuarios/{usuario}/cambiar-preguntas', 'cambiarPreguntas')->name('usuarios.cambiar-preguntas');
-            Route::post('/usuarios/restaurar/{id_usuario}', 'restaurar')->name('usuarios.restaurar');
+            Route::post('/usuarios/restaurar/{id_usuario}', 'restaurar')->name('usuarios.restaurar')->middleware('can:restaurar empleados');
         });
 
         // Notificaciones
@@ -168,47 +168,60 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         // Movimientos
         Route::controller(movimientoController::class)->group(function () {
             Route::get('/mis-movimientos', 'index')->name('mis.movimientos');
-            Route::get('/mis-movimientos/exportar', 'exportar')->name('movimientos.exportar');
-            Route::get('/mis-movimientos/descargar/{id}', 'descargar')->name('movimientos.descargar');
+            Route::get('/mis-movimientos/exportar', 'exportar')->name('movimientos.exportar')->middleware('can:ver movimientos');
+            Route::get('/mis-movimientos/descargar/{id}', 'descargar')->name('movimientos.descargar')->middleware('can:descargar detalles incidencias');
         });
-        Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
+        Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores')->middleware('can:ver movimientos empleados');
 
         // Otras rutas
-       
-        Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
+        Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']])
+            ->middleware('can:ver personal');
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
             ->name('personal-reparacion.estaciones');
-            Route::post('/validar-cedula', [PersonaController::class, 'validarCedula'])->name('validar.cedula');
+        Route::post('/validar-cedula', [PersonaController::class, 'validarCedula'])->name('validar.cedula');
         Route::get('/personal-de-reparaciones/buscar/{cedula}', [PersonalController::class, 'buscar']);
+        
         // Instituciones
         Route::controller(institucionController::class)->prefix('instituciones')->group(function () {
-            Route::get('/', 'index')->name('instituciones.index');
-            Route::put('/{id_institucion}/logo', 'updateLogo')->name('instituciones.updateLogo');
-            // Unificada: actualiza membrete y/o pie
-            Route::put('/{id_institucion}/membrete-pie', 'updateMembretePie')->name('instituciones.updateMembretePie');
+            Route::get('/', 'index')->name('instituciones.index')->middleware('can:ver instituciones');
+            Route::put('/{id_institucion}/logo', 'updateLogo')->name('instituciones.updateLogo')->middleware('can:editar instituciones');
+            Route::put('/{id_institucion}/membrete-pie', 'updateMembretePie')->name('instituciones.updateMembretePie')->middleware('can:editar instituciones');
         });
+        
         Route::get('/incidencias/{id}/download', [IncidenciaController::class, 'downloadPdf'])
-    ->name('incidencias.download');
-Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);
-Route::post('/verificar-cedula', [PersonaController::class, 'verificarCedula'])->name('verificarCedula');
-Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])->name('verificarCorreo');
-// En routes/web.php, dentro del grupo de rutas protegidas (auth)
-Route::get('/api/estaciones-por-institucion/{id}', [InstitucionController::class, 'getByInstitucion']); });
-Route::resource('niveles-incidencia', nivelIncidenciaController::class)    ->parameters(['niveles-incidencia' => 'nivelIncidencia'])
-->middleware('auth');
-Route::put('niveles-incidencia/{nivelIncidencia}/toggle-status', [NivelIncidenciaController::class, 'toggleStatus'])
-    ->name('niveles-incidencia.toggle-status')
-    ->middleware('auth');
-Route::put('/{id_institucion}/pie',[NivelIncidenciaController::class, 'updatePie'])->name('instituciones.updatePie');
-Route::get('/instituciones/estaciones/{institucionId}', [InstitucionController::class, 'getByInstitucion'])
-    ->name('instituciones.estaciones');
+            ->name('incidencias.download');
+        Route::get('/validar-cedula/{cedula}', [PersonalController::class, 'validarCedulaDirecta']);
+        Route::post('/verificar-cedula', [PersonaController::class, 'verificarCedula'])->name('verificarCedula');
+        Route::post('/verificar-correo', [PersonaController::class, 'verificarCorreo'])->name('verificarCorreo');
+        Route::get('/api/estaciones-por-institucion/{id}', [InstitucionController::class, 'getByInstitucion']);
+    });
+    
+    // Niveles de incidencia
+    Route::resource('niveles-incidencia', nivelIncidenciaController::class)
+        ->parameters(['niveles-incidencia' => 'nivelIncidencia'])
+        ->middleware(['auth', 'can:ver niveles incidencias']);
+        
+    Route::put('niveles-incidencia/{nivelIncidencia}/toggle-status', [NivelIncidenciaController::class, 'toggleStatus'])
+        ->name('niveles-incidencia.toggle-status')
+        ->middleware(['auth', 'can:editar niveles incidencias']);
+        
+    Route::put('/{id_institucion}/pie',[NivelIncidenciaController::class, 'updatePie'])
+        ->name('instituciones.updatePie')
+        ->middleware(['auth', 'can:editar instituciones']);
+        
+    Route::get('/instituciones/estaciones/{institucionId}', [InstitucionController::class, 'getByInstitucion'])
+        ->name('instituciones.estaciones');
 });
-Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])->name('graficos.incidencias.download');
+
+Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])
+    ->name('graficos.incidencias.download')
+    ->middleware(['auth', 'can:descargar grafica incidencia']);
 
 // Filtros AJAX para incidencias en dashboard
 Route::get('/home/incidencias-temporales', [HomeController::class, 'incidenciasTemporales'])->name('home.incidencias.temporales');
 Route::get('/home/incidencias-recientes', [HomeController::class, 'incidenciasRecientes'])->name('home.incidencias.recientes');
+
 // API para tipos de incidencia (para el filtro)
 Route::get('/api/tipos-incidencia', function() {
     return \App\Models\TipoIncidencia::orderBy('nombre')->get(['id_tipo_incidencia', 'nombre']);

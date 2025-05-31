@@ -124,26 +124,26 @@
     </div>
 
     <!-- Botón para Generar PDF -->
-<div class="d-flex justify-content-end mb-3">
-    @can('descargar listado incidencias')
-    <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST">
-        @csrf
-        <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
-        <input type="hidden" id="pdf-fecha-fin" name="fecha_fin" value="{{ request('fecha_fin') }}">
-        <input type="hidden" id="pdf-estado" name="estado" value="{{ request('estado') }}">
-        <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
-        <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-file-earmark-pdf"></i> Generar PDF
-        </button>
-    </form>
-    @endcan
-</div>
+    <div class="d-flex justify-content-end mb-3">
+        @can('descargar listado incidencias')
+        <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST">
+            @csrf
+            <input type="hidden" id="pdf-fecha-inicio" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
+            <input type="hidden" id="pdf-fecha-fin" name="fecha_fin" value="{{ request('fecha_fin') }}">
+            <input type="hidden" id="pdf-estado" name="estado" value="{{ request('estado') }}">
+            <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
+            <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+            </button>
+        </form>
+        @endcan
+    </div>
 
 
     <!-- Tabla de Incidencias -->
     <div class="table-responsive">
-        <table class="table table-striped align-middle " id="tabla-incidencias">
+        <table class="table table-striped align-middle" id="tabla-incidencias">
             <thead>
                 <tr>
                     <th>Código</th>

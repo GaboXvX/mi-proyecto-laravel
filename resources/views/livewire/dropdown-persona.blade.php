@@ -2,7 +2,7 @@
     <div class="row mb-3">
         <!-- Dropdown de Estados -->
         <div class="col-md-6">
-            <label for="estado" class="form-label">Estado:</label>
+            <label for="estado" class="form-label"><span style="color: red;" class="me-2">*</span>Estado:</label>
             <select name="estado" id="estado" class="form-select" wire:model.live="estadoId" required>
                 <option value="">Seleccione un estado</option>
                 @foreach($estados as $estado)
@@ -15,7 +15,7 @@
 
         <!-- Dropdown de Municipios -->
         <div class="col-md-6">
-            <label for="municipio" class="form-label">Municipio:</label>
+            <label for="municipio" class="form-label"><span style="color: red;" class="me-2">*</span>Municipio:</label>
             <select name="municipio" id="municipio" class="form-select" wire:model.live="municipioId" required>
                 <option value="">Seleccione un municipio</option>
                 @foreach($municipios as $municipio)
@@ -30,7 +30,7 @@
     <div class="row mb-3">
         <!-- Dropdown de Parroquias -->
         <div class="col-md-6">
-            <label for="parroquia" class="form-label">Parroquia:</label>
+            <label for="parroquia" class="form-label"><span style="color: red;" class="me-2">*</span>Parroquia:</label>
             <select name="parroquia" id="parroquia" class="form-select" wire:model.live="parroquiaId" required>
                 <option value="">Seleccione una parroquia</option>
                 @foreach($parroquias as $parroquia)
@@ -43,7 +43,7 @@
 
         <!-- Dropdown de Urbanizaciones -->
         <div class="col-md-6">
-            <label for="urbanizacion" class="form-label">Urbanización:</label>
+            <label for="urbanizacion" class="form-label"><span style="color: red;" class="me-2">*</span>Urbanización:</label>
             <select name="urbanizacion" id="urbanizacion" class="form-select" wire:model.live="urbanizacionId" required>
                 <option value="">Seleccione una urbanización</option>
                 @foreach($urbanizaciones as $urbanizacion)
@@ -71,7 +71,7 @@
     <div class="row mb-3">
         <!-- Dropdown de Sectores -->
         <div class="col-md-6">
-            <label for="sector" class="form-label">Sector:</label>
+            <label for="sector" class="form-label"><span style="color: red;" class="me-2">*</span>Sector:</label>
             <select name="sector" id="sector" class="form-select" wire:model.live="sectorId" required>
                 <option value="">Seleccione un sector</option>
                 @foreach($sectores as $sector)

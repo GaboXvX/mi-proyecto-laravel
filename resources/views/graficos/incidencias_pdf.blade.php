@@ -156,50 +156,31 @@
         </div>
     </div>
 
-    <!-- Gráfico por estado (tabla) -->
-    <div class="chart-container">
-        <div class="chart-title">Incidencias por Estado</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Estado</th>
-                    <th>Cantidad</th>
-                    <th>Porcentaje</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($incidenciasPorEstado['labels'] as $index => $label)
-                <tr>
-                    <td>{{ $label }}</td>
-                    <td>{{ $incidenciasPorEstado['values'][$index] }}</td>
-                    <td>{{ $totalIncidencias > 0 ? round(($incidenciasPorEstado['values'][$index]/$totalIncidencias)*100, 1) : 0 }}%</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Gráfico por nivel (tabla) -->
-    <div class="chart-container">
-        <div class="chart-title">Incidencias por Nivel de Prioridad</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nivel</th>
-                    <th>Cantidad</th>
-                    <th>Porcentaje</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($incidenciasPorNivel['labels'] as $index => $label)
-                <tr>
-                    <td>{{ $label }}</td>
-                    <td>{{ $incidenciasPorNivel['values'][$index] }}</td>
-                    <td>{{ $totalIncidencias > 0 ? round(($incidenciasPorNivel['values'][$index]/$totalIncidencias)*100, 1) : 0 }}%</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+   <!-- Gráficos -->
+   <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Incidencias por Estado</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="estadoChart" height="250" width="100%"></canvas>
+                    <!-- Leyenda nativa de Chart.js, no personalizada -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Incidencias por Nivel</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="nivelChart" height="250" width="100%"></canvas>
+                    <!-- Leyenda nativa de Chart.js, no personalizada -->
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

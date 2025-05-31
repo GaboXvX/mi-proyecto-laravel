@@ -28,10 +28,10 @@
                             </select>
                         </div>
                         <div class="col-md-9">
-                            <label for="cedula" class="form-label">Cédula:</label>
+                            <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula:</label>
                             <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
                             <div id="cedulaStatus" style="display: none; color: green;">
-                                <small>✔️ Cédula valida</small>
+                                <small>✔️</small>
                             </div>
                             <div id="cedulaError" style="color: red; display: none;">
                                 <small>❌ Esta cédula ya está registrada</small>
@@ -41,18 +41,18 @@
 
                     <div class="row g-2 mb-2">
                         <div class="col-md-6">
-                            <label for="nombre" class="form-label">Nombre:</label>
+                            <label for="nombre" class="form-label"><span style="color: red;" class="me-2">*</span>Nombre:</label>
                             <input type="text" id="nombre" name="nombre" class="form-control form-control-sm solo-letras" maxlength="12" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="apellido" class="form-label">Apellido:</label>
+                            <label for="apellido" class="form-label"><span style="color: red;" class="me-2">*</span>Apellido:</label>
                             <input type="text" id="apellido" name="apellido" class="form-control form-control-sm solo-letras" maxlength="12" required>
                         </div>
                     </div>
 
                     <div class="row g-2 mb-2">
                         <div class="col-md-6">
-                            <label for="correo" class="form-label">Correo:</label>
+                            <label for="correo" class="form-label"><span style="color: red;" class="me-2">*</span>Correo:</label>
                             <input type="email" id="correo" name="correo" class="form-control" maxlength="350" required>
                             <div id="correoStatus" style="display: none; color: green;">
                                 <small>✔️ Correo disponible</small>
@@ -72,7 +72,7 @@
 
                     <div class="row g-2 mb-2">
                         <div class="col">
-                            <label for="telefono" class="form-label">Teléfono:</label>
+                            <label for="telefono" class="form-label"><span style="color: red;" class="me-2">*</span>Teléfono:</label>
                             <input type="tel" id="telefono" name="telefono" class="form-control" maxlength="11" required>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
 
                     <div class="row g-2 mb-2 mt-2">
                         <div class="col-md-6">
-                            <label for="calle" class="form-label">Calle:</label>
+                            <label for="calle" class="form-label"><span style="color: red;" class="me-2">*</span>Calle:</label>
                             <input type="text" id="calle" name="calle" class="form-control form-control-sm" required maxlength="16">
                         </div>
                         <div class="col-md-6">
@@ -113,7 +113,7 @@
                             <input type="text" id="bloque" name="bloque" class="form-control form-control-sm" maxlength="3">
                         </div>
                         <div class="col-md-6">
-                            <label for="num_vivienda" class="form-label">Número de Vivienda:</label>
+                            <label for="num_vivienda" class="form-label"><span style="color: red;" class="me-2">*</span>Número de Vivienda:</label>
                             <input type="text" id="num_vivienda" name="num_vivienda" class="form-control form-control-sm" maxlength="5" required>
                         </div>
                     </div>
@@ -135,6 +135,7 @@
                 </div>
             </form>
         </div>
+        <span class="text-muted d-flex justify-content-center">Los campos señalados con * deben ser rellenados</span>
     </div>
 </div>
 

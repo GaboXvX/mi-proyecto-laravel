@@ -1,4 +1,33 @@
 @extends('layouts.app')
+<style>
+    body.loading {
+    cursor: wait;
+}
+body.loading::after {
+    content: "Cargando...";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+    .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+    .report-subtitle {
+        font-size: 14px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+</style>
 
 @section('content')
 <div class="table-container">
@@ -6,12 +35,7 @@
 
     <!-- Botón de descarga -->
     <div class="text-end mb-3">
-        <button id="descargarPDF" class="btn btn-danger">
-            <i class="fas fa-file-pdf"></i> Descargar PDF
-        </button>
-        <a href="{{ route('graficos.incidencias.download') }}?{{ http_build_query(request()->query()) }}" class="btn btn-success ms-2">
-            <i class="fas fa-download"></i> Descargar Reporte
-        </a>
+        <button onclick="generarPDF()">Descargar Resumen</button>
     </div>
 
     <!-- Filtros -->
@@ -88,88 +112,141 @@
     </div>
 
     <!-- detalles de las estadisticas -->
-    <div class="row d-flex">
-        <div class="col-md-3 mb-2">
-            <div class="card text-white bg-primary h-100 rounded-4">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-center">Total Incidencias</h5>
-                    <p class="card-text text-center display-4">{{ $totalIncidencias }}</p>
-                </div>
-            </div>
+    <div id="downloadContenido">
+        <div style="display: none;" id="membrete">
+            <header style="text-align: center; margin-bottom: 20px;">
+                @if(isset($membrete))
+                    {!! $membrete !!}
+                @else
+                    <h3 class="report-title">Reporte Estadístico de Incidencias</h3>
+                    <p class="report-subtitle">Sistema de Gestión de Incidencias</p>
+                @endif
+            </header>
         </div>
-        <div class="col-md-3 mb-2">
-            <div class="card text-white bg-success h-100 rounded-4">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-center">Atendidas</h5>
-                    <p class="card-text text-center display-4">{{ $incidenciasAtendidas }}</p>
-                    <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-2">
-            <div class="card text-white bg-warning h-100 rounded-4">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-center">Pendientes</h5>
-                    <p class="card-text display-4 text-center">{{ $incidenciasPendientes }}</p>
-                    <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-2">
-            <div class="card text-white bg-danger h-100 rounded-4">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-center">Por Vencer</h5>
-                    <p class="card-text display-4 text-center">{{ $incidenciasPorVencer }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Gráficos -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Incidencias por Estado</h5>
+        <div class="row d-flex">
+            <div class="col-md-3 mb-2">
+                <div class="card text-white bg-primary h-100 rounded-4">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center">Total Incidencias</h5>
+                        <p class="card-text text-center display-4">{{ $totalIncidencias }}</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="estadoChart" height="250" width="100%"></canvas>
-                    <!-- Leyenda nativa de Chart.js, no personalizada -->
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card text-white bg-success h-100 rounded-4">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center">Atendidas</h5>
+                        <p class="card-text text-center display-4">{{ $incidenciasAtendidas }}</p>
+                        <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card text-white bg-warning h-100 rounded-4">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center">Pendientes</h5>
+                        <p class="card-text display-4 text-center">{{ $incidenciasPendientes }}</p>
+                        <p class="card-text">{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <div class="card text-white bg-danger h-100 rounded-4">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center">Por Vencer</h5>
+                        <p class="card-text display-4 text-center">{{ $incidenciasPorVencer }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Incidencias por Nivel</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="nivelChart" height="250" width="100%"></canvas>
-                    <!-- Leyenda nativa de Chart.js, no personalizada -->
+
+        <!-- Gráficos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Incidencias por Estado</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="estadoChart" height="250" width="100%"></canvas>
+                        <!-- Leyenda nativa de Chart.js, no personalizada -->
+                    </div>
                 </div>
             </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Incidencias por Nivel</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="nivelChart" height="250" width="100%"></canvas>
+                        <!-- Leyenda nativa de Chart.js, no personalizada -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: none;" id="footer">
+            <footer style="text-align: center; margin-top: 30px; font-size: 12px;">
+                Generado el {{ now()->format('d/m/Y H:i:s') }} | Sistema de Gestión de Incidencias
+            </footer>
         </div>
     </div>
 </div>
-<style>
-body.loading {
-    cursor: wait;
-}
-body.loading::after {
-    content: "Cargando...";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    z-index: 1000;
-}
-</style>
 <script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script src="{{ asset('js/jspdf.umd.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+
+    const header = document.getElementById("membrete");
+    const footer = document.getElementById("footer");
+
+    // Mostrar membrete y footer solo para exportar
+    header.style.display = "block";
+    footer.style.display = "block";
+
+    // Esperar a que se rendericen
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const element = document.getElementById("downloadContenido");
+
+    html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+    }).then(canvas => {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();  // 210mm
+        const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+        const imgData = canvas.toDataURL('image/png');
+        const imgProps = pdf.getImageProperties(imgData);
+
+        const margin = 10; // mm
+        const availableWidth = pdfWidth - margin * 2;
+        const scale = availableWidth / imgProps.width;
+        const scaledHeight = imgProps.height * scale;
+
+        // Centrar y agregar márgenes
+        pdf.addImage(imgData, 'PNG', margin, margin, availableWidth, scaledHeight);
+        pdf.save("reporte_estadisticas.pdf");
+
+        // Ocultar membrete y footer de nuevo
+        header.style.display = "none";
+        footer.style.display = "none";
+    });
+}
+
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let estadoChart, nivelChart;
@@ -552,185 +629,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCharts(@json($incidenciasPorEstado), @json($incidenciasPorNivel));
         initialChartsRendered = true;
     }, 10);
-
-    // === DESCARGA PDF ===
-    document.getElementById('descargarPDF').addEventListener('click', async function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
-        let y = 40;
-        // Título
-        doc.setFontSize(18);
-        doc.text('Estadísticas de Incidencias', 40, y);
-        y += 30;
-        // === MEMBRETE (cabecera institucional) ===
-        // Si existe un membrete institucional, agrégalo al PDF
-        let membreteHtml = @json($membreteHtml ?? '');
-        if (membreteHtml && membreteHtml.length > 0) {
-            // Crear un elemento temporal para extraer solo el texto (sin HTML)
-            let tempDiv = document.createElement('div');
-            tempDiv.innerHTML = membreteHtml;
-            let membreteText = tempDiv.textContent || tempDiv.innerText || '';
-            doc.setFontSize(11);
-            doc.setTextColor(30,30,30);
-            doc.text(membreteText.trim(), 40, y, {maxWidth: 500});
-            y += 30;
-        }
-        // Filtros
-        doc.setFontSize(12);
-        const filtros = [];
-        const form = document.getElementById('filtrosForm');
-        const fd = new FormData(form);
-        if (fd.get('start_date') && fd.get('end_date')) {
-            filtros.push(`Período: ${fd.get('start_date')} al ${fd.get('end_date')}`);
-        }
-        if (fd.get('tipo_incidencia_id')) {
-            const tipo = form.querySelector('select[name="tipo_incidencia_id"] option:checked').textContent.trim();
-            filtros.push(`Tipo: ${tipo}`);
-        }
-        if (fd.get('nivel_incidencia_id')) {
-            const nivel = form.querySelector('select[name="nivel_incidencia_id"] option:checked').textContent.trim();
-            filtros.push(`Nivel: ${nivel}`);
-        }
-        if (fd.get('institucion_id')) {
-            const inst = form.querySelector('select[name="institucion_id"] option:checked').textContent.trim();
-            filtros.push(`Institución: ${inst}`);
-        }
-        if (fd.get('estacion_id')) {
-            const est = form.querySelector('select[name="estacion_id"] option:checked').textContent.trim();
-            filtros.push(`Estación: ${est}`);
-        }
-        filtros.forEach(f => {
-            doc.text(f, 40, y);
-            y += 18;
-        });
-        y += 10;
-        // KPIs
-        const kpis = document.querySelectorAll('.row.d-flex .card');
-        kpis.forEach(card => {
-            const title = card.querySelector('.card-title').textContent.trim();
-            const value = card.querySelector('.display-4').textContent.trim();
-            let percent = '';
-            const percentEl = card.querySelector('.card-text:not(.display-4)');
-            if (percentEl) percent = percentEl.textContent.trim();
-            let kpiText = `${title}: ${value}`;
-            if (percent) kpiText += ` (${percent})`;
-            doc.text(kpiText, 40, y);
-            y += 18;
-        });
-        y += 10;
-        // Gráficos como imágenes
-        async function addChartImage(canvasId, titulo) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            doc.setFontSize(14);
-            doc.text(titulo, 40, y);
-            y += 10;
-            doc.addImage(imgData, 'PNG', 40, y, 220, 220);
-            y += 230;
-        }
-        await addChartImage('estadoChart', 'Incidencias por Estado');
-        await addChartImage('nivelChart', 'Incidencias por Nivel');
-        y += 10;
-        // === TABLAS DETALLADAS ===
-        // Si jsPDF autotable está disponible, usarla
-        if (window.jspdf && window.jspdf.autoTable) {
-            // Tabla: Incidencias por Estado
-            doc.setFontSize(14);
-            doc.text('Incidencias por Estado', 40, y);
-            y += 10;
-            doc.autoTable({
-                startY: y,
-                head: [['Estado', 'Cantidad', 'Porcentaje']],
-                body: (function() {
-                    const total = estadoChart.data._totalGlobal || estadoChart.data.datasets[0].data.reduce((a,b)=>a+b,0) || 1;
-                    return estadoChart.data.labels.map((label, i) => [
-                        label,
-                        estadoChart.data.datasets[0].data[i],
-                        total > 0 ? ((estadoChart.data.datasets[0].data[i]/total*100).toFixed(1)+'%') : '0%'
-                    ]);
-                })(),
-                theme: 'grid',
-                margin: { left: 40, right: 40 },
-                styles: { fontSize: 11 },
-                headStyles: { fillColor: [245,245,245], textColor: 20, fontStyle: 'bold' },
-            });
-            y = doc.lastAutoTable.finalY + 20;
-            // Tabla: Incidencias por Nivel de Prioridad
-            doc.setFontSize(14);
-            doc.text('Incidencias por Nivel de Prioridad', 40, y);
-            y += 10;
-            doc.autoTable({
-                startY: y,
-                head: [['Nivel', 'Cantidad', 'Porcentaje']],
-                body: (function() {
-                    const total = nivelChart.data._totalGlobal || nivelChart.data.datasets[0].data.reduce((a,b)=>a+b,0) || 1;
-                    return nivelChart.data.labels.map((label, i) => [
-                        label,
-                        nivelChart.data.datasets[0].data[i],
-                        total > 0 ? ((nivelChart.data.datasets[0].data[i]/total*100).toFixed(1)+'%') : '0%'
-                    ]);
-                })(),
-                theme: 'grid',
-                margin: { left: 40, right: 40 },
-                styles: { fontSize: 11 },
-                headStyles: { fillColor: [245,245,245], textColor: 20, fontStyle: 'bold' },
-            });
-            y = doc.lastAutoTable.finalY + 20;
-        } else {
-            // Fallback: generar tablas manualmente en el PDF con mejor estructura visual
-            function drawManualTable(title, headers, rows, startY) {
-                let y = startY;
-                doc.setFontSize(14);
-                doc.setTextColor(40,40,40);
-                doc.text(title, 40, y);
-                y += 14;
-                doc.setDrawColor(180,180,180);
-                doc.setLineWidth(0.5);
-                // Encabezados
-                doc.setFontSize(11);
-                doc.setTextColor(60,60,60);
-                let colX = [50, 250, 350];
-                headers.forEach((h, i) => {
-                    doc.text(h, colX[i], y);
-                });
-                y += 10;
-                doc.line(45, y, 420, y); // línea bajo encabezado
-                y += 6;
-                doc.setFontSize(11);
-                doc.setTextColor(20,20,20);
-                rows.forEach(row => {
-                    row.forEach((cell, i) => {
-                        doc.text(String(cell), colX[i], y);
-                    });
-                    y += 13;
-                });
-                y += 8;
-                return y;
-            }
-            // Estado
-            const totalEstado = estadoChart.data._totalGlobal || estadoChart.data.datasets[0].data.reduce((a,b)=>a+b,0) || 1;
-            const rowsEstado = estadoChart.data.labels.map((label, i) => [
-                label,
-                estadoChart.data.datasets[0].data[i],
-                totalEstado > 0 ? ((estadoChart.data.datasets[0].data[i]/totalEstado*100).toFixed(1)+'%') : '0%'
-            ]);
-            y = drawManualTable('Incidencias por Estado', ['Estado', 'Cantidad', 'Porcentaje'], rowsEstado, y);
-            // Nivel
-            const totalNivel = nivelChart.data._totalGlobal || nivelChart.data.datasets[0].data.reduce((a,b)=>a+b,0) || 1;
-            const rowsNivel = nivelChart.data.labels.map((label, i) => [
-                label,
-                nivelChart.data.datasets[0].data[i],
-                totalNivel > 0 ? ((nivelChart.data.datasets[0].data[i]/totalNivel*100).toFixed(1)+'%') : '0%'
-            ]);
-            y = drawManualTable('Incidencias por Nivel de Prioridad', ['Nivel', 'Cantidad', 'Porcentaje'], rowsNivel, y);
-        }
-        // Pie de página
-        doc.setFontSize(10);
-        doc.setTextColor(80,80,80);
-        doc.text('Generado el: {{ now()->format('d/m/Y H:i:s') }}', 40, 820);
-        doc.save('estadisticas_incidencias.pdf');
-    });
 });
 </script>
 @endsection

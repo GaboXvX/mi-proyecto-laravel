@@ -100,14 +100,9 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/usuarios/download-pdf', [UserController::class, 'downloadUsuariosPdf'])->name('usuarios.download.pdf');
         });
         // Vista personalizada de sin permiso para usuarios (usando el helper de Laravel Auth)
-        Route::get('/usuarios', function() {
-            $user = Auth::user();
-            if (!$user || !Gate::forUser($user)->check('ver empleados')) {
-                return response()->view('errors.sin-permiso', ['permissionRequired' => 'ver empleados'], 403);
-            }
-            return app()->call([App\Http\Controllers\UserController::class, 'index']);
-        })->name('usuarios.index')->middleware('auth');
-        Route::resource('usuarios', UserController::class)->except(['create', 'store', 'update', 'destroy'])->middleware('can:ver empleados')->parameters(['usuarios' => 'slug']);
+        Route::get('/empleados', [UserController::class, 'index'])
+            ->name('usuarios.index')
+            ->middleware(['auth', 'can:ver empleados']);
         Route::get('/validar-usuario/{nombre_usuario}/{excluir?}', [UserController::class, 'validarUsuario']);
         Route::get('/validar-correo/{email}/{excluir?}', [UserController::class, 'validarCorreo']);
         Route::get('/mis-movimientos', function () {
@@ -241,8 +236,11 @@ Route::get('/usuario/estado', function () {
     ]);
 })->middleware('auth');
 
-Route::resource('empleados', EmpleadoAutorizadoController::class)->middleware('auth');
+Route::resource('empleados', EmpleadoAutorizadoController::class)->middleware('auth')->except(['index']);
 Route::post('/empleados/verificar-cedula', [App\Http\Controllers\EmpleadoAutorizadoController::class, 'verificarCedula'])->name('empleados.verificarCedula');
 Route::post('/usuarios/{id_usuario}/renovar-intentos', [App\Http\Controllers\UserController::class, 'renovarIntentos'])->name('usuarios.renovarIntentos');
 // Permisos AJAX para frontend dinámico
 Route::get('/usuario/permisos', [UserController::class, 'misPermisos'])->middleware('auth');
+
+// Ruta para editar un empleado autorizado
+Route::get('/empleados/{id}/edit', [EmpleadoAutorizadoController::class, 'edit'])->name('empleados.edit')->middleware(['auth', 'can:editar empleados']);

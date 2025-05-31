@@ -282,7 +282,7 @@
 
                             <div class="mb-3">
                                 <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required maxlength="8">
+                                <input type="text" id="cedula" class="form-control" value="{{ $persona->cedula }}" readonly disabled>
                             </div>
                             
                             <div class="row mb-3">
@@ -319,7 +319,7 @@
 
                             <div class="mb-3">
                                 <label for="nacionalidad" class="form-label">Nacionalidad:</label>
-                                <select name="nacionalidad" id="nacionalidad" class="form-select" required>
+                                <select name="nacionalidad" id="nacionalidad" class="form-select" disabled>
                                     <option value="V" {{ old('nacionalidad', $persona->nacionalidad) == 'V' ? 'selected' : '' }}>V</option>
                                     <option value="E" {{ old('nacionalidad', $persona->nacionalidad) == 'E' ? 'selected' : '' }}>E</option>
                                 </select>

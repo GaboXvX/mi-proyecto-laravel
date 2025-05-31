@@ -230,11 +230,9 @@ class PersonaController extends Controller
             $persona->slug = $slug;
             $persona->nombre = Str::lower($request->input('nombre'));
             $persona->apellido = Str::lower($request->input('apellido'));
-            $persona->cedula = $request->input('cedula');
             $persona->correo = $request->input('correo');
             $persona->telefono = $request->input('telefono');
             $persona->genero = $request->input('genero');
-            $persona->nacionalidad = $request->input('nacionalidad');
             $persona->save();
             
             $movimiento = new movimiento();

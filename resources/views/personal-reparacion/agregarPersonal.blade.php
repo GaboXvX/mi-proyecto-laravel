@@ -205,21 +205,61 @@ const url = `/validar-cedula/${encodeURIComponent(cedula)}`;
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
-
         validarCedula();
-
         setTimeout(() => {
             if (cedulaInput.classList.contains('is-invalid')) {
                 cedulaInput.focus();
                 return;
             }
-
             submitText.textContent = 'Procesando...';
             submitSpinner.classList.remove('d-none');
             submitBtn.disabled = true;
 
-            form.submit();
-        }, 300); // Esperar validación mínima
+            // Enviar por AJAX
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(async response => {
+                submitSpinner.classList.add('d-none');
+                submitText.textContent = 'Guardar';
+                submitBtn.disabled = false;
+                if (!response.ok) {
+                    let data;
+                    try { data = await response.json(); } catch { data = {}; }
+                    const msg = data.message || 'Error inesperado al registrar.';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message,
+                        confirmButtonText: 'Ir al listado',
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                }
+            })
+            .catch(error => {
+                submitSpinner.classList.add('d-none');
+                submitText.textContent = 'Guardar';
+                submitBtn.disabled = false;
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo registrar el personal.' });
+            });
+        }, 300);
     });
 });
 </script>

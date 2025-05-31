@@ -55,13 +55,12 @@
                     @if (empty($usuario->empleadoAutorizado))
                         <span class="text-muted">No disponible</span>
                     @else
-                    @if($usuario->hasRole('registrador'))
-                        <div class="dropdown">
-                            <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $usuario->id_usuario }}">
-                                @unless ($usuario->hasRole('admin'))
+                        @if($usuario->hasRole('registrador'))
+                            <div class="dropdown">
+                                <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $usuario->id_usuario }}">
                                     @can('ver movimientos empleados')
                                         <li>
                                             <a class="dropdown-item" href="{{ route('movimientos.registradores', $usuario->slug) }}">
@@ -69,8 +68,11 @@
                                             </a>
                                         </li>
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('empleados.edit', $usuario->empleadoAutorizado->id_empleado_autorizado) }}">
+                                                <i class="bi bi-pencil-square me-2"></i>Editar empleado
+                                            </a>
+                                        </li>
                                     @can('desactivar empleados')
                                         @if ($usuario->id_estado_usuario == 1)
                                             <li>
@@ -81,8 +83,6 @@
                                             </li>
                                         @endif
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
                                     @can('habilitar empleados')
                                         @if ($usuario->id_estado_usuario == 2)
                                             <li>
@@ -93,29 +93,26 @@
                                             </li>
                                         @endif
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
                                     <li>
                                         <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="dropdown-item"><i class="bi bi-arrow-clockwise me-2"></i>Restaurar</button>
                                         </form>
                                     </li>
-                                @endunless
-                                @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
+                                    @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}">
+                                                <i class="bi bi-shield-lock me-2"></i>Permisos
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}">
-                                            <i class="bi bi-shield-lock me-2"></i>Permisos
-                                        </a>
+                                        <button type="button" class="dropdown-item btn-renovar-intentos" data-id="{{ $usuario->id_usuario }}">
+                                            <i class="bi bi-arrow-repeat me-2"></i>Renovar intentos
+                                        </button>
                                     </li>
-                                @endif
-                                <li>
-                                    <button type="button" class="dropdown-item btn-renovar-intentos" data-id="{{ $usuario->id_usuario }}">
-                                        <i class="bi bi-arrow-repeat me-2"></i>Renovar intentos
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
                         @endif
                     @endif
                 </td>

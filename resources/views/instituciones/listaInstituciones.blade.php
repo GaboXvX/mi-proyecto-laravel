@@ -16,10 +16,11 @@
                 <div class="card border rounded-4 p-4 glass-card position-relative">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="mb-0">{{ $institucion->nombre }}</h4>
-                       <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal{{ $institucion->id_institucion }}">
-    <i class="fas fa-sync-alt"></i> Logo
-</button>
-
+                        @can('editar instituciones')
+                        <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#logoModal{{ $institucion->id_institucion }}">
+                            <i class="fas fa-sync-alt"></i> Logo
+                        </button>
+                        @endcan
                     </div>
 
                     <div class="text-center mb-4">
@@ -55,6 +56,7 @@
                     </div>
 
                     <!-- Formulario unificado para membrete y pie -->
+                    @can('editar instituciones')
                     <form action="{{ route('instituciones.updateMembretePie', $institucion->id_institucion) }}" method="POST">
                         @csrf
                         @method('PUT')
@@ -70,35 +72,38 @@
                             <i class="fas fa-save"></i> Guardar Cambios
                         </button>
                     </form>
+                    @endcan
                 </div>
             </div>
 
             <!-- Modal Logo Alternativo -->
+            @can('editar instituciones')
             <!-- Modal Bootstrap Mejorado -->
-<div class="modal fade" id="logoModal{{ $institucion->id_institucion }}" tabindex="-1" aria-labelledby="logoModalLabel{{ $institucion->id_institucion }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg rounded-4 border-0">
-            <form action="{{ route('instituciones.updateLogo', $institucion->id_institucion) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-header bg-dark text-white rounded-top">
-                    <h5 class="modal-title" id="logoModalLabel{{ $institucion->id_institucion }}">Actualizar Logo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Subir nuevo logo (JPG/PNG, máx. 2MB)</label>
-                        <input type="file" class="form-control" name="logo" accept="image/png, image/jpeg" required>
+            <div class="modal fade" id="logoModal{{ $institucion->id_institucion }}" tabindex="-1" aria-labelledby="logoModalLabel{{ $institucion->id_institucion }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow-lg rounded-4 border-0">
+                        <form action="{{ route('instituciones.updateLogo', $institucion->id_institucion) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-header bg-dark text-white rounded-top">
+                                <h5 class="modal-title" id="logoModalLabel{{ $institucion->id_institucion }}">Actualizar Logo</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Subir nuevo logo (JPG/PNG, máx. 2MB)</label>
+                                    <input type="file" class="form-control" name="logo" accept="image/png, image/jpeg" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer rounded-bottom">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal-footer rounded-bottom">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+            </div>
+            @endcan
 
         @endforeach
     </div>

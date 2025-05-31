@@ -111,6 +111,18 @@ class UserController extends Controller
 
     public function desactivar($id)
     {
+        // Prevenir que un usuario se deshabilite a sí mismo
+        if (auth()->check() && auth()->user()->id_usuario == $id) {
+            // Si es una petición AJAX, responder con JSON
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No puedes deshabilitar tu propio usuario.'
+                ], 403);
+            }
+            // Si es una petición normal, redirigir con error
+            return redirect()->route('usuarios.index')->with('sweet_error', 'No puedes deshabilitar tu propio usuario.');
+        }
         try {
             $usuario = User::where('id_usuario', $id)->first();
             $usuario->id_estado_usuario = 2; // Estado desactivado

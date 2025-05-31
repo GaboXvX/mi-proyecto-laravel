@@ -53,4 +53,18 @@
             });
         });
     </script>
+
+    @if(session('sweet_error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acción no permitida',
+                text: @json(session('sweet_error')),
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    </script>
+@endif
 @endsection

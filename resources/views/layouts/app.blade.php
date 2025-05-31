@@ -76,43 +76,52 @@
                             </a>
                         </li>
                         @endcan
-                        <li>
+                        
+                        <li >
                             <a href="{{ route('personas.index') }}" class="sidebar-link {{ Route::is('personas.index') ? 'active' : '' }}">
                                 <i class="bi bi-person-circle"></i>
                                 Personas
                             </a>
                         </li>
-                        <li>
+                        
+                        <li >
                             <a href="{{ route('incidencias.index') }}" class="sidebar-link {{ Route::is('incidencias.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-triangle"></i>
                                 Incidencias
                             </a>
                         </li>
-                        <li>
+                        
+                        @can('ver niveles incidencias')
+                        <li data-permiso="ver niveles incidencias">
                             <a href="{{route('niveles-incidencia.index')}}" class=" sidebar-link {{ Route::is('niveles-incidencia.index') ? 'active' : '' }}">
                                 <i class="bi bi-stack "></i> <!-- Pilas -->
                                 Niveles de Incidencia
                             </a>
-                            
-                        </li>
-                        <li>
+                        @endcan
+                        @can('ver personal')
+                        <li data-permiso="ver personal">
                             <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('personal-reparacion.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-diamond"></i>
                                 Personal Reparación
                             </a>
                         </li>
-                        <li>
+                        @endcan
+                        @can('ver instituciones')
+                        <li data-permiso="ver instituciones">
                             <a href="{{ route('instituciones.index') }}" class="sidebar-link {{ Route::is('instituciones.index') ? 'active' : '' }}">
                                 <i class="bi bi-building"></i>
                                 Instituciones
                             </a>
                         </li>
-                        <li>
+                        @endcan
+                        @can('ver peticiones')
+                        <li data-permiso="ver peticiones">
                             <a href="{{ route('peticiones.index') }}" class="sidebar-link {{ Route::is('peticiones.index') ? 'active' : '' }}">
                                 <i class="bi bi-envelope"></i>
                                 Peticiones
                             </a>
                         </li>
+                        @endcan
                         @auth
                         <li>
                             <a href="{{ route('mis.movimientos') }}" class="sidebar-link {{ Route::is('mis.movimientos') ? 'active' : '' }}">
@@ -121,8 +130,9 @@
                             </a>
                         </li>
                         @endauth
-                    
+                    </ul>
                 </div>
+            </li>
             
 
             <!-- Estadísticas -->
@@ -196,7 +206,8 @@
                         @auth
                         @forelse(auth()->user()->notificaciones()->latest()->take(5)->get() as $notificacion)
                         <li>
-                            <a class="dropdown-item notification-item {{ !$notificacion->leido ? 'unread' : '' }} py-2 px-3"
+                            <a href="{{ route('notificaciones.index', ['marcar' => $notificacion->id_notificacion]) }}"
+                               class="dropdown-item notification-item {{ !$notificacion->leido ? 'unread' : '' }} py-2 px-3"
                                data-notification-id="{{ $notificacion->id_notificacion }}">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <strong>{{ $notificacion->titulo }}</strong>
@@ -218,16 +229,17 @@
                         @endforelse
                         @endauth
                         <li class="dropdown-divider"></li>
-                        <li class="text-center py-2">
-                            <a href="{{ route('notificaciones.index') }}" class="text-decoration-none">Ver todas</a>
-                        </li>
+                       
                     </ul>
                 </div>
 
                 <!-- Perfil usuario -->
                 <div class="dropdown">
-                    <button class="btn btn-light-outline dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-light-outline dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle"></i>
+                        @auth
+                        <span class="ms-2">{{ auth()->user()->nombre_usuario }}</span>
+                        @endauth
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('usuarios.configuracion') }}">Perfil</a></li>
@@ -425,11 +437,9 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/usuario/estado', { credentials: 'same-origin' })
             .then(res => {
                 if (res.status === 401) {
-                    // Ya no está autenticado
                     window.location.href = "{{ route('login') }}?desactivado=1";
                     return;
                 }
-                // Si la respuesta no es JSON, redirige
                 const contentType = res.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     window.location.href = "{{ route('login') }}?desactivado=1";

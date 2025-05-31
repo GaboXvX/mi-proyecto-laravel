@@ -131,10 +131,12 @@
                                     ${
                                         peticion.id_estado_usuario == 3
                                         ? `
+                                        @can('aceptar peticion')
                                             <form action="{{ route('peticion.aceptar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
                                                 @csrf
                                                 <button type="submit" class="btn-custom btn-accept">Aceptar</button>
                                             </form>
+                                        @endcan
                                             <form action="{{ route('peticiones.rechazar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
                                                 @csrf
                                                 <button type="submit" class="btn-custom btn-reject">Rechazar</button>

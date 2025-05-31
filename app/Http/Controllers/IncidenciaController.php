@@ -41,14 +41,15 @@ class IncidenciaController extends Controller
         $estados = estadoIncidencia::all();
         $niveles = nivelIncidencia::all();
 
-        // Consultar las incidencias con los filtros aplicados
+        // Consultar las incidencias with(['persona', 'direccionIncidencia', 'usuario.empleadoAutorizado', 'nivelIncidencia', 'estadoIncidencia', 'tipoIncidencia', 'direccionIncidencia.comunidad'])
         $incidencias = Incidencia::with([
             'persona',
             'direccionIncidencia',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
             'estadoIncidencia',
-            'tipoIncidencia'
+            'tipoIncidencia',
+            'direccionIncidencia.comunidad'
         ])
         ->when($request->codigo, function ($query, $codigo) {
             return $query->where('cod_incidencia', 'like', "%$codigo%");
@@ -869,7 +870,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
     
             $incidencias = Incidencia::with([
                 'persona',
-                'direccionIncidencia',
+                'direccionIncidencia.comunidad', // Asegura que siempre se incluya la relación comunidad
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',
                 'estadoIncidencia',
@@ -901,9 +902,10 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
                 return [
                     'cod_incidencia' => $incidencia->cod_incidencia,
-                    'tipo_incidencia' => $incidencia->tipoIncidencia ? [
+                    'tipoIncidencia' => $incidencia->tipoIncidencia ? [
                         'nombre' => $incidencia->tipoIncidencia->nombre
-                    ] : null,                    'descripcion' => $incidencia->descripcion,
+                    ] : null,
+                    'descripcion' => $incidencia->descripcion,
                     'created_at' => $incidencia->created_at,
                     'fecha_vencimiento' => $incidencia->fecha_vencimiento,
                     'slug' => $incidencia->slug,
@@ -927,10 +929,16 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                         'nombre' => $incidencia->estadoIncidencia->nombre,
                         'color' => $incidencia->estadoIncidencia->color,
                         'es_resuelto' => $incidencia->estadoIncidencia->es_resuelto
+                    ] : null,
+                    // Comunidad: acceso robusto y consistente
+                    'direccionIncidencia' => $incidencia->direccionIncidencia ? [
+                        'comunidad' => $incidencia->direccionIncidencia->comunidad ? [
+                            'nombre' => $incidencia->direccionIncidencia->comunidad->nombre
+                        ] : null
                     ] : null
                 ];
             });
-    
+
             return response()->json([
                 'success' => true,
                 'incidencias' => $incidenciasTransformadas,

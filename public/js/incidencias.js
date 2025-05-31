@@ -106,6 +106,14 @@ class FiltroIncidencias {
                 personaInfo = `${incidencia.persona.nombre} ${incidencia.persona.apellido} <strong>V-</strong>${incidencia.persona.cedula}`;
             }
 
+            // Información de la comunidad asociada
+            let comunidadInfo = '<em>Sin comunidad</em>';
+            // Unificar lógica: preferir direccionIncidencia.comunidad.nombre, luego direccion_incidencia.comunidad.nombre
+            const direccionData = incidencia.direccionIncidencia || incidencia.direccion_incidencia;
+            if (direccionData && direccionData.comunidad && direccionData.comunidad.nombre) {
+                comunidadInfo = direccionData.comunidad.nombre;
+            }
+
             // Tiempo restante
             let tiempoRestante = '<em>Sin fecha</em>';
             if (incidencia.fecha_vencimiento) {
@@ -120,7 +128,8 @@ class FiltroIncidencias {
                     tiempoRestante = '<span class="text-success">Resuelto</span>';
                 } else if (ahora > fechaVencimiento) {
                     tiempoRestante = '<span class="time-critical">Vencido</span>';
-                } else if ((fechaVencimiento - ahora) < 86400000) { // Menos de 24 horas
+                } else if ((fechaVencimiento - ahora) < 86400000) // Menos de 24 horas
+                {
                     tiempoRestante = `<span class="time-warning">${this.formatTimeRemaining(fechaVencimiento)}</span>`;
                 } else {
                     tiempoRestante = this.formatTimeRemaining(fechaVencimiento);
@@ -165,8 +174,7 @@ class FiltroIncidencias {
             tr.setAttribute('data-incidencia-id', incidencia.slug);
             tr.innerHTML = `
                 <td>${incidencia.cod_incidencia}</td>
-                <td>${tipoIncidenciaNombre || 'Sin Tipo'}</td> <!-- Tipo de incidencia -->
-                <td>${incidencia.descripcion?.substring(0, 50) || ''}</td>
+                <td>${tipoIncidenciaNombre || 'Sin Tipo'}</td>
                 <td>
                     <span class="priority-badge" style="background-color: ${nivelIncidencia?.color || '#6c757d'}">
                         ${nivelIncidencia?.nombre || 'N/A'}
@@ -180,6 +188,7 @@ class FiltroIncidencias {
                 <td>${fechaFormateada}</td>
                 <td>${registradoPor}</td>
                 <td>${personaInfo}</td>
+                <td>${comunidadInfo}</td>
                 <td>${tiempoRestante}</td>
                 <td>
                     <div class="dropdown">

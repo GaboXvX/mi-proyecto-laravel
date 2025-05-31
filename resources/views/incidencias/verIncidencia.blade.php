@@ -198,7 +198,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="card h-100">
                                         <div class="card-body">
-                                            <h5 class="card-title">
+                                            <h5 class="card-title>
                                                 {{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
                                             @if ($apoyo->Estacion)
                                                 <p class="card-text">
@@ -403,9 +403,11 @@
                 <a href="{{ route('incidencias.index') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Volver a la lista
                 </a>
+                @can('descargar detalles incidencias')
                 <a href="{{ route('incidencias.download', $incidencia->id_incidencia) }}" class="btn btn-primary">
                     <i class="fas fa-file-pdf"></i> Descargar PDF
                 </a>
+                @endcan
                 @if ($incidencia->estadoIncidencia && strtolower($incidencia->estadoIncidencia->nombre) != 'atendido')
                     <a href="{{ route('incidencias.atender.vista', $incidencia->slug) }}" class="btn btn-primary">
                         <i class="fas fa-tools"></i> Atender Incidencia

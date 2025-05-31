@@ -5,6 +5,7 @@
             <th>Apellido</th>
             <th>Cédula</th>
             <th>Cargo</th>
+           <th>Usuario</th>
             <th>Rol</th>
             <th>Correo</th>
             <th>Estado</th>
@@ -22,6 +23,8 @@
                 <td>{{ $usuario->empleadoAutorizado->apellido ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cedula ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cargo->nombre_cargo ?? 'No definido' }}</td>
+                <td>{{ $usuario->nombre_usuario?? '-' }}</td>
+
                 <td>
                     @if($usuario->roles && $usuario->roles->count())
                         {{ $usuario->roles->pluck('name')->implode(', ') }}

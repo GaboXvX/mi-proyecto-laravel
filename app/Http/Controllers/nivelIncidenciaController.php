@@ -60,14 +60,9 @@ class nivelIncidenciaController extends Controller
             }
         }
 
-        // Validar que el nombre no se parezca a otros (similaridad >= 80%)
-        $nombreNuevo = strtolower($request->input('nombre'));
-        $nombresExistentes = nivelIncidencia::all()->pluck('nombre');
-        foreach ($nombresExistentes as $nombreExistente) {
-            similar_text($nombreNuevo, strtolower($nombreExistente), $percent);
-            if ($percent >= 80) {
-                return back()->withErrors(['nombre' => 'El nombre es muy similar a otro nivel existente.'])->withInput();
-            }
+        // Validar que el nombre no se parezca a otros (usando la función mejorada del modelo)
+        if (nivelIncidencia::nombreEsSimilar($request->input('nombre'))) {
+            return back()->withErrors(['nombre' => 'El nombre es igual o muy similar a otro nivel existente.'])->withInput();
         }
 
         // Asignar nivel autoincremental
@@ -138,14 +133,9 @@ class nivelIncidenciaController extends Controller
             }
         }
 
-        // Validar que el nombre no se parezca a otros (similaridad >= 80%, ignorando el actual)
-        $nombreNuevo = strtolower($request->input('nombre'));
-        $nombresExistentes = nivelIncidencia::where('id_nivel_incidencia', '!=', $nivelIncidencia->id_nivel_incidencia)->pluck('nombre');
-        foreach ($nombresExistentes as $nombreExistente) {
-            similar_text($nombreNuevo, strtolower($nombreExistente), $percent);
-            if ($percent >= 80) {
-                return back()->withErrors(['nombre' => 'El nombre es muy similar a otro nivel existente.'])->withInput();
-            }
+        // Validar que el nombre no se parezca a otros (usando la función mejorada del modelo, ignorando el actual)
+        if (nivelIncidencia::nombreEsSimilar($request->input('nombre'), $nivelIncidencia->id_nivel_incidencia)) {
+            return back()->withErrors(['nombre' => 'El nombre es igual o muy similar a otro nivel existente.'])->withInput();
         }
 
         $nivelIncidencia->update($request->except('nivel'));

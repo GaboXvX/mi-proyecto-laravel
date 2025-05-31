@@ -1,38 +1,18 @@
 //ocultar y ver la sidebar
-document.addEventListener('DOMContentLoaded', function () {
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-
-    // Restaurar estado al cargar
-    if (window.innerWidth > 768) {
-        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            mainContent.classList.add('collapsed');
-        }
-    } else {
-        const isActive = localStorage.getItem('sidebar-mobile-active') === 'true';
-        if (isActive) {
-            sidebar.classList.add('active');
-        }
-    }
-
-    // Toggle y guardar estado
-    menuToggle.addEventListener('click', function () {
-        if (window.innerWidth <= 768) {
-            sidebar.classList.toggle('active');
-            localStorage.setItem('sidebar-mobile-active', sidebar.classList.contains('active'));
-        } else {
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('collapsed');
-            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
-        }
-    });
+document.getElementById('sidebar-toggle').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('show');
 });
 
-const sidebar = document.querySelector('.custom-sidebar');
-const toggleBtn = document.querySelector('#menuToggle');
+const sidebarLinks = document.querySelectorAll('.sidebar a');
+
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', function () {
+      // Remover "active" de todos
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      // Agregar "active" al actual
+      this.classList.add('active');
+    });
+});
 
 // Mostrar/ocultar sidebar con el botón
 toggleBtn.addEventListener('click', (e) => {

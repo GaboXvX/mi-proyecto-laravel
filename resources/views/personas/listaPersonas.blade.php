@@ -4,13 +4,13 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Lista de Personas</h2>
         <div>
-            <a href="{{ route('personas.create') }}" class="btn btn-primary" title="Agregar persona">
+            <a href="{{ route('personas.create') }}" class="btn btn-success" title="Agregar persona">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
                     <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
                     <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
                 </svg>
             </a>
-            <button class="btn btn-success" onclick="window.location.href='{{ route('personas.download.pdf') }}'">
+            <button class="btn btn-primary" onclick="window.location.href='{{ route('personas.download.pdf') }}'">
                 <i class="bi bi-file-earmark-arrow-down"></i> Descargar
             </button>
         </div>

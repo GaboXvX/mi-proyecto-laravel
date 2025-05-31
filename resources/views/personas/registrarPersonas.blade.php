@@ -29,9 +29,11 @@
                         </div>
                         <div class="col-md-9">
                             <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula:</label>
-                            <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" required>
-                            <div id="cedulaStatus" style="display: none; color: green;">
-                                <small>✔️</small>
+                            <div class="position-relative">
+                                <input type="text" id="cedula" name="cedula" class="form-control pe-5" maxlength="8" required>
+                                <div id="cedulaStatus" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                    <small>✔️</small>
+                                </div>
                             </div>
                             <div id="cedulaError" style="color: red; display: none;">
                                 <small>❌ Esta cédula ya está registrada</small>

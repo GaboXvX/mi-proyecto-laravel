@@ -5,7 +5,7 @@
     <div class="d-flex mb-3 justify-content-between align-items-center">
         <h2 class="mb-4">Niveles de Incidencia</h2>
         @if (count($niveles) < 10)
-        <a href="{{ route('niveles-incidencia.create') }}" class="btn btn-primary">
+        <a href="{{ route('niveles-incidencia.create') }}" class="btn btn-success" title="Agregar nuevo nivel">
             <i class="bi bi-plus-circle"></i> Nuevo
         </a>
         @endif

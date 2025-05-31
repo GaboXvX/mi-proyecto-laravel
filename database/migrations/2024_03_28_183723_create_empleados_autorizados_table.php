@@ -18,9 +18,7 @@ return new class extends Migration
             $table->string('apellido');
             $table->biginteger('cedula');
             $table->char('genero');
-            $table->date('fecha_nacimiento');
-            $table->String('altura'); // Cambiar a entero para almacenar en centímetros
-            $table->integer('telefono');
+            $table->string('telefono');
             $table->timestamps();
         });
     }

@@ -62,7 +62,7 @@
         <h2>Lista de Incidencias</h2>
         <div>
             <a href="{{ route('incidencias.create') }}" class="btn btn-success" title="Registrar incidencia">
-                <i class="bi bi-file-earmark-plus"></i> 
+                <i class="bi bi-file-earmark-plus"></i> Nueva
             </a>
         </div>
     </div>
@@ -133,8 +133,8 @@
             <input type="hidden" id="pdf-estado" name="estado" value="{{ request('estado') }}">
             <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
             <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+            <button type="submit" class="btn btn-primary" title="Descargar PDF">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar
             </button>
         </form>
         @endcan
@@ -150,11 +150,11 @@
                     <th>Tipo</th>
                     <th>Comunidad</th>
                     <th>Persona</th>
-                    <th>Registrado por</th>
+                    <th style="white-space: nowrap;">Registrado por</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
                     <th>Creación</th>
-                    <th>Tiempo restante</th>
+                    <th style="white-space: nowrap;">Tiempo restante</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

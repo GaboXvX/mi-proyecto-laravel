@@ -166,7 +166,9 @@ class FiltroIncidencias {
             tr.innerHTML = `
                 <td>${incidencia.cod_incidencia}</td>
                 <td>${tipoIncidenciaNombre || 'Sin Tipo'}</td> <!-- Tipo de incidencia -->
-                <td>${incidencia.descripcion?.substring(0, 50) || ''}</td>
+                <td>${incidencia.comunidad?.nombre || '<em>Sin Comunidad</em>'}</td>
+                <td>${personaInfo}</td>
+                <td>${registradoPor}</td>
                 <td>
                     <span class="priority-badge" style="background-color: ${nivelIncidencia?.color || '#6c757d'}">
                         ${nivelIncidencia?.nombre || 'N/A'}
@@ -178,8 +180,6 @@ class FiltroIncidencias {
                     </span>
                 </td>
                 <td>${fechaFormateada}</td>
-                <td>${registradoPor}</td>
-                <td>${personaInfo}</td>
                 <td>${tiempoRestante}</td>
                 <td>
                     <div class="dropdown">
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Función para el seguimiento del step en las incidencias (si es necesario)
+// Función para el seguimiento del step en las incidencias
 document.addEventListener('DOMContentLoaded', () => {
     // Botones
     const btnStep2 = document.getElementById('next-to-step-2');
@@ -335,28 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
             progressBar.style.width = `${porcentaje}%`;
             progressBar.textContent = `Paso ${stepToShow} de 3`;
         }
-    };
-
-    // Validación de campos de cada paso
-    const validateStep = (fields, button) => {
-        const allFilled = fields.every(sel => {
-            const el = document.querySelector(sel);
-            return el && el.value.trim() !== '';
-        });
-
-        if (button) button.disabled = !allFilled;
-    };
-
-    // Asignar validaciones en vivo
-    const attachValidation = (fields, button) => {
-        fields.forEach(sel => {
-            const el = document.querySelector(sel);
-            if (el) {
-                el.addEventListener('input', () => validateStep(fields, button));
-                el.addEventListener('change', () => validateStep(fields, button));
-            }
-        });
-        validateStep(fields, button); // Validar al cargar
     };
 
     // Botones de navegación

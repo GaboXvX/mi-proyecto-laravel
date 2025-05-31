@@ -106,12 +106,12 @@ class configController extends Controller
                 // Eliminar respuestas antiguas
                 $usuario->respuestas_de_seguridad()->delete();
 
-                // Crear nuevas respuestas
+                // Crear nuevas respuestas (hasheadas)
                 for ($i = 1; $i <= 3; $i++) {
                     RespuestaDeSeguridad::create([
                         'id_usuario' => $usuario->id_usuario,
                         'id_pregunta' => $request->input('pregunta_' . $i),
-                        'respuesta' => $request->input('respuesta_' . $i)
+                        'respuesta' => \Illuminate\Support\Facades\Hash::make($request->input('respuesta_' . $i))
                     ]);
                 }
 

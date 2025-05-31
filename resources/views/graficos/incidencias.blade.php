@@ -35,7 +35,7 @@ body.loading::after {
 
     <!-- Botón de descarga -->
     <div class="text-end mb-3">
-        <button onclick="generarPDF()">Descargar Resumen</button>
+        <button class="btn btn-primary" onclick="generarPDF()">Descargar</button>
     </div>
 
     <!-- Filtros -->

@@ -21,8 +21,6 @@ class EmpleadosAutorizadosSeeder extends Seeder
                 'apellido' => 'Pérez',
                 'cedula' => 12345678,
                 'genero' => 'M',
-                'fecha_nacimiento' => '1985-05-15',
-                'altura' => '1,78cm', // Altura en centímetros
                 'telefono' => '1234567890',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -33,8 +31,6 @@ class EmpleadosAutorizadosSeeder extends Seeder
                 'apellido' => 'Gómez',
                 'cedula' => 23456789,
                 'genero' => 'F',
-                'fecha_nacimiento' => '1990-08-20',
-                'altura' => '1,65cm', // Altura en centímetros
                 'telefono' => '0987654321',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -45,8 +41,7 @@ class EmpleadosAutorizadosSeeder extends Seeder
                 'apellido' => 'Lopez',
                 'cedula' => 34567890,
                 'genero' => 'Masculino',
-                'fecha_nacimiento' => '1990-08-20',
-                'altura' => '1,65cm',
+               
                 'telefono' => '1122334455',
                 'created_at' => now(),
                 'updated_at' => now(),

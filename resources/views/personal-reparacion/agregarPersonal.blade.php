@@ -20,12 +20,12 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="cedula">Cédula</label>
+                    <label for="cedula"><span style="color: red;" class="me-2">*</span>Cédula</label>
                     <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" maxlength="8" required>
                     <div id="cedulaFeedback" class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6">
-                    <label for="id_institucion">Institución</label>
+                    <label for="id_institucion"><span style="color: red;" class="me-2">*</span>Institución</label>
                     <select name="id_institucion" id="id_institucion" class="form-select" required>
                         <option value="">Seleccione una institución</option>
                         @foreach($instituciones as $institucion)
@@ -35,7 +35,7 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="id_institucion_estacion">Estación</label>
+                    <label for="id_institucion_estacion"><span style="color: red;" class="me-2">*</span>Estación</label>
                     <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-select" required disabled>
                         <option value="">Primero seleccione una institución</option>
                     </select>
@@ -43,19 +43,19 @@
                 
                 <!-- Nombre y Apellido -->
                 <div class="col-md-6">
-                    <label for="nombre">Nombre</label>
+                    <label for="nombre"><span style="color: red;" class="me-2">*</span>Nombre</label>
                     <input type="text" name="nombre" id="nombre" class="form-control solo-letras" maxlength="12" required> 
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="apellido">Apellido</label>
+                    <label for="apellido"><span style="color: red;" class="me-2">*</span>Apellido</label>
                     <input type="text" name="apellido" id="apellido" class="form-control solo-letras" maxlength="12" required>
                     
                 </div>
 
                 <!-- Teléfono -->
                 <div class="col-md-12"> 
-                    <label for="telefono">Teléfono</label>
+                    <label for="telefono"><span style="color: red;" class="me-2">*</span>Teléfono</label>
                     <input type="text" name="telefono" id="telefono" class="form-control solo-numeros" maxlength="11" required>
                 </div>
                 

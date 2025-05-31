@@ -39,142 +39,140 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <aside class="custom-sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <img src="{{ asset('img/icon.webp') }}" alt="logo" width="40px">
-            <span class="sidebar-title">MinAguas</span>
-        </div>
-
-        <hr>
-        
-        <ul class="sidebar-nav">
-            <!-- Panel -->
-            <li class="sidebar-item">
-                <a href="{{ route('home') }}" class="sidebar-link {{ Route::is('home') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
+    <aside class="sidebar">
+        <ul>
+            <li>
+                <a href="{{ route('home') }}" class="{{ Route::is('home') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
                         <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
                         <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/>
-                    </svg>
-                    <span>Panel</span>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Panel</span>
                 </a>
             </li>
 
-            @php
-                $consultarActivo = Route::is('usuarios.index', 'personas.index', 'instituciones.index' , 'personal-reparacion.index' , 'niveles-incidencia.index', 'incidencias.index', 'peticiones.index', 'mis.movimientos');
-            @endphp
-
-            <!-- Consultar -->
-            <li class="sidebar-item">
-                <a href="#layouts" class="sidebar-link has-dropdown {{ $consultarActivo ? 'open' : '' }}" data-target="layouts">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                    </svg>
-                    <span>Consultar</span>
-                    <i class="bi bi-chevron-down dropdown-icon"></i>
+            @can('ver empleados')
+            <li>
+                <a href="{{ route('usuarios.index') }}" class="{{ Route::is('usuarios.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Empleados</span>
                 </a>
-                <div class="sidebar-dropdown {{ $consultarActivo ? 'show' : '' }}" id="layouts">
-                    <ul class="dropdown-nav">
-                        @can('ver empleados')
-                        <li>
-                            <a href="{{ route('usuarios.index') }}" class="sidebar-link {{ Route::is('usuarios.index') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
-                                <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
-                                </svg>
-                                Empleados
-                            </a>
-                        </li>
-                        @endcan
-                        <li>
-                            <a href="{{ route('personas.index') }}" class="sidebar-link {{ Route::is('personas.index') ? 'active' : '' }}">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" transform="" id="injected-svg">
-                                <path d="m12,11c1.71,0,3-1.29,3-3s-1.29-3-3-3-3,1.29-3,3,1.29,3,3,3Zm0-4c.6,0,1,.4,1,1s-.4,1-1,1-1-.4-1-1,.4-1,1-1Z"></path><path d="m13,12h-2c-2.76,0-5,2.24-5,5v.5c0,.83.67,1.5,1.5,1.5h9c.83,0,1.5-.67,1.5-1.5v-.5c0-2.76-2.24-5-5-5Zm-5,5c0-1.65,1.35-3,3-3h2c1.65,0,3,1.35,3,3h-8Z"></path>
-                                <path d="m6.5,11c.47,0,.9-.12,1.27-.33-.48-.77-.77-1.68-.77-2.67,0-.66.13-1.28.35-1.85-.26-.09-.55-.15-.85-.15-1.44,0-2.5,1.06-2.5,2.5s1.06,2.5,2.5,2.5Z"></path><path d="m6.11,12h-.61c-1.93,0-3.5,1.57-3.5,3.5v1c0,.28.22.5.5.5h1.5c0-1.96.81-3.73,2.11-5Z"></path><path d="m17.5,11c1.44,0,2.5-1.06,2.5-2.5s-1.06-2.5-2.5-2.5c-.31,0-.59.06-.85.15.22.57.35,1.19.35,1.85,0,.99-.29,1.9-.77,2.67.37.21.79.33,1.27.33Z"></path>
-                                <path d="m18.5,12h-.61c1.3,1.27,2.11,3.04,2.11,5h1.5c.28,0,.5-.22.5-.5v-1c0-1.93-1.57-3.5-3.5-3.5Z"></path>
-                                </svg>
-                                Personas
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('incidencias.index') }}" class="sidebar-link {{ Route::is('incidencias.index') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
-                                <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
-                                <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
-                                </svg>
-                                Incidencias
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('niveles-incidencia.index')}}" class=" sidebar-link {{ Route::is('niveles-incidencia.index') ? 'active' : '' }}">
-                                <i class="bi bi-stack "></i>
-                                Niveles de Incidencia
-                            </a>
-                            
-                        </li>
-                        <li>
-                            <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('personal-reparacion.index') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-diamond" viewBox="0 0 16 16">
-                                <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
-                                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
-                                </svg>
-                                Personal Reparación
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('instituciones.index') }}" class="sidebar-link {{ Route::is('instituciones.index') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-buildings" viewBox="0 0 16 16">
-                                <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022M6 8.694 1 10.36V15h5zM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5z"/>
-                                <path d="M2 11h1v1H2zm2 0h1v1H4zm-2 2h1v1H2zm2 0h1v1H4zm4-4h1v1H8zm2 0h1v1h-1zm-2 2h1v1H8zm2 0h1v1h-1zm2-2h1v1h-1zm0 2h1v1h-1zM8 7h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zM8 5h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zm0-2h1v1h-1z"/>
-                                </svg>
-                                Instituciones
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('peticiones.index') }}" class="sidebar-link {{ Route::is('peticiones.index') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
-                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
-                                </svg>
-                                Peticiones
-                            </a>
-                        </li>
-                        @auth
-                        <li>
-                            <a href="{{ route('mis.movimientos') }}" class="sidebar-link {{ Route::is('mis.movimientos') ? 'active' : '' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
-                                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
-                                <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
-                                <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
-                                </svg>
-                                Mis Movimientos
-                            </a>
-                        </li>
-                        @endauth
-                    
-                </div>
-            
+            </li>
+            @endcan
 
-            <!-- Estadísticas -->
+            <li>
+                <a href="{{ route('personas.index') }}" class="{{ Route::is('personas.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg fill="currentColor" viewBox="0 0 24 24" transform="" id="injected-svg">
+                            <path d="m12,11c1.71,0,3-1.29,3-3s-1.29-3-3-3-3,1.29-3,3,1.29,3,3,3Zm0-4c.6,0,1,.4,1,1s-.4,1-1,1-1-.4-1-1,.4-1,1-1Z"></path><path d="m13,12h-2c-2.76,0-5,2.24-5,5v.5c0,.83.67,1.5,1.5,1.5h9c.83,0,1.5-.67,1.5-1.5v-.5c0-2.76-2.24-5-5-5Zm-5,5c0-1.65,1.35-3,3-3h2c1.65,0,3,1.35,3,3h-8Z"></path>
+                            <path d="m6.5,11c.47,0,.9-.12,1.27-.33-.48-.77-.77-1.68-.77-2.67,0-.66.13-1.28.35-1.85-.26-.09-.55-.15-.85-.15-1.44,0-2.5,1.06-2.5,2.5s1.06,2.5,2.5,2.5Z"></path><path d="m6.11,12h-.61c-1.93,0-3.5,1.57-3.5,3.5v1c0,.28.22.5.5.5h1.5c0-1.96.81-3.73,2.11-5Z"></path><path d="m17.5,11c1.44,0,2.5-1.06,2.5-2.5s-1.06-2.5-2.5-2.5c-.31,0-.59.06-.85.15.22.57.35,1.19.35,1.85,0,.99-.29,1.9-.77,2.67.37.21.79.33,1.27.33Z"></path>
+                            <path d="m18.5,12h-.61c1.3,1.27,2.11,3.04,2.11,5h1.5c.28,0,.5-.22.5-.5v-1c0-1.93-1.57-3.5-3.5-3.5Z"></path>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Personas</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('incidencias.index') }}" class="{{ Route::is('incidencias.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                            <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+                            <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Incidencias</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{route('niveles-incidencia.index')}}" class="{{ Route::is('niveles-incidencia.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-stack" viewBox="0 0 16 16">
+                            <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"/>
+                            <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.6.6 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Niveles de incidencia</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('personal-reparacion.index') }}" class="{{ Route::is('personal-reparacion.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-diamond" viewBox="0 0 16 16">
+                            <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
+                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Personal de Reparación</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('instituciones.index') }}" class="{{ Route::is('instituciones.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-buildings" viewBox="0 0 16 16">
+                            <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022M6 8.694 1 10.36V15h5zM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5z"/>
+                            <path d="M2 11h1v1H2zm2 0h1v1H4zm-2 2h1v1H2zm2 0h1v1H4zm4-4h1v1H8zm2 0h1v1h-1zm-2 2h1v1H8zm2 0h1v1h-1zm2-2h1v1h-1zm0 2h1v1h-1zM8 7h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zM8 5h1v1H8zm2 0h1v1h-1zm2 0h1v1h-1zm0-2h1v1h-1z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Instituciones</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('peticiones.index') }}" class="{{ Route::is('peticiones.index') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Peticiones</span>
+                </a>
+            </li>
+
+            @auth
+            <li>
+                <a href="{{ route('mis.movimientos') }}" class="{{ Route::is('mis.movimientos') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"/>
+                            <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0z"/>
+                            <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Mis Movimientos</span>
+                </a>
+            </li>
+            @endauth
+
             @can('ver grafica incidencia')
-            <li class="sidebar-item">
-                <a href="{{ route('graficos.incidencias') }}" class="sidebar-link {{ Route::is('graficos.incidencias') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                        <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
-                    </svg>
-                    Estadísticas
+            <li>
+                <a href="{{ route('graficos.incidencias') }}" class="{{ Route::is('graficos.incidencias') ? 'active' : '' }}">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                            <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z"/>
+                        </svg>
+                    </span>
+                    <span class="tooltip">Estadisticas</span>
                 </a>
             </li>
             @endcan
         </ul>
-        <hr>
     </aside>
 
     <!-- Main content -->
     <main class="main-content flex-fill" id="mainContent">
-        <div class="topbar d-flex align-items-center justify-content-between px-3 py-2 shadow-sm">
-            <button class="btn btn-light-outline" id="menuToggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-                </svg>
-            </button>
+
+        <div class="topbar px-3 py-2 shadow-sm">
+            <!-- logo -->
+            <div class="logo d-flex align-items-center">
+                <img src="{{ asset('img/icon.webp') }}" class="me-2" alt="logo" width="35px">
+                <span class="logo-title">MinAguas</span>
+            </div>
+
             <div class="d-flex align-items-center">
                 
                 <!-- tema -->
@@ -474,5 +472,72 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     </script> 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    setInterval(function () {
+        fetch('/usuario/estado', { credentials: 'same-origin' })
+            .then(res => {
+                if (res.status === 401) {
+                    // Ya no está autenticado
+                    window.location.href = "{{ route('login') }}?desactivado=1";
+                    return;
+                }
+                // Si la respuesta no es JSON, redirige
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    window.location.href = "{{ route('login') }}?desactivado=1";
+                    return;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.activo === false) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Has sido desactivado',
+                        text: 'Por favor consulte a un administrador para más información.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: true
+                    }).then(() => {
+                        window.location.href = "{{ route('login') }}?desactivado=1";
+                    });
+                }
+            });
+    }, 5000);
+});
+</script>
+@if(auth()->check() && auth()->user()->id_estado_usuario == 2)
+    <script>
+        // Cierra la sesión y redirige
+        window.location.href = "{{ route('logout') }}";
+    </script>
+@endif
+<script>
+// === CONTROL DINÁMICO DE PERMISOS EN EL FRONT ===
+document.addEventListener('DOMContentLoaded', function () {
+    function actualizarVisibilidadPorPermisos(permisos) {
+        document.querySelectorAll('[data-permiso]').forEach(function(el) {
+            const permiso = el.getAttribute('data-permiso');
+            if (permisos.includes(permiso)) {
+                el.style.display = '';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+    function cargarPermisosYActualizar() {
+        fetch('/usuario/permisos', { credentials: 'same-origin' })
+            .then(res => res.json())
+            .then(data => {
+                if (data && Array.isArray(data.permisos)) {
+                    actualizarVisibilidadPorPermisos(data.permisos);
+                }
+            });
+    }
+    cargarPermisosYActualizar();
+    setInterval(cargarPermisosYActualizar, 5000);
+});
+</script>
 </body>
 </html>

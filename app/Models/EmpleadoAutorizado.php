@@ -18,19 +18,19 @@ class EmpleadoAutorizado extends Model
         'apellido',
         'cedula',
         'genero',
-        'fecha_nacimiento',
-        'altura',
         'telefono',
-        'email',
+        
+        
+        
     ];
 
-    public function usuarios()
+    public function usuario()
     {
-        return $this->hasOne(User::class, 'id_empleado_autorizado'); // Relación con el modelo User
+        return $this->hasOne(User::class, 'id_empleado_autorizado', 'id_empleado_autorizado');
     }
 
     public function cargo()
     {
-        return $this->belongsTo(Cargo::class, 'id_cargo');
+        return $this->belongsTo(Cargo::class, 'id_cargo', 'id_cargo');
     }
 }

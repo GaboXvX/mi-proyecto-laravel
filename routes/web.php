@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoriaPersonaController;
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
 use App\Http\Controllers\DomicilioController;
+use App\Http\Controllers\EmpleadoAutorizadoController;
 use App\Http\Controllers\GraficoIncidenciasController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
@@ -21,6 +22,8 @@ use App\Http\Controllers\RecuperarGetController;
 use App\Http\Controllers\RenovacionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas públicas (sin autenticación)
@@ -96,7 +99,15 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::post('/usuarios/cambiar/{id_usuario}', 'update')->name('usuarios.cambiar');
             Route::get('/usuarios/download-pdf', [UserController::class, 'downloadUsuariosPdf'])->name('usuarios.download.pdf');
         });
-        Route::resource('usuarios', UserController::class)->except(['create', 'store', 'update', 'destroy']);
+        // Vista personalizada de sin permiso para usuarios (usando el helper de Laravel Auth)
+        Route::get('/usuarios', function() {
+            $user = Auth::user();
+            if (!$user || !Gate::forUser($user)->check('ver empleados')) {
+                return response()->view('errors.sin-permiso', ['permissionRequired' => 'ver empleados'], 403);
+            }
+            return app()->call([App\Http\Controllers\UserController::class, 'index']);
+        })->name('usuarios.index')->middleware('auth');
+        Route::resource('usuarios', UserController::class)->except(['create', 'store', 'update', 'destroy'])->middleware('can:ver empleados')->parameters(['usuarios' => 'slug']);
         Route::get('/validar-usuario/{nombre_usuario}/{excluir?}', [UserController::class, 'validarUsuario']);
         Route::get('/validar-correo/{email}/{excluir?}', [UserController::class, 'validarCorreo']);
         Route::get('/mis-movimientos', function () {
@@ -163,6 +174,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores');
 
         // Otras rutas
+        Route::post('/descargar-grafico-pdf', [homeController::class, 'descargarGraficoPDF'])->name('grafico.descargar');
        
         Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
@@ -195,3 +207,31 @@ Route::get('/instituciones/estaciones/{institucionId}', [InstitucionController::
     ->name('instituciones.estaciones');
 });
 Route::get('/graficos/incidencias/download', [IncidenciaController::class, 'downloadReport'])->name('graficos.incidencias.download');
+
+// Filtros AJAX para incidencias en dashboard
+Route::get('/home/incidencias-temporales', [HomeController::class, 'incidenciasTemporales'])->name('home.incidencias.temporales');
+Route::get('/home/incidencias-recientes', [HomeController::class, 'incidenciasRecientes'])->name('home.incidencias.recientes');
+// API para tipos de incidencia (para el filtro)
+Route::get('/api/tipos-incidencia', function() {
+    return \App\Models\TipoIncidencia::orderBy('nombre')->get(['id_tipo_incidencia', 'nombre']);
+});
+
+// API para niveles de incidencia (para el filtro)
+Route::get('/api/niveles-incidencia', function() {
+    return \App\Models\NivelIncidencia::orderBy('nombre')->get(['id_nivel_incidencia', 'nombre']);
+});
+
+Route::get('/usuario/estado', function () {
+    if (!auth()->check()) {
+        return response()->json(['activo' => false]);
+    }
+    return response()->json([
+        'activo' => auth()->user()->id_estado_usuario == 1
+    ]);
+})->middleware('auth');
+
+Route::resource('empleados', EmpleadoAutorizadoController::class)->middleware('auth');
+Route::post('/empleados/verificar-cedula', [App\Http\Controllers\EmpleadoAutorizadoController::class, 'verificarCedula'])->name('empleados.verificarCedula');
+Route::post('/usuarios/{id_usuario}/renovar-intentos', [App\Http\Controllers\UserController::class, 'renovarIntentos'])->name('usuarios.renovarIntentos');
+// Permisos AJAX para frontend dinámico
+Route::get('/usuario/permisos', [UserController::class, 'misPermisos'])->middleware('auth');

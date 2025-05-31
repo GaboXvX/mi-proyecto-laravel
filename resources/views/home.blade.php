@@ -41,7 +41,7 @@
         </div>
         <div class="col-md-4">
             <div class="card mb-3">
-                <div class="card-header"><strong>10 Incidencias más recientes</strong></div>
+                <div class="card-header"><strong>5 Incidencias más recientes</strong></div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-sm mb-0">
@@ -107,18 +107,16 @@
     function cargarAnios() {
         const select = document.getElementById('anio');
         const currentYear = new Date().getFullYear();
-        
+        const primerAnio = 2000; // Cambia este valor si tu sistema tiene datos desde antes
         // Limpiar y agregar opción "Todos"
         select.innerHTML = '<option value="">Todos</option>';
-        
-        // Agregar últimos 5 años
-        for (let y = currentYear; y >= currentYear - 5; y--) {
+        // Agregar todos los años desde el primer año hasta el actual
+        for (let y = currentYear; y >= primerAnio; y--) {
             const opt = document.createElement('option');
             opt.value = y;
             opt.textContent = y;
             select.appendChild(opt);
         }
-        
         // Seleccionar año actual por defecto
         select.value = currentYear;
     }
@@ -170,7 +168,34 @@
         let datos = [];
         let temporalChartTooltipExtras = null;
 
-        if (mes && anio) {
+        if (anio && !mes) {
+            // Si hay año pero mes en "Todos": mostrar evolución de enero hasta el mes actual si es el año actual, o hasta diciembre si es año pasado
+            const hoy = new Date();
+            const esAnioActual = parseInt(anio) === hoy.getFullYear();
+            const mesLimite = esAnioActual ? hoy.getMonth() + 1 : 12;
+            const fecha_inicio = `${anio}-01-01`;
+            const ultimoDia = new Date(anio, mesLimite, 0).getDate();
+            const fecha_fin = `${anio}-${String(mesLimite).padStart(2, '0')}-${ultimoDia}`;
+            const params = new URLSearchParams({
+                tipo_incidencia_id: tipo,
+                nivel_incidencia_id: nivel,
+                fecha_inicio,
+                fecha_fin,
+                agrupado: 'mes'
+            });
+            try {
+                const res = await fetch(`/home/incidencias-temporales?${params.toString()}`);
+                const data = await res.json();
+                labels = (data.labels || meses).slice(0, mesLimite);
+                datos = (data.data || Array(12).fill(0)).slice(0, mesLimite);
+                temporalChartTooltipExtras = null;
+            } catch (error) {
+                console.error('Error al cargar la gráfica:', error);
+                labels = meses.slice(0, mesLimite);
+                datos = Array(mesLimite).fill(0);
+                temporalChartTooltipExtras = null;
+            }
+        } else if (mes && anio) {
             // Mostrar evolución desde enero hasta el mes seleccionado
             const fecha_inicio = `${anio}-01-01`;
             const ultimoDia = new Date(anio, mes, 0).getDate();
@@ -195,7 +220,7 @@
                 temporalChartTooltipExtras = null;
             }
         } else {
-            // Si no hay mes seleccionado, mostrar picos mensuales (día con más incidencias de cada mes)
+            // Si no hay mes ni año seleccionado, mostrar picos mensuales (día con más incidencias de cada mes)
             const { fecha_inicio: fi, fecha_fin: ff } = getFechasFiltro();
             const params = new URLSearchParams({ tipo_incidencia_id: tipo, nivel_incidencia_id: nivel });
             if (fi && ff) {
@@ -303,7 +328,7 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay incidencias recientes</td></tr>';
                 return;
             }
-            incidencias.forEach(incidencia => {
+            incidencias.slice(0, 5).forEach(incidencia => {
                 const estadoColor = incidencia.estado_incidencia?.color || '#888';
                 const nivelColor = incidencia.nivel_incidencia?.color || '#888';
                 // Soporte para ambos nombres de campo (codigo/cod_incidencia)

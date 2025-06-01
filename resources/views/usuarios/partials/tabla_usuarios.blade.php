@@ -3,6 +3,7 @@
         <tr>
             <th>Nombre</th>
             <th>Apellido</th>
+            <th>Género</th>
             <th>Cédula</th>
             <th>Cargo</th>
            <th>Usuario</th>
@@ -21,6 +22,7 @@
             <tr>
                 <td>{{ $usuario->empleadoAutorizado->nombre ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->apellido ?? '-' }}</td>
+                <td>{{ $usuario->empleadoAutorizado->genero ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cedula ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cargo->nombre_cargo ?? 'No definido' }}</td>
                 <td>{{ $usuario->nombre_usuario?? '-' }}</td>
@@ -122,6 +124,7 @@
             <tr>
                 <td>{{ $empleado->nombre }}</td>
                 <td>{{ $empleado->apellido }}</td>
+                <td>{{ $empleado->genero }}</td>
                 <td>{{ $empleado->cedula }}</td>
                 <td>{{ $empleado->cargo->nombre_cargo ?? 'No definido' }}</td>
                 <td><span class="text-muted">No definido</span></td>

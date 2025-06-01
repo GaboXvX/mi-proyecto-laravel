@@ -36,6 +36,7 @@ class RoleSeeder extends Seeder
         permission::create(['name' => 'aceptar peticion'])->assignRole($role1);
         permission::create(['name' => 'ver peticiones'])->assignRole($role1);
         permission::create(['name' => 'rechazar peticiones'])->assignRole($role1);
+        permission::create(['name' => 'editar empleados'])->assignRole($role1);
 
     }
 }

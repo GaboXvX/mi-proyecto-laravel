@@ -58,6 +58,16 @@
                     <label for="telefono">Teléfono</label>
                     <input type="text" name="telefono" id="telefono" class="form-control solo-numeros" maxlength="11" required>
                 </div>
+
+                <!-- Género -->
+                <div class="col-md-6">
+                    <label for="genero">Género</label>
+                    <select name="genero" id="genero" class="form-select" required>
+                        <option value="" selected disabled>Seleccione...</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
+                </div>
                 
                 <!-- Botones -->
                 <div class="d-flex justify-content-between">

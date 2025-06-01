@@ -4,9 +4,7 @@
 <div class="table-container">
     <div class="d-flex justify-content-between">
         <h2>Personal de Reparación</h2>
-        @can('agregar personal')
         <a href="{{ route('personal-reparacion.create') }}" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Nuevo</a>
-        @endcan
     </div>
 
     <div class="table-responsive">
@@ -15,6 +13,7 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Apellido</th>
+                    <th>Género</th>
                     <th>Institución</th>
                     <th>Estación</th>
                     <th>Cédula</th>
@@ -27,14 +26,15 @@
                 <tr>
                     <td>{{ $persona->nombre }} </td>
                     <td>{{ $persona->apellido }}</td>
+                    <td>{{ $persona->genero }}</td>
                     <td>{{ $persona->institucion->nombre ?? 'N/A' }}</td>
                     <td>{{ $persona->institucionEstacion->nombre ?? 'N/A' }}</td>
-                    <td>{{ $persona->cedula }}</td>
+                    <td>{{ $persona->nacionalidad}}-{{$persona->cedula }}</td>
                     <td>{{ $persona->telefono }}</td>
                     <td>
-                        @can('editar personal')
+                        
                         <a href="{{ route('personal-reparacion.edit', $persona) }}" class="btn btn-warning btn-sm">Editar</a>
-                        @endcan
+                        
                     </td>
                 </tr>
                 @endforeach

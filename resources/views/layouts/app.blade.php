@@ -98,14 +98,14 @@
                                 Niveles de Incidencia
                             </a>
                         @endcan
-                        @can('ver personal')
-                        <li data-permiso="ver personal">
+                       
+                        <li >
                             <a href="{{ route('personal-reparacion.index') }}" class="sidebar-link {{ Route::is('personal-reparacion.index') ? 'active' : '' }}">
                                 <i class="bi bi-exclamation-diamond"></i>
                                 Personal Reparación
                             </a>
                         </li>
-                        @endcan
+                        
                         @can('ver instituciones')
                         <li data-permiso="ver instituciones">
                             <a href="{{ route('instituciones.index') }}" class="sidebar-link {{ Route::is('instituciones.index') ? 'active' : '' }}">

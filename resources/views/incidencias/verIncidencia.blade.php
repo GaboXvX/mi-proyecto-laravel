@@ -243,6 +243,7 @@
                                             V-{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
                                         <p><strong>Teléfono:</strong>
                                             {{ $incidencia->usuario->empleadoAutorizado->telefono ?? 'N/A' }}</p>
+                                        <p><strong>Género:</strong> {{ $incidencia->usuario->empleadoAutorizado->genero ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             @else
@@ -260,10 +261,9 @@
                                     <div>
                                         <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }}
                                             {{ $incidencia->persona->apellido }}</p>
-                                        <p><strong>Cédula:</strong><strong>
-                                                {{ $incidencia->persona->nacionalidad }}</strong>-{{ $incidencia->persona->cedula }}
-                                        </p>
+                                        <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
                                         <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono ?? 'N/A' }}</p>
+                                        <p><strong>Género:</strong> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             @else

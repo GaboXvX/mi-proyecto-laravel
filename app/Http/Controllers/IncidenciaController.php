@@ -845,6 +845,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'nombre' => $request->input('nombre'),
             'apellido' => $request->input('apellido'),
             'nacionalidad' => $request->input('nacionalidad'),
+            'genero' => $request->input('genero'),
             'telefono' => $request->input('telefono'),
         ]);
          return $personal;

@@ -23,6 +23,7 @@ class personalController extends Controller
             'apellido' => $empleado->apellido,
             'telefono' => $empleado->telefono,
             'nacionalidad' => $empleado->nacionalidad,
+            'genero' => $empleado->genero, // Nuevo: incluir género
             'id_institucion' => $empleado->id_institucion,
             'id_institucion_estacion' => $empleado->id_institucion_estacion,
         ]);
@@ -59,7 +60,8 @@ public function index()
         'apellido' => 'required|string|max:255',
         'nacionalidad' => 'required|string|max:255',
         'cedula' => 'required|string|max:255|unique:personal_reparaciones,cedula',
-        'telefono' => 'required|string|max:255'
+        'telefono' => 'required|string|max:255',
+        'genero' => 'required|in:M,F,O',
     ], [
         'id_institucion.required' => 'La institución de apoyo es obligatoria.',
         'id_institucion.exists' => 'La institución seleccionada no es válida.',
@@ -75,7 +77,9 @@ public function index()
         'cedula.unique' => 'La cédula ya está registrada.',
         'cedula.max' => 'La cédula no puede tener más de 255 caracteres.',
         'telefono.required' => 'El teléfono es obligatorio.',
-        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.'
+        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.',
+        'genero.required' => 'El género es obligatorio.',
+        'genero.in' => 'El género seleccionado no es válido.'
     ]);
 
     // Generar el slug
@@ -137,7 +141,8 @@ public function index()
         'id_institucion_estacion' => 'required|exists:instituciones_estaciones,id_institucion_estacion',
         'nombre' => 'required|string|max:255',
         'apellido' => 'required|string|max:255',
-        'telefono' => 'required|string|max:255'
+        'telefono' => 'required|string|max:255',
+        'genero' => 'required|in:M,F,O',
     ], [
         'id_institucion.required' => 'La institución de apoyo es obligatoria.',
         'id_institucion.exists' => 'La institución seleccionada no es válida.',
@@ -148,7 +153,9 @@ public function index()
         'apellido.required' => 'El apellido es obligatorio.',
         'apellido.max' => 'El apellido no puede tener más de 255 caracteres.',
         'telefono.required' => 'El teléfono es obligatorio.',
-        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.'
+        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.',
+        'genero.required' => 'El género es obligatorio.',
+        'genero.in' => 'El género seleccionado no es válido.'
     ]);
 
     try {

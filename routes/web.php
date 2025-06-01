@@ -114,7 +114,6 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/incidencias', 'index');
             Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit');
             Route::post('/filtrar-incidencia', 'filtrar')->name('filtrar.incidencia');
-            Route::post('/incidencias/{slug}/atender', 'atender')->name('incidencias.atender')->middleware('can:cambiar estado de incidencias');
             Route::post('/incidencias/download', 'download')->name('incidencias.download');
             Route::get('/incidencias/descargar/{slug}', 'descargar')->name('incidencias.descargar')->middleware('can:descargar grafica incidencia');
             Route::post('/filtrar-incidencias-por-fechas', 'filtrarPorFechas')->name('filtrar.incidencias.fechas');
@@ -122,8 +121,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
             Route::get('/incidencias/chart', 'showChart')->name('estadisticas')->middleware('can:ver grafica incidencia');
             Route::get('/persona/{slug}/incidencias/create', 'crear')->name('incidencias.crear');
             Route::post('/incidencias/buscar', 'buscar')->name('incidencias.buscar');
-            Route::get('/incidencias/{slug}/atender', 'atenderVista')->name('incidencias.atender.vista')->middleware(['incidencia.no-atendida', 'can:cambiar estado de incidencias']);
-            Route::post('/incidencias/{slug}/atender', 'atenderGuardar')->name('incidencias.atender.guardar')->middleware('can:cambiar estado de incidencias');
+            Route::get('/incidencias/{slug}/atender', 'atenderVista')->name('incidencias.atender.vista');
+            Route::post('/incidencias/{slug}/atender', 'atenderGuardar')->name('incidencias.atender.guardar');
             Route::get('/incidencias/{slug}/ver', 'ver')->name('incidencias.ver');
         });
         Route::resource('incidencias', IncidenciaController::class)->except(['show', 'create', 'edit', 'destroy'])->parameters(['incidencias' => 'slug']);
@@ -169,8 +168,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::get('/usuarios/{slug}/movimientos', [movimientoController::class, 'movimientosPorUsuario'])->name('movimientos.registradores')->middleware('can:ver movimientos empleados');
 
         // Otras rutas
-        Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']])
-            ->middleware('can:ver personal');
+        Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])
             ->name('personal-reparacion.estaciones');

@@ -49,6 +49,14 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group mb-2">
+                <label for="genero">Género</label>
+                <select name="genero" id="genero" class="form-control form-control-sm" required>
+                    <option value="" disabled>Seleccione...</option>
+                    <option value="M" {{ $personalReparacion->genero == 'M' ? 'selected' : '' }}>Masculino</option>
+                    <option value="F" {{ $personalReparacion->genero == 'F' ? 'selected' : '' }}>Femenino</option>
+                </select>
+            </div>
             
             <div class="form-group mb-2">
                 <label for="nacionalidad">Nacionalidad</label>

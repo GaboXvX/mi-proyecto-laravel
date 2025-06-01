@@ -614,6 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 10);
 });
 </script>
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
     document.getElementById('btnDescargarEstadisticas').addEventListener('click', function () {

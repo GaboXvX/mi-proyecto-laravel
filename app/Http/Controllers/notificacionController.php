@@ -7,12 +7,19 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificacionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $notificaciones = Auth::user()->notificaciones()
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-            
+        // Si viene el parámetro 'marcar', marcar esa notificación como leída
+        if ($request->has('marcar')) {
+            $id = $request->input('marcar');
+            Auth::user()->notificaciones()->updateExistingPivot($id, [
+                'leido' => true,
+                'fecha_leido' => now()
+            ]);
+        }
         return view('notificaciones.notificaciones', compact('notificaciones'));
     }
 

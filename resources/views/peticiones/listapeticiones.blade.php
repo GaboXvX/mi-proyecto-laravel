@@ -75,7 +75,7 @@
             <div class="table-container">
                 <h2>Detalles de las Peticiones</h2>
 
-                <table class="table table-striped align-middle datatable" id="tablaPeticiones">
+                <table class="table table-striped align-middle" id="tablaPeticiones">
                     <thead>
                         <tr>
                             <th>Estado de Petición</th>
@@ -131,10 +131,12 @@
                                     ${
                                         peticion.id_estado_usuario == 3
                                         ? `
+                                        @can('aceptar peticion')
                                             <form action="{{ route('peticion.aceptar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
                                                 @csrf
                                                 <button type="submit" class="btn-custom btn-accept">Aceptar</button>
                                             </form>
+                                        @endcan
                                             <form action="{{ route('peticiones.rechazar', '') }}/${peticion.id_usuario}" method="post" style="display:inline;">
                                                 @csrf
                                                 <button type="submit" class="btn-custom btn-reject">Rechazar</button>

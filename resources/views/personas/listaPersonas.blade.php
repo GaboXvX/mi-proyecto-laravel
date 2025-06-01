@@ -28,6 +28,7 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Apellido</th>
+                            <th>Género</th>
                             <th>Cédula</th>
                             <th>Correo</th>
                             <th>Teléfono</th>
@@ -39,7 +40,8 @@
                             <tr>
                                 <td>{{ $persona->nombre }}</td>
                                 <td>{{ $persona->apellido }}</td>
-                                <td>{{ $persona->cedula }}</td>
+                                 <td>{{ $persona->genero }}</td>
+                                <td>{{ $persona->nacionalidad }}-{{ $persona->cedula }}</td>
                                 <td>{{ $persona->correo }}</td>
                                 <td>{{ $persona->telefono }}</td>
                                 <td>

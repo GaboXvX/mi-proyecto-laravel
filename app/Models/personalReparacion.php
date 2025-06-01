@@ -19,7 +19,8 @@ class personalReparacion extends Model
         'apellido',
         'nacionalidad',
         'cedula',
-        'telefono'
+        'telefono',
+        'genero'
     ];
     /**
      * Relación uno a muchos con Incidencia.

@@ -26,6 +26,7 @@ use App\Models\ReparacionIncidencia;
 use App\Models\tipoIncidencia;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -41,14 +42,15 @@ class IncidenciaController extends Controller
         $estados = estadoIncidencia::all();
         $niveles = nivelIncidencia::all();
 
-        // Consultar las incidencias con los filtros aplicados
+        // Consultar las incidencias with(['persona', 'direccionIncidencia', 'usuario.empleadoAutorizado', 'nivelIncidencia', 'estadoIncidencia', 'tipoIncidencia', 'direccionIncidencia.comunidad'])
         $incidencias = Incidencia::with([
             'persona',
             'direccionIncidencia',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
             'estadoIncidencia',
-            'tipoIncidencia'
+            'tipoIncidencia',
+            'direccionIncidencia.comunidad'
         ])
         ->when($request->codigo, function ($query, $codigo) {
             return $query->where('cod_incidencia', 'like', "%$codigo%");
@@ -844,6 +846,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'nombre' => $request->input('nombre'),
             'apellido' => $request->input('apellido'),
             'nacionalidad' => $request->input('nacionalidad'),
+            'genero' => $request->input('genero'),
             'telefono' => $request->input('telefono'),
         ]);
          return $personal;
@@ -869,7 +872,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
     
             $incidencias = Incidencia::with([
                 'persona',
-                'direccionIncidencia',
+                'direccionIncidencia.comunidad', // Asegura que siempre se incluya la relación comunidad
                 'usuario.empleadoAutorizado',
                 'nivelIncidencia',
                 'estadoIncidencia',
@@ -901,9 +904,10 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
                 return [
                     'cod_incidencia' => $incidencia->cod_incidencia,
-                    'tipo_incidencia' => $incidencia->tipoIncidencia ? [
+                    'tipoIncidencia' => $incidencia->tipoIncidencia ? [
                         'nombre' => $incidencia->tipoIncidencia->nombre
-                    ] : null,                    'descripcion' => $incidencia->descripcion,
+                    ] : null,
+                    'descripcion' => $incidencia->descripcion,
                     'created_at' => $incidencia->created_at,
                     'fecha_vencimiento' => $incidencia->fecha_vencimiento,
                     'slug' => $incidencia->slug,
@@ -927,10 +931,16 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
                         'nombre' => $incidencia->estadoIncidencia->nombre,
                         'color' => $incidencia->estadoIncidencia->color,
                         'es_resuelto' => $incidencia->estadoIncidencia->es_resuelto
+                    ] : null,
+                    // Comunidad: acceso robusto y consistente
+                    'direccionIncidencia' => $incidencia->direccionIncidencia ? [
+                        'comunidad' => $incidencia->direccionIncidencia->comunidad ? [
+                            'nombre' => $incidencia->direccionIncidencia->comunidad->nombre
+                        ] : null
                     ] : null
                 ];
             });
-    
+
             return response()->json([
                 'success' => true,
                 'incidencias' => $incidenciasTransformadas,
@@ -1577,4 +1587,45 @@ public function downloadReport(Request $request)
 
     return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
 }
+
+public function descargarEstadisticasIncidencias(Request $request)
+{
+    $imagenEstado = $request->input('imagenEstadoChart');
+    $imagenNivel = $request->input('imagenNivelChart');
+
+    // Datos numéricos
+    $totalIncidencias = $request->input('totalIncidencias');
+    $incidenciasAtendidas = $request->input('incidenciasAtendidas');
+    $incidenciasPendientes = $request->input('incidenciasPendientes');
+    $incidenciasPorVencer = $request->input('incidenciasPorVencer');
+
+    $institucion = Institucion::where('es_propietario', 1)->first();
+
+    $logoBase64 = null;
+    if ($institucion && $institucion->logo_path) {
+        $logoPath = public_path('storage/' . $institucion->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
+    }
+
+    $membrete = $institucion->encabezado_html ?? '';
+    $pie_html = $institucion->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    $pdf = Pdf::loadView('graficos.incidencias_pdf', [
+        'imagenEstado' => $imagenEstado,
+        'imagenNivel' => $imagenNivel,
+        'totalIncidencias' => $totalIncidencias,
+        'incidenciasAtendidas' => $incidenciasAtendidas,
+        'incidenciasPendientes' => $incidenciasPendientes,
+        'incidenciasPorVencer' => $incidenciasPorVencer,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('estadisticas_incidencias_' . now()->format('Ymd_His') . '.pdf');
+}
+
 }

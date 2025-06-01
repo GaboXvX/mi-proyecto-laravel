@@ -362,24 +362,23 @@
             incidencias.slice(0, 5).forEach(incidencia => {
                 const estadoColor = incidencia.estado_incidencia?.color || '#888';
                 const nivelColor = incidencia.nivel_incidencia?.color || '#888';
-                // Soporte para ambos nombres de campo (codigo/cod_incidencia)
                 const codigo = incidencia.codigo || incidencia.cod_incidencia || 'N/A';
                 const tipo = incidencia.tipo_incidencia?.nombre || incidencia.tipoIncidencia?.nombre || 'N/A';
                 const estado = incidencia.estado_incidencia?.nombre || incidencia.estadoIncidencia?.nombre || 'N/A';
                 const nivel = incidencia.nivel_incidencia?.nombre || incidencia.nivelIncidencia?.nombre || 'N/A';
-                // Comunidad: incidencia->direccionIncidencia->comunidad->nombre
-                // Soporte para ambos nombres de campo (comunidad->nombre)
-                const comunidad = (
-                    incidencia.direccion_incidencia?.comunidad?.nombre ||
-                    incidencia.direccionIncidencia?.comunidad?.nombre ||
-                    'N/A'
-                );
+                // Comunidad: acceso robusto igual que en incidencias.js
+                let comunidad = '<em>Sin comunidad</em>';
+                if (incidencia.direccionIncidencia && incidencia.direccionIncidencia.comunidad) {
+                    comunidad = incidencia.direccionIncidencia.comunidad?.nombre || '<em>Sin comunidad</em>';
+                } else if (incidencia.direccion_incidencia && incidencia.direccion_incidencia.comunidad) {
+                    comunidad = incidencia.direccion_incidencia.comunidad?.nombre || '<em>Sin comunidad</em>';
+                }
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${codigo}</td>
                     <td>${tipo}</td>
-                    <td><span class="badge" style="background:${estadoColor};color:#fff;">${estado}</span></td>
-                    <td><span class="badge" style="background:${nivelColor};color:#fff;">${nivel}</span></td>
+                    <td>${estado}</td>
+                    <td>${nivel}</td>
                     <td>${comunidad}</td>
                 `;
                 tbody.appendChild(tr);

@@ -6,10 +6,10 @@
         <div class="d-flex justify-content-between mb-3">
             <h2>Lista de Empleados</h2>
             <div>
-                <a href="{{ route('empleados.create') }}" class="btn btn-primary">
+                <a href="{{ route('empleados.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Nuevo Empleado
                 </a>
-                <button class="btn btn-success" onclick="window.location.href='{{ route('usuarios.download.pdf') }}'">
+                <button class="btn btn-primary" onclick="window.location.href='{{ route('usuarios.download.pdf') }}'">
                     <i class="bi bi-file-earmark-arrow-down"></i> Descargar
                 </button>
             </div>
@@ -55,4 +55,18 @@
             });
         });
     </script>
+
+    @if(session('sweet_error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acción no permitida',
+                text: @json(session('sweet_error')),
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    </script>
+@endif
 @endsection

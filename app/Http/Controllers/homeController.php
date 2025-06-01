@@ -29,12 +29,8 @@ class HomeController extends Controller
         // Contar el número total de personas
         $totalPersonas = Persona::count();
 
-        $totalPersonal = personalReparacion::count();
-
-        $totalInstituciones = Institucion::count();
-
         // Pasar los valores a la vista
-        return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas', 'totalPersonal', 'totalInstituciones'));
+        return view('home', compact('totalUsuarios', 'totalIncidencias', 'totalPeticiones', 'totalPersonas',));
     }
 
     public function obtenerTotalPeticiones()
@@ -236,6 +232,6 @@ public function descargarGraficoPDF(Request $request)
         'pie_html' => $pie_html,
     ])->setPaper('a4', 'landscape');
 
-    return $pdf->download('grafico_incidencias.pdf');
+    return $pdf->download('grafico_home_' . now()->format('Ymd_His') . '.pdf');
 }
 }

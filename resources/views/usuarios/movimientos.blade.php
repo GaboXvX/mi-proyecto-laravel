@@ -147,9 +147,6 @@
 
         <div class="card-footer">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted">
-                    Mostrando <span id="current-count">{{ $movimientos->count() }}</span> de <span id="total-count">{{ $movimientos->total() }}</span> registros
-                </div>
                 <div id="pagination-links">
                     {{ $movimientos->onEachSide(1)->links() }}
                 </div>

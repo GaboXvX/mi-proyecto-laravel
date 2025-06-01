@@ -3,8 +3,10 @@
         <tr>
             <th>Nombre</th>
             <th>Apellido</th>
+            <th>Género</th>
             <th>Cédula</th>
             <th>Cargo</th>
+           <th>Usuario</th>
             <th>Rol</th>
             <th>Correo</th>
             <th>Estado</th>
@@ -20,8 +22,11 @@
             <tr>
                 <td>{{ $usuario->empleadoAutorizado->nombre ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->apellido ?? '-' }}</td>
+                <td>{{ $usuario->empleadoAutorizado->genero ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cedula ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cargo->nombre_cargo ?? 'No definido' }}</td>
+                <td>{{ $usuario->nombre_usuario?? '-' }}</td>
+
                 <td>
                     @if($usuario->roles && $usuario->roles->count())
                         {{ $usuario->roles->pluck('name')->implode(', ') }}
@@ -52,13 +57,12 @@
                     @if (empty($usuario->empleadoAutorizado))
                         <span class="text-muted">No disponible</span>
                     @else
-                    @if($usuario->hasRole('registrador'))
-                        <div class="dropdown">
-                            <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $usuario->id_usuario }}">
-                                @unless ($usuario->hasRole('admin'))
+                        @if($usuario->hasRole('registrador'))
+                            <div class="dropdown">
+                                <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ $usuario->id_usuario }}">
                                     @can('ver movimientos empleados')
                                         <li>
                                             <a class="dropdown-item" href="{{ route('movimientos.registradores', $usuario->slug) }}">
@@ -66,8 +70,11 @@
                                             </a>
                                         </li>
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('empleados.edit', $usuario->empleadoAutorizado->id_empleado_autorizado) }}">
+                                                <i class="bi bi-pencil-square me-2"></i>Editar empleado
+                                            </a>
+                                        </li>
                                     @can('desactivar empleados')
                                         @if ($usuario->id_estado_usuario == 1)
                                             <li>
@@ -78,8 +85,6 @@
                                             </li>
                                         @endif
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
                                     @can('habilitar empleados')
                                         @if ($usuario->id_estado_usuario == 2)
                                             <li>
@@ -90,29 +95,26 @@
                                             </li>
                                         @endif
                                     @endcan
-                                @endunless
-                                @unless ($usuario->hasRole('admin'))
                                     <li>
                                         <form action="{{ route('usuarios.restaurar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                             @csrf
                                             <button type="submit" class="dropdown-item"><i class="bi bi-arrow-clockwise me-2"></i>Restaurar</button>
                                         </form>
                                     </li>
-                                @endunless
-                                @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
+                                    @if (auth()->user()->hasRole('admin') && $usuario->hasRole('registrador'))
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}">
+                                                <i class="bi bi-shield-lock me-2"></i>Permisos
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('usuarios.asignarPermisos', $usuario->id_usuario) }}">
-                                            <i class="bi bi-shield-lock me-2"></i>Permisos
-                                        </a>
+                                        <button type="button" class="dropdown-item btn-renovar-intentos" data-id="{{ $usuario->id_usuario }}">
+                                            <i class="bi bi-arrow-repeat me-2"></i>Renovar intentos
+                                        </button>
                                     </li>
-                                @endif
-                                <li>
-                                    <button type="button" class="dropdown-item btn-renovar-intentos" data-id="{{ $usuario->id_usuario }}">
-                                        <i class="bi bi-arrow-repeat me-2"></i>Renovar intentos
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
                         @endif
                     @endif
                 </td>
@@ -122,13 +124,31 @@
             <tr>
                 <td>{{ $empleado->nombre }}</td>
                 <td>{{ $empleado->apellido }}</td>
+                <td>{{ $empleado->genero }}</td>
                 <td>{{ $empleado->cedula }}</td>
                 <td>{{ $empleado->cargo->nombre_cargo ?? 'No definido' }}</td>
                 <td><span class="text-muted">No definido</span></td>
                 <td><span class="text-muted">No asignado</span></td>
                 <td><span class="text-warning">Sin registrarse</span></td>
+                                <td><span class="text-muted">No asignado</span></td>
+
                 <td>{{ $empleado->created_at }}</td>
-                <td><span class="text-muted">No disponible</span></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-empleado-{{ $empleado->id_empleado_autorizado }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-empleado-{{ $empleado->id_empleado_autorizado }}">
+                            @can('editar empleados')
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('empleados.edit', $empleado->id_empleado_autorizado) }}">
+                                        <i class="bi bi-pencil-square me-2"></i>Modificar
+                                    </a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </td>
             </tr>
         @endforeach
     </tbody>

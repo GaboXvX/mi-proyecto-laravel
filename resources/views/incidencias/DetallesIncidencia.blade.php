@@ -194,8 +194,21 @@
             <p><span class="label-bold">Nombre:</span> {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}</p>
             <p><span class="label-bold">Cédula:</span>{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
             <p><span class="label-bold">Teléfono:</span> {{ $incidencia->usuario->empleadoAutorizado->telefono ?? 'N/A' }}</p>
+            <p><span class="label-bold">Género:</span> {{ $incidencia->usuario->empleadoAutorizado->genero ?? 'N/A' }}</p>
         @else
             <p class="text-muted"><em>Información no disponible</em></p>
+        @endif
+    </div>
+    <!-- Persona relacionada -->
+    <div class="section">
+        <div class="section-title">Persona Relacionada</div>
+        @if ($incidencia->persona)
+            <p><span class="label-bold">Nombre:</span> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
+            <p><span class="label-bold">Cédula:</span> {{ $incidencia->persona->cedula }}</p>
+            <p><span class="label-bold">Teléfono:</span> {{ $incidencia->persona->telefono ?? 'N/A' }}</p>
+            <p><span class="label-bold">Género:</span> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
+        @else
+            <p class="text-muted"><em>No hay persona relacionada</em></p>
         @endif
     </div>
 

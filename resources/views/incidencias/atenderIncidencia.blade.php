@@ -62,6 +62,16 @@
                             </div>
 
                             <div class="mb-2">
+                                <label for="genero" class="form-label small mb-0">Género <span class="text-danger">*</span></label>
+                                <select name="genero" id="genero" class="form-select form-select-sm py-2" required>
+                                    <option value="" selected disabled>Seleccione...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="O">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
                                 <label for="institucion" class="form-label small mb-0">Institución de Procedencia <span class="text-danger">*</span></label>
                                 <select name="institucion" id="institucion" class="form-select form-select-sm py-2" required>
                                     <option value="" selected disabled>Seleccione una institución</option>
@@ -262,6 +272,7 @@ function limpiarCamposPersonal() {
     document.getElementById('apellido').value = '';
     document.getElementById('telefono').value = '';
     document.getElementById('nacionalidad').value = '';
+    document.getElementById('genero').value = '';
     document.getElementById('institucion').value = '';
     document.getElementById('estacion').innerHTML = '<option value="" selected disabled>Seleccione una estación</option>';
     document.getElementById('estacion').value = '';
@@ -283,11 +294,24 @@ function desbloquearCamposPersonal() {
     });
 }
 function bloquearCamposPersonal() {
-    ['nombre','apellido','telefono'].forEach(id => {
+    ['nombre','apellido','telefono','genero'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.readOnly = true;
             el.classList.add('bg-light');
+            if (el.tagName === 'SELECT') {
+                el.setAttribute('data-readonly', 'true');
+                el.addEventListener('mousedown', function(e) {
+                    if (el.getAttribute('data-readonly') === 'true') {
+                        e.preventDefault();
+                    }
+                });
+                el.addEventListener('keydown', function(e) {
+                    if (el.getAttribute('data-readonly') === 'true') {
+                        e.preventDefault();
+                    }
+                });
+            }
         }
     });
     // Para los select, solo visualmente deshabilitados, pero no disabled
@@ -327,6 +351,7 @@ function buscarEmpleadoAuto(cedula) {
                 document.getElementById('apellido').value = data.apellido;
                 document.getElementById('telefono').value = data.telefono || '';
                 document.getElementById('nacionalidad').value = data.nacionalidad || '';
+                document.getElementById('genero').value = data.genero || '';
                 if (data.id_institucion) {
                     document.getElementById('institucion').value = data.id_institucion;
                     fetch(`/personal-reparacion/estaciones/${data.id_institucion}`)

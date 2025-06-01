@@ -4,11 +4,13 @@
 <div class="table-container">
     <div class="d-flex mb-3 justify-content-between align-items-center">
         <h2 class="mb-4">Niveles de Incidencia</h2>
-        @if (count($niveles) < 10)
-        <a href="{{ route('niveles-incidencia.create') }}" class="btn btn-success" title="Agregar nuevo nivel">
-            <i class="bi bi-plus-circle"></i> Nuevo
-        </a>
-        @endif
+        @can('agregar niveles incidencias')
+            @if (count($niveles) < 10)
+            <a href="{{ route('niveles-incidencia.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo
+            </a>
+            @endif
+        @endcan
     </div>
 
     @if (session('success'))
@@ -57,6 +59,7 @@
                         </span>
                     </td>
                     <td>
+                        @can('editar niveles incidencias')
                         <form action="{{ route('niveles-incidencia.toggle-status', $nivel) }}" method="POST">
                             @csrf
                             @method('PUT')
@@ -64,12 +67,18 @@
                                 {{ $nivel->activo ? 'Activo' : 'Inactivo' }}
                             </button>
                         </form>
+                        @else
+                        <span class="badge {{ $nivel->activo ? 'bg-success' : 'bg-secondary' }}">
+                            {{ $nivel->activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                        @endcan
                     </td>
                     <td>
+                        @can('editar niveles incidencias')
                         <a href="{{ route('niveles-incidencia.edit', $nivel) }}" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i>editar
                         </a>
-                        
+                        @endcan
                     </td>
                 </tr>
                 @endforeach

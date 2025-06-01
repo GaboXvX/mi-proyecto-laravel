@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('apellido', 50);
             $table->string('nacionalidad');
             $table->string('cedula', 20)->unique();
+                        $table->char('genero');
+
             $table->string('telefono', 20);
             $table->timestamps();
             $table->foreign('id_usuario')->references('id_usuario')->on('users')->onDelete('cascade');

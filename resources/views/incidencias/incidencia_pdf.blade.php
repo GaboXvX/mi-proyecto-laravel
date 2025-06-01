@@ -154,6 +154,7 @@
             <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
             <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
             <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono }}</p>
+            <p><strong>Género:</strong> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
         </div>
         @endif
 

@@ -1,63 +1,61 @@
 @extends('layouts.app')
 @section('content')
 <div class="container d-flex justify-content-center align-items-center">
-    <div class="table-container" style="width: 100%; max-width: 600px;">
-        <h2 class="text-center">Registrar Empleado Autorizado</h2>
-        <form action="{{ route('empleados.store') }}" method="POST" id="empleadoForm">
+    <div class="table-container shadow" style="width: 100%; max-width: 600px;">
+        <h2 class="text-center mb-4">Editar Empleado Autorizado</h2>
+        <form action="{{ route('empleados.update', $empleado->id_empleado_autorizado) }}" method="POST" id="empleadoForm">
             @csrf
+            @method('PUT')
             <div class="mb-3">
                 <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula</label>
-                <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" required value="{{ old('cedula') }}" maxlength="8">
-                <span id="cedulaStatus" class="text-success" style="display:none;"></span>
-                <span id="cedulaError" class="text-danger" style="display:none;"></span>
+                <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" value="{{ $empleado->cedula }}" readonly disabled>
             </div>
-
+            
             <div class="row g-2 mb-3">
                 <div class="col-md-6">
                     <label for="nombre" class="form-label"><span style="color: red;" class="me-2">*</span>Nombre</label>
-                    <input type="text" name="nombre" id="nombre" class="form-control solo-letras" maxlength="12" required value="{{ old('nombre') }}">
+                    <input type="text" name="nombre" id="nombre" class="form-control solo-letras" required value="{{ old('nombre', $empleado->nombre) }}" maxlength="12">
                 </div>
                 <div class="col-md-6">
                     <label for="apellido" class="form-label"><span style="color: red;" class="me-2">*</span>Apellido</label>
-                    <input type="text" name="apellido" id="apellido" class="form-control solo-letras" maxlength="12" required value="{{ old('apellido') }}">
+                    <input type="text" name="apellido" id="apellido" class="form-control solo-letras" required value="{{ old('apellido', $empleado->apellido) }}" maxlength="12">
                 </div>
             </div>
-            
+
             <div class="row g-2 mb-3">
                 <div class="col-md-6">
                     <label for="cargo_id" class="form-label"><span style="color: red;" class="me-2">*</span>Cargo</label>
                     <select name="cargo_id" id="cargo_id" class="form-control" required>
                         <option value="">Seleccione un cargo</option>
                         @foreach($cargos as $cargo)
-                            <option value="{{ $cargo->id_cargo }}" {{ old('cargo_id') == $cargo->id_cargo ? 'selected' : '' }}>{{ $cargo->nombre_cargo }}</option>
+                            <option value="{{ $cargo->id_cargo }}" {{ old('cargo_id', $empleado->id_cargo) == $cargo->id_cargo ? 'selected' : '' }}>{{ $cargo->nombre_cargo }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label for="genero" class="form-label"><span style="color: red;" class="me-2">*</span>Género</label>
+                    <label for="genero" class="form-label">Género</label>
                     <select name="genero" id="genero" class="form-control" required>
                         <option value="">Seleccione un género</option>
-                        <option value="M" {{ old('genero') == 'M' ? 'selected' : '' }}>Masculino</option>
-                        <option value="F" {{ old('genero') == 'F' ? 'selected' : '' }}>Femenino</option>
+                        <option value="M" {{ old('genero', $empleado->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
+                        <option value="F" {{ old('genero', $empleado->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
                     </select>
                 </div>
             </div>
-           
+
             <div class="mb-3">
                 <label for="telefono" class="form-label"><span style="color: red;" class="me-2">*</span>Teléfono</label>
-                <input type="text" name="telefono" id="telefono" class="form-control solo-numeros" maxlength="11" required value="{{ old('telefono') }}">
+                <input type="text" name="telefono" id="telefono" class="form-control" required value="{{ old('telefono', $empleado->telefono) }}">
             </div>
-           
+            
             <div class="d-flex justify-content-between">
                 <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-success">Registrar</button>
+                <button type="submit" class="btn btn-success" id="guardarBtn">Guardar</button>
             </div>
         </form>
         <span class="text-muted d-flex justify-content-center">Los campos señalados con * deben ser rellenados</span>
     </div>
 </div>
 
-<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -67,65 +65,61 @@ document.addEventListener('DOMContentLoaded', function() {
     const generoInput = document.getElementById('genero');
     const telefonoInput = document.getElementById('telefono');
     const cargoInput = document.getElementById('cargo_id');
-    const registrarBtn = document.getElementById('registrarBtn');
+    const guardarBtn = document.getElementById('guardarBtn');
     const cedulaStatus = document.getElementById('cedulaStatus');
     const cedulaError = document.getElementById('cedulaError');
 
-    let empleadoEncontrado = false;
-    let ultimoEmpleadoBloqueado = null;
+    const cedulaOriginal = @json($empleado->cedula);
+    let empleadoExistente = false;
 
-    function bloquearCamposEmpleado(data) {
+    function bloquearCampos(data) {
         nombreInput.value = data.nombre;
         apellidoInput.value = data.apellido;
         generoInput.value = data.genero;
         telefonoInput.value = data.telefono;
         cargoInput.value = data.id_cargo;
+        
         nombreInput.disabled = true;
         apellidoInput.disabled = true;
         generoInput.disabled = true;
         telefonoInput.disabled = true;
         cargoInput.disabled = true;
-        registrarBtn.disabled = true; // Bloquea el botón de registrar
-        registrarBtn.classList.remove('btn-success');
-        registrarBtn.classList.add('btn-secondary');
+        
+        guardarBtn.disabled = true;
+        guardarBtn.classList.remove('btn-success');
+        guardarBtn.classList.add('btn-secondary');
+        
         cedulaError.style.display = 'inline';
-        cedulaError.textContent = 'La cédula ya está registrada. No puedes registrar este empleado nuevamente.';
+        cedulaError.textContent = 'La cédula ya está registrada por otro empleado.';
         cedulaStatus.style.display = 'none';
         cedulaInput.classList.remove('is-valid');
-        empleadoEncontrado = true;
-        ultimoEmpleadoBloqueado = data.cedula;
+        
+        empleadoExistente = true;
     }
 
-    function desbloquearCamposEmpleado(limpiar = false) {
-        if (limpiar) {
-            nombreInput.value = '';
-            apellidoInput.value = '';
-            generoInput.value = '';
-            telefonoInput.value = '';
-            cargoInput.value = '';
-        }
+    function desbloquearCampos() {
         nombreInput.disabled = false;
         apellidoInput.disabled = false;
         generoInput.disabled = false;
         telefonoInput.disabled = false;
         cargoInput.disabled = false;
-        registrarBtn.disabled = false;
-        registrarBtn.classList.remove('btn-secondary');
-        registrarBtn.classList.add('btn-success');
+        
+        guardarBtn.disabled = false;
+        guardarBtn.classList.remove('btn-secondary');
+        guardarBtn.classList.add('btn-success');
+        
         cedulaError.style.display = 'none';
-        cedulaInput.classList.add('is-valid');
         cedulaStatus.style.display = 'inline';
-        cedulaStatus.textContent = '';
-        cedulaBloqueada = false;
+        cedulaStatus.textContent = 'Cédula válida para actualización';
+        cedulaInput.classList.add('is-valid');
+        
+        empleadoExistente = false;
     }
 
-    function limpiarValidacionCedula() {
-        cedulaInput.classList.remove('is-valid');
+    function limpiarValidacion() {
+        cedulaInput.classList.remove('is-valid', 'is-invalid');
         cedulaStatus.style.display = 'none';
         cedulaError.style.display = 'none';
-        registrarBtn.disabled = false;
-        registrarBtn.classList.remove('btn-secondary');
-        registrarBtn.classList.add('btn-success');
     }
 
     // Verificar cédula al cambiar el input
@@ -133,67 +127,72 @@ document.addEventListener('DOMContentLoaded', function() {
         const cedula = cedulaInput.value.trim();
         
         if (cedula.length === 0) {
-            limpiarValidacionCedula();
-            desbloquearCamposEmpleado(true);
+            limpiarValidacion();
             return;
         }
 
-        // Validar formato de cédula si es necesario
+        // Validar formato de cédula
         if (!/^\d+$/.test(cedula)) {
             cedulaError.style.display = 'inline';
             cedulaError.textContent = 'La cédula debe contener solo números';
-            registrarBtn.disabled = true;
+            guardarBtn.disabled = true;
             return;
-        } else {
-            cedulaError.style.display = 'none';
         }
 
-        // Consultar si la cédula existe
+        // Si la cédula es la misma que la original, no hacemos validación
+        if (cedula === cedulaOriginal) {
+            desbloquearCampos();
+            return;
+        }
+
+        // Consultar si la cédula existe en otros empleados
         fetch("{{ url('/empleados/verificar-cedula') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ cedula: cedula })
+            body: JSON.stringify({ 
+                cedula: cedula,
+                excluir: cedulaOriginal // Excluimos la cédula actual
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.existe) {
-                bloquearCamposEmpleado(data.empleado);
+                bloquearCampos(data.empleado);
             } else {
-                // Si la cédula que desbloqueó los campos es la misma que la última bloqueada, limpiar
-                if (ultimoEmpleadoBloqueado && cedula !== ultimoEmpleadoBloqueado) {
-                    desbloquearCamposEmpleado(true); // Limpiar campos solo si venía de un bloqueo
-                } else {
-                    desbloquearCamposEmpleado(false); // No limpiar si ya estaba desbloqueado
-                }
+                desbloquearCampos();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            limpiarValidacionCedula();
+            limpiarValidacion();
         });
     });
+
+    // Validación inicial al cargar la página
+    if (cedulaInput.value === cedulaOriginal) {
+        desbloquearCampos();
+    }
 
     // Envío del formulario
     const form = document.getElementById('empleadoForm');
     form.addEventListener('submit', function(e) {
-        if (empleadoEncontrado) {
+        if (empleadoExistente) {
             e.preventDefault();
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No puedes registrar un empleado que ya existe',
+                text: 'No puedes guardar los cambios porque la cédula pertenece a otro empleado',
                 confirmButtonText: 'Entendido'
             });
             return;
         }
 
         e.preventDefault();
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrando...';
+        guardarBtn.disabled = true;
+        guardarBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
         
         const formData = new FormData(form);
         
@@ -202,7 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-HTTP-Method-Override': 'PUT'
             },
             body: formData
         })
@@ -242,13 +242,13 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'Ocurrió un error al registrar el empleado',
+                text: error.message || 'Ocurrió un error al guardar el empleado',
                 confirmButtonText: 'Entendido'
             });
         })
         .finally(() => {
-            submitBtn.disabled = empleadoEncontrado;
-            submitBtn.innerHTML = 'Registrar';
+            guardarBtn.disabled = empleadoExistente;
+            guardarBtn.innerHTML = 'Guardar';
         });
     });
 });

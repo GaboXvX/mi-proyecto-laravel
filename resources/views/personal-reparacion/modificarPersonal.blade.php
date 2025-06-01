@@ -5,7 +5,7 @@
     <div class="table-container p-4 shadow" style="width: 100%; max-width: 600px;">
         <h2 class="text-center mb-4">Editar Personal de Reparación</h2>
         
-        <form action="{{ route('personal-reparacion.update', $personalReparacion) }}" method="POST">
+        <form action="{{ route('personal-reparacion.update', $personalReparacion) }}" method="POST" id="formModificarPersonal">
             @csrf
             @method('PUT')
             
@@ -25,7 +25,7 @@
             
             <div class="form-group mb-2">
                 <label for="id_institucion_estacion">Estación</label>
-                <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm">
+                <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm" required>
                     <option value="">Seleccione una estación</option>
                     @foreach($estaciones as $estacion)
                         <option value="{{ $estacion->id_institucion_estacion }}" {{ $personalReparacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
@@ -49,29 +49,38 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group mb-2">
+                <label for="genero">Género</label>
+                <select name="genero" id="genero" class="form-control form-control-sm" required>
+                    <option value="" disabled>Seleccione...</option>
+                    <option value="M" {{ $personalReparacion->genero == 'M' ? 'selected' : '' }}>Masculino</option>
+                    <option value="F" {{ $personalReparacion->genero == 'F' ? 'selected' : '' }}>Femenino</option>
+                </select>
+            </div>
             
             <div class="form-group mb-2">
                 <label for="nacionalidad">Nacionalidad</label>
-                <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm solo-letras" value="{{ $personalReparacion->nacionalidad }}" required>
+                <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm" value="{{ $personalReparacion->nacionalidad }}" disabled>
             </div>
             
             <div class="form-group mb-2">
                 <label for="cedula">Cédula</label>
-                <input type="text" name="cedula" id="cedula" class="form-control form-control-sm solo-letras" maxlength="8" value="{{ $personalReparacion->cedula }}" required>
+                <input type="text" name="cedula" id="cedula" class="form-control form-control-sm" maxlength="8" value="{{ $personalReparacion->cedula }}" disabled>
             </div>
             
             <div class="form-group mb-3">
                 <label for="telefono">Teléfono</label>
-                <input type="text" name="telefono" id="telefono" class="form-control form-control-sm" value="{{ $personalReparacion->telefono }}" required>
+                <input type="text" name="telefono" id="telefono" class="form-control form-control-sm solo-numeros" maxlength="11" value="{{ $personalReparacion->telefono }}" required>
             </div>
             
             <div class="d-flex justify-content-between">
                 <a href="{{ route('personal-reparacion.index') }}" class="btn btn-sm btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                <button type="submit" class="btn btn-sm btn-primary" id="btnActualizar">Actualizar</button>
             </div>
         </form>
     </div>
 </div>
+<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const institucionSelect = document.getElementById('id_institucion');
@@ -129,6 +138,74 @@ document.addEventListener('DOMContentLoaded', function() {
     if (institucionSelect.value) {
         cargarEstaciones(institucionSelect.value);
     }
+
+    // SweetAlert para submit AJAX
+    const form = document.getElementById('formModificarPersonal');
+    const btnActualizar = document.getElementById('btnActualizar');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        btnActualizar.disabled = true;
+        btnActualizar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Actualizando...';
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-HTTP-Method-Override': 'PUT'
+            },
+            body: formData
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok) {
+                let errorMessages = '';
+                if (data.errors) {
+                    for (const [field, errors] of Object.entries(data.errors)) {
+                        errorMessages += errors.join('\n') + '\n';
+                    }
+                }
+                throw new Error(errorMessages || data.message || 'Error al actualizar');
+            }
+            return data;
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    confirmButtonText: 'Ir a la lista',
+                    allowOutsideClick: false
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('personal-reparacion.index') }}";
+                    }
+                });
+            } else {
+                throw new Error(data.message || 'Error desconocido');
+            }
+        })
+        .catch(error => {
+            let mensaje = error.message || 'Ocurrió un error al actualizar';
+            if (mensaje.includes('SQLSTATE')) {
+                mensaje = 'Error inesperado en el servidor. Intenta nuevamente o contacta al administrador.';
+            } else if (!mensaje.trim()) {
+                mensaje = 'Por favor, revisa los campos obligatorios.';
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: mensaje,
+                confirmButtonText: 'Entendido'
+            });
+        })
+        .finally(() => {
+            btnActualizar.disabled = false;
+            btnActualizar.innerHTML = 'Actualizar';
+        });
+    });
 });
 </script>
 @endsection

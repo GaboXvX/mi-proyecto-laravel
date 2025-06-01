@@ -24,6 +24,7 @@ class personalController extends Controller
             'apellido' => $empleado->apellido,
             'telefono' => $empleado->telefono,
             'nacionalidad' => $empleado->nacionalidad,
+            'genero' => $empleado->genero, // Nuevo: incluir género
             'id_institucion' => $empleado->id_institucion,
             'id_institucion_estacion' => $empleado->id_institucion_estacion,
         ]);
@@ -55,12 +56,31 @@ public function index()
 {
     $validated = $request->validate([
         'id_institucion' => 'required|exists:instituciones,id_institucion',
-        'id_institucion_estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
+        'id_institucion_estacion' => 'required|exists:instituciones_estaciones,id_institucion_estacion',
         'nombre' => 'required|string|max:255',
         'apellido' => 'required|string|max:255',
         'nacionalidad' => 'required|string|max:255',
         'cedula' => 'required|string|max:255|unique:personal_reparaciones,cedula',
-        'telefono' => 'required|string|max:255'
+        'telefono' => 'required|string|max:255',
+        'genero' => 'required|in:M,F,O',
+    ], [
+        'id_institucion.required' => 'La institución de apoyo es obligatoria.',
+        'id_institucion.exists' => 'La institución seleccionada no es válida.',
+        'id_institucion_estacion.required' => 'La estación es obligatoria.',
+        'id_institucion_estacion.exists' => 'La estación seleccionada no es válida.',
+        'nombre.required' => 'El nombre es obligatorio.',
+        'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
+        'apellido.required' => 'El apellido es obligatorio.',
+        'apellido.max' => 'El apellido no puede tener más de 255 caracteres.',
+        'nacionalidad.required' => 'La nacionalidad es obligatoria.',
+        'nacionalidad.max' => 'La nacionalidad no puede tener más de 255 caracteres.',
+        'cedula.required' => 'La cédula es obligatoria.',
+        'cedula.unique' => 'La cédula ya está registrada.',
+        'cedula.max' => 'La cédula no puede tener más de 255 caracteres.',
+        'telefono.required' => 'El teléfono es obligatorio.',
+        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.',
+        'genero.required' => 'El género es obligatorio.',
+        'genero.in' => 'El género seleccionado no es válido.'
     ]);
 
     // Generar el slug
@@ -73,15 +93,23 @@ public function index()
         $counter++;
     }
 
-    // Crear el registro incluyendo todos los campos necesarios
-    $personal = personalReparacion::create([
-        ...$validated,
-        'slug' => $slug,
-        'id_usuario' => auth()->id() // o auth()->user()->id_usuario según tu estructura
-    ]);
-
-    return redirect()->route('personal-reparacion.index')
-                    ->with('success', 'Personal de reparación creado exitosamente.');
+    try {
+        $personal = personalReparacion::create([
+            ...$validated,
+            'slug' => $slug,
+            'id_usuario' => auth()->id()
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Personal de reparación creado exitosamente.',
+            'redirect' => route('personal-reparacion.index')
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear el personal de reparación: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
     /**
@@ -108,22 +136,45 @@ public function index()
      * Update the specified resource in storage.
      */
     public function update(Request $request, personalReparacion $personalReparacion)
-    {
-        $validated = $request->validate([
-            'id_institucion' => 'required|exists:instituciones,id_institucion',
-            'id_institucion_estacion' => 'nullable|exists:instituciones_estaciones,id_institucion_estacion',
-            'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'nacionalidad' => 'required|string|max:255',
-            'cedula' => 'required|string|max:255|unique:personal_reparaciones,cedula,'.$personalReparacion->id_personal_reparacion.',id_personal_reparacion',
-            'telefono' => 'required|string|max:255'
-        ]);
+{
+    $validated = $request->validate([
+        'id_institucion' => 'required|exists:instituciones,id_institucion',
+        'id_institucion_estacion' => 'required|exists:instituciones_estaciones,id_institucion_estacion',
+        'nombre' => 'required|string|max:255',
+        'apellido' => 'required|string|max:255',
+        'telefono' => 'required|string|max:255',
+        'genero' => 'required|in:M,F,O',
+    ], [
+        'id_institucion.required' => 'La institución de apoyo es obligatoria.',
+        'id_institucion.exists' => 'La institución seleccionada no es válida.',
+        'id_institucion_estacion.required' => 'La estación es obligatoria.',
+        'id_institucion_estacion.exists' => 'La estación seleccionada no es válida.',
+        'nombre.required' => 'El nombre es obligatorio.',
+        'nombre.max' => 'El nombre no puede tener más de 255 caracteres.',
+        'apellido.required' => 'El apellido es obligatorio.',
+        'apellido.max' => 'El apellido no puede tener más de 255 caracteres.',
+        'telefono.required' => 'El teléfono es obligatorio.',
+        'telefono.max' => 'El teléfono no puede tener más de 255 caracteres.',
+        'genero.required' => 'El género es obligatorio.',
+        'genero.in' => 'El género seleccionado no es válido.'
+    ]);
 
+    try {
         $personalReparacion->update($validated);
-
-        return redirect()->route('personal-reparacion.index')
-                         ->with('success', 'Personal de reparación actualizado exitosamente.');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Personal de reparación actualizado exitosamente.',
+            'data' => $personalReparacion
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar el personal de reparación: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Remove the specified resource from storage.

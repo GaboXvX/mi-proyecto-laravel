@@ -14,6 +14,7 @@ use Spatie\Permission\Models\Role;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
+use App\Models\Institucion;
 
 class UserController extends Controller
 {
@@ -111,6 +112,18 @@ class UserController extends Controller
 
     public function desactivar($id)
     {
+        // Prevenir que un usuario se deshabilite a sí mismo
+        if (auth()->check() && auth()->user()->id_usuario == $id) {
+            // Si es una petición AJAX, responder con JSON
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No puedes deshabilitar tu propio usuario.'
+                ], 403);
+            }
+            // Si es una petición normal, redirigir con error
+            return redirect()->route('usuarios.index')->with('sweet_error', 'No puedes deshabilitar tu propio usuario.');
+        }
         try {
             $usuario = User::where('id_usuario', $id)->first();
             $usuario->id_estado_usuario = 2; // Estado desactivado
@@ -269,14 +282,37 @@ class UserController extends Controller
     }
 
     public function downloadUsuariosPdf()
-    {
-        $usuarios = User::with('empleadoAutorizado')->get();
-        
-        $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', compact('usuarios'))
-                   ->setPaper('a4', 'landscape');
-        
-        return $pdf->download('lista_de_empleados.pdf');
+{
+    $usuarios = User::with('empleadoAutorizado')->get();
+
+    // Obtener la institución propietaria
+    $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+    // Obtener el logo de la institución en base64
+    $logoBase64 = null;
+    if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+        $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
     }
+
+    // Encabezado y pie de página
+    $membrete = $institucionPropietaria->encabezado_html ?? '';
+    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    // Generar el PDF
+    $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', [
+        'usuarios' => $usuarios,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('lista_de_empleados.pdf');
+}
+    
     public function renovarIntentos($id_usuario)
     {
         $usuario = User::findOrFail($id_usuario);

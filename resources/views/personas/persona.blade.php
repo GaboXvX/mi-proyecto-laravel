@@ -248,7 +248,7 @@
 
                             <div class="mb-3">
                                 <label for="numero_de_vivienda" class="form-label">Número de Vivienda:</label>
-                                <input type="number" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
+                                <input type="text" id="numero_de_vivienda" name="numero_de_vivienda" class="form-control" required maxlength="4">
                             </div>
 
                             <div class="row mb-3">
@@ -280,20 +280,30 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="mb-3">
-                                <label for="cedula" class="form-label">Cédula:</label>
-                                <input type="text" id="cedula" name="cedula" class="form-control" value="{{ old('cedula', $persona->cedula) }}" required maxlength="8">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="nacionalidad" class="form-label">Nacionalidad:</label>
+                                    <select name="nacionalidad" id="nacionalidad" class="form-select" disabled>
+                                        <option value="V" {{ old('nacionalidad', $persona->nacionalidad) == 'V' ? 'selected' : '' }}>V</option>
+                                        <option value="E" {{ old('nacionalidad', $persona->nacionalidad) == 'E' ? 'selected' : '' }}>E</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="cedula" class="form-label">Cédula:</label>
+                                    <input type="text" id="cedula" class="form-control" value="{{ $persona->cedula }}" readonly disabled>
+                                </div>
                             </div>
                             
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="nombre" class="form-label">Nombre:</label>
-                                    <input type="text" id="nombre" name="nombre" class="form-control" value="{{ old('nombre', $persona->nombre) }}" required maxlength="11">
+                                    <input type="text" id="nombre" name="nombre" class="form-control solo-letras" value="{{ old('nombre', $persona->nombre) }}" required maxlength="12">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="apellido" class="form-label">Apellido:</label>
-                                    <input type="text" id="apellido" name="apellido" class="form-control" value="{{ old('apellido', $persona->apellido) }}" required maxlength="11">
+                                    <input type="text" id="apellido" name="apellido" class="form-control solo-letras" value="{{ old('apellido', $persona->apellido) }}" required maxlength="12">
                                 </div>
                             </div>
 
@@ -305,7 +315,7 @@
 
                                 <div class="col-md-6">
                                     <label for="telefono" class="form-label">Teléfono:</label>
-                                    <input type="tel" id="telefono" name="telefono" class="form-control" value="{{ old('telefono', $persona->telefono) }}" required maxlength="11">
+                                    <input type="tel" id="telefono" name="telefono" class="form-control solo-numeros" value="{{ old('telefono', $persona->telefono) }}" required maxlength="11">
                                 </div>
                             </div>
 
@@ -314,14 +324,6 @@
                                 <select name="genero" id="genero" class="form-select" required>
                                     <option value="M" {{ old('genero', $persona->genero) == 'M' ? 'selected' : '' }}>Masculino</option>
                                     <option value="F" {{ old('genero', $persona->genero) == 'F' ? 'selected' : '' }}>Femenino</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="nacionalidad" class="form-label">Nacionalidad:</label>
-                                <select name="nacionalidad" id="nacionalidad" class="form-select" required>
-                                    <option value="V" {{ old('nacionalidad', $persona->nacionalidad) == 'V' ? 'selected' : '' }}>V</option>
-                                    <option value="E" {{ old('nacionalidad', $persona->nacionalidad) == 'E' ? 'selected' : '' }}>E</option>
                                 </select>
                             </div>
 

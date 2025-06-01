@@ -238,7 +238,8 @@
                         @auth
                         @forelse(auth()->user()->notificaciones()->latest()->take(5)->get() as $notificacion)
                         <li>
-                            <a class="dropdown-item notification-item {{ !$notificacion->leido ? 'unread' : '' }} py-2 px-3"
+                            <a href="{{ route('notificaciones.index', ['marcar' => $notificacion->id_notificacion]) }}"
+                               class="dropdown-item notification-item {{ !$notificacion->leido ? 'unread' : '' }} py-2 px-3"
                                data-notification-id="{{ $notificacion->id_notificacion }}">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <strong>{{ $notificacion->titulo }}</strong>
@@ -260,9 +261,7 @@
                         @endforelse
                         @endauth
                         <li class="dropdown-divider"></li>
-                        <li class="text-center py-2">
-                            <a href="{{ route('notificaciones.index') }}" class="text-decoration-none">Ver todas</a>
-                        </li>
+                       
                     </ul>
                 </div>
 
@@ -478,11 +477,9 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/usuario/estado', { credentials: 'same-origin' })
             .then(res => {
                 if (res.status === 401) {
-                    // Ya no está autenticado
                     window.location.href = "{{ route('login') }}?desactivado=1";
                     return;
                 }
-                // Si la respuesta no es JSON, redirige
                 const contentType = res.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     window.location.href = "{{ route('login') }}?desactivado=1";

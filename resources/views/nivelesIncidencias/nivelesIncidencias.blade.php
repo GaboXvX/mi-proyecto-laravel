@@ -39,8 +39,7 @@
                     <th>Nivel</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
-                    <th>Dias</th>
-                    <th>Vencimiento (horas)</th>
+                    <th>Vencimiento</th>
                     <th>Color</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -52,7 +51,22 @@
                     <td>{{ $nivel->nivel }}</td>
                     <td>{{ $nivel->nombre }}</td>
                     <td>{{ $nivel->descripcion }}</td>
-                    <td>{{ $nivel->horas_vencimiento }}</td>
+                    <td>
+                        @php
+                            $horas = $nivel->horas_vencimiento;
+                            $dias = floor($horas / 24);
+                            $horasRestantes = $horas % 24;
+                            
+                            if ($dias > 0) {
+                                echo $dias . ' día' . ($dias > 1 ? 's' : '');
+                                if ($horasRestantes > 0) {
+                                    echo ' y ' . $horasRestantes . ' hora' . ($horasRestantes > 1 ? 's' : '');
+                                }
+                            } else {
+                                echo $horas . ' hora' . ($horas != 1 ? 's' : '');
+                            }
+                        @endphp
+                    </td>
                     <td>
                         <span class="badge" style="background-color: {{ $nivel->color }}; color: white;">
                             {{ $nivel->color }}
@@ -76,7 +90,7 @@
                     <td>
                         @can('editar niveles incidencias')
                         <a href="{{ route('niveles-incidencia.edit', $nivel) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i>editar
+                            <i class="fas fa-edit"></i> Editar
                         </a>
                         @endcan
                     </td>

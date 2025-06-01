@@ -89,7 +89,6 @@
     @isset($pie_html)
         {!! $pie_html !!}<br>
     @endisset
-    
 </footer>
 
 <main>

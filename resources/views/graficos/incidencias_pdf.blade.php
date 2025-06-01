@@ -3,17 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: sans-serif; font-size: 12px; margin: 20px; }
-        .header, .footer { text-align: center; }
-        .stat-boxes { display: flex; gap: 10px; margin: 20px 0; }
-        .box { flex: 1; padding: 15px; border-radius: 10px; color: white; text-align: center; }
-        .bg-primary { background-color: #0d6efd; }
-        .bg-success { background-color: #198754; }
-        .bg-warning { background-color: #ffc107; color: black; }
-        .bg-danger { background-color: #dc3545; }
-        .grafico-container { display: flex; gap: 20px; margin-top: 30px; }
-        .grafico-container img { max-width: 100%; height: auto; flex: 1; }
-    </style>
+    body {
+        font-family: sans-serif;
+        font-size: 11px;
+        margin: 30px 40px;
+    }
+
+    .header, .footer {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .stat-boxes {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 15px 0;
+    }
+
+    .box {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+        font-size: 11px;
+    }
+
+    .box h4 {
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .box p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    .grafico-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .grafico-container > div {
+        flex: 1;
+        text-align: center;
+    }
+
+    .grafico-container img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
 </head>
 <body>
     <div class="header">
@@ -25,31 +70,41 @@
 
     <h3 style="text-align: center; margin-top: 10px;">Estadísticas Generales de Incidencias</h3>
 
-    <div class="stat-boxes">
-        <div class="box bg-primary">
-            <h4>Total Incidencias</h4>
-            <p style="font-size: 24px;">{{ $totalIncidencias }}</p>
-        </div>
-        <div class="box bg-success">
-            <h4>Atendidas</h4>
-            <p style="font-size: 24px;">{{ $incidenciasAtendidas }}</p>
-            <p>{{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%</p>
-        </div>
-        <div class="box bg-warning">
-            <h4>Pendientes</h4>
-            <p style="font-size: 24px;">{{ $incidenciasPendientes }}</p>
-            <p>{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
-        </div>
-        <div class="box bg-danger">
-            <h4>Por Vencer</h4>
-            <p style="font-size: 24px;">{{ $incidenciasPorVencer }}</p>
-        </div>
-    </div>
+    <table width="100%" cellpadding="10" cellspacing="10" style="margin: 20px 0;">
+        <tr>
+            <td align="center" bgcolor="#0d6efd" style="color: white; border-radius: 8px; padding: 10px;">
+                <strong>Total Incidencias</strong><br>
+                <span style="font-size: 20px;">{{ $totalIncidencias }}</span>
+            </td>
+            <td align="center" bgcolor="#198754" style="color: white; border-radius: 8px; padding: 10px;">
+                <strong>Atendidas</strong><br>
+                <span style="font-size: 20px;">{{ $incidenciasAtendidas }}</span><br>
+                {{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%
+            </td>
+            <td align="center" bgcolor="#ffc107" style="color: black; border-radius: 8px; padding: 10px;">
+                <strong>Pendientes</strong><br>
+                <span style="font-size: 20px;">{{ $incidenciasPendientes }}</span><br>
+                {{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%
+            </td>
+            <td align="center" bgcolor="#dc3545" style="color: white; border-radius: 8px; padding: 10px;">
+                <strong>Por Vencer</strong><br>
+                <span style="font-size: 20px;">{{ $incidenciasPorVencer }}</span>
+            </td>
+        </tr>
+    </table>
 
-    <div class="grafico-container">
-        <div><img src="{{ $imagenEstado }}" alt="Gráfico por Estado"></div>
-        <div><img src="{{ $imagenNivel }}" alt="Gráfico por Nivel"></div>
-    </div>
+    <table width="100%" cellpadding="10" cellspacing="0" style="margin-top: 20px;">
+        <tr>
+            <td align="center" width="50%">
+                <strong>Incidencias por Estado</strong><br>
+                <img src="{{ $imagenEstado }}" style="width: 100%; max-width: 350px;">
+            </td>
+            <td align="center" width="50%">
+                <strong>Incidencias por Nivel</strong><br>
+                <img src="{{ $imagenNivel }}" style="width: 100%; max-width: 350px;">
+            </td>
+        </tr>
+    </table>
 
     <div class="footer" style="margin-top: 30px;">
         {!! $pie_html !!}

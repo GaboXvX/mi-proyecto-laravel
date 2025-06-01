@@ -9,30 +9,42 @@
             @csrf
             @method('PUT')
             
-           
-            
-            <div class="form-group mb-2">
-                <label for="id_institucion">Institución</label>
-                <select name="id_institucion" id="id_institucion" class="form-control form-control-sm" required>
-                    <option value="">Seleccione una institución</option>
-                    @foreach($instituciones as $institucion)
-                        <option value="{{ $institucion->id_institucion }}" {{ $personalReparacion->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
-                            {{ $institucion->nombre }}
-                        </option>
-                    @endforeach
-                </select>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="nacionalidad">Nacionalidad</label>
+                    <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm" value="{{ $personalReparacion->nacionalidad }}" disabled>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="cedula">Cédula</label>
+                    <input type="text" name="cedula" id="cedula" class="form-control form-control-sm" maxlength="8" value="{{ $personalReparacion->cedula }}" disabled>
+                </div>
             </div>
-            
-            <div class="form-group mb-2">
-                <label for="id_institucion_estacion">Estación</label>
-                <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm" required>
-                    <option value="">Seleccione una estación</option>
-                    @foreach($estaciones as $estacion)
-                        <option value="{{ $estacion->id_institucion_estacion }}" {{ $personalReparacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
-                            {{ $estacion->nombre }}
-                        </option>
-                    @endforeach
-                </select>
+           
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="id_institucion">Institución</label>
+                    <select name="id_institucion" id="id_institucion" class="form-control form-control-sm" required>
+                        <option value="">Seleccione una institución</option>
+                        @foreach($instituciones as $institucion)
+                            <option value="{{ $institucion->id_institucion }}" {{ $personalReparacion->id_institucion == $institucion->id_institucion ? 'selected' : '' }}>
+                                {{ $institucion->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="id_institucion_estacion">Estación</label>
+                    <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm" required>
+                        <option value="">Seleccione una estación</option>
+                        @foreach($estaciones as $estacion)
+                            <option value="{{ $estacion->id_institucion_estacion }}" {{ $personalReparacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
+                                {{ $estacion->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             
             <div class="row">
@@ -49,30 +61,23 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group mb-2">
-                <label for="genero">Género</label>
-                <select name="genero" id="genero" class="form-control form-control-sm" required>
-                    <option value="" disabled>Seleccione...</option>
-                    <option value="M" {{ $personalReparacion->genero == 'M' ? 'selected' : '' }}>Masculino</option>
-                    <option value="F" {{ $personalReparacion->genero == 'F' ? 'selected' : '' }}>Femenino</option>
-                </select>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" name="telefono" id="telefono" class="form-control form-control-sm solo-numeros" maxlength="11" value="{{ $personalReparacion->telefono }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="genero">Género</label>
+                    <select name="genero" id="genero" class="form-control form-control-sm" required>
+                        <option value="" disabled>Seleccione...</option>
+                        <option value="M" {{ $personalReparacion->genero == 'M' ? 'selected' : '' }}>Masculino</option>
+                        <option value="F" {{ $personalReparacion->genero == 'F' ? 'selected' : '' }}>Femenino</option>
+                    </select>
+                </div>
             </div>
-            
-            <div class="form-group mb-2">
-                <label for="nacionalidad">Nacionalidad</label>
-                <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm" value="{{ $personalReparacion->nacionalidad }}" disabled>
-            </div>
-            
-            <div class="form-group mb-2">
-                <label for="cedula">Cédula</label>
-                <input type="text" name="cedula" id="cedula" class="form-control form-control-sm" maxlength="8" value="{{ $personalReparacion->cedula }}" disabled>
-            </div>
-            
-            <div class="form-group mb-3">
-                <label for="telefono">Teléfono</label>
-                <input type="text" name="telefono" id="telefono" class="form-control form-control-sm solo-numeros" maxlength="11" value="{{ $personalReparacion->telefono }}" required>
-            </div>
-            
+
             <div class="d-flex justify-content-between">
                 <a href="{{ route('personal-reparacion.index') }}" class="btn btn-sm btn-secondary">Cancelar</a>
                 <button type="submit" class="btn btn-sm btn-primary" id="btnActualizar">Actualizar</button>

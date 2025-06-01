@@ -164,124 +164,147 @@
                         <div class="accordion-body bg-section">
                             <p><span class="label-bold">Institución:</span> {{ $incidencia->institucion->nombre ?? 'N/A' }}</p>
                             <p><span class="label-bold">Estación:</span> {{ $incidencia->estacion->nombre ?? 'N/A' }}</p>
-                            <p><span class="label-bold">Municipio:</span> {{ $incidencia->estacion->municipio->nombre ?? 'N/A' }}
-                            </p>
+                            <p><span class="label-bold">Municipio:</span> {{ $incidencia->estacion->municipio->nombre ?? 'N/A' }}</p>
 
-                    <div class="address-card mt-3">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="address-item"><span class="address-label">Estado:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->estado->nombre ?? 'N/A' }}</span>
-                                </div>
-                                <div class="address-item"><span class="address-label">Municipio:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->municipio->nombre ?? 'N/A' }}</span>
-                                </div>
-                                <div class="address-item"><span class="address-label">Parroquia:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->parroquia->nombre ?? 'N/A' }}</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="address-item"><span class="address-label">Urbanización:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->urbanizacion->nombre ?? 'N/A' }}</span>
-                                </div>
-                                <div class="address-item"><span class="address-label">Sector:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->sector->nombre ?? 'N/A' }}</span>
-                                </div>
-                                <div class="address-item"><span class="address-label">Comunidad:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</span>
-                                </div>
-                                <div class="address-item"><span class="address-label">Calle:</span> <span
-                                        class="address-value">{{ $incidencia->direccionIncidencia->calle ?? 'N/A' }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="address-label">Punto de Referencia:</span>
-                            <span
-                                class="address-value">{{ $incidencia->direccionIncidencia->punto_de_referencia ?? 'No especificado' }}</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Instituciones de Apoyo -->
-                @if ($incidencia->institucionesApoyo && $incidencia->institucionesApoyo->count() > 0)
-                    <div class="bg-section">
-                        <h4 class="section-title"><i class="fas fa-hands-helping me-2"></i> Instituciones de Apoyo</h4>
-                        <div class="row">
-                            @foreach ($incidencia->institucionesApoyo as $apoyo)
-                                <div class="col-md-6 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title>
-                                                {{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
-                                            @if ($apoyo->Estacion)
-                                                <p class="card-text">
-                                                    <span class="label-bold">Estación:</span>
-                                                    {{ $apoyo->Estacion->nombre }}
-                                                </p>
-                                            @endif
-                                            @if ($apoyo->institucion && $apoyo->institucion->municipio)
-                                                <p class="card-text">
-                                                    <span class="label-bold">Ubicación:</span>
-                                                    {{ $apoyo->institucion->municipio->nombre }},
-                                                    {{ $apoyo->institucion->estado->nombre }}
-                                                </p>
-                                            @endif
+                            <div class="address-card mt-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="address-item"><span class="address-label">Estado:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->estado->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="address-item"><span class="address-label">Municipio:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->municipio->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="address-item"><span class="address-label">Parroquia:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->parroquia->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="address-item"><span class="address-label">Urbanización:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->urbanizacion->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="address-item"><span class="address-label">Sector:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->sector->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="address-item"><span class="address-label">Comunidad:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->comunidad->nombre ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="address-item"><span class="address-label">Calle:</span> <span
+                                                class="address-value">{{ $incidencia->direccionIncidencia->calle ?? 'N/A' }}</span>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                                <div class="mt-3">
+                                    <span class="address-label">Punto de Referencia:</span>
+                                    <span class="address-value">{{ $incidencia->direccionIncidencia->punto_de_referencia ?? 'No especificado' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instituciones de Apoyo -->
+                @if ($incidencia->institucionesApoyo && $incidencia->institucionesApoyo->count() > 0)
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingApoyo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApoyo" aria-expanded="false" aria-controls="collapseApoyo">
+                                <i class="fas fa-hands-helping me-2"></i> Instituciones de Apoyo
+                            </button>
+                        </h2>
+                        <div id="collapseApoyo" class="accordion-collapse collapse" aria-labelledby="headingApoyo" data-bs-parent="#acordeonPrincipal">
+                            <div class="accordion-body bg-section">
+                                <div class="row">
+                                    @foreach ($incidencia->institucionesApoyo as $apoyo)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">
+                                                        {{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
+                                                    @if ($apoyo->Estacion)
+                                                        <p class="card-text">
+                                                            <span class="label-bold">Estación:</span>
+                                                            {{ $apoyo->Estacion->nombre }}
+                                                        </p>
+                                                    @endif
+                                                    @if ($apoyo->institucion && $apoyo->institucion->municipio)
+                                                        <p class="card-text">
+                                                            <span class="label-bold">Ubicación:</span>
+                                                            {{ $apoyo->institucion->municipio->nombre }},
+                                                            {{ $apoyo->institucion->estado->nombre }}
+                                                        </p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endif
+
                 <!-- Descripción -->
-                <div class="bg-section">
-                    <h4 class="section-title"><i class="fas fa-align-left me-2"></i> Descripción</h4>
-                    <div class="p-3 border rounded">
-                        {{ $incidencia->descripcion }}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingDescripcion">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescripcion" aria-expanded="false" aria-controls="collapseDescripcion">
+                            <i class="fas fa-align-left me-2"></i> Descripción
+                        </button>
+                    </h2>
+                    <div id="collapseDescripcion" class="accordion-collapse collapse" aria-labelledby="headingDescripcion" data-bs-parent="#acordeonPrincipal">
+                        <div class="accordion-body bg-section">
+                            <div class="p-3 border rounded">
+                                {{ $incidencia->descripcion }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Reportado por -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="bg-section">
-                            <h4 class="section-title"><i class="fas fa-user-tie me-2"></i> Reportado por</h4>
-                            @if ($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-user-circle user-icon me-3"></i>
-                                    <div>
-                                        <p><strong>Nombre:</strong> {{ $incidencia->usuario->empleadoAutorizado->nombre }}
-                                            {{ $incidencia->usuario->empleadoAutorizado->apellido }}</p>
-                                        <p><strong>Cédula:</strong>
-                                            V-{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
-                                        <p><strong>Teléfono:</strong>
-                                            {{ $incidencia->usuario->empleadoAutorizado->telefono ?? 'N/A' }}</p>
-                                        <p><strong>Género:</strong> {{ $incidencia->usuario->empleadoAutorizado->genero ?? 'N/A' }}</p>
-                                    </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingReporte">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReporte" aria-expanded="false" aria-controls="collapseReporte">
+                            <i class="fas fa-user-tie me-2"></i> Reportado por / Persona Relacionada
+                        </button>
+                    </h2>
+                    <div id="collapseReporte" class="accordion-collapse collapse" aria-labelledby="headingReporte" data-bs-parent="#acordeonPrincipal">
+                        <div class="accordion-body bg-section">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-user-tie me-2"></i> Reportado por</h5>
+                                    @if ($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle user-icon me-3"></i>
+                                            <div>
+                                                <p><strong>Nombre:</strong> {{ $incidencia->usuario->empleadoAutorizado->nombre }}
+                                                    {{ $incidencia->usuario->empleadoAutorizado->apellido }}</p>
+                                                <p><strong>Cédula:</strong> V-{{ $incidencia->usuario->empleadoAutorizado->cedula }}</p>
+                                                <p><strong>Teléfono:</strong> {{ $incidencia->usuario->empleadoAutorizado->telefono ?? 'N/A' }}</p>
+                                                <p><strong>Género:</strong> {{ $incidencia->usuario->empleadoAutorizado->genero ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <p class="text-muted"><em>Información no disponible</em></p>
+                                    @endif
                                 </div>
-                            @else
-                                <p class="text-muted"><em>Información no disponible</em></p>
-                            @endif
-                        </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="bg-section">
-                            <h4 class="section-title"><i class="fas fa-user me-2"></i> Persona Relacionada</h4>
-                            @if ($incidencia->persona)
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-user-circle user-icon me-3"></i>
-                                    <div>
-                                        <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }}
-                                            {{ $incidencia->persona->apellido }}</p>
-                                        <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
-                                        <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono ?? 'N/A' }}</p>
-                                        <p><strong>Género:</strong> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
-                                    </div>
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-user me-2"></i> Persona Relacionada</h5>
+                                    @if ($incidencia->persona)
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle user-icon me-3"></i>
+                                            <div>
+                                                <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }}
+                                                    {{ $incidencia->persona->apellido }}</p>
+                                                <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+                                                <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono ?? 'N/A' }}</p>
+                                                <p><strong>Género:</strong> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <p class="text-muted"><em>No hay persona relacionada</em></p>
+                                    @endif
                                 </div>
-                            @else
-                                <p class="text-muted"><em>No hay persona relacionada</em></p>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </div>

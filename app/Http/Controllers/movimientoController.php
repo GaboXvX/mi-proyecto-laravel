@@ -68,28 +68,26 @@ class movimientoController extends Controller
     {
         $query = Movimiento::query();
 
-        // Filtrar por usuario si se proporciona un slug
+        // Filtros
         if ($request->filled('usuario_slug')) {
             $usuario = User::where('slug', $request->usuario_slug)->firstOrFail();
             $query->where('id_usuario', $usuario->id_usuario);
         }
 
-        // Filtro por rango
         switch ($request->rango) {
             case 'ultimos_25':
                 $query->latest()->limit(25);
                 break;
             case 'mes_actual':
                 $query->whereMonth('created_at', now()->month)
-                      ->whereYear('created_at', now()->year);
+                    ->whereYear('created_at', now()->year);
                 break;
             case 'mes_pasado':
                 $query->whereMonth('created_at', now()->subMonth()->month)
-                      ->whereYear('created_at', now()->subMonth()->year);
+                    ->whereYear('created_at', now()->subMonth()->year);
                 break;
         }
 
-        // Filtros personalizados de fecha
         if ($request->filled('fecha_inicio')) {
             $query->whereDate('created_at', '>=', $request->fecha_inicio);
         }
@@ -98,7 +96,6 @@ class movimientoController extends Controller
             $query->whereDate('created_at', '<=', $request->fecha_fin);
         }
 
-        // Filtro por tipo de movimiento
         if ($request->filled('tipo')) {
             switch ($request->tipo) {
                 case 'usuario':
@@ -115,16 +112,40 @@ class movimientoController extends Controller
                     break;
                 case 'sistema':
                     $query->whereNull('id_usuario_afectado')
-                          ->whereNull('id_persona')
-                          ->whereNull('id_direccion_incidencia')
-                          ->whereNull('id_incidencia');
+                        ->whereNull('id_persona')
+                        ->whereNull('id_direccion_incidencia')
+                        ->whereNull('id_incidencia');
                     break;
             }
         }
 
         $movimientos = $query->get();
 
-        $pdf = FacadePdf::loadView('pdf.movimientos', compact('movimientos'));
+        // Membrete y pie
+        $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+        $logoBase64 = null;
+        if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+            $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+            if (file_exists($logoPath)) {
+                $logoData = base64_encode(file_get_contents($logoPath));
+                $logoBase64 = 'data:image/png;base64,' . $logoData;
+            }
+        }
+
+        $membrete = $institucionPropietaria->encabezado_html ?? '';
+        $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+        $pdf = FacadePdf::loadView('pdf.movimientos', [
+            'movimientos' => $movimientos,
+            'logoBase64' => $logoBase64,
+            'membrete' => $membrete,
+            'pie_html' => $pie_html,
+        ])
+        ->setOption('isRemoteEnabled', true)
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('defaultFont', 'DejaVu Sans');
+
         return $pdf->download('movimientos_filtrados.pdf');
     }
 
@@ -132,11 +153,33 @@ class movimientoController extends Controller
     {
         $mov = Movimiento::findOrFail($id);
 
-        // Generar un PDF del movimiento
-        $pdf = FacadePdf::loadView('pdf.movimiento', compact('mov'));
+        $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+        $logoBase64 = null;
+        if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+            $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+            if (file_exists($logoPath)) {
+                $logoData = base64_encode(file_get_contents($logoPath));
+                $logoBase64 = 'data:image/png;base64,' . $logoData;
+            }
+        }
+
+        $membrete = $institucionPropietaria->encabezado_html ?? '';
+        $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+        $pdf = FacadePdf::loadView('pdf.movimiento', [
+            'mov' => $mov,
+            'logoBase64' => $logoBase64,
+            'membrete' => $membrete,
+            'pie_html' => $pie_html,
+        ])
+        ->setOption('isRemoteEnabled', true)
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('defaultFont', 'DejaVu Sans');
 
         return $pdf->download("movimiento-{$mov->id}.pdf");
     }
+    
     // En MovimientoController.php
 // app/Http/Controllers/movimientoController.php
 

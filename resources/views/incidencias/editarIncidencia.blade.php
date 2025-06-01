@@ -244,4 +244,22 @@
 
 <script src="{{ asset('js/incidencias.js') }}"></script>
 <script src="{{asset('js/editarIncidencias.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const botones = document.querySelectorAll('.btn-reemplazar-imagen');
+
+        botones.forEach(boton => {
+            boton.addEventListener('click', function () {
+                const imgId = this.getAttribute('data-img-id');
+                const inputFile = document.querySelector(`.input-reemplazo-imagen[data-img-id="${imgId}"]`);
+                
+                if (inputFile) {
+                    inputFile.classList.remove('d-none');
+                    inputFile.click(); // Opcional: abre el diálogo para seleccionar archivo automáticamente
+                }
+            });
+        });
+    });
+</script>
+
 @endsection

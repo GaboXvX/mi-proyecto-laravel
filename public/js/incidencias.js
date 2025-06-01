@@ -288,72 +288,63 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Función para el seguimiento del step en las incidencias
-document.addEventListener('DOMContentLoaded', () => {
-    // Botones
-    const btnStep2 = document.getElementById('next-to-step-2');
-    const btnStep3 = document.getElementById('next-to-step-3');
-    const btnSubmit = document.querySelector('button[type="submit"]');
+document.addEventListener('DOMContentLoaded', function () {
+    // Paso 1
+    const step1Inputs = ['calle'];
+    const nextStep1 = document.getElementById('next-to-step-2');
+    const step1Fields = step1Inputs.map(id => document.getElementById(id));
 
-    const btnBack1 = document.getElementById('back-to-step-1');
-    const btnBack2 = document.getElementById('back-to-step-2');
-
-    // Paso 1: Dirección
-    const step1Fields = [
-        'select[name="estado"]',
-        'select[name="municipio"]',
-        'select[name="parroquia"]',
-        'select[name="urbanizacion"]',
-        'select[name="sector"]',
-        'select[name="comunidad"]',
-        '#calle'
-    ];
-
-    // Paso 2: Institución
-    const step2Fields = [
-        '#institucion',
-        '#estacion'
-    ];
-
-    // Paso 3: Detalles
-    const step3Fields = [
-        '#tipo_incidencia',
-        '#descripcion',
-        '#nivel_prioridad'
-    ];
-
-    // Mostrar/Ocultar pasos y actualizar progreso
-    const showStep = (stepToShow) => {
-        document.querySelectorAll('.step').forEach(step => step.classList.add('d-none'));
-        document.getElementById(`step-${stepToShow}`).classList.remove('d-none');
-
-        // Actualizar barra de progreso
-        const progressBar = document.getElementById('stepProgressBar');
-        if (progressBar) {
-            let porcentaje = 0;
-            switch (stepToShow) {
-                case 1:
-                    porcentaje = 33;
-                    break;
-                case 2:
-                    porcentaje = 66;
-                    break;
-                case 3:
-                    porcentaje = 100;
-                    break;
-            }
-            progressBar.style.width = `${porcentaje}%`;
-            progressBar.textContent = `Paso ${stepToShow} de 3`;
-        }
+    const validateStep1 = () => {
+        const valid = step1Fields.every(input => input.value.trim() !== '');
+        nextStep1.disabled = !valid;
     };
 
-    // Botones de navegación
-    btnStep2?.addEventListener('click', () => showStep(2));
-    btnStep3?.addEventListener('click', () => showStep(3));
-    btnBack1?.addEventListener('click', () => showStep(1));
-    btnBack2?.addEventListener('click', () => showStep(2));
+    step1Fields.forEach(input => input.addEventListener('input', validateStep1));
+    validateStep1(); // inicial
 
-    // Activar validación de cada paso
-    attachValidation(step1Fields, btnStep2);
-    attachValidation(step2Fields, btnStep3);
-    attachValidation(step3Fields, btnSubmit);
+    // Paso 2
+    const nextStep2 = document.getElementById('next-to-step-3');
+    const institucion = document.getElementById('institucion');
+    const estacion = document.getElementById('estacion');
+
+    const validateStep2 = () => {
+        const valid = institucion.value !== '' && estacion.value !== '';
+        nextStep2.disabled = !valid;
+    };
+
+    [institucion, estacion].forEach(select => select.addEventListener('change', validateStep2));
+    validateStep2();
+
+    // Navegación entre pasos
+    nextStep1.addEventListener('click', () => {
+        document.getElementById('step-1').classList.add('d-none');
+        document.getElementById('step-2').classList.remove('d-none');
+        document.getElementById('stepProgressBar').style.width = '66%';
+        document.getElementById('stepProgressBar').innerText = 'Paso 2 de 3';
+    });
+
+    document.getElementById('back-to-step-1').addEventListener('click', () => {
+        document.getElementById('step-2').classList.add('d-none');
+        document.getElementById('step-1').classList.remove('d-none');
+        document.getElementById('stepProgressBar').style.width = '33%';
+        document.getElementById('stepProgressBar').innerText = 'Paso 1 de 3';
+    });
+
+    nextStep2.addEventListener('click', () => {
+        document.getElementById('step-2').classList.add('d-none');
+        document.getElementById('step-3').classList.remove('d-none');
+        document.getElementById('stepProgressBar').style.width = '100%';
+        document.getElementById('stepProgressBar').innerText = 'Paso 3 de 3';
+    });
+
+    document.getElementById('back-to-step-2').addEventListener('click', () => {
+        document.getElementById('step-3').classList.add('d-none');
+        document.getElementById('step-2').classList.remove('d-none');
+        document.getElementById('stepProgressBar').style.width = '66%';
+        document.getElementById('stepProgressBar').innerText = 'Paso 2 de 3';
+    });
+
+    // Desactivar botones al inicio
+    nextStep1.disabled = true;
+    nextStep2.disabled = true;
 });

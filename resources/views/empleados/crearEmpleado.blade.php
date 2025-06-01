@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cedulaError.style.display = 'none';
         cedulaInput.classList.add('is-valid');
         cedulaStatus.style.display = 'inline';
-        cedulaStatus.textContent = 'Cédula disponible para registro';
+        cedulaStatus.textContent = '';
         cedulaBloqueada = false;
     }
 

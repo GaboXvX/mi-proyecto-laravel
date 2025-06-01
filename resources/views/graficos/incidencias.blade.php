@@ -35,7 +35,7 @@ body.loading::after {
 
     <!-- Botón de descarga -->
     <div class="text-end mb-3">
-        <button class="btn btn-primary" onclick="generarPDF()">Descargar</button>
+        <button class="btn btn-primary" id="btnDescargarEstadisticas">Descargar</button>
     </div>
 
     <!-- Filtros -->
@@ -112,18 +112,6 @@ body.loading::after {
     </div>
 
     <!-- detalles de las estadisticas -->
-    <div id="downloadContenido">
-        <div style="display: none;" id="membrete">
-            <header style="text-align: center; margin-bottom: 20px;">
-                @if(isset($membrete))
-                    {!! $membrete !!}
-                @else
-                    <h3 class="report-title">Reporte Estadístico de Incidencias</h3>
-                    <p class="report-subtitle">Sistema de Gestión de Incidencias</p>
-                @endif
-            </header>
-        </div>
-
         <div class="row d-flex">
             <div class="col-md-3 mb-2">
                 <div class="card text-white bg-primary h-100 rounded-4">
@@ -187,14 +175,9 @@ body.loading::after {
                 </div>
             </div>
         </div>
-
-        <div style="display: none;" id="footer">
-            <footer style="text-align: center; margin-top: 30px; font-size: 12px;">
-                Generado el {{ now()->format('d/m/Y H:i:s') }} | Sistema de Gestión de Incidencias
-            </footer>
-        </div>
     </div>
 </div>
+
 <script src="{{ asset('js/chart.umd.min.js') }}"></script>
 <script src="{{ asset('js/jspdf.umd.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -629,6 +612,47 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCharts(@json($incidenciasPorEstado), @json($incidenciasPorNivel));
         initialChartsRendered = true;
     }, 10);
+});
+</script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+    document.getElementById('btnDescargarEstadisticas').addEventListener('click', function () {
+    const estadoChart = document.getElementById('estadoChart');
+    const nivelChart = document.getElementById('nivelChart');
+
+    const imgEstado = estadoChart.toDataURL('image/png');
+    const imgNivel = nivelChart.toDataURL('image/png');
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("grafico.incidencias.pdf") }}';
+
+    const token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = document.querySelector('meta[name="csrf-token"]').content;
+    form.appendChild(token);
+
+    const datos = {
+        imagenEstadoChart: imgEstado,
+        imagenNivelChart: imgNivel,
+        totalIncidencias: '{{ $totalIncidencias }}',
+        incidenciasAtendidas: '{{ $incidenciasAtendidas }}',
+        incidenciasPendientes: '{{ $incidenciasPendientes }}',
+        incidenciasPorVencer: '{{ $incidenciasPorVencer }}'
+    };
+
+    for (const [clave, valor] of Object.entries(datos)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = clave;
+        input.value = valor;
+        form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
 });
 </script>
 @endsection

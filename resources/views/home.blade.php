@@ -410,6 +410,7 @@
         document.getElementById('anio').addEventListener('change', cargarGrafica);
     });
     </script>
+    
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
     document.getElementById('btnDescargarGrafico').addEventListener('click', function () {

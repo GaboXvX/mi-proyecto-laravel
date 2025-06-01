@@ -54,7 +54,7 @@
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle datatable">
                     <thead class="table">
                         <tr>
                             <th class="py-3">Fecha</th>

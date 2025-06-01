@@ -2,187 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Incidencias</title>
     <style>
-        @page {
-            margin: 100px 50px 80px 50px;
-        }
-        body {
-            font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-        }
-        header {
-            position: fixed;
-            top: -80px;
-            left: 0;
-            right: 0;
-            height: 80px;
-            text-align: center;
-        }
-        footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0;
-            right: 0;
-            height: 40px;
-            text-align: center;
-            font-size: 10px;
-            color: #6c757d;
-        }
-        .content {
-            margin-top: 30px;
-        }
-        .filters {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-        }
-        .filters span {
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .summary-card {
-            display: inline-block;
-            width: 18%;
-            margin-right: 1%;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            color: white;
-            text-align: center;
-            vertical-align: top;
-        }
-        .summary-card .value {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .chart-container {
-            margin-bottom: 30px;
-            page-break-inside: avoid;
-        }
-        .chart-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-align: center;
-            background-color: #f5f5f5;
-            padding: 5px;
-        }
-        .report-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-align: center;
-        }
-        .report-subtitle {
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+        body { font-family: sans-serif; font-size: 12px; margin: 20px; }
+        .header, .footer { text-align: center; }
+        .stat-boxes { display: flex; gap: 10px; margin: 20px 0; }
+        .box { flex: 1; padding: 15px; border-radius: 10px; color: white; text-align: center; }
+        .bg-primary { background-color: #0d6efd; }
+        .bg-success { background-color: #198754; }
+        .bg-warning { background-color: #ffc107; color: black; }
+        .bg-danger { background-color: #dc3545; }
+        .grafico-container { display: flex; gap: 20px; margin-top: 30px; }
+        .grafico-container img { max-width: 100%; height: auto; flex: 1; }
     </style>
 </head>
 <body>
-
-<header>
-    <div style="text-align: center;">
-        @if(isset($membrete))
-            {!! $membrete !!}
-        @else
-            <div class="report-title">Reporte Estadístico de Incidencias</div>
-            <div class="report-subtitle">Sistema de Gestión de Incidencias</div>
+    <div class="header">
+        @if($logoBase64)
+            <img src="{{ $logoBase64 }}" style="height: 60px;"><br>
         @endif
-    </div>
-</header>
-
-<footer>
-    Generado el {{ now()->format('d/m/Y H:i:s') }} | Sistema de Gestión de Incidencias
-</footer>
-
-<div class="content">
-    <!-- Filtros aplicados -->
-    <div class="filters">
-        <div><span>Período:</span> {{ Carbon\Carbon::parse($startDate)->format('d/m/Y') }} al {{ Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</div>
-        @if($filters['tipo_incidencia_id'])
-            <div><span>Tipo:</span> {{ App\Models\tipoIncidencia::find($filters['tipo_incidencia_id'])->nombre ?? 'Todos' }}</div>
-        @endif
-        @if($filters['nivel_incidencia_id'])
-            <div><span>Nivel:</span> {{ App\Models\nivelIncidencia::find($filters['nivel_incidencia_id'])->nombre ?? 'Todos' }}</div>
-        @endif
-        @if($filters['institucion_id'])
-            <div><span>Institución:</span> {{ App\Models\Institucion::find($filters['institucion_id'])->nombre ?? 'Todas' }}</div>
-        @endif
-        @if($filters['estacion_id'])
-            <div><span>Estación:</span> {{ App\Models\InstitucionEstacion::find($filters['estacion_id'])->nombre ?? 'Todas' }}</div>
-        @endif
+        {!! $membrete !!}
     </div>
 
-    <!-- Resumen estadístico -->
-    <div style="text-align: center; margin-bottom: 30px;">
-        <div class="summary-card" style="background-color: #007bff;">
-            <div>Total Incidencias</div>
-            <div class="value">{{ $totalIncidencias }}</div>
+    <h3 style="text-align: center; margin-top: 10px;">Estadísticas Generales de Incidencias</h3>
+
+    <div class="stat-boxes">
+        <div class="box bg-primary">
+            <h4>Total Incidencias</h4>
+            <p style="font-size: 24px;">{{ $totalIncidencias }}</p>
         </div>
-        
-        <div class="summary-card" style="background-color: #28a745;">
-            <div>Atendidas</div>
-            <div class="value">{{ $incidenciasAtendidas }}</div>
-            <div>({{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%)</div>
+        <div class="box bg-success">
+            <h4>Atendidas</h4>
+            <p style="font-size: 24px;">{{ $incidenciasAtendidas }}</p>
+            <p>{{ $totalIncidencias > 0 ? round(($incidenciasAtendidas/$totalIncidencias)*100, 1) : 0 }}%</p>
         </div>
-        
-        <div class="summary-card" style="background-color: #ffc107;">
-            <div>Pendientes</div>
-            <div class="value">{{ $incidenciasPendientes }}</div>
-            <div>({{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%)</div>
+        <div class="box bg-warning">
+            <h4>Pendientes</h4>
+            <p style="font-size: 24px;">{{ $incidenciasPendientes }}</p>
+            <p>{{ $totalIncidencias > 0 ? round(($incidenciasPendientes/$totalIncidencias)*100, 1) : 0 }}%</p>
         </div>
-        
-        <div class="summary-card" style="background-color: #dc3545;">
-            <div>Por Vencer</div>
-            <div class="value">{{ $incidenciasPorVencer }}</div>
+        <div class="box bg-danger">
+            <h4>Por Vencer</h4>
+            <p style="font-size: 24px;">{{ $incidenciasPorVencer }}</p>
         </div>
     </div>
 
-   <!-- Gráficos -->
-   <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Incidencias por Estado</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="estadoChart" height="250" width="100%"></canvas>
-                    <!-- Leyenda nativa de Chart.js, no personalizada -->
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Incidencias por Nivel</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="nivelChart" height="250" width="100%"></canvas>
-                    <!-- Leyenda nativa de Chart.js, no personalizada -->
-                </div>
-            </div>
-        </div>
+    <div class="grafico-container">
+        <div><img src="{{ $imagenEstado }}" alt="Gráfico por Estado"></div>
+        <div><img src="{{ $imagenNivel }}" alt="Gráfico por Nivel"></div>
     </div>
-</div>
 
+    <div class="footer" style="margin-top: 30px;">
+        {!! $pie_html !!}
+    </div>
 </body>
 </html>

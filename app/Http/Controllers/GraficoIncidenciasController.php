@@ -10,6 +10,7 @@ use App\Models\Institucion;
 use App\Models\InstitucionEstacion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class GraficoIncidenciasController extends Controller
 {
@@ -274,4 +275,45 @@ protected function getIncidenciasPorNivel($query)
 
         return $colores[$nivel] ?? '#6c757d';
     }
+
+    public function descargarEstadisticasIncidencias(Request $request)
+{
+    $imagenEstado = $request->input('imagenEstadoChart');
+    $imagenNivel = $request->input('imagenNivelChart');
+
+    // Datos numéricos
+    $totalIncidencias = $request->input('totalIncidencias');
+    $incidenciasAtendidas = $request->input('incidenciasAtendidas');
+    $incidenciasPendientes = $request->input('incidenciasPendientes');
+    $incidenciasPorVencer = $request->input('incidenciasPorVencer');
+
+    $institucion = Institucion::where('es_propietario', 1)->first();
+
+    $logoBase64 = null;
+    if ($institucion && $institucion->logo_path) {
+        $logoPath = public_path('storage/' . $institucion->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
+    }
+
+    $membrete = $institucion->encabezado_html ?? '';
+    $pie_html = $institucion->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    $pdf = Pdf::loadView('graficos.incidencias_pdf', [
+        'imagenEstado' => $imagenEstado,
+        'imagenNivel' => $imagenNivel,
+        'totalIncidencias' => $totalIncidencias,
+        'incidenciasAtendidas' => $incidenciasAtendidas,
+        'incidenciasPendientes' => $incidenciasPendientes,
+        'incidenciasPorVencer' => $incidenciasPorVencer,
+        'logoBase64' => $logoBase64,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+    ])->setPaper('a4', 'landscape');
+
+    return $pdf->download('estadisticas_incidencias.pdf');
+}
+
 }

@@ -47,6 +47,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding-top: 20px;
+    z-index: 10001;;
 }
   
 .sidebar ul {

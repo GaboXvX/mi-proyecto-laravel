@@ -175,6 +175,7 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
 
         // Otras rutas
         Route::post('/descargar-grafico-pdf', [homeController::class, 'descargarGraficoPDF'])->name('grafico.descargar');
+        Route::post('/descargar-estadisticas-incidencias', [GraficoIncidenciasController::class, 'descargarEstadisticasIncidencias'])->name('grafico.incidencias.pdf');
        
         Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');

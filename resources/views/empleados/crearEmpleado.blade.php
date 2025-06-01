@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cedulaError = document.getElementById('cedulaError');
 
     let empleadoEncontrado = false;
+    let ultimoEmpleadoBloqueado = null;
 
     function bloquearCamposEmpleado(data) {
         nombreInput.value = data.nombre;
@@ -78,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cedulaStatus.style.display = 'none';
         cedulaInput.classList.remove('is-valid');
         empleadoEncontrado = true;
+        ultimoEmpleadoBloqueado = data.cedula;
     }
 
     function desbloquearCamposEmpleado(limpiar = false) {
@@ -101,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cedulaStatus.style.display = 'inline';
         cedulaStatus.textContent = 'Cédula disponible para registro';
         empleadoEncontrado = false;
+        ultimoEmpleadoBloqueado = null;
     }
 
     function limpiarValidacionCedula() {
@@ -146,7 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.existe) {
                 bloquearCamposEmpleado(data.empleado);
             } else {
-                desbloquearCamposEmpleado();
+                // Si la cédula que desbloqueó los campos es la misma que la última bloqueada, limpiar
+                if (ultimoEmpleadoBloqueado && cedula !== ultimoEmpleadoBloqueado) {
+                    desbloquearCamposEmpleado(true); // Limpiar campos solo si venía de un bloqueo
+                } else {
+                    desbloquearCamposEmpleado(false); // No limpiar si ya estaba desbloqueado
+                }
             }
         })
         .catch(error => {

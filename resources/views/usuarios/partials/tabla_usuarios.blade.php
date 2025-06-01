@@ -130,8 +130,25 @@
                 <td><span class="text-muted">No definido</span></td>
                 <td><span class="text-muted">No asignado</span></td>
                 <td><span class="text-warning">Sin registrarse</span></td>
+                                <td><span class="text-muted">No asignado</span></td>
+
                 <td>{{ $empleado->created_at }}</td>
-                <td><span class="text-muted">No disponible</span></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-empleado-{{ $empleado->id_empleado_autorizado }}" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-empleado-{{ $empleado->id_empleado_autorizado }}">
+                            @can('editar empleados')
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('empleados.edit', $empleado->id_empleado_autorizado) }}">
+                                        <i class="bi bi-pencil-square me-2"></i>Modificar
+                                    </a>
+                                </li>
+                            @endcan
+                        </ul>
+                    </div>
+                </td>
             </tr>
         @endforeach
     </tbody>

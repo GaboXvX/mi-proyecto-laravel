@@ -10,7 +10,6 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="icon" href="{{ asset('img/icon.webp') }}" type="image/webp">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.min.css') }}">
 </head>
 <style>
@@ -154,5 +153,9 @@
             }
         }, 3000); // 3000 ms = 3 segundos
     </script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+
 </body>
+   
+
 </html>

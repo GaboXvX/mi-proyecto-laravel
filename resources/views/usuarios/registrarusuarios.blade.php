@@ -41,7 +41,16 @@
                 </div>
             </div>
 
+            
             <div class="row">
+                <div class="form-group">
+                    <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
+                
+                <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
+            </div>
+            </div>
+
+           <div class="row">
                 <div class="form-group">
                     <input type="text" id="nombre_usuario" name="nombre_usuario" class="form-control" placeholder="Nombre de usuario" value="{{ old('nombre_usuario') }}" required oninput="limpiarNombreUsuario(this)">
                     <span id="nombre_usuario_error" class="error-message"></span>
@@ -51,22 +60,23 @@
                 </div>
             </div>
 
-            <div class="password-container">
-                <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
-                <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
-                <span id="password_error" class="error-message"></span>
+            <div class="password-container" style="position: relative; width: 100%;">
+                <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo(); checkPasswordRequirements(this.value);" style="padding-right: 38px;">
                 <div id="error" class="mensaje-error"></div>
+
+                <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; font-size: 1.2em;"></i>
+
+                <div class="password-requirements">
+                    <ul id="passwordRules" style="margin-bottom: 0;">
+                        <li id="ruleUpper">Debe contener al menos una letra mayúscula.</li>
+                        <li id="ruleLower">Debe contener al menos una letra minúscula.</li>
+                        <li id="ruleNumber">Debe contener al menos un número.</li>
+                        <li id="ruleSpecial">Debe contener al menos un carácter especial.</li>
+                        <li id="ruleLength">Debe tener mínimo 8 caracteres.</li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
-                
-                <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
-            </div>
-            </div>
-
-           
             
             <input type="hidden" name="estado" value="activo">
 
@@ -253,12 +263,10 @@
     function validarYAvanzar() {
         const camposRequeridos = ['cedula', 'nombre', 'apellido', 'nombre_usuario', 'email', 'password'];
         let valido = true;
-
-        // Validar campos
+        // Validar campos obligatorios
         camposRequeridos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`${campo}_error`);
-            
             if (!elemento.value.trim()) {
                 if (errorElement) {
                     errorElement.textContent = 'Este campo es obligatorio';
@@ -271,19 +279,39 @@
                 elemento.classList.remove('input-error');
             }
         });
-
-        // Validar cédula
+        // Validar cédula y datos del empleado
         const cedula = document.getElementById('cedula').value.trim();
         const nombre = document.getElementById('nombre').value.trim();
         if (!nombre && cedula) {
             mostrarNotificacion("Debe buscar y cargar los datos del empleado primero", "error");
             valido = false;
         }
-
+        // Validación específica para la contraseña
+        const password = document.getElementById('password').value;
+        const passwordError = document.getElementById('password_error');
+        const btnSiguiente = document.querySelector('.btn-next');
+        if (password) {
+            // Expresión regular para validar contraseña (mayúscula, minúscula, número, especial, 8+)
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                passwordError.textContent = 'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales';
+                passwordError.classList.add('active');
+                document.getElementById('password').classList.add('input-error');
+                mostrarNotificacion("La contraseña no cumple con los requisitos de seguridad", "error");
+                btnSiguiente.disabled = true;
+                return false;
+            } else {
+                passwordError.textContent = '';
+                passwordError.classList.remove('active');
+                document.getElementById('password').classList.remove('input-error');
+                btnSiguiente.disabled = false;
+            }
+        }
+        // Solo avanzar si todo es válido
         if (valido) {
             avanzarPaso();
         } else {
-            mostrarNotificacion("Por favor complete todos los campos requeridos", "error");
+            mostrarNotificacion("Por favor complete todos los campos requeridos correctamente", "error");
         }
     }
 
@@ -383,5 +411,71 @@
         submitBtn.innerHTML = originalBtnText;
     }
 });
+
+function checkPasswordRequirements(password) {
+    const rules = {
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[@$!%*?&]/.test(password),
+        length: password.length >= 8
+    };
+    Object.keys(rules).forEach(rule => {
+        const element = document.getElementById(`rule${rule.charAt(0).toUpperCase() + rule.slice(1)}`);
+        if (element) {
+            element.classList.toggle('valid', rules[rule]);
+        }
+    });
+    return Object.values(rules).every(Boolean);
+}
 </script>
+
+<style>
+.password-container {
+    position: relative;
+    width: 100%;
+}
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 1.2em;
+    z-index: 2;
+}
+.toggle-password:hover {
+    color: #333;
+}
+.mensaje-error {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+.password-requirements {
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #666;
+}
+.password-requirements ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 5px 0 0 0;
+}
+.password-requirements li {
+    position: relative;
+    padding-left: 20px;
+}
+.password-requirements li:before {
+    content: "✗";
+    position: absolute;
+    left: 0;
+    color: #e74c3c;
+}
+.password-requirements li.valid:before {
+    content: "✓";
+    color: #2ecc71;
+}
+</style>
 @endsection

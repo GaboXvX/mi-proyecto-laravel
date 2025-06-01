@@ -205,7 +205,13 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById(fieldId).addEventListener('input', checkRequiredFields);
     });
 
-    cedulaInput.addEventListener('input', function() {
+    cedulaInput.addEventListener('input', function(e) {
+        // Solo permitir números
+        let valor = cedulaInput.value;
+        let soloNumeros = valor.replace(/[^0-9]/g, '');
+        if (valor !== soloNumeros) {
+            cedulaInput.value = soloNumeros;
+        }
         const cedula = cedulaInput.value;
         const nacionalidadInput = document.getElementById('nacionalidad');
         const nacionalidad = nacionalidadInput.value;
@@ -340,6 +346,32 @@ document.addEventListener("DOMContentLoaded", function() {
         direccionSection.style.display = 'none';
         datosPersonalesSection.style.display = 'block';
     });
+
+    // Solo permitir letras en nombre y apellido
+    ['nombre', 'apellido'].forEach(function(id) {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function(e) {
+                let valor = input.value;
+                // Permite letras, espacios y tildes
+                let soloLetras = valor.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
+                if (valor !== soloLetras) {
+                    input.value = soloLetras;
+                }
+            });
+        }
+    });
+    // Solo permitir números en teléfono
+    const telefonoInput = document.getElementById('telefono');
+    if (telefonoInput) {
+        telefonoInput.addEventListener('input', function(e) {
+            let valor = telefonoInput.value;
+            let soloNumeros = valor.replace(/[^0-9]/g, '');
+            if (valor !== soloNumeros) {
+                telefonoInput.value = soloNumeros;
+            }
+        });
+    }
 });
 </script>
 

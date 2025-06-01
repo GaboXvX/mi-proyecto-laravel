@@ -89,9 +89,7 @@
     @isset($pie_html)
         {!! $pie_html !!}<br>
     @endisset
-    <span style="color: #6c757d; font-size: 0.9em;">
-        Generado el {{ now()->format('d/m/Y H:i:s') }}
-    </span>
+    
 </footer>
 
 <main>

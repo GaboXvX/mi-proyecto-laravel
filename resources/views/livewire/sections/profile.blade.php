@@ -33,14 +33,7 @@
                     <th>Género:</th>
                     <td>{{ auth()->user()->empleadoAutorizado->genero == 'M' ? 'Masculino' : 'Femenino' }}</td>
                 </tr>
-                <tr>
-                    <th>Fecha de Nacimiento:</th>
-                    <td>{{ auth()->user()->empleadoAutorizado->fecha_nacimiento }}</td>
-                </tr>
-                <tr>
-                    <th>Altura:</th>
-                    <td>{{ auth()->user()->empleadoAutorizado->altura }} cm</td>
-                </tr>
+               
                 <tr>
                     <th>Teléfono:</th>
                     <td>{{ auth()->user()->empleadoAutorizado->telefono }}</td>

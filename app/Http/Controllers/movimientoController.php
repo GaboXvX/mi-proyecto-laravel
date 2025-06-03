@@ -59,7 +59,7 @@ class movimientoController extends Controller
         }
     }
 
-    $movimientos = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
+    $movimientos = $query->orderByDesc('created_at')->get();
 
     return view('usuarios.movimientos', compact('movimientos'));
 }

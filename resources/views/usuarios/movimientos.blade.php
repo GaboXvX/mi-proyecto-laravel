@@ -152,13 +152,7 @@
             </div>
         </div>
 
-        <div class="card-footer">
-            <div class="d-flex justify-content-between align-items-center">
-                <div id="pagination-links">
-                    {{ $movimientos->onEachSide(1)->links() }}
-                </div>
-            </div>
-        </div>
+        
 </div>
 
 

@@ -106,6 +106,46 @@
         </tr>
     </table>
 
+    @if(!empty($tablaEstado))
+    <h4 style="margin-top: 20px;">Incidencias por Estado</h4>
+        <table width="100%" style="border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">Estado</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($tablaEstado as $fila)
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['categoria'] }}</td>
+                        <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['total'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
+    @if(!empty($tablaNivel))
+        <h4 style="margin-top: 30px;">Incidencias por Nivel</h4>
+        <table width="100%" style="border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">Nivel</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($tablaNivel as $fila)
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['categoria'] }}</td>
+                        <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['total'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
     <div class="footer" style="margin-top: 30px;">
         {!! $pie_html !!}
     </div>

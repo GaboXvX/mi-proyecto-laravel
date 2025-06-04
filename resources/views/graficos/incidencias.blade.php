@@ -616,42 +616,56 @@ document.addEventListener('DOMContentLoaded', function() {
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
     document.getElementById('btnDescargarEstadisticas').addEventListener('click', function () {
-    const estadoChart = document.getElementById('estadoChart');
-    const nivelChart = document.getElementById('nivelChart');
+        const estadoChart = Chart.getChart('estadoChart');
+        const nivelChart = Chart.getChart('nivelChart');
 
-    const imgEstado = estadoChart.toDataURL('image/png');
-    const imgNivel = nivelChart.toDataURL('image/png');
+        const imgEstado = estadoChart.canvas.toDataURL('image/png');
+        const imgNivel = nivelChart.canvas.toDataURL('image/png');
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("grafico.incidencias.pdf") }}';
+        // Datos de los gráficos para la tabla
+        const datosEstado = estadoChart.data.labels.map((label, i) => ({
+            categoria: label,
+            total: estadoChart.data.datasets[0].data[i]
+        }));
 
-    const token = document.createElement('input');
-    token.type = 'hidden';
-    token.name = '_token';
-    token.value = document.querySelector('meta[name="csrf-token"]').content;
-    form.appendChild(token);
+        const datosNivel = nivelChart.data.labels.map((label, i) => ({
+            categoria: label,
+            total: nivelChart.data.datasets[0].data[i]
+        }));
 
-    const datos = {
-        imagenEstadoChart: imgEstado,
-        imagenNivelChart: imgNivel,
-        totalIncidencias: '{{ $totalIncidencias }}',
-        incidenciasAtendidas: '{{ $incidenciasAtendidas }}',
-        incidenciasPendientes: '{{ $incidenciasPendientes }}',
-        incidenciasPorVencer: '{{ $incidenciasPorVencer }}'
-    };
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("grafico.incidencias.pdf") }}';
 
-    for (const [clave, valor] of Object.entries(datos)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = clave;
-        input.value = valor;
-        form.appendChild(input);
-    }
+        const token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = '_token';
+        token.value = document.querySelector('meta[name="csrf-token"]').content;
+        form.appendChild(token);
 
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-});
+        const datos = {
+            imagenEstadoChart: imgEstado,
+            imagenNivelChart: imgNivel,
+            totalIncidencias: '{{ $totalIncidencias }}',
+            incidenciasAtendidas: '{{ $incidenciasAtendidas }}',
+            incidenciasPendientes: '{{ $incidenciasPendientes }}',
+            incidenciasPorVencer: '{{ $incidenciasPorVencer }}',
+            tablaEstado: JSON.stringify(datosEstado),
+            tablaNivel: JSON.stringify(datosNivel)
+        };
+
+        for (const [clave, valor] of Object.entries(datos)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = clave;
+            input.value = valor;
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+    });
 </script>
+
 @endsection

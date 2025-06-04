@@ -201,6 +201,7 @@ class HomeController extends Controller
 public function descargarGraficoPDF(Request $request)
 {
     $imagenGrafico = $request->input('imagenGrafico');
+    $tablaDatos = json_decode($request->input('tablaDatos'), true); // <<--- nuevo
 
     $tipo = $request->input('tipo_incidencia_id') ?: 'Todos';
     $nivel = $request->input('nivel_incidencia_id') ?: 'Todos';
@@ -223,6 +224,7 @@ public function descargarGraficoPDF(Request $request)
 
     $pdf = Pdf::loadView('graficos.graficohome_pdf', [
         'imagenGrafico' => $imagenGrafico,
+        'tablaDatos' => $tablaDatos, // <<--- nuevo
         'tipo' => $tipo,
         'nivel' => $nivel,
         'mes' => $mes,
@@ -234,4 +236,5 @@ public function descargarGraficoPDF(Request $request)
 
     return $pdf->download('grafico_home_' . now()->format('Ymd_His') . '.pdf');
 }
+
 }

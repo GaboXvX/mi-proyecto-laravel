@@ -289,20 +289,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Función para el seguimiento del step en las incidencias
 document.addEventListener('DOMContentLoaded', function () {
-    // Paso 1
-    const step1Inputs = ['calle'];
+    const step1Inputs = ['calle','punto_de_referencia'];
+    const selectsPaso1 = ['parroquia', 'urbanizacion', 'sector', 'comunidad'];
     const nextStep1 = document.getElementById('next-to-step-2');
-    const step1Fields = step1Inputs.map(id => document.getElementById(id));
 
-    const validateStep1 = () => {
-        const valid = step1Fields.every(input => input.value.trim() !== '');
-        nextStep1.disabled = !valid;
+    const getValue = id => {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
     };
 
-    step1Fields.forEach(input => input.addEventListener('input', validateStep1));
-    validateStep1(); // inicial
+    const validateStep1 = () => {
+        const allFilled = [...step1Inputs, ...selectsPaso1].every(id => getValue(id) !== '');
+        nextStep1.disabled = !allFilled;
+    };
 
-    // Paso 2
+    // Asigna eventos a inputs
+    step1Inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', validateStep1);
+    });
+
+    // Asigna eventos a selects
+    selectsPaso1.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', validateStep1);
+    });
+
+    // Validación inicial con retraso (por si Livewire está llenando)
+    setTimeout(validateStep1, 300);
+
+    // Revalidar después de cualquier actualización Livewire
+    if (window.Livewire) {
+        Livewire.hook('message.processed', () => {
+            validateStep1();
+        });
+    }
+
+    // Paso 2 validación
     const nextStep2 = document.getElementById('next-to-step-3');
     const institucion = document.getElementById('institucion');
     const estacion = document.getElementById('estacion');
@@ -313,7 +336,12 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     [institucion, estacion].forEach(select => select.addEventListener('change', validateStep2));
-    validateStep2();
+    setTimeout(validateStep2, 300);
+    if (window.Livewire) {
+        Livewire.hook('message.processed', () => {
+            validateStep2();
+        });
+    }
 
     // Navegación entre pasos
     nextStep1.addEventListener('click', () => {
@@ -344,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('stepProgressBar').innerText = 'Paso 2 de 3';
     });
 
-    // Desactivar botones al inicio
+    // Botones desactivados por defecto
     nextStep1.disabled = true;
     nextStep2.disabled = true;
 });

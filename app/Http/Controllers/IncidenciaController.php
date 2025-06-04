@@ -1475,7 +1475,7 @@ public function downloadPdf($id)
         'imagenesAntes' => $imagenesAntes,
         'logoBase64' => $logoBase64,
         'membrete' => $membrete,
-        'pie_html' => $pie_html,  // ¡Este es el parámetro que faltaba!
+        'pie_html' => $pie_html,
         'reparacion' => $reparacion,
     ])
     ->setOption('isRemoteEnabled', true)

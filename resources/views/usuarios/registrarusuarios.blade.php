@@ -65,14 +65,48 @@
                 <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
                 <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
                 <span id="password_error" class="error-message"></span>
-                <div id="error" class="mensaje-error"></div>
             </div>
             
             <input type="hidden" name="estado" value="activo">
 
-            <button type="button" class="btn-next" onclick="validarYAvanzar()">
-                Siguiente
-            </button>
+            <div class="password-rules" id="passwordRules">
+                <p class="rule" id="rule-length">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                    </svg> 
+                    Mínimo 8 caracteres
+                </p>
+                <p class="rule" id="rule-uppercase">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                    </svg>
+                    Al menos una letra mayúscula
+                </p>
+                <p class="rule" id="rule-lowercase">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                    </svg>
+                    Al menos una letra minúscula
+                </p>
+                <p class="rule" id="rule-number">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                    </svg>
+                    Al menos un número
+                </p>
+                <p class="rule" id="rule-special">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z"/>
+                    </svg>
+                    Al menos un carácter especial
+                </p>
+            </div>
+
+            <div class="btn-solo">
+                <button type="button" class="btn-next" id="btnSiguiente" onclick="validarYAvanzar()">
+                    Siguiente
+                </button>
+            </div>
         </div>
 
         <!-- Paso 2: Preguntas de Seguridad -->

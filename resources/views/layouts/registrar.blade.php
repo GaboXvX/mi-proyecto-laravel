@@ -29,71 +29,43 @@
             });
         });
     </script>
-    <script>
+
+<script>
     const passwordInput = document.getElementById("password");
-    const errorDiv = document.getElementById("error");
-    const paso1 = document.getElementById("step1");
-    const paso2 = document.getElementById("step2");
+    const btnSiguiente = document.getElementById("btnSiguiente");
 
-    passwordInput.addEventListener("input", validarPassword);
+    const rules = {
+        length: document.getElementById("rule-length"),
+        uppercase: document.getElementById("rule-uppercase"),
+        lowercase: document.getElementById("rule-lowercase"),
+        number: document.getElementById("rule-number"),
+        special: document.getElementById("rule-special")
+    };
 
-    function validarPassword() {
-        const password = passwordInput.value;
-        let mensaje = "";
+    passwordInput.addEventListener("input", function () {
+        const value = passwordInput.value;
 
-        if (password.length > 16) {
-            mensaje = "La contraseña no debe superar los 16 caracteres.";
-        } else if (password.length < 8) {
-            mensaje = "La contraseña debe tener al menos 8 caracteres.";
-        } else if (!/[A-Z]/.test(password)) {
-            mensaje = "Debe contener al menos una letra mayúscula.";
-        } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password)) {
-            mensaje = "Debe contener al menos un símbolo especial.";
-        }
+        const hasUppercase = /[A-Z]/.test(value);
+        const hasLowercase = /[a-z]/.test(value);
+        const hasNumber = /[0-9]/.test(value);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-+=]/.test(value);
+        const hasMinLength = value.length >= 8;
 
-        if (mensaje) {
-            errorDiv.textContent = mensaje;
-            errorDiv.style.display = "block";
-            return false;
-        } else {
-            errorDiv.textContent = "";
-            errorDiv.style.display = "none";
-            return true;
-        }
-    }
+        toggleClass(rules.uppercase, hasUppercase);
+        toggleClass(rules.lowercase, hasLowercase);
+        toggleClass(rules.number, hasNumber);
+        toggleClass(rules.special, hasSpecial);
+        toggleClass(rules.length, hasMinLength);
 
-    function validarYAvanzar() {
-        const contraseñaValida = validarPassword();
-        if (!contraseñaValida) {
-            // No avanzar si la contraseña es inválida
-            passwordInput.focus();
-            return;
-        }
-
-        // Aquí puedes añadir otras validaciones si quieres
-
-        // Avanzar al paso 2
-        document.getElementById("step1").classList.remove("active");
-        document.getElementById("step2").classList.add("active");
-        document.getElementById("step1-indicator").classList.remove("active");
-        document.getElementById("step2-indicator").classList.add("active");
-    }
-
-    function retrocederPaso() {
-        document.getElementById("step2").classList.remove("active");
-        document.getElementById("step1").classList.add("active");
-        document.getElementById("step2-indicator").classList.remove("active");
-        document.getElementById("step1-indicator").classList.add("active");
-    }
-
-    // Validar antes de enviar el formulario
-    document.getElementById("registroForm").addEventListener("submit", function (e) {
-        const contraseñaValida = validarPassword();
-        if (!contraseñaValida) {
-            e.preventDefault(); // Detiene el envío
-            passwordInput.focus();
-        }
+        // Solo si todas las condiciones se cumplen, habilita el botón
+        const isValidPassword = hasUppercase && hasLowercase && hasNumber && hasSpecial && hasMinLength;
+        btnSiguiente.disabled = !isValidPassword;
     });
+
+    function toggleClass(element, condition) {
+        element.classList.toggle("valid", condition);
+        element.classList.toggle("invalid", !condition);
+    }
 </script>
 
 </body>

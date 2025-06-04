@@ -413,38 +413,61 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
     document.getElementById('btnDescargarGrafico').addEventListener('click', function () {
-    const canvas = document.getElementById('temporalChart');
-    const imagenBase64 = canvas.toDataURL('image/png');
+        const canvas = document.getElementById('temporalChart');
+        const imagenBase64 = canvas.toDataURL('image/png');
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '{{ route("grafico.descargar") }}';
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("grafico.descargar") }}';
 
-    const token = document.createElement('input');
-    token.type = 'hidden';
-    token.name = '_token';
-    token.value = document.querySelector('meta[name="csrf-token"]').content;
-    form.appendChild(token);
+        const token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = '_token';
+        token.value = document.querySelector('meta[name="csrf-token"]').content;
+        form.appendChild(token);
 
-    const campos = ['tipo_incidencia_id', 'nivel_incidencia_id', 'mes', 'anio'];
-    campos.forEach(campo => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = campo;
-        input.value = document.getElementById(campo)?.value || '';
-        form.appendChild(input);
+        const campos = ['tipo_incidencia_id', 'nivel_incidencia_id', 'mes', 'anio'];
+        campos.forEach(campo => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = campo;
+            input.value = document.getElementById(campo)?.value || '';
+            form.appendChild(input);
+        });
+
+        // Imagen del gráfico
+        const imagen = document.createElement('input');
+        imagen.type = 'hidden';
+        imagen.name = 'imagenGrafico';
+        imagen.value = imagenBase64;
+        form.appendChild(imagen);
+
+        // Extraer datos del gráfico
+        const chart = Chart.getChart("temporalChart");
+        const labels = chart.data.labels;
+        const datasets = chart.data.datasets;
+        let datos = [];
+
+        datasets.forEach(ds => {
+            ds.data.forEach((valor, index) => {
+                datos.push({
+                    mes: labels[index],
+                    tipo: ds.label,
+                    total: valor
+                });
+            });
+        });
+
+        const datosInput = document.createElement('input');
+        datosInput.type = 'hidden';
+        datosInput.name = 'tablaDatos';
+        datosInput.value = JSON.stringify(datos);
+        form.appendChild(datosInput);
+
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
     });
-
-    const imagen = document.createElement('input');
-    imagen.type = 'hidden';
-    imagen.name = 'imagenGrafico';
-    imagen.value = imagenBase64;
-    form.appendChild(imagen);
-
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-});
 </script>
 
 @endsection

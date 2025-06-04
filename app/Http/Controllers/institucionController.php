@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Storage;
 
 class institucionController extends Controller
 {
-    public function index(Request $request)
-    {
-        $instituciones = Institucion::paginate(4);
-        
-        return view('instituciones.listaInstituciones', compact('instituciones'));
-    }
+   public function index(Request $request)
+{
+    $instituciones = Institucion::orderBy('es_propietario', 'DESC')->paginate(4);
+    
+    return view('instituciones.listaInstituciones', compact('instituciones'));
+}
 
     // Actualiza el logo de una institución
     public function updateLogo(Request $request, $id_institucion)

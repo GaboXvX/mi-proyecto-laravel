@@ -58,8 +58,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas protegidas (requieren autenticación)
     Route::middleware(['auth'])->group(function () {
         // Autenticación
+        Route::post('/empleados/{id}/retirar', [EmpleadoAutorizadoController::class, 'retirar'])
+    ->name('empleados.retirar')
+    ->middleware(['auth', 'can:editar empleados']);
+
+Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 'incorporar'])
+    ->name('empleados.incorporar')
+    ->middleware(['auth', 'can:editar empleados']);
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-        
+        Route::get('/empleados/historial/{id}', [EmpleadoAutorizadoController::class, 'historial'])
+    ->name('empleados.historial')
+    ->middleware('can:ver empleados');
         // Home
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/home/total-peticiones', [HomeController::class, 'obtenerTotalPeticiones'])->name('home.totalPeticiones');

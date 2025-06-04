@@ -55,25 +55,44 @@ class peticionController extends Controller
    
    // filepath: c:\laragon\www\mi-proyecto-laravel-master\app\Http\Controllers\peticionController.php
    public function buscarEmpleado(Request $request)
-   {
-       $request->validate(['cedula' => 'required|string']);
-   
-       $empleado = EmpleadoAutorizado::with('cargo')->where('cedula', $request->cedula)->first();
-   
-       if (!$empleado) {
-           return response()->json(['error' => 'Empleado no encontrado'], 404);
-       }
-   
-       // Asegúrate que estos campos coincidan con tu BD
-       $yaRegistrado = \App\Models\User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists();
-       return response()->json([
-           'nombre' => $empleado->nombre,
-           'apellido' => $empleado->apellido,
-           'genero' => $empleado->genero,
-           'cargo' => $empleado->cargo ? $empleado->cargo->nombre_cargo : '',
-           'ya_registrado' => $yaRegistrado
-       ]);
-   }
+{
+    $request->validate(['cedula' => 'required|string']);
+
+    $empleado = EmpleadoAutorizado::with('cargo')->where('cedula', $request->cedula)->first();
+
+    if (!$empleado) {
+        return response()->json([
+            'error' => 'Empleado no encontrado en nuestros registros',
+            'tipo_error' => 'no_encontrado'
+        ], 404);
+    }
+
+    // Verificar si el empleado está activo
+    if ($empleado->es_activo === false) {
+        return response()->json([
+            'error' => 'El empleado ya no se encuentra activo en la institución (fue despedido o dado de baja)',
+            'tipo_error' => 'inactivo',
+            'datos_empleado' => [
+                'nombre' => $empleado->nombre,
+                'apellido' => $empleado->apellido,
+                'nacionalidad' => $empleado->nacionalidad,
+                'cargo_anterior' => $empleado->cargo ? $empleado->cargo->nombre_cargo : 'No especificado'
+            ]
+        ], 403);
+    }
+
+    // Verificar si ya está registrado en el sistema de usuarios
+    $yaRegistrado = User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists();
+    
+    return response()->json([
+        'nombre' => $empleado->nombre,
+        'apellido' => $empleado->apellido,
+        'genero' => $empleado->genero,
+        'nacionalidad' => $empleado->nacionalidad,
+        'cargo' => $empleado->cargo ? $empleado->cargo->nombre_cargo : 'No especificado',
+        'ya_registrado' => $yaRegistrado
+    ]);
+}
 
  // Controlador Store corregido
  public function store(Request $request)
@@ -118,7 +137,12 @@ class peticionController extends Controller
                  'errors' => ['cedula' => ['El empleado no está autorizado para registrarse']]
              ], 422);
          }
- 
+ if ($empleado->es_activo == false) {
+            return response()->json([
+                'success' => false,
+                'errors' => ['cedula' => ['El empleado no está activo y no puede realizar peticiones']]
+            ], 422);
+        }
          // Verificar si ya está registrado en Users
          if (User::where('id_empleado_autorizado', $empleado->id_empleado_autorizado)->exists()) {
              return response()->json([

@@ -6,10 +6,11 @@
             <th>Género</th>
             <th>Cédula</th>
             <th>Cargo</th>
-           <th>Usuario</th>
+            <th>Usuario</th>
             <th>Rol</th>
             <th>Correo</th>
             <th>Estado</th>
+            <th>Ejerce</th>
             <th>Creación</th>
             <th>Acciones</th>
         </tr>
@@ -23,10 +24,9 @@
                 <td>{{ $usuario->empleadoAutorizado->nombre ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->apellido ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->genero ?? '-' }}</td>
-                <td>{{ $usuario->empleadoAutorizado->cedula ?? '-' }}</td>
+                <td>{{ $usuario->empleadoAutorizado->nacionalidad ?? '-' }}-{{ $usuario->empleadoAutorizado->cedula ?? '-' }}</td>
                 <td>{{ $usuario->empleadoAutorizado->cargo->nombre_cargo ?? 'No definido' }}</td>
-                <td>{{ $usuario->nombre_usuario?? '-' }}</td>
-
+                <td>{{ $usuario->nombre_usuario ?? '-' }}</td>
                 <td>
                     @if($usuario->roles && $usuario->roles->count())
                         {{ $usuario->roles->pluck('name')->implode(', ') }}
@@ -52,13 +52,24 @@
                         @endif
                     @endif
                 </td>
+                <td>
+                    @if($usuario->empleadoAutorizado)
+                        @if($usuario->empleadoAutorizado->es_activo)
+                            <span class="badge bg-success">Sí</span>
+                        @else
+                            <span class="badge bg-danger">No</span>
+                        @endif
+                    @else
+                        <span class="text-muted">N/A</span>
+                    @endif
+                </td>
                 <td>{{ $usuario->created_at ?? '-' }}</td>
                 <td>
                     @if (empty($usuario->empleadoAutorizado))
                         <span class="text-muted">No disponible</span>
                     @else
                         @if($usuario->hasRole('registrador'))
-                            <div class="dropdown">
+                             <div class="dropdown">
                                 <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-{{ $usuario->id_usuario }}" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
@@ -85,7 +96,8 @@
                                         </li>
                                     @can('desactivar empleados')
                                         @if ($usuario->id_estado_usuario == 1)
-                                            <li>
+                                          @if($usuario->empleadoAutorizado->es_activo)  
+                                        <li>
                                                 <form action="{{ route('usuarios.desactivar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item">  
@@ -97,11 +109,13 @@
                                                     </button>
                                                 </form>
                                             </li>
+                                            @endcan
                                         @endif
                                     @endcan
                                     @can('habilitar empleados')
                                         @if ($usuario->id_estado_usuario == 2)
-                                            <li>
+                                            @if($usuario->empleadoAutorizado->es_activo)
+                                        <li>
                                                 <form action="{{ route('usuarios.activar', $usuario->id_usuario) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item">
@@ -113,6 +127,7 @@
                                                     </button>
                                                 </form>
                                             </li>
+                                            @endcan
                                         @endif
                                     @endcan
                                     <li>
@@ -147,6 +162,23 @@
                                             Renovar intentos
                                         </button>
                                     </li>
+                                     @if($usuario->empleadoAutorizado->es_activo)
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-retirar" data-id="{{ $usuario->empleadoAutorizado->id_empleado_autorizado }}">
+                                                <i class="bi bi-person-x me-2"></i>Retirar
+                                            </button>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <button type="button" class="dropdown-item btn-incorporar" data-id="{{ $usuario->empleadoAutorizado->id_empleado_autorizado }}">
+                                                <i class="bi bi-person-check me-2"></i>Incorporar
+                                            </button>
+                                        </li>
+                                        
+                                    @endif
+                                     <a class="dropdown-item" href="{{ route('empleados.historial', $usuario->empleadoAutorizado->id_empleado_autorizado) }}">
+                <i class="fas fa-history mr-2"></i>Ver historial
+            </a>
                                 </ul>
                             </div>
                         @endif
@@ -159,13 +191,19 @@
                 <td>{{ $empleado->nombre }}</td>
                 <td>{{ $empleado->apellido }}</td>
                 <td>{{ $empleado->genero }}</td>
-                <td>{{ $empleado->cedula }}</td>
+                <td>{{ $empleado->nacionalidad }}-{{ $empleado->cedula }}</td>
                 <td>{{ $empleado->cargo->nombre_cargo ?? 'No definido' }}</td>
                 <td><span class="text-muted">No definido</span></td>
                 <td><span class="text-muted">No asignado</span></td>
                 <td><span class="text-warning">Sin registrarse</span></td>
-                                <td><span class="text-muted">No asignado</span></td>
-
+                <td><span class="text-muted">No asignado</span></td>
+                <td>
+                    @if($empleado->es_activo)
+                        <span class="badge bg-success">Sí</span>
+                    @else
+                        <span class="badge bg-danger">No</span>
+                    @endif
+                </td>
                 <td>{{ $empleado->created_at }}</td>
                 <td>
                     <div class="dropdown">
@@ -180,6 +218,23 @@
                                     </a>
                                 </li>
                             @endcan
+                            @if($empleado->es_activo)
+                                <li>
+                                    <button type="button" class="dropdown-item btn-retirar" data-id="{{ $empleado->id_empleado_autorizado }}">
+                                        <i class="bi bi-person-x me-2"></i>Retirar
+                                    </button>
+                                </li>
+                            @else
+                                <li>
+                                    <button type="button" class="dropdown-item btn-incorporar" data-id="{{ $empleado->id_empleado_autorizado }}">
+                                        <i class="bi bi-person-check me-2"></i>Incorporar
+                                    </button>
+                                </li>
+                                
+                            @endif
+                             <a class="dropdown-item" href="{{ route('empleados.historial', $empleado->id_empleado_autorizado) }}">
+                <i class="fas fa-history mr-2"></i>Ver historial
+            </a>
                         </ul>
                     </div>
                 </td>
@@ -187,43 +242,146 @@
         @endforeach
     </tbody>
 </table>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Modal para retirar empleado -->
+<div class="modal fade" id="retirarModal" tabindex="-1" aria-labelledby="retirarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="retirarModalLabel">Retirar Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="retirarForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="empleado_id" id="empleado_id_retirar">
+                    <div class="mb-3">
+                        <label for="observacion_retirar" class="form-label">Motivo del retiro</label>
+                        <textarea class="form-control" id="observacion_retirar" name="observacion" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar Retiro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para incorporar empleado -->
+<div class="modal fade" id="incorporarModal" tabindex="-1" aria-labelledby="incorporarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incorporarModalLabel">Incorporar Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="incorporarForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" name="empleado_id" id="empleado_id_incorporar">
+                    <div class="mb-3">
+                        <label for="observacion_incorporar" class="form-label">Motivo de la incorporación</label>
+                        <textarea class="form-control" id="observacion_incorporar" name="observacion" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Incorporación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.btn-renovar-intentos').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const id = this.getAttribute('data-id');
-            Swal.fire({
-                title: '¿Renovar intentos de recuperación?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, renovar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/usuarios/${id}/renovar-intentos`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(async response => {
-                        let data = await response.text();
-                        try { data = JSON.parse(data); } catch { }
-                        if (response.ok && data && data.success !== false) {
-                            Swal.fire('¡Éxito!', data.message || 'Intentos renovados correctamente.', 'success');
-                        } else {
-                            Swal.fire('Error', (data && data.message) || 'No se pudo renovar los intentos.', 'error');
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
-                    });
-                }
-            });
+    // Configurar modal y formulario para retirar empleado
+    const retirarModal = new bootstrap.Modal(document.getElementById('retirarModal'));
+    document.querySelectorAll('.btn-retirar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const empleadoId = this.getAttribute('data-id');
+            document.getElementById('empleado_id_retirar').value = empleadoId;
+            document.getElementById('retirarForm').action = `/empleados/${empleadoId}/retirar`;
+            retirarModal.show();
+        });
+    });
+
+    // Configurar modal y formulario para incorporar empleado
+    const incorporarModal = new bootstrap.Modal(document.getElementById('incorporarModal'));
+    document.querySelectorAll('.btn-incorporar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const empleadoId = this.getAttribute('data-id');
+            document.getElementById('empleado_id_incorporar').value = empleadoId;
+            document.getElementById('incorporarForm').action = `/empleados/${empleadoId}/incorporar`;
+            incorporarModal.show();
+        });
+    });
+
+    // Manejar envío del formulario de retiro
+    document.getElementById('retirarForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                observacion: document.getElementById('observacion_retirar').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('Éxito', data.message, 'success').then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+            retirarModal.hide();
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Ocurrió un error al procesar la solicitud', 'error');
+            retirarModal.hide();
+        });
+    });
+
+    // Manejar envío del formulario de incorporación
+    document.getElementById('incorporarForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                observacion: document.getElementById('observacion_incorporar').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('Éxito', data.message, 'success').then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+            incorporarModal.hide();
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Ocurrió un error al procesar la solicitud', 'error');
+            incorporarModal.hide();
         });
     });
 });

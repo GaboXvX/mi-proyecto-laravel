@@ -29,26 +29,28 @@
         <!-- Paso 1: Datos Básicos -->
         <div class="form-step active" id="step1">
             <div class="password-container">
-                <input type="text" id="cedula" name="cedula" class="form-control" maxlength="8" placeholder="Ingrese su cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
+                <input type="text" id="cedula" name="cedula" class="form-control" maxlength="10" placeholder="Ingrese su cédula" value="{{ old('cedula') }}" required onblur="buscarEmpleado()">
                 <span id="cedula_error" class="error-message"></span>
             </div>
 
             <div class="row">
                 <div class="form-group">
                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre" value="{{ old('nombre') }}" required readonly>
-                
                     <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Apellido" value="{{ old('apellido') }}" required readonly>
                 </div>
             </div>
 
-           
-
             <div class="row">
                 <div class="form-group">
                     <input type="text" id="genero" name="genero" placeholder="Género" class="form-control" value="{{ old('genero') }}" required readonly>
-                
-                <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
+                    <input type="text" id="nacionalidad" name="nacionalidad" class="form-control" placeholder="Nacionalidad" value="{{ old('nacionalidad') }}" required readonly>
+                </div>
             </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
+                </div>
             </div>
 
             <div class="row">
@@ -56,7 +58,7 @@
                     <input type="text" id="nombre_usuario" name="nombre_usuario" class="form-control" placeholder="Nombre de usuario" value="{{ old('nombre_usuario') }}" required oninput="limpiarNombreUsuario(this)">
                     <span id="nombre_usuario_error" class="error-message"></span>
 
-                    <input type="email" id="email" name="email" class="form-control" placeholder="correo electrónico" value="{{ old('email') }}" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" value="{{ old('email') }}" required>
                     <span id="email_error" class="error-message"></span>
                 </div>
             </div>
@@ -112,21 +114,20 @@
     </form>
 </div>
 
-<script src="{{ asset('js/home.js') }}"></script>
 <script>
     // Función para mostrar notificación
-   function mostrarNotificacion(mensaje, tipo) {
-    const toast = document.getElementById("toastMessage");
-    const toastText = document.getElementById("toastText");
+    function mostrarNotificacion(mensaje, tipo) {
+        const toast = document.getElementById("toastMessage");
+        const toastText = document.getElementById("toastText");
 
-    toastText.innerHTML = mensaje;
-    toast.className = "toast " + (tipo === "success" ? "toast-success" : "toast-error");
-    toast.style.display = "block";
+        toastText.innerHTML = mensaje;
+        toast.className = "toast " + (tipo === "success" ? "toast-success" : "toast-error");
+        toast.style.display = "block";
 
-    setTimeout(() => {
-        toast.style.display = "none";
-    }, 3000);
-}
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 3000);
+    }
 
     // Mostrar/ocultar contraseña
     function mostrarIconoOjo() {
@@ -155,73 +156,89 @@
 
     // Buscar empleado por cédula
     function buscarEmpleado() {
-    const cedula = document.getElementById('cedula').value.trim();
-    const cedulaError = document.getElementById('cedula_error');
-    const btnSiguiente = document.querySelector('.btn-next');
+        const cedula = document.getElementById('cedula').value.trim();
+        const cedulaError = document.getElementById('cedula_error');
+        const btnSiguiente = document.querySelector('.btn-next');
 
-    // Limpiar campos
-    ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
-
-    cedulaError.textContent = '';
-    cedulaError.classList.remove('active');
-    btnSiguiente.disabled = false;
-
-    if (!cedula) return;
-
-    cedulaError.textContent = 'Buscando...';
-    cedulaError.style.color = '#3498db';
-    cedulaError.classList.add('active');
-    btnSiguiente.disabled = true;
-
-    fetch(`/buscar-empleado?cedula=${encodeURIComponent(cedula)}`, {
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 404) throw new Error('Empleado no encontrado');
-            throw new Error('Error en el servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.error) throw new Error(data.error);
-        if (data.ya_registrado) {
-            cedulaError.textContent = 'Este empleado ya tiene un usuario registrado.';
-            cedulaError.style.color = '#e74c3c';
-            cedulaError.classList.add('active');
-            btnSiguiente.disabled = true;
-            // Limpiar campos
-            ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            return;
-        }
-        // Asignar valores a los campos
-        document.getElementById('nombre').value = data.nombre || '';
-        document.getElementById('apellido').value = data.apellido || '';
-        document.getElementById('genero').value = data.genero || '';
-        document.getElementById('cargo').value = data.cargo || '';
+        // Limpiar campos
+        ['nombre', 'apellido', 'genero', 'nacionalidad', 'cargo'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
 
         cedulaError.textContent = '';
         cedulaError.classList.remove('active');
         btnSiguiente.disabled = false;
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        cedulaError.textContent = error.message;
-        cedulaError.style.color = '#e74c3c';
+
+        if (!cedula) return;
+
+        cedulaError.textContent = 'Buscando...';
+        cedulaError.style.color = '#3498db';
         cedulaError.classList.add('active');
         btnSiguiente.disabled = true;
-        ['nombre', 'apellido', 'genero', 'cargo'].forEach(id => {
-            document.getElementById(id).value = '';
+
+        fetch(`/buscar-empleado?cedula=${encodeURIComponent(cedula)}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    return response.json().then(data => Promise.reject(data.error));
+                }
+                if (response.status === 404) throw new Error('Empleado no encontrado');
+                throw new Error('Error en el servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+            if (data.ya_registrado) {
+                cedulaError.textContent = 'Este empleado ya tiene un usuario registrado.';
+                cedulaError.style.color = '#e74c3c';
+                cedulaError.classList.add('active');
+                btnSiguiente.disabled = true;
+                // Limpiar campos
+                ['nombre', 'apellido', 'genero', 'nacionalidad', 'cargo'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                return;
+            }
+            
+            // Asignar valores a los campos
+            document.getElementById('nombre').value = data.nombre || '';
+            document.getElementById('apellido').value = data.apellido || '';
+            document.getElementById('genero').value = data.genero || '';
+            document.getElementById('nacionalidad').value = data.nacionalidad || '';
+            document.getElementById('cargo').value = data.cargo || '';
+
+            cedulaError.textContent = '';
+            cedulaError.classList.remove('active');
+            btnSiguiente.disabled = false;
+        })
+       // En tu JavaScript
+.catch(error => {
+    console.error("Error:", error);
+    if (error.tipo_error === 'inactivo') {
+        // Mostrar datos del empleado inactivo
+        document.getElementById('nombre').value = error.datos_empleado.nombre;
+        document.getElementById('apellido').value = error.datos_empleado.apellido;
+        document.getElementById('nacionalidad').value = error.datos_empleado.nacionalidad;
+        document.getElementById('cargo').value = error.datos_empleado.cargo_anterior;
+        
+        // Deshabilitar todos los campos
+        document.querySelectorAll('#step1 input:not([readonly])').forEach(input => {
+            input.disabled = true;
         });
-    });
-}
+    }
+    
+    cedulaError.textContent = error.error;
+    cedulaError.style.color = '#e74c3c';
+    cedulaError.classList.add('active');
+    btnSiguiente.disabled = true;
+});
+    }
 
     // Manejo de selects de preguntas
     function actualizarSelects() {
@@ -272,11 +289,16 @@
             }
         });
 
-        // Validar cédula
+        // Validar cédula y datos del empleado
         const cedula = document.getElementById('cedula').value.trim();
         const nombre = document.getElementById('nombre').value.trim();
+        const cedulaError = document.getElementById('cedula_error');
+        
         if (!nombre && cedula) {
             mostrarNotificacion("Debe buscar y cargar los datos del empleado primero", "error");
+            valido = false;
+        } else if (nombre && cedulaError.classList.contains('active')) {
+            mostrarNotificacion(cedulaError.textContent, "error");
             valido = false;
         }
 
@@ -317,71 +339,71 @@
 
     // Envío del formulario
     document.getElementById('registroForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+        event.preventDefault();
 
-    // Limpiar mensajes de error previos
-    document.querySelectorAll('.error-message').forEach(el => {
-        el.textContent = '';
-        el.classList.remove('active');
-    });
-    document.querySelectorAll('.form-control').forEach(el => {
-        el.classList.remove('input-error');
-    });
-
-    // Mostrar loader
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Procesando...';
-
-    try {
-        const formData = new FormData(this);
-        const response = await fetch(this.action, {
-            method: "POST",
-            body: formData,
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
-            }
+        // Limpiar mensajes de error previos
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.textContent = '';
+            el.classList.remove('active');
+        });
+        document.querySelectorAll('.form-control').forEach(el => {
+            el.classList.remove('input-error');
         });
 
-        const data = await response.json();
+        // Mostrar loader
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Procesando...';
 
-        // Manejar respuesta exitosa
-        if (data.success) {
-            mostrarNotificacion(data.message, "success");
-            setTimeout(() => {
-                window.location.href = data.redirect || "{{ route('login') }}";
-            }, 1500);
-            return;
-        }
-
-        // Manejar errores de validación
-        if (response.status === 422 && data.errors) {
-            for (const field in data.errors) {
-                const errorElement = document.getElementById(`${field}_error`);
-                if (errorElement) {
-                    errorElement.textContent = data.errors[field][0];
-                    errorElement.classList.add('active');
-                    
-                    const inputElement = document.getElementById(field);
-                    if (inputElement) inputElement.classList.add('input-error');
+        try {
+            const formData = new FormData(this);
+            const response = await fetch(this.action, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
                 }
+            });
+
+            const data = await response.json();
+
+            // Manejar respuesta exitosa
+            if (data.success) {
+                mostrarNotificacion(data.message, "success");
+                setTimeout(() => {
+                    window.location.href = data.redirect || "{{ route('login') }}";
+                }, 1500);
+                return;
             }
-            mostrarNotificacion(data.message || "⚠️ Por favor corrige los errores en el formulario", "error");
-            return;
+
+            // Manejar errores de validación
+            if (response.status === 422 && data.errors) {
+                for (const field in data.errors) {
+                    const errorElement = document.getElementById(`${field}_error`);
+                    if (errorElement) {
+                        errorElement.textContent = data.errors[field][0];
+                        errorElement.classList.add('active');
+                        
+                        const inputElement = document.getElementById(field);
+                        if (inputElement) inputElement.classList.add('input-error');
+                    }
+                }
+                mostrarNotificacion(data.message || "⚠️ Por favor corrige los errores en el formulario", "error");
+                return;
+            }
+
+            // Manejar otros errores
+            throw new Error(data.message || "Error al procesar la solicitud");
+
+        } catch (error) {
+            console.error("Error:", error);
+            mostrarNotificacion(`❌ ${error.message}`, "error");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
         }
-
-        // Manejar otros errores
-        throw new Error(data.message || "Error al procesar la solicitud");
-
-    } catch (error) {
-        console.error("Error:", error);
-        mostrarNotificacion(`❌ ${error.message}`, "error");
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-    }
-});
+    });
 </script>
 @endsection

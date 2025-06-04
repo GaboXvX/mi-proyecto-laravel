@@ -6,9 +6,17 @@
         <form action="{{ route('empleados.update', $empleado->id_empleado_autorizado) }}" method="POST" id="empleadoForm">
             @csrf
             @method('PUT')
-            <div class="mb-3">
-                <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula</label>
+           <div class="row g-2 mb-3">
+                <div class="col-md-8">
+                    <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula</label>
                 <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" value="{{ $empleado->cedula }}" readonly disabled>
+                    <span id="cedulaStatus" class="text-muted" style="display:none;"></span>
+                    <span id="cedulaError" class="text-danger" style="display:none;"></span>
+                </div>
+                <div class="col-md-4">
+                    <label for="nacionalidad" class="form-label"><span style="color: red;" class="me-2">*</span>Nacionalidad</label>
+                <input type="text" name="nacionalidad" id="nacionalidad" class="form-control solo-letras" value="{{ $empleado->nacionalidad }}" readonly disabled>
+                </div>
             </div>
             
             <div class="row g-2 mb-3">

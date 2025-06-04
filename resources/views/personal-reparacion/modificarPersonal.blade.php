@@ -10,14 +10,15 @@
             @method('PUT')
             
             <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="nacionalidad">Nacionalidad</label>
-                    <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm" value="{{ $personalReparacion->nacionalidad }}" disabled>
-                </div>
+                
                 
                 <div class="col-md-6">
                     <label for="cedula">Cédula</label>
                     <input type="text" name="cedula" id="cedula" class="form-control form-control-sm" maxlength="8" value="{{ $personalReparacion->cedula }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="nacionalidad">Nacionalidad</label>
+                    <input type="text" name="nacionalidad" id="nacionalidad" class="form-control form-control-sm" value="{{ $personalReparacion->nacionalidad }}" disabled>
                 </div>
             </div>
            

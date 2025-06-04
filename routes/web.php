@@ -61,7 +61,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('/empleados/{id}/retirar', [EmpleadoAutorizadoController::class, 'retirar'])
     ->name('empleados.retirar')
     ->middleware(['auth', 'can:editar empleados']);
-
+Route::get('/personal-reparacion/buscar/{cedula}', [personalController::class, 'buscar'])
+    ->name('personal-reparacion.buscar');
 Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 'incorporar'])
     ->name('empleados.incorporar')
     ->middleware(['auth', 'can:editar empleados']);

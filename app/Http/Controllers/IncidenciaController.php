@@ -35,14 +35,15 @@ class IncidenciaController extends Controller
 {
 
 
-    public function index(Request $request)
+   public function index(Request $request)
 {
     try {
-        // Obtener todos los estados para el filtro
+        // Obtener todos los estados, niveles y tipos para los filtros
         $estados = estadoIncidencia::all();
         $niveles = nivelIncidencia::all();
+        $tipos = tipoIncidencia::all();
 
-        // Consultar las incidencias with(['persona', 'direccionIncidencia', 'usuario.empleadoAutorizado', 'nivelIncidencia', 'estadoIncidencia', 'tipoIncidencia', 'direccionIncidencia.comunidad'])
+        // Consultar las incidencias with relaciones
         $incidencias = Incidencia::with([
             'persona',
             'direccionIncidencia',
@@ -71,10 +72,15 @@ class IncidenciaController extends Controller
                 $q->where('nombre', $request->prioridad);
             });
         })
+        ->when($request->tipo && $request->tipo !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('tipoIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->tipo);
+            });
+        })
         ->orderBy('created_at', 'desc')
-        ; // Paginación para mejorar la carga
+        ->paginate(10); // Paginación para mejorar la carga
 
-        return view('incidencias.listaincidencias', compact('incidencias', 'estados', 'niveles'));
+        return view('incidencias.listaincidencias', compact('incidencias', 'estados', 'niveles', 'tipos'));
     } catch (\Exception $e) {
         Log::error('Error al cargar la lista de incidencias:', ['error' => $e->getMessage()]);
         return back()->withErrors(['error' => 'Error al cargar la lista de incidencias.']);
@@ -860,102 +866,107 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 
 
     public function filtrar(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'fecha_inicio' => 'nullable|date',
-                'fecha_fin' => 'nullable|date',
-                'estado' => 'nullable|string',
-                'prioridad' => 'nullable|string',
-                'codigo' => 'nullable|string|max:20'
+{
+    try {
+        $validated = $request->validate([
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date',
+            'estado' => 'nullable|string',
+            'prioridad' => 'nullable|string',
+            'tipo' => 'nullable|string',
+            'codigo' => 'nullable|string|max:20'
+        ]);
+
+        $incidencias = Incidencia::with([
+            'persona',
+            'direccionIncidencia.comunidad',
+            'usuario.empleadoAutorizado',
+            'nivelIncidencia',
+            'estadoIncidencia',
+            'tipoIncidencia'
+        ])
+        ->when($request->codigo, function ($query, $codigo) {
+            return $query->where('cod_incidencia', 'like', "%$codigo%");
+        })
+        ->when($request->fecha_inicio && $request->fecha_fin, function ($query) use ($request) {
+            return $query->whereBetween('created_at', [
+                Carbon::parse($request->fecha_inicio)->startOfDay(),
+                Carbon::parse($request->fecha_fin)->endOfDay()
             ]);
-    
-            $incidencias = Incidencia::with([
-                'persona',
-                'direccionIncidencia.comunidad', // Asegura que siempre se incluya la relación comunidad
-                'usuario.empleadoAutorizado',
-                'nivelIncidencia',
-                'estadoIncidencia',
-                'tipoIncidencia'
-            ])
-            ->when($request->codigo, function ($query, $codigo) {
-                return $query->where('cod_incidencia', 'like', "%$codigo%");
-            })
-            ->when($request->fecha_inicio && $request->fecha_fin, function ($query) use ($request) {
-                return $query->whereBetween('created_at', [
-                    Carbon::parse($request->fecha_inicio)->startOfDay(),
-                    Carbon::parse($request->fecha_fin)->endOfDay()
-                ]);
-            })
-            ->when($request->estado && $request->estado !== 'Todos', function ($query) use ($request) {
-                return $query->whereHas('estadoIncidencia', function ($q) use ($request) {
-                    $q->where('nombre', $request->estado);
-                });
-            })
-            ->when($request->prioridad && $request->prioridad !== 'Todos', function ($query) use ($request) {
-                return $query->whereHas('nivelIncidencia', function ($q) use ($request) {
-                    $q->where('nombre', $request->prioridad);
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
-    
-            // Transformar los datos para que coincidan con la estructura esperada por el frontend
-            $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
-                return [
-                    'cod_incidencia' => $incidencia->cod_incidencia,
-                    'tipoIncidencia' => $incidencia->tipoIncidencia ? [
-                        'nombre' => $incidencia->tipoIncidencia->nombre
-                    ] : null,
-                    'descripcion' => $incidencia->descripcion,
-                    'created_at' => $incidencia->created_at,
-                    'fecha_vencimiento' => $incidencia->fecha_vencimiento,
-                    'slug' => $incidencia->slug,
-                    'persona' => $incidencia->persona ? [
-                        'nombre' => $incidencia->persona->nombre,
-                        'apellido' => $incidencia->persona->apellido,
-                        'cedula' => $incidencia->persona->cedula
-                    ] : null,
-                    'usuario' => $incidencia->usuario ? [
-                        'empleado_autorizado' => $incidencia->usuario->empleadoAutorizado ? [
-                            'nombre' => $incidencia->usuario->empleadoAutorizado->nombre,
-                            'apellido' => $incidencia->usuario->empleadoAutorizado->apellido,
-                            'cedula' => $incidencia->usuario->empleadoAutorizado->cedula
-                        ] : null
-                    ] : null,
-                    'nivelIncidencia' => $incidencia->nivelIncidencia ? [
-                        'nombre' => $incidencia->nivelIncidencia->nombre,
-                        'color' => $incidencia->nivelIncidencia->color
-                    ] : null,
-                    'estadoIncidencia' => $incidencia->estadoIncidencia ? [
-                        'nombre' => $incidencia->estadoIncidencia->nombre,
-                        'color' => $incidencia->estadoIncidencia->color,
-                        'es_resuelto' => $incidencia->estadoIncidencia->es_resuelto
-                    ] : null,
-                    // Comunidad: acceso robusto y consistente
-                    'direccionIncidencia' => $incidencia->direccionIncidencia ? [
-                        'comunidad' => $incidencia->direccionIncidencia->comunidad ? [
-                            'nombre' => $incidencia->direccionIncidencia->comunidad->nombre
-                        ] : null
-                    ] : null
-                ];
+        })
+        ->when($request->estado && $request->estado !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('estadoIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->estado);
             });
+        })
+        ->when($request->prioridad && $request->prioridad !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('nivelIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->prioridad);
+            });
+        })
+        ->when($request->tipo && $request->tipo !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('tipoIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->tipo);
+            });
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-            return response()->json([
-                'success' => true,
-                'incidencias' => $incidenciasTransformadas,
-                'fecha_actualizacion' => now()->format('d-m-Y H:i:s')
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error al filtrar las incidencias:', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al filtrar las incidencias: ' . $e->getMessage(),
-            ], 500);
-        }
+        // Transformar los datos para que coincidan con la estructura esperada por el frontend
+        $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
+            return [
+                'cod_incidencia' => $incidencia->cod_incidencia,
+                'tipoIncidencia' => $incidencia->tipoIncidencia ? [
+                    'nombre' => $incidencia->tipoIncidencia->nombre
+                ] : null,
+                'descripcion' => $incidencia->descripcion,
+                'created_at' => $incidencia->created_at,
+                'fecha_vencimiento' => $incidencia->fecha_vencimiento,
+                'slug' => $incidencia->slug,
+                'persona' => $incidencia->persona ? [
+                    'nombre' => $incidencia->persona->nombre,
+                    'apellido' => $incidencia->persona->apellido,
+                    'cedula' => $incidencia->persona->cedula
+                ] : null,
+                'usuario' => $incidencia->usuario ? [
+                    'empleado_autorizado' => $incidencia->usuario->empleadoAutorizado ? [
+                        'nombre' => $incidencia->usuario->empleadoAutorizado->nombre,
+                        'apellido' => $incidencia->usuario->empleadoAutorizado->apellido,
+                        'cedula' => $incidencia->usuario->empleadoAutorizado->cedula
+                    ] : null
+                ] : null,
+                'nivelIncidencia' => $incidencia->nivelIncidencia ? [
+                    'nombre' => $incidencia->nivelIncidencia->nombre,
+                    'color' => $incidencia->nivelIncidencia->color
+                ] : null,
+                'estadoIncidencia' => $incidencia->estadoIncidencia ? [
+                    'nombre' => $incidencia->estadoIncidencia->nombre,
+                    'color' => $incidencia->estadoIncidencia->color,
+                    'es_resuelto' => $incidencia->estadoIncidencia->es_resuelto
+                ] : null,
+                'direccionIncidencia' => $incidencia->direccionIncidencia ? [
+                    'comunidad' => $incidencia->direccionIncidencia->comunidad ? [
+                        'nombre' => $incidencia->direccionIncidencia->comunidad->nombre
+                    ] : null
+                ] : null
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'incidencias' => $incidenciasTransformadas,
+            'fecha_actualizacion' => now()->format('d-m-Y H:i:s')
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error al filtrar las incidencias:', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al filtrar las incidencias: ' . $e->getMessage(),
+        ], 500);
     }
+}
 
-   public function generarPDF(Request $request)
+  public function generarPDF(Request $request)
 {
     try {
         // Obtener los parámetros de filtrado
@@ -972,9 +983,10 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             return back()->withErrors(['error' => 'La fecha de inicio no puede ser mayor que la fecha de fin.']);
         }
         
-        // Filtros de estado y prioridad
+        // Filtros de estado, prioridad y tipo
         $estado = $request->input('estado', 'Todos');
         $prioridad = $request->input('prioridad', 'Todos');
+        $tipo = $request->input('tipo', 'Todos');
         $codigo = $request->input('codigo', '');
 
         // Obtener las incidencias filtradas con las relaciones necesarias
@@ -982,7 +994,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'persona',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
-            'estadoIncidencia'
+            'estadoIncidencia',
+            'tipoIncidencia' // Añadida esta relación
         ])
         ->whereBetween('created_at', [$fechaInicio, $fechaFin])
         ->when($estado !== 'Todos', function ($query) use ($estado) {
@@ -993,6 +1006,11 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         ->when($prioridad !== 'Todos', function ($query) use ($prioridad) {
             return $query->whereHas('nivelIncidencia', function ($q) use ($prioridad) {
                 $q->where('nombre', $prioridad);
+            });
+        })
+        ->when($tipo !== 'Todos', function ($query) use ($tipo) {
+            return $query->whereHas('tipoIncidencia', function ($q) use ($tipo) {
+                $q->where('nombre', $tipo);
             });
         })
         ->when(!empty($codigo), function ($query) use ($codigo) {
@@ -1014,6 +1032,9 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         if ($prioridad !== 'Todos') {
             $nombreArchivo .= '_prioridad_' . Str::slug($prioridad);
         }
+        if ($tipo !== 'Todos') {
+            $nombreArchivo .= '_tipo_' . Str::slug($tipo);
+        }
         if (!empty($codigo)) {
             $nombreArchivo .= '_codigo_' . Str::slug($codigo);
         }
@@ -1025,7 +1046,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'fechaInicio' => $fechaInicio,
             'fechaFin' => $fechaFin,
             'estado' => $estado,
-            'prioridad' => $prioridad
+            'prioridad' => $prioridad,
+            'tipo' => $tipo // Añadido el tipo a los datos que se pasan a la vista
         ]);
 
         // Descargar el archivo PDF generado

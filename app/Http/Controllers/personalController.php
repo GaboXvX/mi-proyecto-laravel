@@ -15,22 +15,50 @@ class personalController extends Controller
 {
  public function buscar($cedula)
 {
-    $empleado = PersonalReparacion::where('cedula', $cedula)->first();
+    try {
+        // Validar que la cédula solo contenga números y tenga entre 6-8 dígitos
+        if (!preg_match('/^\d{6,8}$/', $cedula)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La cédula debe contener entre 6 y 8 dígitos numéricos'
+            ], 400);
+        }
 
-    if ($empleado) {
+        $empleado = PersonalReparacion::with(['institucion', 'institucionEstacion'])
+            ->where('cedula', $cedula)
+            ->first();
+
+        if ($empleado) {
+            return response()->json([
+                'success' => true,
+                'encontrado' => true,
+                'empleado' => [  // Cambiado de 'data' a 'empleado' para coincidir con el frontend
+                    'nombre' => $empleado->nombre,
+                    'apellido' => $empleado->apellido,
+                    'telefono' => $empleado->telefono,
+                    'nacionalidad' => $empleado->nacionalidad,
+                    'genero' => $empleado->genero,
+                    'id_institucion' => $empleado->id_institucion,
+                    'id_institucion_estacion' => $empleado->id_institucion_estacion,
+                    'institucion_nombre' => $empleado->institucion->nombre ?? null,
+                    'estacion_nombre' => $empleado->institucionEstacion->nombre ?? null,
+                    'estacion_codigo' => $empleado->institucionEstacion->codigo_estacion ?? null
+                ]
+            ]);
+        }
+
         return response()->json([
-            'encontrado' => true,
-            'nombre' => $empleado->nombre,
-            'apellido' => $empleado->apellido,
-            'telefono' => $empleado->telefono,
-            'nacionalidad' => $empleado->nacionalidad,
-            'genero' => $empleado->genero, // Nuevo: incluir género
-            'id_institucion' => $empleado->id_institucion,
-            'id_institucion_estacion' => $empleado->id_institucion_estacion,
+            'success' => true,
+            'encontrado' => false,
+            'message' => 'No se encontró personal con esta cédula'
         ]);
-    }
 
-    return response()->json(['encontrado' => false]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al buscar el personal: ' . $e->getMessage()
+        ], 500);
+    }
 }
 
 public function index()

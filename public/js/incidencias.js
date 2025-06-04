@@ -1,21 +1,35 @@
 class FiltroIncidencias {
-    constructor(codigoInputId, fechaInicioId, fechaFinId, estadoId, prioridadId, tbodyId, url) {
+    constructor(codigoInputId, fechaInicioId, fechaFinId, estadoId, prioridadId, tipoId, tbodyId, url) {
         this.codigoInput = document.getElementById(codigoInputId);
         this.fechaInicio = document.getElementById(fechaInicioId);
         this.fechaFin = document.getElementById(fechaFinId);
         this.estado = document.getElementById(estadoId);
         this.prioridad = document.getElementById(prioridadId);
+        this.tipo = document.getElementById(tipoId);
         this.tbody = document.getElementById(tbodyId);
         this.url = url;
         this.ultimaActualizacion = document.getElementById('ultima-actualizacion');
         this.intervaloActualizacion = null;
 
-        // Event listeners
-        this.codigoInput.addEventListener('input', () => this.filtrarIncidencias());
-        this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
-        this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
-        this.estado.addEventListener('change', () => this.filtrarIncidencias());
-        this.prioridad.addEventListener('change', () => this.filtrarIncidencias());
+        // Verificar que los elementos existan antes de agregar event listeners
+        if (this.codigoInput) {
+            this.codigoInput.addEventListener('input', () => this.filtrarIncidencias());
+        }
+        if (this.fechaInicio) {
+            this.fechaInicio.addEventListener('change', () => this.filtrarIncidencias());
+        }
+        if (this.fechaFin) {
+            this.fechaFin.addEventListener('change', () => this.filtrarIncidencias());
+        }
+        if (this.estado) {
+            this.estado.addEventListener('change', () => this.filtrarIncidencias());
+        }
+        if (this.prioridad) {
+            this.prioridad.addEventListener('change', () => this.filtrarIncidencias());
+        }
+        if (this.tipo) {
+            this.tipo.addEventListener('change', () => this.filtrarIncidencias());
+        }
 
         // Iniciar actualización automática cada 5 minutos (300000 ms)
         this.iniciarActualizacionAutomatica();
@@ -23,14 +37,14 @@ class FiltroIncidencias {
         // Cargar datos iniciales
         this.filtrarIncidencias();
     }
-
     async filtrarIncidencias() {
         const filtros = {
             codigo: this.codigoInput.value,
             fecha_inicio: this.fechaInicio.value,
             fecha_fin: this.fechaFin.value,
             estado: this.estado.value,
-            prioridad: this.prioridad.value
+            prioridad: this.prioridad.value,
+            tipo: this.tipo.value
         };
 
         try {
@@ -62,6 +76,7 @@ class FiltroIncidencias {
             this.mostrarError('Error al conectar con el servidor');
         }
     }
+
 
     iniciarActualizacionAutomatica() {
         // Limpiar intervalo existente si hay uno
@@ -254,37 +269,58 @@ class FiltroIncidencias {
     }
 }
 
-// Inicializar la clase cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    const filtro = new FiltroIncidencias(
+    // Verificar que los elementos requeridos existan antes de crear la instancia
+    const requiredElements = [
         'codigo-busqueda',
         'fecha_inicio',
         'fecha_fin',
         'estado',
         'prioridad',
-        'incidencias-tbody',
-        '/filtrar-incidencia'
-    );
+        'tipo',
+        'incidencias-tbody'
+    ];
 
-    // Configurar el formulario de PDF
-    document.getElementById('generar-pdf-form')?.addEventListener('submit', function (e) {
-        e.preventDefault();
+    const allElementsExist = requiredElements.every(id => document.getElementById(id) !== null);
 
-        const fechaInicio = document.getElementById('fecha_inicio').value || '';
-        const fechaFin = document.getElementById('fecha_fin').value || '';
-        const estado = document.getElementById('estado').value || 'Todos';
-        const prioridad = document.getElementById('prioridad').value || 'Todos';
-        const codigo = document.getElementById('codigo-busqueda').value || '';
+    if (allElementsExist) {
+        const filtro = new FiltroIncidencias(
+            'codigo-busqueda',
+            'fecha_inicio',
+            'fecha_fin',
+            'estado',
+            'prioridad',
+            'tipo',
+            'incidencias-tbody',
+            '/filtrar-incidencia'
+        );
 
-        document.getElementById('pdf-fecha-inicio').value = fechaInicio;
-        document.getElementById('pdf-fecha-fin').value = fechaFin;
-        document.getElementById('pdf-estado').value = estado;
-        document.getElementById('pdf-prioridad').value = prioridad;
-        document.getElementById('pdf-codigo').value = codigo;
+        // Configurar el formulario de PDF
+        const pdfForm = document.getElementById('generar-pdf-form');
+        if (pdfForm) {
+            pdfForm.addEventListener('submit', function (e) {
+                e.preventDefault();
 
+                const fechaInicio = document.getElementById('fecha_inicio').value || '';
+                const fechaFin = document.getElementById('fecha_fin').value || '';
+                const estado = document.getElementById('estado').value || 'Todos';
+                const prioridad = document.getElementById('prioridad').value || 'Todos';
+                const tipo = document.getElementById('tipo').value || 'Todos';
+                const codigo = document.getElementById('codigo-busqueda').value || '';
 
-        this.submit();
-    });
+                document.getElementById('pdf-fecha-inicio').value = fechaInicio;
+                document.getElementById('pdf-fecha-fin').value = fechaFin;
+                document.getElementById('pdf-estado').value = estado;
+                document.getElementById('pdf-prioridad').value = prioridad;
+                document.getElementById('pdf-tipo').value = tipo;
+                document.getElementById('pdf-codigo').value = codigo;
+
+                this.submit();
+            });
+        }
+    } else {
+        console.error('No se encontraron todos los elementos requeridos en el DOM.');
+    }
 });
 
 // Función para el seguimiento del step en las incidencias

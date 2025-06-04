@@ -82,7 +82,17 @@
                         <input type="text" id="codigo-busqueda" name="codigo" class="form-control"
                                value="{{ request('codigo') }}" placeholder="Buscar por código" maxlength="8">
                     </div>
-            
+            <div class="col-md-3">
+                        <label for="tipo" class="form-label">Tipo:</label>
+                        <select class="form-select" id="tipo" name="tipo">
+                            <option value="Todos">Todos</option>
+                            @foreach($tipos as $tipo)
+                                <option value="{{$tipo->nombre  }}" {{ request('tipo') == $tipo->nombre ? 'selected' : '' }}>
+                                    {{ $tipo->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <!-- Estado -->
                     <div class="col-md-3">
                         <label for="estado" class="form-label">Estado:</label>
@@ -136,6 +146,7 @@
             <input type="hidden" id="pdf-fecha-fin" name="fecha_fin" value="{{ request('fecha_fin') }}">
             <input type="hidden" id="pdf-estado" name="estado" value="{{ request('estado') }}">
             <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
+            <input type="hidden" id="pdf-tipo" name="tipo" value="{{ request('tipo') }}">
             <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
             <button type="submit" class="btn btn-primary" title="Descargar PDF">
                 Descargar

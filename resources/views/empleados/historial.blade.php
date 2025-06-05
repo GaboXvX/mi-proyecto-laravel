@@ -155,7 +155,7 @@
     /* Eventos */
     .timeline-event {
         width: 45%;
-        background: white;
+        background-color: light-dark(white, #1e293b);
         border-radius: 8px;
         padding: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);

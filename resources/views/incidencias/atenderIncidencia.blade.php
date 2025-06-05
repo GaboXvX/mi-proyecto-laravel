@@ -67,7 +67,6 @@
                                     <option value="" selected disabled>Seleccione...</option>
                                     <option value="M">Masculino</option>
                                     <option value="F">Femenino</option>
-                                    <option value="O">Otro</option>
                                 </select>
                             </div>
 
@@ -142,6 +141,10 @@
 
 {{-- Scripts --}}
 <script>
+// Variables globales
+let empleadoEncontrado = false;
+let timeoutBuscarEmpleado = null;
+
 function nextStep() {
     document.getElementById('step-1').classList.add('d-none');
     document.getElementById('step-2').classList.remove('d-none');
@@ -152,7 +155,6 @@ function previousStep() {
     document.getElementById('step-1').classList.remove('d-none');
 }
 
-// NUEVO: Limpia la alerta al cambiar los campos
 function limpiarAlertaEmpleado() {
     const info = document.getElementById('empleado-info');
     const mensaje = document.getElementById('empleado-mensaje');
@@ -160,7 +162,6 @@ function limpiarAlertaEmpleado() {
     info.classList.add('d-none');
 }
 
-// MODIFICADO: ahora usa nacionalidad + cedula como ID único
 function buscarEmpleado() {
     const cedula = document.getElementById('cedula').value.trim();
     const empleadoInfo = document.getElementById('empleado-info');
@@ -186,6 +187,7 @@ function buscarEmpleado() {
         })
         .then(data => {
             if (data.encontrado) {
+                empleadoEncontrado = true;
                 empleadoInfo.className = 'alert alert-success mt-3';
                 empleadoMensaje.textContent = `Empleado encontrado: ${data.nombre} ${data.apellido}. Puede ser asignado.`;
 
@@ -193,6 +195,7 @@ function buscarEmpleado() {
                 document.getElementById('nombre').value = data.nombre;
                 document.getElementById('apellido').value = data.apellido;
                 document.getElementById('telefono').value = data.telefono || '';
+                document.getElementById('genero').value = data.genero || '';
                 
                 // Si viene la nacionalidad del backend, la establecemos
                 if (data.nacionalidad) {
@@ -200,29 +203,26 @@ function buscarEmpleado() {
                 }
 
                 // Bloquear campos que vienen del sistema
-                document.getElementById('nombre').readOnly = true;
-                document.getElementById('apellido').readOnly = true;
+                bloquearCamposPersonal();
             } else {
+                empleadoEncontrado = false;
                 empleadoInfo.className = 'alert alert-warning mt-3';
                 empleadoMensaje.textContent = 'Personal no registrado. Puede proceder a registrarlo.';
 
                 // Limpiar campos (excepto cédula y nacionalidad)
-                document.getElementById('nombre').value = '';
-                document.getElementById('apellido').value = '';
-                document.getElementById('telefono').value = '';
-
-                // Dejar campos editables
-                document.getElementById('nombre').readOnly = false;
-                document.getElementById('apellido').readOnly = false;
+                limpiarCamposPersonal();
+                desbloquearCamposPersonal();
             }
         })
         .catch(error => {
+            empleadoEncontrado = false;
             empleadoInfo.className = 'alert alert-danger mt-3';
             empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
+            limpiarCamposPersonal();
+            desbloquearCamposPersonal();
             console.error('Error:', error);
         });
 }
-
 
 // --- CARGA DINÁMICA DE ESTACIONES SEGÚN INSTITUCIÓN ---
 document.getElementById('institucion').addEventListener('change', function() {
@@ -254,14 +254,17 @@ document.getElementById('institucion').addEventListener('change', function() {
 });
 
 // --- BÚSQUEDA AUTOMÁTICA DE PERSONAL POR CÉDULA ---
-const cedulaInput = document.getElementById('cedula');
-let timeoutBuscarEmpleado = null;
-cedulaInput.addEventListener('input', function() {
+document.getElementById('cedula').addEventListener('input', function() {
     clearTimeout(timeoutBuscarEmpleado);
     const cedula = this.value.trim();
+    
     if (cedula.length < 7) {
-        limpiarCamposPersonal();
-        desbloquearCamposPersonal();
+        // Solo limpiar campos si previamente se había encontrado un empleado
+        if (empleadoEncontrado) {
+            limpiarCamposPersonal();
+            desbloquearCamposPersonal();
+            empleadoEncontrado = false;
+        }
         return;
     }
     timeoutBuscarEmpleado = setTimeout(() => buscarEmpleadoAuto(cedula), 400);
@@ -271,12 +274,12 @@ function limpiarCamposPersonal() {
     document.getElementById('nombre').value = '';
     document.getElementById('apellido').value = '';
     document.getElementById('telefono').value = '';
-    document.getElementById('nacionalidad').value = '';
     document.getElementById('genero').value = '';
     document.getElementById('institucion').value = '';
     document.getElementById('estacion').innerHTML = '<option value="" selected disabled>Seleccione una estación</option>';
     document.getElementById('estacion').value = '';
 }
+
 function desbloquearCamposPersonal() {
     ['nombre','apellido','telefono'].forEach(id => {
         const el = document.getElementById(id);
@@ -285,7 +288,13 @@ function desbloquearCamposPersonal() {
             el.classList.remove('bg-light');
         }
     });
-    ['nacionalidad','institucion','estacion'].forEach(id => {
+    
+    // Desbloquear select de género (pero mantenerlo requerido)
+    const generoSelect = document.getElementById('genero');
+    generoSelect.classList.remove('bg-light');
+    generoSelect.removeAttribute('data-readonly');
+    
+    ['institucion','estacion'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.classList.remove('bg-light');
@@ -293,29 +302,23 @@ function desbloquearCamposPersonal() {
         }
     });
 }
+
 function bloquearCamposPersonal() {
-    ['nombre','apellido','telefono','genero'].forEach(id => {
+    ['nombre','apellido','telefono'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.readOnly = true;
             el.classList.add('bg-light');
-            if (el.tagName === 'SELECT') {
-                el.setAttribute('data-readonly', 'true');
-                el.addEventListener('mousedown', function(e) {
-                    if (el.getAttribute('data-readonly') === 'true') {
-                        e.preventDefault();
-                    }
-                });
-                el.addEventListener('keydown', function(e) {
-                    if (el.getAttribute('data-readonly') === 'true') {
-                        e.preventDefault();
-                    }
-                });
-            }
         }
     });
-    // Para los select, solo visualmente deshabilitados, pero no disabled
-    ['nacionalidad','institucion','estacion'].forEach(id => {
+    
+    // Bloquear select de género (pero mantener el valor seleccionado)
+    const generoSelect = document.getElementById('genero');
+    generoSelect.classList.add('bg-light');
+    generoSelect.setAttribute('data-readonly', 'true');
+    
+    // Configurar eventos para prevenir cambios en selects bloqueados
+    ['genero','institucion','estacion'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.classList.add('bg-light');
@@ -341,17 +344,22 @@ function buscarEmpleadoAuto(cedula) {
     empleadoInfo.className = 'alert alert-info mt-3';
     empleadoMensaje.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Buscando empleado...';
     empleadoInfo.classList.remove('d-none');
+
     fetch(`/personal-de-reparaciones/buscar/${cedula}`)
         .then(response => response.json())
         .then(data => {
             if (data.encontrado) {
+                empleadoEncontrado = true;
                 empleadoInfo.className = 'alert alert-success mt-3';
                 empleadoMensaje.textContent = `Empleado encontrado: ${data.nombre} ${data.apellido}. Puede ser asignado.`;
+                
+                // Llenar campos con datos del empleado
                 document.getElementById('nombre').value = data.nombre;
                 document.getElementById('apellido').value = data.apellido;
                 document.getElementById('telefono').value = data.telefono || '';
                 document.getElementById('nacionalidad').value = data.nacionalidad || '';
                 document.getElementById('genero').value = data.genero || '';
+                
                 if (data.id_institucion) {
                     document.getElementById('institucion').value = data.id_institucion;
                     fetch(`/personal-reparacion/estaciones/${data.id_institucion}`)
@@ -373,6 +381,7 @@ function buscarEmpleadoAuto(cedula) {
                 }
                 bloquearCamposPersonal();
             } else {
+                empleadoEncontrado = false;
                 empleadoInfo.className = 'alert alert-warning mt-3';
                 empleadoMensaje.textContent = 'Personal no registrado. Puede proceder a registrarlo.';
                 limpiarCamposPersonal();
@@ -380,6 +389,7 @@ function buscarEmpleadoAuto(cedula) {
             }
         })
         .catch(error => {
+            empleadoEncontrado = false;
             empleadoInfo.className = 'alert alert-danger mt-3';
             empleadoMensaje.textContent = 'Error al buscar el empleado. Intente nuevamente.';
             limpiarCamposPersonal();
@@ -387,7 +397,6 @@ function buscarEmpleadoAuto(cedula) {
             console.error('Error:', error);
         });
 }
-
 
 // Manejo del formulario
 document.getElementById('multi-step-form').addEventListener('submit', function(event) {
@@ -416,7 +425,6 @@ document.getElementById('multi-step-form').addEventListener('submit', function(e
     })
     .then(response => {
         if (!response.ok) {
-            // Si la respuesta no es JSON válida, intenta extraer el mensaje de error
             return response.json().catch(() => {
                 throw new Error('Error inesperado en el servidor.');
             });

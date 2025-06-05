@@ -9,11 +9,8 @@ use App\Models\movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-<<<<<<< HEAD
-=======
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Institucion;
->>>>>>> origin/newbran
 
 class EmpleadoAutorizadoController extends Controller
 {
@@ -40,10 +37,6 @@ class EmpleadoAutorizadoController extends Controller
                 'cargo_id' => 'required|exists:cargos_empleados_autorizados,id_cargo',
                 'genero' => 'required|in:M,F',
                 'nacionalidad'=>'required|in:V,E',
-<<<<<<< HEAD
-=======
-                'nacionalidad'=>'required|in:V,E',
->>>>>>> origin/newbran
                 'telefono' => 'required|string|max:20'
             ], [
                 'nombre.required' => 'El nombre es obligatorio.',
@@ -58,10 +51,6 @@ class EmpleadoAutorizadoController extends Controller
                 'genero.required' => 'El género es obligatorio.',
                 'genero.in' => 'El género seleccionado no es válido.',
                 'nacionalidad.in'=>'La nacionalidad no es validad',
-<<<<<<< HEAD
-=======
-                'nacionalidad.in'=>'La nacionalidad no es validad',
->>>>>>> origin/newbran
                 'telefono.required' => 'El teléfono es obligatorio.',
                 'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.'
             ]);
@@ -71,18 +60,10 @@ class EmpleadoAutorizadoController extends Controller
             $empleado->apellido = $request->apellido;
             $empleado->cedula = $request->cedula;
             $empleado->nacionalidad = $request->nacionalidad;
-<<<<<<< HEAD
-=======
-            $empleado->nacionalidad = $request->nacionalidad;
->>>>>>> origin/newbran
             $empleado->id_cargo = $request->cargo_id;
             $empleado->genero = $request->genero;
             $empleado->telefono = $request->telefono;
             $empleado->es_activo = true; // Asignar por defecto como activo
-<<<<<<< HEAD
-=======
-            $empleado->es_activo = true; // Asignar por defecto como activo
->>>>>>> origin/newbran
             $empleado->save();
 
             return response()->json([
@@ -181,10 +162,6 @@ class EmpleadoAutorizadoController extends Controller
                     'nombre' => $empleado->nombre,
                     'apellido' => $empleado->apellido,
                     'nacionalidad' => $empleado->nacionalidad,
-<<<<<<< HEAD
-=======
-                    'nacionalidad' => $empleado->nacionalidad,
->>>>>>> origin/newbran
                     'genero' => $empleado->genero,
                     'telefono' => $empleado->telefono,
                     'id_cargo' => $empleado->id_cargo
@@ -374,8 +351,6 @@ public function historial($id)
         'historial' => $paginated
     ]);
 }
-<<<<<<< HEAD
-=======
 
 public function descargarHistorial($id)
 {
@@ -464,5 +439,4 @@ public function descargarHistorial($id)
 
     return $pdf->download('historial_' . $empleado->cedula . '.pdf');
 }
->>>>>>> origin/newbran
 }

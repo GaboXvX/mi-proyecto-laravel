@@ -94,7 +94,7 @@
             @forelse ($incidencias as $incidencia)
                 <tr>
                     <td>{{ $incidencia->cod_incidencia }}</td>
-                    <td>{{ $incidencia->tipo_incidencia }}</td>
+                    <td>{{ $incidencia->tipoIncidencia->nombre ?? 'N/A' }}</td>
                     <td>{{ Str::limit($incidencia->descripcion, 50) }}</td>
                     <td>
                         <span style="background-color: {{ $incidencia->nivelIncidencia->color ?? '#6c757d' }}; 

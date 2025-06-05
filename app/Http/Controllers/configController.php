@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Notifications\PasswordChangedNotification;
+use Illuminate\Support\Facades\Log;
 
 class configController extends Controller
 {
@@ -27,59 +29,117 @@ class configController extends Controller
     }
 
     public function actualizar(Request $request, $id_usuario)
-    {
-        $usuario = User::findOrFail($id_usuario);
+{
+    $usuario = User::findOrFail($id_usuario);
 
-        $validator = Validator::make($request->all(), [
-            'nombre_usuario' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users')->ignore($usuario->id_usuario, 'id_usuario')
-            ],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($usuario->id_usuario, 'id_usuario')
-            ],
-            'contraseña' => 'nullable|string|min:8|confirmed',
-        ]);
+    $validator = Validator::make($request->all(), [
+        'nombre_usuario' => [
+            'required',
+            'string',
+            'max:255',
+            Rule::unique('users')->ignore($usuario->id_usuario, 'id_usuario')
+        ],
+        'email' => [
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('users')->ignore($usuario->id_usuario, 'id_usuario')
+        ],
+        'contraseña' => [
+            'nullable',
+            'string',
+            'min:8',
+            'confirmed',
+            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
+        ],
+    ], [
+        'contraseña.regex' => 'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.',
+        'contraseña.min' => 'La contraseña debe tener al menos 8 caracteres.',
+        'contraseña.confirmed' => 'Las contraseñas no coinciden.'
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()
-                ->route('usuarios.configuracion', $usuario->id_usuario)
-                ->withErrors($validator)
-                ->withInput();
-        }
+    if ($validator->fails()) {
+        return redirect()
+            ->route('usuarios.configuracion', $usuario->id_usuario)
+            ->withErrors($validator)
+            ->withInput()
+            ->with('error_type', 'password_validation');
+    }
 
-        try {
-            $usuario->nombre_usuario = $request->nombre_usuario;
-            $usuario->email = $request->email;
+    try {
+        DB::beginTransaction();
 
-            if ($request->filled('contraseña')) {
-                $usuario->password = Hash::make($request->contraseña);
+        $usuario->nombre_usuario = $request->nombre_usuario;
+        $usuario->email = $request->email;
+
+        $changes = [];
+        $passwordChanged = false;
+
+        if ($request->filled('contraseña')) {
+            if (Hash::check($request->contraseña, $usuario->password)) {
+                return redirect()
+                    ->route('usuarios.configuracion', $usuario->id_usuario)
+                    ->with('warning', 'La nueva contraseña no puede ser igual a la actual.')
+                    ->with('error_type', 'same_password');
             }
 
-            $usuario->save();
-
-            // Registrar movimiento
-            Movimiento::create([
-                'id_usuario' => auth()->user()->id_usuario,
-                'id_usuario_afectado' => $usuario->id_usuario,
-                'descripcion' => 'Actualización de configuración de usuario'
-            ]);
-
-            return redirect()
-                ->route('usuarios.configuracion', $usuario->id_usuario)
-                ->with('success', 'Configuración actualizada correctamente');
-                
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('usuarios.configuracion', $usuario->id_usuario)
-                ->with('error', 'Error al actualizar la configuración: ' . $e->getMessage());
+            $usuario->password = Hash::make($request->contraseña);
+            $passwordChanged = true;
+            $changes[] = 'contraseña';
         }
+
+        if ($usuario->isDirty('email')) {
+            $changes[] = 'email';
+        }
+
+        if ($usuario->isDirty('nombre_usuario')) {
+            $changes[] = 'nombre de usuario';
+        }
+
+        $usuario->save();
+
+        // Registrar movimiento
+        $descripcion = 'Actualización de configuración: '.implode(', ', $changes);
+        
+        if ($passwordChanged) {
+            $descripcion .= ' (Cambio de contraseña)';
+            
+            Movimiento::create([
+                'id_usuario' => auth()->id(),
+                'id_usuario_afectado' => $usuario->id_usuario,
+                'descripcion' => 'Cambio de contraseña exitoso'
+            ]);
+            
+            // Opcional: Registrar en log en lugar de enviar email
+            Log::info("Usuario {$usuario->id_usuario} cambió su contraseña");
+        }
+
+        Movimiento::create([
+            'id_usuario' => auth()->id(),
+            'id_usuario_afectado' => $usuario->id_usuario,
+            'descripcion' => $descripcion
+        ]);
+
+        DB::commit();
+
+        $message = 'Configuración actualizada correctamente';
+        if ($passwordChanged) {
+            $message .= '. Tu contraseña ha sido cambiada exitosamente.';
+        }
+
+        return redirect()
+            ->route('usuarios.configuracion')
+            ->with('success', $message);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return redirect()
+            ->route('usuarios.configuracion', $usuario->id_usuario)
+            ->with('error', 'Error al actualizar la configuración: '.$e->getMessage())
+            ->with('error_type', 'general_error');
     }
+}
 
     public function cambiarPreguntas(Request $request, $id_usuario)
     {

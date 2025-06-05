@@ -4,7 +4,6 @@ use App\Http\Controllers\CategoriaPersonaController;
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
 use App\Http\Controllers\DomicilioController;
-use App\Http\Controllers\EmpleadoAutorizadoController;
 use App\Http\Controllers\GraficoIncidenciasController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
@@ -25,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\EmpleadoAutorizadoController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas públicas (sin autenticación)
@@ -62,7 +62,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         Route::post('/empleados/{id}/retirar', [EmpleadoAutorizadoController::class, 'retirar'])
     ->name('empleados.retirar')
     ->middleware(['auth', 'can:editar empleados']);
-
+Route::get('/personal-reparacion/buscar/{cedula}', [personalController::class, 'buscar'])
+    ->name('personal-reparacion.buscar');
 Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 'incorporar'])
     ->name('empleados.incorporar')
     ->middleware(['auth', 'can:editar empleados']);

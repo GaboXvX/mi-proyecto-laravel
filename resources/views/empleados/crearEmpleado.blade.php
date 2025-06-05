@@ -196,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         cedulaError.style.display = 'none';
         cedulaStatus.style.display = 'inline';
+        cedulaStatus.textContent = 'Cédula válida';
         cedulaStatus.classList.remove('text-muted');
         cedulaStatus.classList.add('text-success');
         cedulaInput.classList.add('is-valid');
@@ -254,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Mostrar que se está verificando
         cedulaStatus.style.display = 'inline';
+        cedulaStatus.textContent = 'Verificando cédula...';
         cedulaStatus.classList.remove('text-success', 'text-muted');
         cedulaStatus.classList.add('text-info');
 
@@ -275,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 bloquearCamposEmpleado(data.empleado);
             } else {
                 desbloquearCamposEmpleado();
+                cedulaStatus.textContent = 'Cédula disponible';
                 cedulaStatus.classList.remove('text-info');
                 cedulaStatus.classList.add('text-success');
             }

@@ -81,6 +81,7 @@
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Cédula</th>
+                <th>Nacionalidad</th>
                 <th>Correo</th>
                 <th>Estado</th>
                 <th>Creación</th>
@@ -92,6 +93,7 @@
                     <td>{{ $usuario->empleadoAutorizado->nombre }}</td>
                     <td>{{ $usuario->empleadoAutorizado->apellido }}</td>
                     <td>{{ $usuario->empleadoAutorizado->cedula }}</td>
+                    <td>{{ $usuario->empleadoAutorizado->nacionalidad }}</td>
                     <td>{{ $usuario->email }}</td>
                     <td>
                         @if ($usuario->id_estado_usuario == 1) Aceptado

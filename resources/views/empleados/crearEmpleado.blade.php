@@ -5,11 +5,20 @@
         <h2 class="text-center">Registrar Empleado Autorizado</h2>
         <form action="{{ route('empleados.store') }}" method="POST" id="empleadoForm">
             @csrf
-            <div class="mb-3">
-                <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula</label>
-                <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" required value="{{ old('cedula') }}" maxlength="8">
-                <span id="cedulaStatus" class="text-success" style="display:none;"></span>
-                <span id="cedulaError" class="text-danger" style="display:none;"></span>
+            <div class="row g-2 mb-3">
+                <div class="col-md-8">
+                    <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula</label>
+                    <input type="text" name="cedula" id="cedula" class="form-control solo-numeros" required value="{{ old('cedula') }}" maxlength="8">
+                    <span id="cedulaStatus" class="text-muted" style="display:none;"></span>
+                    <span id="cedulaError" class="text-danger" style="display:none;"></span>
+                </div>
+                <div class="col-md-4">
+                    <label for="nacionalidad" class="form-label"><span style="color: red;" class="me-2">*</span>Nacionalidad</label>
+                    <select name="nacionalidad" id="nacionalidad" class="form-control" required>
+                        <option value="V" {{ old('nacionalidad', 'V') == 'V' ? 'selected' : '' }}>V</option>
+                        <option value="E" {{ old('nacionalidad', 'V') == 'E' ? 'selected' : '' }}>E</option>
+                    </select>
+                </div>
             </div>
 
             <div class="row g-2 mb-3">
@@ -50,7 +59,7 @@
            
             <div class="d-flex justify-content-between">
                 <a href="{{ route('usuarios.index') }}" class="btn btn-secondary">Cancelar</a>
-                <button type="submit" class="btn btn-success">Registrar</button>
+                <button type="submit" class="btn btn-success" id="registrarBtn">Registrar</button>
             </div>
         </form>
         <span class="text-muted d-flex justify-content-center">Los campos señalados con * deben ser rellenados</span>
@@ -58,10 +67,10 @@
 </div>
 
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
-<script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const cedulaInput = document.getElementById('cedula');
+    const nacionalidadInput = document.getElementById('nacionalidad');
     const nombreInput = document.getElementById('nombre');
     const apellidoInput = document.getElementById('apellido');
     const generoInput = document.getElementById('genero');
@@ -70,9 +79,77 @@ document.addEventListener('DOMContentLoaded', function() {
     const registrarBtn = document.getElementById('registrarBtn');
     const cedulaStatus = document.getElementById('cedulaStatus');
     const cedulaError = document.getElementById('cedulaError');
+    const form = document.getElementById('empleadoForm');
 
     let empleadoEncontrado = false;
-    let ultimoEmpleadoBloqueado = null;
+    let ultimaCedulaConsultada = null;
+    let longitudAnteriorCedula = 0;
+
+    // Función para verificar si todos los campos requeridos están llenos
+    function verificarCamposVacios() {
+        const camposRequeridos = [
+            cedulaInput,
+            nombreInput,
+            apellidoInput,
+            generoInput,
+            telefonoInput,
+            cargoInput
+        ];
+        
+        return camposRequeridos.every(campo => campo.value.trim() !== '');
+    }
+
+    // Función para verificar si la cédula tiene longitud válida
+    function verificarLongitudCedula() {
+        return cedulaInput.value.length >= 7 && cedulaInput.value.length <= 8;
+    }
+
+    // Función para actualizar el estado del botón de registro
+    function actualizarEstadoBoton() {
+        const camposCompletos = verificarCamposVacios();
+        const cedulaValida = verificarLongitudCedula();
+        
+        registrarBtn.disabled = empleadoEncontrado || !camposCompletos || !cedulaValida;
+        
+        if (registrarBtn.disabled) {
+            registrarBtn.classList.remove('btn-success');
+            registrarBtn.classList.add('btn-secondary');
+        } else {
+            registrarBtn.classList.remove('btn-secondary');
+            registrarBtn.classList.add('btn-success');
+        }
+    }
+
+    // Asegurar que la nacionalidad tenga un valor válido al cargar
+    if (!nacionalidadInput.value) {
+        nacionalidadInput.value = 'V';
+    }
+
+    // Validación para solo letras en nombre y apellido
+    nombreInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        actualizarEstadoBoton();
+    });
+
+    apellidoInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        actualizarEstadoBoton();
+    });
+
+    // Escuchar cambios en todos los campos requeridos
+    [cedulaInput, generoInput, telefonoInput, cargoInput].forEach(input => {
+        input.addEventListener('input', actualizarEstadoBoton);
+        input.addEventListener('change', actualizarEstadoBoton);
+    });
+
+    nacionalidadInput.addEventListener('change', function() {
+        // Si cambia la nacionalidad, resetear la verificación de cédula
+        ultimaCedulaConsultada = null;
+        if (cedulaInput.value.length >= 7) {
+            cedulaInput.dispatchEvent(new Event('input'));
+        }
+        actualizarEstadoBoton();
+    });
 
     function bloquearCamposEmpleado(data) {
         nombreInput.value = data.nombre;
@@ -80,20 +157,22 @@ document.addEventListener('DOMContentLoaded', function() {
         generoInput.value = data.genero;
         telefonoInput.value = data.telefono;
         cargoInput.value = data.id_cargo;
+        nacionalidadInput.value = data.nacionalidad;
+        
         nombreInput.disabled = true;
         apellidoInput.disabled = true;
         generoInput.disabled = true;
         telefonoInput.disabled = true;
         cargoInput.disabled = true;
-        registrarBtn.disabled = true; // Bloquea el botón de registrar
-        registrarBtn.classList.remove('btn-success');
-        registrarBtn.classList.add('btn-secondary');
+        nacionalidadInput.disabled = true;
+        
+        empleadoEncontrado = true;
+        actualizarEstadoBoton();
+        
         cedulaError.style.display = 'inline';
         cedulaError.textContent = 'La cédula ya está registrada. No puedes registrar este empleado nuevamente.';
         cedulaStatus.style.display = 'none';
         cedulaInput.classList.remove('is-valid');
-        empleadoEncontrado = true;
-        ultimoEmpleadoBloqueado = data.cedula;
     }
 
     function desbloquearCamposEmpleado(limpiar = false) {
@@ -104,49 +183,79 @@ document.addEventListener('DOMContentLoaded', function() {
             telefonoInput.value = '';
             cargoInput.value = '';
         }
+        
         nombreInput.disabled = false;
         apellidoInput.disabled = false;
         generoInput.disabled = false;
         telefonoInput.disabled = false;
         cargoInput.disabled = false;
-        registrarBtn.disabled = false;
-        registrarBtn.classList.remove('btn-secondary');
-        registrarBtn.classList.add('btn-success');
+        nacionalidadInput.disabled = false;
+        
+        empleadoEncontrado = false;
+        actualizarEstadoBoton();
+        
         cedulaError.style.display = 'none';
-        cedulaInput.classList.add('is-valid');
         cedulaStatus.style.display = 'inline';
-        cedulaStatus.textContent = '';
-        cedulaBloqueada = false;
+        cedulaStatus.classList.remove('text-muted');
+        cedulaStatus.classList.add('text-success');
+        cedulaInput.classList.add('is-valid');
     }
 
-    function limpiarValidacionCedula() {
+    function resetearEstadoCedula() {
         cedulaInput.classList.remove('is-valid');
-        cedulaStatus.style.display = 'none';
+        cedulaStatus.style.display = 'inline';
+        cedulaStatus.textContent = 'Ingrese al menos 7 dígitos';
+        cedulaStatus.classList.remove('text-success');
+        cedulaStatus.classList.add('text-muted');
         cedulaError.style.display = 'none';
-        registrarBtn.disabled = false;
-        registrarBtn.classList.remove('btn-secondary');
-        registrarBtn.classList.add('btn-success');
+        actualizarEstadoBoton();
     }
 
     // Verificar cédula al cambiar el input
     cedulaInput.addEventListener('input', function() {
         const cedula = cedulaInput.value.trim();
+        const longitudActual = cedula.length;
+        
+        // Si se está borrando un dígito y previamente se había encontrado un empleado
+        if (empleadoEncontrado && longitudActual < longitudAnteriorCedula) {
+            desbloquearCamposEmpleado(true);
+        }
+        
+        longitudAnteriorCedula = longitudActual;
         
         if (cedula.length === 0) {
-            limpiarValidacionCedula();
-            desbloquearCamposEmpleado(true);
+            resetearEstadoCedula();
+            ultimaCedulaConsultada = null;
             return;
         }
 
-        // Validar formato de cédula si es necesario
+        // Validar formato de cédula
         if (!/^\d+$/.test(cedula)) {
             cedulaError.style.display = 'inline';
             cedulaError.textContent = 'La cédula debe contener solo números';
-            registrarBtn.disabled = true;
+            resetearEstadoCedula();
             return;
         } else {
             cedulaError.style.display = 'none';
         }
+
+        // Resetear estado si tiene menos de 7 dígitos
+        if (cedula.length < 7) {
+            resetearEstadoCedula();
+            return;
+        }
+
+        // Solo consultar si la cédula ha cambiado
+        if (cedula === ultimaCedulaConsultada) {
+            return;
+        }
+        
+        ultimaCedulaConsultada = cedula;
+
+        // Mostrar que se está verificando
+        cedulaStatus.style.display = 'inline';
+        cedulaStatus.classList.remove('text-success', 'text-muted');
+        cedulaStatus.classList.add('text-info');
 
         // Consultar si la cédula existe
         fetch("{{ url('/empleados/verificar-cedula') }}", {
@@ -155,29 +264,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ cedula: cedula })
+            body: JSON.stringify({ 
+                cedula: cedula,
+                nacionalidad: nacionalidadInput.value
+            })
         })
         .then(response => response.json())
         .then(data => {
             if (data.existe) {
                 bloquearCamposEmpleado(data.empleado);
             } else {
-                // Si la cédula que desbloqueó los campos es la misma que la última bloqueada, limpiar
-                if (ultimoEmpleadoBloqueado && cedula !== ultimoEmpleadoBloqueado) {
-                    desbloquearCamposEmpleado(true); // Limpiar campos solo si venía de un bloqueo
-                } else {
-                    desbloquearCamposEmpleado(false); // No limpiar si ya estaba desbloqueado
-                }
+                desbloquearCamposEmpleado();
+                cedulaStatus.classList.remove('text-info');
+                cedulaStatus.classList.add('text-success');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            limpiarValidacionCedula();
+            cedulaStatus.style.display = 'none';
+            cedulaError.style.display = 'inline';
+            cedulaError.textContent = 'Error al verificar la cédula';
         });
     });
 
-    // Envío del formulario
-    const form = document.getElementById('empleadoForm');
+    // Resto del código (envío del formulario) se mantiene igual
     form.addEventListener('submit', function(e) {
         if (empleadoEncontrado) {
             e.preventDefault();
@@ -185,6 +295,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: 'error',
                 title: 'Error',
                 text: 'No puedes registrar un empleado que ya existe',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+
+        // Validar longitud de cédula antes de enviar
+        if (!verificarLongitudCedula()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La cédula debe tener entre 7 y 8 dígitos',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+
+        // Validar campos vacíos antes de enviar
+        if (!verificarCamposVacios()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Todos los campos requeridos deben estar completos',
                 confirmButtonText: 'Entendido'
             });
             return;
@@ -247,10 +381,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         })
         .finally(() => {
-            submitBtn.disabled = empleadoEncontrado;
+            submitBtn.disabled = empleadoEncontrado || !verificarCamposVacios() || !verificarLongitudCedula();
             submitBtn.innerHTML = 'Registrar';
         });
     });
+
+    // Inicializar estado del botón
+    actualizarEstadoBoton();
 });
 </script>
 @endsection

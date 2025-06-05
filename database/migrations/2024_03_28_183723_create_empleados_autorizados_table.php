@@ -16,9 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_cargo');
             $table->string('nombre');
             $table->string('apellido');
+            $table->char('nacionalidad');
             $table->biginteger('cedula');
             $table->char('genero');
             $table->string('telefono');
+            $table->boolean('es_activo');
             $table->timestamps();
         });
     }

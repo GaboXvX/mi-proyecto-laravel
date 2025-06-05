@@ -16,8 +16,10 @@ class EmpleadoAutorizado extends Model
         'id_cargo',
         'nombre',
         'apellido',
+        'nacionalidad',
         'cedula',
         'genero',
+        'es_activo',
         'telefono',
         
         
@@ -33,4 +35,14 @@ class EmpleadoAutorizado extends Model
     {
         return $this->belongsTo(Cargo::class, 'id_cargo', 'id_cargo');
     }
+    // En el modelo EmpleadoAutorizado
+public function observaciones()
+{
+    return $this->hasMany(ObservacionEmpleado::class, 'id_empleado_autorizado');
+}
+// En App\Models\EmpleadoAutorizado.php
+public function user()
+{
+    return $this->hasOne(User::class, 'id_empleado_autorizado'); // Ajusta según tu estructura
+}
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\EmpleadoController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas públicas (sin autenticación)
@@ -58,8 +59,17 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas protegidas (requieren autenticación)
     Route::middleware(['auth'])->group(function () {
         // Autenticación
+        Route::post('/empleados/{id}/retirar', [EmpleadoAutorizadoController::class, 'retirar'])
+    ->name('empleados.retirar')
+    ->middleware(['auth', 'can:editar empleados']);
+
+Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 'incorporar'])
+    ->name('empleados.incorporar')
+    ->middleware(['auth', 'can:editar empleados']);
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-        
+        Route::get('/empleados/historial/{id}', [EmpleadoAutorizadoController::class, 'historial'])
+    ->name('empleados.historial')
+    ->middleware('can:ver empleados');
         // Home
         Route::get('/home', [HomeController::class, 'index'])->name('home');
         Route::get('/home/total-peticiones', [HomeController::class, 'obtenerTotalPeticiones'])->name('home.totalPeticiones');
@@ -170,7 +180,8 @@ Route::group(['middleware' => 'prevent-back-history'], function () {
         // Otras rutas
         Route::post('/descargar-grafico-pdf', [homeController::class, 'descargarGraficoPDF'])->name('grafico.descargar');
         Route::post('/descargar-estadisticas-incidencias', [GraficoIncidenciasController::class, 'descargarEstadisticasIncidencias'])->name('grafico.incidencias.pdf');
-       
+        Route::get('empleados-autorizados/{id}/historial/pdf', [EmpleadoAutorizadoController::class, 'descargarHistorial'])->name('empleados.historial.pdf');
+
         Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])

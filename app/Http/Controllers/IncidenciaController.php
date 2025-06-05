@@ -955,95 +955,94 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         }
     }
 
-   public function generarPDF(Request $request)
-{
-    try {
-        // Obtener los parámetros de filtrado
-        $fechaInicio = $request->input('fecha_inicio') 
-            ? Carbon::parse($request->input('fecha_inicio'))->startOfDay() 
-            : Carbon::parse(Incidencia::min('created_at'))->startOfDay();
-        
-        $fechaFin = $request->input('fecha_fin') 
-            ? Carbon::parse($request->input('fecha_fin'))->endOfDay() 
-            : Carbon::parse(Incidencia::max('created_at'))->endOfDay();
-
-        // Validar que fecha_inicio no sea mayor que fecha_fin
-        if ($fechaInicio > $fechaFin) {
-            return back()->withErrors(['error' => 'La fecha de inicio no puede ser mayor que la fecha de fin.']);
+    public function generarPDF(Request $request)
+    {
+        try {
+            $fechaInicio = $request->input('fecha_inicio') 
+                ? Carbon::parse($request->input('fecha_inicio'))->startOfDay() 
+                : Carbon::parse(Incidencia::min('created_at'))->startOfDay();
+            
+            $fechaFin = $request->input('fecha_fin') 
+                ? Carbon::parse($request->input('fecha_fin'))->endOfDay() 
+                : Carbon::parse(Incidencia::max('created_at'))->endOfDay();
+    
+            if ($fechaInicio > $fechaFin) {
+                return back()->withErrors(['error' => 'La fecha de inicio no puede ser mayor que la fecha de fin.']);
+            }
+    
+            $estado = $request->input('estado', 'Todos');
+            $prioridad = $request->input('prioridad', 'Todos');
+            $codigo = $request->input('codigo', '');
+    
+            $incidencias = Incidencia::with([
+                'persona',
+                'usuario.empleadoAutorizado',
+                'nivelIncidencia',
+                'estadoIncidencia'
+            ])
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->when($estado !== 'Todos', fn($q) => $q->whereHas('estadoIncidencia', fn($q) => $q->where('nombre', $estado)))
+            ->when($prioridad !== 'Todos', fn($q) => $q->whereHas('nivelIncidencia', fn($q) => $q->where('nombre', $prioridad)))
+            ->when(!empty($codigo), fn($q) => $q->where('cod_incidencia', 'like', "%$codigo%"))
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+            if ($incidencias->isEmpty()) {
+                return back()->withErrors(['error' => 'No se encontraron incidencias para los filtros seleccionados.']);
+            }
+    
+            $nombreArchivo = 'reporte_incidencias_' . $fechaInicio->format('Y-m-d') . '_a_' . $fechaFin->format('Y-m-d');
+            if ($estado !== 'Todos') {
+                $nombreArchivo .= '_estado_' . Str::slug($estado);
+            }
+            if ($prioridad !== 'Todos') {
+                $nombreArchivo .= '_prioridad_' . Str::slug($prioridad);
+            }
+            if (!empty($codigo)) {
+                $nombreArchivo .= '_codigo_' . Str::slug($codigo);
+            }
+            $nombreArchivo .= '.pdf';
+    
+            // Obtener institución propietaria
+            $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+    
+            // Logo base64
+            $logoBase64 = null;
+            if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+                $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+                if (file_exists($logoPath)) {
+                    $logoData = base64_encode(file_get_contents($logoPath));
+                    $logoBase64 = 'data:image/png;base64,' . $logoData;
+                }
+            }
+    
+            $membrete = $institucionPropietaria->encabezado_html ?? '';
+            $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+    
+            $pdf = FacadePdf::loadView('incidencias.pdf_table', [
+                'incidencias' => $incidencias,
+                'fechaInicio' => $fechaInicio,
+                'fechaFin' => $fechaFin,
+                'estado' => $estado,
+                'prioridad' => $prioridad,
+                'logoBase64' => $logoBase64,
+                'membrete' => $membrete,
+                'pie_html' => $pie_html
+            ])->setPaper('a4', 'landscape');
+    
+            return $pdf->download($nombreArchivo);
+    
+        } catch (\Exception $e) {
+            Log::error('Error al generar el PDF de incidencias:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            return back()->withInput()->withErrors([
+                'error' => 'Ocurrió un error al generar el reporte. Por favor intente nuevamente.'
+            ]);
         }
-        
-        // Filtros de estado y prioridad
-        $estado = $request->input('estado', 'Todos');
-        $prioridad = $request->input('prioridad', 'Todos');
-        $codigo = $request->input('codigo', '');
-
-        // Obtener las incidencias filtradas con las relaciones necesarias
-        $incidencias = Incidencia::with([
-            'persona',
-            'usuario.empleadoAutorizado',
-            'nivelIncidencia',
-            'estadoIncidencia'
-        ])
-        ->whereBetween('created_at', [$fechaInicio, $fechaFin])
-        ->when($estado !== 'Todos', function ($query) use ($estado) {
-            return $query->whereHas('estadoIncidencia', function ($q) use ($estado) {
-                $q->where('nombre', $estado);
-            });
-        })
-        ->when($prioridad !== 'Todos', function ($query) use ($prioridad) {
-            return $query->whereHas('nivelIncidencia', function ($q) use ($prioridad) {
-                $q->where('nombre', $prioridad);
-            });
-        })
-        ->when(!empty($codigo), function ($query) use ($codigo) {
-            return $query->where('cod_incidencia', 'like', "%$codigo%");
-        })
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-        // Verificar si se encontraron incidencias
-        if ($incidencias->isEmpty()) {
-            return back()->withErrors(['error' => 'No se encontraron incidencias para los filtros seleccionados.']);
-        }
-
-        // Generar el nombre del archivo con base en los filtros
-        $nombreArchivo = 'reporte_incidencias_' . $fechaInicio->format('Y-m-d') . '_a_' . $fechaFin->format('Y-m-d');
-        if ($estado !== 'Todos') {
-            $nombreArchivo .= '_estado_' . Str::slug($estado);
-        }
-        if ($prioridad !== 'Todos') {
-            $nombreArchivo .= '_prioridad_' . Str::slug($prioridad);
-        }
-        if (!empty($codigo)) {
-            $nombreArchivo .= '_codigo_' . Str::slug($codigo);
-        }
-        $nombreArchivo .= '.pdf';
-
-        // Generar el PDF
-        $pdf = FacadePdf::loadView('incidencias.pdf_table', [
-            'incidencias' => $incidencias,
-            'fechaInicio' => $fechaInicio,
-            'fechaFin' => $fechaFin,
-            'estado' => $estado,
-            'prioridad' => $prioridad
-        ]);
-
-        // Descargar el archivo PDF generado
-        return $pdf->download($nombreArchivo);
-
-    } catch (\Exception $e) {
-        // Loguear el error para seguimiento
-        Log::error('Error al generar el PDF de incidencias:', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        // Retornar error con mensaje
-        return back()
-            ->withInput()
-            ->withErrors(['error' => 'Ocurrió un error al generar el reporte. Por favor intente nuevamente.']);
-    }
-}
+    }    
 
 
     public function show($slug)
@@ -1588,6 +1587,7 @@ public function downloadReport(Request $request)
     return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
 }
 
+//descarga los graficos de la vista de estadisticas
 public function descargarEstadisticasIncidencias(Request $request)
 {
     $imagenEstado = $request->input('imagenEstadoChart');

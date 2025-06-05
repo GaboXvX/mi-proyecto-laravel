@@ -424,6 +424,12 @@ footer {
     align-items: center;
 }
 
+.btn-solo{
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
 .btn-next {
     padding: 10px 25px;
     border-radius: 5px;
@@ -476,6 +482,20 @@ footer {
     margin-bottom: 1.5rem;
     border: 1px solid #eee;
 }
+
+.password-rules {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #555;
+}
+.password-rules .rule.valid {
+    color: green;
+}
+.password-rules .rule.invalid {
+    color: red;
+}
+
 
 /* Mensajes de error */
 .error-message {

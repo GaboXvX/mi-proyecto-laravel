@@ -287,6 +287,10 @@ protected function getIncidenciasPorNivel($query)
     $incidenciasPendientes = $request->input('incidenciasPendientes');
     $incidenciasPorVencer = $request->input('incidenciasPorVencer');
 
+    // Nuevos: datos de tablas
+    $tablaEstado = json_decode($request->input('tablaEstado'), true);
+    $tablaNivel = json_decode($request->input('tablaNivel'), true);
+
     $institucion = Institucion::where('es_propietario', 1)->first();
 
     $logoBase64 = null;
@@ -308,6 +312,8 @@ protected function getIncidenciasPorNivel($query)
         'incidenciasAtendidas' => $incidenciasAtendidas,
         'incidenciasPendientes' => $incidenciasPendientes,
         'incidenciasPorVencer' => $incidenciasPorVencer,
+        'tablaEstado' => $tablaEstado,   // nuevo
+        'tablaNivel' => $tablaNivel,     // nuevo
         'logoBase64' => $logoBase64,
         'membrete' => $membrete,
         'pie_html' => $pie_html,

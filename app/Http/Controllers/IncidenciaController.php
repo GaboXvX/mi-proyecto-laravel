@@ -866,6 +866,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 
 
     public function filtrar(Request $request)
+<<<<<<< HEAD
 {
     try {
         $validated = $request->validate([
@@ -967,17 +968,20 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
 }
 
   public function generarPDF(Request $request)
+=======
+>>>>>>> origin/newbran
 {
     try {
-        // Obtener los parámetros de filtrado
-        $fechaInicio = $request->input('fecha_inicio') 
-            ? Carbon::parse($request->input('fecha_inicio'))->startOfDay() 
-            : Carbon::parse(Incidencia::min('created_at'))->startOfDay();
-        
-        $fechaFin = $request->input('fecha_fin') 
-            ? Carbon::parse($request->input('fecha_fin'))->endOfDay() 
-            : Carbon::parse(Incidencia::max('created_at'))->endOfDay();
+        $validated = $request->validate([
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date',
+            'estado' => 'nullable|string',
+            'prioridad' => 'nullable|string',
+            'tipo' => 'nullable|string',
+            'codigo' => 'nullable|string|max:20'
+        ]);
 
+<<<<<<< HEAD
         // Validar que fecha_inicio no sea mayor que fecha_fin
         if ($fechaInicio > $fechaFin) {
             return back()->withErrors(['error' => 'La fecha de inicio no puede ser mayor que la fecha de fin.']);
@@ -990,11 +994,15 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         $codigo = $request->input('codigo', '');
 
         // Obtener las incidencias filtradas con las relaciones necesarias
+=======
+>>>>>>> origin/newbran
         $incidencias = Incidencia::with([
             'persona',
+            'direccionIncidencia.comunidad',
             'usuario.empleadoAutorizado',
             'nivelIncidencia',
             'estadoIncidencia',
+<<<<<<< HEAD
             'tipoIncidencia' // Añadida esta relación
         ])
         ->whereBetween('created_at', [$fechaInicio, $fechaFin])
@@ -1014,16 +1022,78 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             });
         })
         ->when(!empty($codigo), function ($query) use ($codigo) {
+=======
+            'tipoIncidencia'
+        ])
+        ->when($request->codigo, function ($query, $codigo) {
+>>>>>>> origin/newbran
             return $query->where('cod_incidencia', 'like', "%$codigo%");
+        })
+        ->when($request->fecha_inicio && $request->fecha_fin, function ($query) use ($request) {
+            return $query->whereBetween('created_at', [
+                Carbon::parse($request->fecha_inicio)->startOfDay(),
+                Carbon::parse($request->fecha_fin)->endOfDay()
+            ]);
+        })
+        ->when($request->estado && $request->estado !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('estadoIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->estado);
+            });
+        })
+        ->when($request->prioridad && $request->prioridad !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('nivelIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->prioridad);
+            });
+        })
+        ->when($request->tipo && $request->tipo !== 'Todos', function ($query) use ($request) {
+            return $query->whereHas('tipoIncidencia', function ($q) use ($request) {
+                $q->where('nombre', $request->tipo);
+            });
         })
         ->orderBy('created_at', 'desc')
         ->get();
 
-        // Verificar si se encontraron incidencias
-        if ($incidencias->isEmpty()) {
-            return back()->withErrors(['error' => 'No se encontraron incidencias para los filtros seleccionados.']);
-        }
+        // Transformar los datos para que coincidan con la estructura esperada por el frontend
+        $incidenciasTransformadas = $incidencias->map(function ($incidencia) {
+            return [
+                'cod_incidencia' => $incidencia->cod_incidencia,
+                'tipoIncidencia' => $incidencia->tipoIncidencia ? [
+                    'nombre' => $incidencia->tipoIncidencia->nombre
+                ] : null,
+                'descripcion' => $incidencia->descripcion,
+                'created_at' => $incidencia->created_at,
+                'fecha_vencimiento' => $incidencia->fecha_vencimiento,
+                'slug' => $incidencia->slug,
+                'persona' => $incidencia->persona ? [
+                    'nombre' => $incidencia->persona->nombre,
+                    'apellido' => $incidencia->persona->apellido,
+                    'cedula' => $incidencia->persona->cedula
+                ] : null,
+                'usuario' => $incidencia->usuario ? [
+                    'empleado_autorizado' => $incidencia->usuario->empleadoAutorizado ? [
+                        'nombre' => $incidencia->usuario->empleadoAutorizado->nombre,
+                        'apellido' => $incidencia->usuario->empleadoAutorizado->apellido,
+                        'cedula' => $incidencia->usuario->empleadoAutorizado->cedula
+                    ] : null
+                ] : null,
+                'nivelIncidencia' => $incidencia->nivelIncidencia ? [
+                    'nombre' => $incidencia->nivelIncidencia->nombre,
+                    'color' => $incidencia->nivelIncidencia->color
+                ] : null,
+                'estadoIncidencia' => $incidencia->estadoIncidencia ? [
+                    'nombre' => $incidencia->estadoIncidencia->nombre,
+                    'color' => $incidencia->estadoIncidencia->color,
+                    'es_resuelto' => $incidencia->estadoIncidencia->es_resuelto
+                ] : null,
+                'direccionIncidencia' => $incidencia->direccionIncidencia ? [
+                    'comunidad' => $incidencia->direccionIncidencia->comunidad ? [
+                        'nombre' => $incidencia->direccionIncidencia->comunidad->nombre
+                    ] : null
+                ] : null
+            ];
+        });
 
+<<<<<<< HEAD
         // Generar el nombre del archivo con base en los filtros
         $nombreArchivo = 'reporte_incidencias_' . $fechaInicio->format('Y-m-d') . '_a_' . $fechaFin->format('Y-m-d');
         if ($estado !== 'Todos') {
@@ -1048,24 +1118,110 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'estado' => $estado,
             'prioridad' => $prioridad,
             'tipo' => $tipo // Añadido el tipo a los datos que se pasan a la vista
+=======
+        return response()->json([
+            'success' => true,
+            'incidencias' => $incidenciasTransformadas,
+            'fecha_actualizacion' => now()->format('d-m-Y H:i:s')
+>>>>>>> origin/newbran
         ]);
-
-        // Descargar el archivo PDF generado
-        return $pdf->download($nombreArchivo);
-
     } catch (\Exception $e) {
-        // Loguear el error para seguimiento
-        Log::error('Error al generar el PDF de incidencias:', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        // Retornar error con mensaje
-        return back()
-            ->withInput()
-            ->withErrors(['error' => 'Ocurrió un error al generar el reporte. Por favor intente nuevamente.']);
+        Log::error('Error al filtrar las incidencias:', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al filtrar las incidencias: ' . $e->getMessage(),
+        ], 500);
     }
 }
+
+    public function generarPDF(Request $request)
+    {
+        try {
+            $fechaInicio = $request->input('fecha_inicio') 
+                ? Carbon::parse($request->input('fecha_inicio'))->startOfDay() 
+                : Carbon::parse(Incidencia::min('created_at'))->startOfDay();
+            
+            $fechaFin = $request->input('fecha_fin') 
+                ? Carbon::parse($request->input('fecha_fin'))->endOfDay() 
+                : Carbon::parse(Incidencia::max('created_at'))->endOfDay();
+    
+            if ($fechaInicio > $fechaFin) {
+                return back()->withErrors(['error' => 'La fecha de inicio no puede ser mayor que la fecha de fin.']);
+            }
+    
+            $estado = $request->input('estado', 'Todos');
+            $prioridad = $request->input('prioridad', 'Todos');
+            $codigo = $request->input('codigo', '');
+    
+            $incidencias = Incidencia::with([
+                'persona',
+                'usuario.empleadoAutorizado',
+                'nivelIncidencia',
+                'estadoIncidencia'
+            ])
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->when($estado !== 'Todos', fn($q) => $q->whereHas('estadoIncidencia', fn($q) => $q->where('nombre', $estado)))
+            ->when($prioridad !== 'Todos', fn($q) => $q->whereHas('nivelIncidencia', fn($q) => $q->where('nombre', $prioridad)))
+            ->when(!empty($codigo), fn($q) => $q->where('cod_incidencia', 'like', "%$codigo%"))
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+            if ($incidencias->isEmpty()) {
+                return back()->withErrors(['error' => 'No se encontraron incidencias para los filtros seleccionados.']);
+            }
+    
+            $nombreArchivo = 'reporte_incidencias_' . $fechaInicio->format('Y-m-d') . '_a_' . $fechaFin->format('Y-m-d');
+            if ($estado !== 'Todos') {
+                $nombreArchivo .= '_estado_' . Str::slug($estado);
+            }
+            if ($prioridad !== 'Todos') {
+                $nombreArchivo .= '_prioridad_' . Str::slug($prioridad);
+            }
+            if (!empty($codigo)) {
+                $nombreArchivo .= '_codigo_' . Str::slug($codigo);
+            }
+            $nombreArchivo .= '.pdf';
+    
+            // Obtener institución propietaria
+            $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+    
+            // Logo base64
+            $logoBase64 = null;
+            if ($institucionPropietaria && $institucionPropietaria->logo_path) {
+                $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
+                if (file_exists($logoPath)) {
+                    $logoData = base64_encode(file_get_contents($logoPath));
+                    $logoBase64 = 'data:image/png;base64,' . $logoData;
+                }
+            }
+    
+            $membrete = $institucionPropietaria->encabezado_html ?? '';
+            $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+    
+            $pdf = FacadePdf::loadView('incidencias.pdf_table', [
+                'incidencias' => $incidencias,
+                'fechaInicio' => $fechaInicio,
+                'fechaFin' => $fechaFin,
+                'estado' => $estado,
+                'prioridad' => $prioridad,
+                'logoBase64' => $logoBase64,
+                'membrete' => $membrete,
+                'pie_html' => $pie_html
+            ])->setPaper('a4', 'landscape');
+    
+            return $pdf->download($nombreArchivo);
+    
+        } catch (\Exception $e) {
+            Log::error('Error al generar el PDF de incidencias:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+    
+            return back()->withInput()->withErrors([
+                'error' => 'Ocurrió un error al generar el reporte. Por favor intente nuevamente.'
+            ]);
+        }
+    }    
 
 
     public function show($slug)
@@ -1497,7 +1653,7 @@ public function downloadPdf($id)
         'imagenesAntes' => $imagenesAntes,
         'logoBase64' => $logoBase64,
         'membrete' => $membrete,
-        'pie_html' => $pie_html,  // ¡Este es el parámetro que faltaba!
+        'pie_html' => $pie_html,
         'reparacion' => $reparacion,
     ])
     ->setOption('isRemoteEnabled', true)
@@ -1610,6 +1766,7 @@ public function downloadReport(Request $request)
     return $pdf->download('reporte_incidencias_'.now()->format('YmdHis').'.pdf');
 }
 
+//descarga los graficos de la vista de estadisticas
 public function descargarEstadisticasIncidencias(Request $request)
 {
     $imagenEstado = $request->input('imagenEstadoChart');

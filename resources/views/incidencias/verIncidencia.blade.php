@@ -149,6 +149,32 @@
                                     </p>
                                 </div>
                             </div>
+
+                            <!-- Imágenes de la incidencia (Antes) -->
+                            <hr>
+                            <h5 class="mt-4"><i class="fas fa-camera me-2"></i> Imágenes de la Incidencia (Antes)</h5>
+                            <div class="row mt-3">
+                                @php
+                                    $fotosAntes = $incidencia->pruebasFotograficas ? $incidencia->pruebasFotograficas : collect();
+                                @endphp
+                                @forelse($fotosAntes as $foto)
+                                    @if($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
+                                        <div class="col-md-4 mb-3">
+                                            <img src="{{ asset('storage/' . $foto->ruta) }}"
+                                                class="img-fluid rounded shadow"
+                                                alt="Imagen incidencia"
+                                                style="max-height: 250px;">
+                                            @if($foto->observacion)
+                                                <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @empty
+                                    <div class="col-12">
+                                        <p class="text-muted"><em>No hay imágenes adjuntas</em></p>
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -382,41 +408,6 @@
                         <i class="fas fa-exclamation-triangle"></i> Esta incidencia aún no ha sido atendida.
                     </div>
                     @endif
-
-                <!-- Imágenes de la incidencia (Antes) -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingFotos">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFotos" aria-expanded="false" aria-controls="collapseFotos">
-                            <i class="fas fa-camera me-2"></i> Imágenes de la Incidencia (Antes)
-                        </button>
-                    </h2>
-                    <div id="collapseFotos" class="accordion-collapse collapse" aria-labelledby="headingFotos" data-bs-parent="#acordeonPrincipal">
-                        <div class="accordion-body bg-section">
-                            <div class="row">
-                                @php
-                                    $fotosAntes = $incidencia->pruebasFotograficas ? $incidencia->pruebasFotograficas : collect();
-                                @endphp
-                                @forelse($fotosAntes as $foto)
-                                    @if($foto->ruta && file_exists(public_path('storage/' . $foto->ruta)))
-                                        <div class="col-md-4 mb-3">
-                                            <img src="{{ asset('storage/' . $foto->ruta) }}"
-                                                class="img-fluid rounded shadow"
-                                                alt="Imagen incidencia"
-                                                style="max-height: 250px;">
-                                            @if($foto->observacion)
-                                                <div class="mt-2 small text-muted">{{ $foto->observacion }}</div>
-                                            @endif
-                                        </div>
-                                    @endif
-                                @empty
-                                    <div class="col-12">
-                                        <p class="text-muted"><em>No hay imágenes adjuntas</em></p>
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Historial -->
                 @if ($incidencia->movimiento && $incidencia->movimiento->count() > 0)

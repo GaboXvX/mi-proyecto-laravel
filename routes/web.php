@@ -4,7 +4,6 @@ use App\Http\Controllers\CategoriaPersonaController;
 use App\Http\Controllers\configController;
 use App\Http\Controllers\direccionController;
 use App\Http\Controllers\DomicilioController;
-use App\Http\Controllers\EmpleadoAutorizadoController;
 use App\Http\Controllers\GraficoIncidenciasController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncidenciaController;
@@ -24,6 +23,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\EmpleadoAutorizadoController;
 
 Route::group(['middleware' => 'prevent-back-history'], function () {
     // Rutas públicas (sin autenticación)
@@ -180,7 +181,8 @@ Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 
         // Otras rutas
         Route::post('/descargar-grafico-pdf', [homeController::class, 'descargarGraficoPDF'])->name('grafico.descargar');
         Route::post('/descargar-estadisticas-incidencias', [GraficoIncidenciasController::class, 'descargarEstadisticasIncidencias'])->name('grafico.incidencias.pdf');
-       
+        Route::get('empleados-autorizados/{id}/historial/pdf', [EmpleadoAutorizadoController::class, 'descargarHistorial'])->name('empleados.historial.pdf');
+
         Route::resource('personal-reparacion', PersonalController::class, ['parameters' => ['slug']]);
         Route::get('/graficos/incidencias', [GraficoIncidenciasController::class, 'index'])->name('graficos.incidencias');
         Route::get('personal-reparacion/estaciones/{institucion}', [PersonalController::class, 'getEstacionesPorInstitucion'])

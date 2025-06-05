@@ -257,6 +257,11 @@ body {
     white-space: nowrap;
 }
 
+.table-responsive {
+    position: relative;
+    overflow: visible !important;
+}
+
 .table-detalles {
     overflow-x: auto;
     max-height: 250px;

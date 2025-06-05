@@ -31,6 +31,29 @@
         <img src="{{ $imagenGrafico }}" alt="Gráfico de Incidencias">
     </div>
 
+    @if(!empty($tablaDatos))
+    <h4 style="margin-top: 30px;">Resumen de Incidencias</h4>
+    <table width="100%" style="border-collapse: collapse; margin-top: 10px; font-size: 12px;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ccc; padding: 6px;">Mes</th>
+                <th style="border: 1px solid #ccc; padding: 6px;">Tipo</th>
+                <th style="border: 1px solid #ccc; padding: 6px;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($tablaDatos as $fila)
+                <tr>
+                    <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['mes'] }}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['tipo'] }}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px;">{{ $fila['total'] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
+
+
     <div class="footer" style="margin-top: 30px;">
         {!! $pie_html !!}
     </div>

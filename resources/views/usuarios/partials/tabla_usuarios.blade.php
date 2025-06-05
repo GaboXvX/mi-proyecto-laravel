@@ -1,4 +1,4 @@
-<table class="table table-striped align-middle">
+<table class="table table-striped align-middle datatable">
     <thead>
         <tr>
             <th>Nombre</th>

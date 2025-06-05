@@ -9,6 +9,11 @@ use App\Models\movimiento;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+<<<<<<< HEAD
+=======
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Institucion;
+>>>>>>> origin/newbran
 
 class EmpleadoAutorizadoController extends Controller
 {
@@ -35,6 +40,10 @@ class EmpleadoAutorizadoController extends Controller
                 'cargo_id' => 'required|exists:cargos_empleados_autorizados,id_cargo',
                 'genero' => 'required|in:M,F',
                 'nacionalidad'=>'required|in:V,E',
+<<<<<<< HEAD
+=======
+                'nacionalidad'=>'required|in:V,E',
+>>>>>>> origin/newbran
                 'telefono' => 'required|string|max:20'
             ], [
                 'nombre.required' => 'El nombre es obligatorio.',
@@ -49,6 +58,10 @@ class EmpleadoAutorizadoController extends Controller
                 'genero.required' => 'El género es obligatorio.',
                 'genero.in' => 'El género seleccionado no es válido.',
                 'nacionalidad.in'=>'La nacionalidad no es validad',
+<<<<<<< HEAD
+=======
+                'nacionalidad.in'=>'La nacionalidad no es validad',
+>>>>>>> origin/newbran
                 'telefono.required' => 'El teléfono es obligatorio.',
                 'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.'
             ]);
@@ -58,10 +71,18 @@ class EmpleadoAutorizadoController extends Controller
             $empleado->apellido = $request->apellido;
             $empleado->cedula = $request->cedula;
             $empleado->nacionalidad = $request->nacionalidad;
+<<<<<<< HEAD
+=======
+            $empleado->nacionalidad = $request->nacionalidad;
+>>>>>>> origin/newbran
             $empleado->id_cargo = $request->cargo_id;
             $empleado->genero = $request->genero;
             $empleado->telefono = $request->telefono;
             $empleado->es_activo = true; // Asignar por defecto como activo
+<<<<<<< HEAD
+=======
+            $empleado->es_activo = true; // Asignar por defecto como activo
+>>>>>>> origin/newbran
             $empleado->save();
 
             return response()->json([
@@ -160,6 +181,10 @@ class EmpleadoAutorizadoController extends Controller
                     'nombre' => $empleado->nombre,
                     'apellido' => $empleado->apellido,
                     'nacionalidad' => $empleado->nacionalidad,
+<<<<<<< HEAD
+=======
+                    'nacionalidad' => $empleado->nacionalidad,
+>>>>>>> origin/newbran
                     'genero' => $empleado->genero,
                     'telefono' => $empleado->telefono,
                     'id_cargo' => $empleado->id_cargo
@@ -349,4 +374,95 @@ public function historial($id)
         'historial' => $paginated
     ]);
 }
+<<<<<<< HEAD
+=======
+
+public function descargarHistorial($id)
+{
+    $empleado = EmpleadoAutorizado::with(['usuario', 'observaciones'])->findOrFail($id);
+
+    // Lógica del historial (la misma del método `historial`)
+    $eventos = collect();
+
+    $eventos->push([
+        'tipo' => 'creacion_empleado',
+        'fecha' => $empleado->created_at,
+        'titulo' => 'Empleado creado',
+        'descripcion' => 'Registro inicial del empleado',
+        'icono' => 'user-plus',
+        'color' => 'primary'
+    ]);
+
+    if ($empleado->usuario) {
+        $eventos->push([
+            'tipo' => 'creacion_usuario',
+            'fecha' => $empleado->usuario->created_at,
+            'titulo' => 'Solicitud de acceso creada',
+            'descripcion' => 'Solicitud de acceso al sistema registrada',
+            'icono' => 'file-alt',
+            'color' => 'info'
+        ]);
+
+        $movimientos = movimiento::where('id_usuario_afectado', $empleado->usuario->id_usuario)
+            ->where(function($query) {
+                $query->where('descripcion', 'like', '%acept%')
+                      ->orWhere('descripcion', 'like', '%rechaz%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($movimiento) {
+                $esAceptacion = str_contains(strtolower($movimiento->descripcion), 'acept');
+
+                return [
+                    'tipo' => $esAceptacion ? 'aceptacion' : 'rechazo',
+                    'fecha' => $movimiento->created_at,
+                    'titulo' => 'Solicitud ' . ($esAceptacion ? 'aceptada' : 'rechazada'),
+                    'descripcion' => $movimiento->descripcion,
+                    'icono' => $esAceptacion ? 'check-circle' : 'times-circle',
+                    'color' => $esAceptacion ? 'success' : 'danger',
+                    'usuario' => $movimiento->usuario->nombre_usuario ?? 'Sistema'
+                ];
+            });
+
+        $eventos = $eventos->merge($movimientos);
+    }
+
+    $observaciones = $empleado->observaciones->map(function($observacion) {
+        return [
+            'tipo' => $observacion->tipo,
+            'fecha' => $observacion->created_at,
+            'titulo' => $observacion->tipo == 'retiro' ? 'Desincorporación' : 'Incorporación',
+            'descripcion' => $observacion->observacion,
+            'icono' => $observacion->tipo == 'retiro' ? 'user-minus' : 'user-plus',
+            'color' => $observacion->tipo == 'retiro' ? 'danger' : 'success'
+        ];
+    });
+
+    $eventos = $eventos->merge($observaciones)->sortByDesc('fecha')->values();
+
+    // Membrete y pie
+    $institucion = Institucion::where('es_propietario', 1)->first();
+    $logoBase64 = null;
+    if ($institucion && $institucion->logo_path) {
+        $logoPath = public_path('storage/' . $institucion->logo_path);
+        if (file_exists($logoPath)) {
+            $logoData = base64_encode(file_get_contents($logoPath));
+            $logoBase64 = 'data:image/png;base64,' . $logoData;
+        }
+    }
+
+    $membrete = $institucion->encabezado_html ?? '';
+    $pie_html = $institucion->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
+
+    $pdf = Pdf::loadView('empleados.historial_pdf', [
+        'empleado' => $empleado,
+        'historial' => $eventos,
+        'membrete' => $membrete,
+        'pie_html' => $pie_html,
+        'logoBase64' => $logoBase64,
+    ])->setPaper('a4', 'portrait'); // puedes usar 'landscape' si prefieres
+
+    return $pdf->download('historial_' . $empleado->cedula . '.pdf');
+}
+>>>>>>> origin/newbran
 }

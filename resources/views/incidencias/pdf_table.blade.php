@@ -59,7 +59,12 @@
 <body>
     <!-- Membrete -->
     <div class="header">
-        <h1>Ministerio del Poder Popular para la Atención de las Aguas</h1>
+        <div style="text-align: center;">
+            @if(isset($logoBase64))
+                <img src="{{ $logoBase64 }}" style="height: 60px; margin-bottom: 10px;"><br>
+            @endif
+            {!! $membrete !!}
+        </div>
         <p>Listado de Incidencias</p>
         <p>Fecha de generación: {{ now()->format('d-m-Y H:i:s') }}</p>
         <p>Período: {{ \Carbon\Carbon::parse($fechaInicio)->format('d-m-Y') }} al {{ \Carbon\Carbon::parse($fechaFin)->format('d-m-Y') }}</p>
@@ -132,7 +137,13 @@
     <div class="footer">
         Total de incidencias: {{ $incidencias->count() }}<br>
         Generado por: {{ Auth::user()->empleadoAutorizado->nombre ?? 'Sistema' }}<br>
-        Página {PAGENO} de {nbpg}
+
+        @isset($pie_html)
+            {!! $pie_html !!}<br>
+        @endisset
+        <span style="color: #6c757d; font-size: 0.9em;">
+            Generado el {{ now()->format('d/m/Y H:i:s') }}
+        </span>
     </div>
 </body>
 </html>

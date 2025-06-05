@@ -5,10 +5,23 @@
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <div class="card shadow-sm mb-4">
+<<<<<<< HEAD
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Historial de {{ $empleado->nombre }} {{ $empleado->apellido }}</h5>
                         <span class="badge badge-secondary">{{ $empleado->nacionalidad }}-{{ $empleado->cedula }}</span>
+=======
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center position-relative">
+                        <h5 class="mb-0">Historial de {{ $empleado->nombre }} {{ $empleado->apellido }}</h5>
+                        <span class="badge badge-secondary text-secondary">{{ $empleado->nacionalidad }}-{{ $empleado->cedula }}</span>
+                        <a href="{{ route('empleados.historial.pdf', $empleado->id_empleado_autorizado) }}" type="button" class="btn btn-success" title="Descargar Historial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+                            <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                            </svg>
+                        </a>
+>>>>>>> origin/newbran
                     </div>
                 </div>
             </div>
@@ -30,7 +43,11 @@
                                     <h6>{{ $evento['titulo'] }}</h6>
                                     <div class="timeline-date">
                                         <i class="far fa-clock"></i>
+<<<<<<< HEAD
                                         {{ $evento['fecha']->format('d/m/Y H:i') }}
+=======
+                                        {{ $evento['fecha']->format('d/m/Y') }}
+>>>>>>> origin/newbran
                                     </div>
                                     @isset($evento['usuario'])
                                         <small class="text-muted">
@@ -54,6 +71,24 @@
             </div>
         </div>
     </div>
+<<<<<<< HEAD
+=======
+
+    <div class="position-absolute bottom-0 end-0 m-3">
+        <div class="d-flex align-items-center mb-1">
+            <div class="me-2 rounded-circle" style="width: 15px; height: 15px; background-color: #e3342f;"></div>
+            <span>Retirada</span>
+        </div>
+        <div class="d-flex align-items-center mb-1">
+            <div class="me-2 rounded-circle" style="width: 15px; height: 15px; background-color: #38c172;"></div>
+            <span>Incorporación</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <div class="me-2 rounded-circle" style="width: 15px; height: 15px; background-color: #3490dc;"></div>
+            <span>Registro</span>
+        </div>
+    </div>
+>>>>>>> origin/newbran
 </div>
 
 <style>
@@ -134,7 +169,11 @@
     /* Eventos */
     .timeline-event {
         width: 45%;
+<<<<<<< HEAD
         background: white;
+=======
+        background-color: light-dark(white, #1e293b);
+>>>>>>> origin/newbran
         border-radius: 8px;
         padding: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);

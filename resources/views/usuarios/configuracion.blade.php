@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container">
-    <div class="row">
-        <div class="col-md-4">
+    <div class="col">
+        <div class="col-md-4 w-100">
             <!-- Perfil del usuario -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-person-circle me-2"></i>
                         Perfil del Usuario
@@ -43,10 +43,10 @@
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-8 w-100">
             <!-- Configuración de seguridad -->
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="bi bi-shield-lock me-2"></i>
                         Configuración de Seguridad
@@ -89,9 +89,18 @@
                                     </label>
                                     <input type="password" name="contraseña" 
                                            class="form-control form-control-sm" id="inputContraseña"
-                                           placeholder="Ingrese su nueva contraseña" maxlength="18">
+                                           placeholder="Ingrese su nueva contraseña" maxlength="18" oninput="validarPassword()">
                                     <small class="form-text text-muted">Dejar en blanco para no cambiar</small>
                                 </div>
+
+                                <!-- Lista de requisitos -->
+                                <ul class="list-unstyled mt-2 small" id="passwordRequisitos">
+                                    <li id="req-length" class="text-danger">• Mínimo 8 caracteres</li>
+                                    <li id="req-mayus" class="text-danger">• Al menos una letra mayúscula</li>
+                                    <li id="req-minus" class="text-danger">• Al menos una letra minúscula</li>
+                                    <li id="req-num" class="text-danger">• Al menos un número</li>
+                                    <li id="req-special" class="text-danger">• Al menos un carácter especial</li>
+                                </ul>
                             </div>
 
                             <div class="col-md-6">
@@ -215,54 +224,130 @@
     .profile-table {
         width: 100%;
         margin-bottom: 1.5rem;
+        border-radius: 10px;
+        overflow: hidden;
     }
-    
+
     .profile-table th {
-        width: 30%;
+        width: 35%;
+        font-weight: 600;
         padding: 0.75rem;
+        color: #24476c;
     }
-    
+
     .profile-table td {
         padding: 0.75rem;
+        color: #24476c;
     }
 
     .security-questions {
-        border-radius: 5px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
     }
-    
+
     .question-group {
         margin-bottom: 1.5rem;
-        padding: 1rem;
-        border: 1px solid #e9ecef;
-        border-radius: 5px;
+        padding: 1rem 1.25rem;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
     }
-    
+
     .question-group label {
         font-weight: 600;
-        color: #2c3e50;
+        color: #495057;
     }
-    
+
     .btn-change-questions {
-        background-color: #3498db;
-        border-color: #3498db;
-        margin-bottom: 1rem;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.95rem;
+        transition: all 0.2s ease-in-out;
     }
-    
+
     .btn-change-questions:hover {
-        background-color: #2980b9;
-        border-color: #2980b9;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    .modal-header {
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+
+    .modal-content {
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .form-label i {
+        color: #0d6efd;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-success {
+        font-size: 1rem;
+        padding: 0.5rem 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .alert-warning, .alert-info {
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
     }
 
     .option-disabled {
-        color: #6c757d;
-        background-color: #e9ecef;
+        color: #adb5bd;
+        background-color: #f1f1f1;
+    }
+
+    #passwordRequisitos li {
+        transition: color 0.3s ease;
     }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function validarPassword() {
+    const input = document.getElementById("inputContraseña");
+    const password = input.value;
+
+    const reglas = {
+        length: password.length >= 8,
+        mayus: /[A-Z]/.test(password),
+        minus: /[a-z]/.test(password),
+        num: /[0-9]/.test(password),
+        special: /[^A-Za-z0-9]/.test(password)
+    };
+
+    // Actualizar clases visuales
+    document.getElementById("req-length").className = reglas.length ? "text-success" : "text-danger";
+    document.getElementById("req-mayus").className = reglas.mayus ? "text-success" : "text-danger";
+    document.getElementById("req-minus").className = reglas.minus ? "text-success" : "text-danger";
+    document.getElementById("req-num").className = reglas.num ? "text-success" : "text-danger";
+    document.getElementById("req-special").className = reglas.special ? "text-success" : "text-danger";
+
+    const boton = document.getElementById("submitButton");
+
+    // Si el campo está vacío, permitimos el envío
+    if (password === "") {
+        boton.disabled = false;
+        return;
+    }
+
+    // Verifica si todos los requisitos se cumplen
+    const valido = Object.values(reglas).every(v => v);
+    boton.disabled = !valido;
+}
+</script>
+
 <script>
     // Función para actualizar las opciones disponibles en los selects
     function updateQuestionOptions(selectedSelect) {

@@ -60,7 +60,7 @@
             @endif
     <div class="container">
         <div class="content">
-            <h2>Bienvenido al sistema de MinAguas!</h2>
+            <h2>Sistema de gestión de incidencias de agua potable y aguas servidas!</h2>
             <p>Tu plataforma confiable para el manejo de recursos hídricos.</p>
         </div>
         <hr>

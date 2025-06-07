@@ -282,16 +282,16 @@
 
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
+                                    <label for="cedula" class="form-label">Cédula:</label>
+                                    <input type="text" id="cedula" class="form-control" value="{{ $persona->cedula }}" readonly disabled>
+                                </div>
+                                
+                                <div class="col-md-6">
                                     <label for="nacionalidad" class="form-label">Nacionalidad:</label>
                                     <select name="nacionalidad" id="nacionalidad" class="form-select" disabled>
                                         <option value="V" {{ old('nacionalidad', $persona->nacionalidad) == 'V' ? 'selected' : '' }}>V</option>
                                         <option value="E" {{ old('nacionalidad', $persona->nacionalidad) == 'E' ? 'selected' : '' }}>E</option>
                                     </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="cedula" class="form-label">Cédula:</label>
-                                    <input type="text" id="cedula" class="form-control" value="{{ $persona->cedula }}" readonly disabled>
                                 </div>
                             </div>
                             

@@ -89,6 +89,19 @@
 <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const letraInputs = document.querySelectorAll('.solo-letras');
+    letraInputs.forEach(input => {
+        input.addEventListener('input', function () {
+            // Reemplaza todo lo que no sea letra o espacio
+            this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+
+            // Respeta el maxlength
+            const maxLength = this.getAttribute('maxlength');
+            if (maxLength && this.value.length > maxLength) {
+                this.value = this.value.slice(0, maxLength);
+            }
+        });
+    });
     const institucionSelect = document.getElementById('id_institucion');
     const estacionSelect = document.getElementById('id_institucion_estacion');
     const currentEstacionId = "{{ $personalReparacion->id_institucion_estacion }}";

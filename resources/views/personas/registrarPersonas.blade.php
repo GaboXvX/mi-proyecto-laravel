@@ -20,13 +20,6 @@
                     <h5 class="mb-3">Datos Personales</h5>
                     
                     <div class="row g-2 mb-2">
-                        <div class="col-md-3">
-                            <label for="nacionalidad" class="form-label">Nacionalidad:</label>
-                            <select id="nacionalidad" name="nacionalidad" class="form-select" required>
-                                <option value="V">V</option>
-                                <option value="E">E</option>
-                            </select>
-                        </div>
                         <div class="col-md-9">
                             <label for="cedula" class="form-label"><span style="color: red;" class="me-2">*</span>Cédula:</label>
                             <div class="position-relative">
@@ -42,6 +35,14 @@
                             <div id="cedulaError" style="color: red; display: none;">
                                 <small>❌ Esta cédula ya está registrada</small>
                             </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="nacionalidad" class="form-label">Nacionalidad:</label>
+                            <select id="nacionalidad" name="nacionalidad" class="form-select" required>
+                                <option value="V">V</option>
+                                <option value="E">E</option>
+                            </select>
                         </div>
                     </div>
 

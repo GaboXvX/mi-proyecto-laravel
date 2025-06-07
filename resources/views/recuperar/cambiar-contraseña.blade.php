@@ -67,7 +67,7 @@
                 </p>
             </div>
             
-            <button type="submit">Actualizar Contraseña</button>
+            <button type="submit" id="cambiarPassword">Actualizar Contraseña</button>
         </form>
 
         <!-- Formulario para cambiar correo -->
@@ -83,7 +83,46 @@
     </div>
 
     <script src="{{ asset('js/home.js') }}"></script>
-  <script>
+
+<script>
+    const passwordInput = document.getElementById("password");
+    const btncambio = document.getElementById("cambiarPassword");
+
+    const rules = {
+        length: document.getElementById("rule-length"),
+        uppercase: document.getElementById("rule-uppercase"),
+        lowercase: document.getElementById("rule-lowercase"),
+        number: document.getElementById("rule-number"),
+        special: document.getElementById("rule-special")
+    };
+
+    passwordInput.addEventListener("input", function () {
+        const value = passwordInput.value;
+
+        const hasUppercase = /[A-Z]/.test(value);
+        const hasLowercase = /[a-z]/.test(value);
+        const hasNumber = /[0-9]/.test(value);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-+=]/.test(value);
+        const hasMinLength = value.length >= 8;
+
+        toggleClass(rules.uppercase, hasUppercase);
+        toggleClass(rules.lowercase, hasLowercase);
+        toggleClass(rules.number, hasNumber);
+        toggleClass(rules.special, hasSpecial);
+        toggleClass(rules.length, hasMinLength);
+
+        // Solo si todas las condiciones se cumplen, habilita el botón
+        const isValidPassword = hasUppercase && hasLowercase && hasNumber && hasSpecial && hasMinLength;
+        btncambio.disabled = !isValidPassword;
+    });
+
+    function toggleClass(element, condition) {
+        element.classList.toggle("valid", condition);
+        element.classList.toggle("invalid", !condition);
+    }
+</script>
+
+<script>
     // Alternar entre formularios según el selector
     document.getElementById('accionSelector').addEventListener('change', function () {
         const accion = this.value;
@@ -98,7 +137,11 @@
         const formData = new FormData(form);
 
         if (formData.get('password') !== formData.get('password_confirmation')) {
-            alert("Las contraseñas no coinciden.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Las contraseñas no coinciden.'
+            });
             return;
         }
 
@@ -118,25 +161,37 @@
             mensajeDiv.innerHTML = "";
 
             if (data.success) {
-                mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
                     window.location.href = data.redirect_url || "{{ route('login') }}";
-                }, 2000);
+                });
             } else {
                 let errores = "";
                 if (data.errors) {
                     for (const [campo, mensajes] of Object.entries(data.errors)) {
-                        errores += `<div class="alert alert-danger">${mensajes.join("<br>")}</div>`;
+                        errores += `${mensajes.join("<br>")}`;
                     }
                 } else {
-                    errores = `<div class="alert alert-danger">${data.message || 'Error desconocido'}</div>`;
+                    errores = data.message || 'Error desconocido';
                 }
-                mensajeDiv.innerHTML = errores;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: errores
+                });
             }
         } catch (error) {
             console.error("Error:", error);
-            document.getElementById('mensajePassword').innerHTML = 
-                `<div class="alert alert-danger">Error en la conexión. Intente nuevamente.</div>`;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Conexión',
+                text: 'Error en la conexión. Intente nuevamente.'
+            });
         }
     });
 
@@ -147,7 +202,11 @@
         const formData = new FormData(form);
 
         if (formData.get('email') !== formData.get('email_confirmation')) {
-            alert("Los correos electrónicos no coinciden.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Los correos electrónicos no coinciden.'
+            });
             return;
         }
 
@@ -167,25 +226,37 @@
             mensajeDiv.innerHTML = "";
 
             if (data.success) {
-                mensajeDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message,
+                    timer: 2000,
+                    timerProgressBar: true
+                }).then(() => {
                     window.location.href = data.redirect_url || "{{ route('login') }}";
-                }, 2000);
+                });
             } else {
                 let errores = "";
                 if (data.errors) {
                     for (const [campo, mensajes] of Object.entries(data.errors)) {
-                        errores += `<div class="alert alert-danger">${mensajes.join("<br>")}</div>`;
+                        errores += `${mensajes.join("<br>")}`;
                     }
                 } else {
-                    errores = `<div class="alert alert-danger">${data.message || 'Error desconocido'}</div>`;
+                    errores = data.message || 'Error desconocido';
                 }
-                mensajeDiv.innerHTML = errores;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: errores
+                });
             }
         } catch (error) {
             console.error("Error:", error);
-            document.getElementById('mensajeEmail').innerHTML = 
-                `<div class="alert alert-danger">Error en la conexión. Intente nuevamente.</div>`;
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Conexión',
+                text: 'Error en la conexión. Intente nuevamente.'
+            });
         }
     });
 </script>

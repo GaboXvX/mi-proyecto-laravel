@@ -100,49 +100,52 @@ class nivelIncidenciaController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, nivelIncidencia $nivelIncidencia)
-    {
-        $request->validate([
-            // 'nivel' no se puede editar
-            'nombre' => ['required','string','max:30','regex:/^[^\s]+$/'],
-            'descripcion' => ['required','string','max:200','regex:/^(\w+)( \w+)*$/u'],
-            'horas_vencimiento' => 'required|integer|min:0',
-            'dias' => 'nullable|integer|min:0',
-            'color' => 'required|string|max:7',
-        ], [
-            'nombre.regex' => 'El nombre debe ser una sola palabra, sin espacios.',
-            'descripcion.regex' => 'La descripción debe ser palabras separadas por un solo espacio.',
-        ]);
+{
+    $request->validate([
+        'nombre' => ['required','string','max:30','regex:/^[^\s]+$/'],
+        'descripcion' => ['required','string','max:200','regex:/^(\w+)( \w+)*$/u'],
+        'horas_vencimiento' => 'required|integer|min:0',
+        'dias' => 'nullable|integer|min:0',
+        'color' => 'required|string|max:7',
+    ], [
+        'nombre.regex' => 'El nombre debe ser una sola palabra, sin espacios.',
+        'descripcion.regex' => 'La descripción debe ser palabras separadas por un solo espacio.',
+    ]);
 
-        // Sumar días y horas para el campo horas_vencimiento
-        $dias = (int) $request->input('dias', 0);
-        $horas = (int) $request->input('horas_vencimiento', 0);
-        $totalHoras = ($dias * 24) + $horas;
-        if ($totalHoras < 1) {
-            return back()->withErrors(['horas_vencimiento' => 'El tiempo total debe ser al menos 1 hora.'])->withInput();
-        }
-
-        // Validar que el color no esté repetido ni sea similar (ignorando el actual)
-        $color = strtolower($request->input('color'));
-        $hueNuevo = $this->hexToHue($color);
-        $umbral = 18;
-        $coloresExistentes = nivelIncidencia::where('id_nivel_incidencia', '!=', $nivelIncidencia->id_nivel_incidencia)->pluck('color');
-        foreach ($coloresExistentes as $colorExistente) {
-            $hueExistente = $this->hexToHue(strtolower($colorExistente));
-            if (abs($hueNuevo - $hueExistente) < $umbral || abs($hueNuevo - $hueExistente) > (360 - $umbral)) {
-                return back()->withErrors(['color' => 'El color seleccionado es muy similar a uno ya asignado a otro nivel.'])->withInput();
-            }
-        }
-
-        // Validar que el nombre no se parezca a otros (usando la función mejorada del modelo, ignorando el actual)
-        if (nivelIncidencia::nombreEsSimilar($request->input('nombre'), $nivelIncidencia->id_nivel_incidencia)) {
-            return back()->withErrors(['nombre' => 'El nombre es igual o muy similar a otro nivel existente.'])->withInput();
-        }
-
-        $nivelIncidencia->update($request->except('nivel'));
-
-        return redirect()->route('niveles-incidencia.index')
-            ->with('success', 'Nivel de incidencia actualizado exitosamente.');
+    // Sumar días y horas para el campo horas_vencimiento
+    $dias = (int) $request->input('dias', 0);
+    $horas = (int) $request->input('horas_vencimiento', 0);
+    $totalHoras = ($dias * 24) + $horas;
+    if ($totalHoras < 1) {
+        return back()->withErrors(['horas_vencimiento' => 'El tiempo total debe ser al menos 1 hora.'])->withInput();
     }
+
+    // Validar que el color no esté repetido ni sea similar (ignorando el actual)
+    $color = strtolower($request->input('color'));
+    $hueNuevo = $this->hexToHue($color);
+    $umbral = 18;
+    $coloresExistentes = nivelIncidencia::where('id_nivel_incidencia', '!=', $nivelIncidencia->id_nivel_incidencia)->pluck('color');
+    foreach ($coloresExistentes as $colorExistente) {
+        $hueExistente = $this->hexToHue(strtolower($colorExistente));
+        if (abs($hueNuevo - $hueExistente) < $umbral || abs($hueNuevo - $hueExistente) > (360 - $umbral)) {
+            return back()->withErrors(['color' => 'El color seleccionado es muy similar a uno ya asignado a otro nivel.'])->withInput();
+        }
+    }
+
+    // Validar que el nombre no se parezca a otros (usando la función mejorada del modelo, ignorando el actual)
+    if (nivelIncidencia::nombreEsSimilar($request->input('nombre'), $nivelIncidencia->id_nivel_incidencia)) {
+        return back()->withErrors(['nombre' => 'El nombre es igual o muy similar a otro nivel existente.'])->withInput();
+    }
+
+    // Actualizar solo los campos necesarios, convirtiendo días+horas a total horas
+    $data = $request->except(['dias', 'horas_vencimiento']);
+    $data['horas_vencimiento'] = $totalHoras;
+    
+    $nivelIncidencia->update($data);
+
+    return redirect()->route('niveles-incidencia.index')
+        ->with('success', 'Nivel de incidencia actualizado exitosamente.');
+}
 
     /**
      * Remove the specified resource from storage.

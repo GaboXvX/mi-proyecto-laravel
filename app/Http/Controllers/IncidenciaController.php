@@ -1638,5 +1638,29 @@ public function descargarEstadisticasIncidencias(Request $request)
 
     return $pdf->download('estadisticas_incidencias_' . now()->format('Ymd_His') . '.pdf');
 }
+public function buscarPersonalReparacion($cedula)
+{
+    try {
+        $personal = personalReparacion::where('cedula', $cedula)->first();
 
+        if ($personal) {
+            return response()->json([
+                'encontrado' => true,
+                'nombre' => $personal->nombre,
+                'apellido' => $personal->apellido,
+                'telefono' => $personal->telefono,
+                'nacionalidad' => $personal->nacionalidad,
+                'genero' => $personal->genero,
+                'id_institucion' => $personal->id_institucion,
+                'id_institucion_estacion' => $personal->id_institucion_estacion
+            ]);
+        }
+
+        return response()->json(['encontrado' => false]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Error al buscar personal: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

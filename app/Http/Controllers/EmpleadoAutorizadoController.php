@@ -37,7 +37,6 @@ class EmpleadoAutorizadoController extends Controller
                 'cargo_id' => 'required|exists:cargos_empleados_autorizados,id_cargo',
                 'genero' => 'required|in:M,F',
                 'nacionalidad'=>'required|in:V,E',
-                'nacionalidad'=>'required|in:V,E',
                 'telefono' => 'required|string|max:20'
             ], [
                 'nombre.required' => 'El nombre es obligatorio.',
@@ -52,7 +51,6 @@ class EmpleadoAutorizadoController extends Controller
                 'genero.required' => 'El género es obligatorio.',
                 'genero.in' => 'El género seleccionado no es válido.',
                 'nacionalidad.in'=>'La nacionalidad no es validad',
-                'nacionalidad.in'=>'La nacionalidad no es validad',
                 'telefono.required' => 'El teléfono es obligatorio.',
                 'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.'
             ]);
@@ -62,11 +60,9 @@ class EmpleadoAutorizadoController extends Controller
             $empleado->apellido = $request->apellido;
             $empleado->cedula = $request->cedula;
             $empleado->nacionalidad = $request->nacionalidad;
-            $empleado->nacionalidad = $request->nacionalidad;
             $empleado->id_cargo = $request->cargo_id;
             $empleado->genero = $request->genero;
             $empleado->telefono = $request->telefono;
-            $empleado->es_activo = true; // Asignar por defecto como activo
             $empleado->es_activo = true; // Asignar por defecto como activo
             $empleado->save();
 
@@ -165,7 +161,6 @@ class EmpleadoAutorizadoController extends Controller
                 'empleado' => [
                     'nombre' => $empleado->nombre,
                     'apellido' => $empleado->apellido,
-                    'nacionalidad' => $empleado->nacionalidad,
                     'nacionalidad' => $empleado->nacionalidad,
                     'genero' => $empleado->genero,
                     'telefono' => $empleado->telefono,

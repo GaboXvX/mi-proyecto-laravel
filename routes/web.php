@@ -257,3 +257,4 @@ Route::get('/usuario/permisos', [UserController::class, 'misPermisos'])->middlew
 
 // Ruta para editar un empleado autorizado
 Route::get('/empleados/{id}/edit', [EmpleadoAutorizadoController::class, 'edit'])->name('empleados.edit')->middleware(['auth', 'can:editar empleados']);
+Route::get('/personal-de-reparaciones/buscar/{cedula}', [IncidenciaController::class, 'buscarPersonalReparacion'])->middleware('auth');

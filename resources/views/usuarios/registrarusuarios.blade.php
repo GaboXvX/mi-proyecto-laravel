@@ -47,9 +47,11 @@
                 </div>
             </div>
 
-            <div class="password-container">
-                <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
-            </div>
+            
+                <div class="password-container">
+                    <input type="text" name="cargo" id="cargo" class="form-control" placeholder="Cargo" value="{{ old('cargo') }}" required readonly>
+                </div>
+            
 
             <div class="row">
                 <div class="form-group">
@@ -62,7 +64,7 @@
             </div>
 
             <div class="password-container">
-                <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()">
+                <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña segura" required oninput="mostrarIconoOjo()" maxlength="15">
                 <i id="toggleIcon" class="bi bi-eye-slash toggle-password" onclick="togglePassword()" style="display: none;"></i>
                 <span id="password_error" class="error-message"></span>
             </div>

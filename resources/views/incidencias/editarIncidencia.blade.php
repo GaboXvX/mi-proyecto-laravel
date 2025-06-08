@@ -210,7 +210,7 @@
                             @if(isset($imagenesAntes) && $imagenesAntes->count())
                                 @foreach($imagenesAntes as $img)
                                     <div class="col-md-4 mb-2 text-center">
-                                        <img src="{{ asset('storage/' . $img->ruta) }}" alt="Imagen" class="img-fluid rounded border mb-1" style="max-height: 150px;">
+                                    <img src="{{ asset('storage/' . $img->ruta) }}" alt="Imagen" class="img-fluid rounded border mb-1 vista-previa-imagen" data-img-id="{{ $img->id_prueba_fotografica }}" style="max-height: 150px;">
                                         <div>
                                             <button type="button" class="btn btn-outline-primary btn-sm btn-reemplazar-imagen" data-img-id="{{ $img->id_prueba_fotografica }}">Reemplazar</button>
                                         </div>
@@ -245,21 +245,30 @@
 <script src="{{ asset('js/incidencias.js') }}"></script>
 <script src="{{asset('js/editarIncidencias.js')}}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const botones = document.querySelectorAll('.btn-reemplazar-imagen');
+document.addEventListener('DOMContentLoaded', function () {
+    const botones = document.querySelectorAll('.btn-reemplazar-imagen');
 
-        botones.forEach(boton => {
-            boton.addEventListener('click', function () {
-                const imgId = this.getAttribute('data-img-id');
-                const inputFile = document.querySelector(`.input-reemplazo-imagen[data-img-id="${imgId}"]`);
-                
-                if (inputFile) {
-                    inputFile.classList.remove('d-none');
-                    inputFile.click(); // Opcional: abre el diálogo para seleccionar archivo automáticamente
-                }
-            });
+    botones.forEach(boton => {
+        const imgId = boton.getAttribute('data-img-id');
+        const input = document.querySelector(`.input-reemplazo-imagen[data-img-id='${imgId}']`);
+        const img = document.querySelector(`.vista-previa-imagen[data-img-id='${imgId}']`);
+
+        boton.addEventListener('click', function () {
+            input.click(); // Abre el selector de archivos
+        });
+
+        input.addEventListener('change', function () {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         });
     });
+});
 </script>
+
 
 @endsection

@@ -131,7 +131,7 @@
                                 <div class="col-md-6">
                                     <p><span class="label-bold">Código:</span> {{ $incidencia->cod_incidencia }}</p>
                                     <p><span class="label-bold">Tipo:</span> {{ $incidencia->tipoIncidencia->nombre }}</p>
-                                    <p><span class="label-bold">Fecha creación:</span> {{ $incidencia->created_at->format('d/m/Y H:i:s') }}</p>
+                                    <p><span class="label-bold">Fecha creación:</span> {{ $incidencia->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <p><span class="label-bold">Estado:</span>
@@ -145,7 +145,7 @@
                                         </span>
                                     </p>
                                     <p><span class="label-bold">Vencimiento:</span>
-                                        {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->format('d/m/Y H:i:s') : 'Sin fecha' }}
+                                        {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->setTimezone('America/Caracas')->format('d/m/Y h:i A') : 'Sin fecha' }}
                                     </p>
                                 </div>
                             </div>
@@ -350,7 +350,7 @@
                             <div class="accordion-body bg-section">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p><strong>Fecha de atención:</strong> {{ $reparacion->created_at->format('d/m/Y H:i:s') }}
+                                        <p><strong>Fecha de atención:</strong> {{ $reparacion->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}
                                         </p>
                                         <p><strong>Descripción:</strong></p>
                                         <div class="p-3 rounded mb-3">

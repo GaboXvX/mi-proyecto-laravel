@@ -74,17 +74,20 @@
         }
     </style>
 </head>
-<body>
-
 <header>
-    <div style="text-align: center;">
+    <div class="header-content">
         @if(isset($logoBase64))
-            <img src="{{ $logoBase64 }}" style="height: 60px; margin-bottom: 10px;"><br>
+            <img src="{{ $logoBase64 }}" style="height: 50px; margin-bottom: 5px; max-width: 200px;"><br>
         @endif
-        {!! $membrete !!}
+        <div style="font-size: 13px; line-height: 1.2; padding: 0 20px;">
+            {!! ucwords($membrete) !!}
+        </div>
     </div>
 </header>
+<body>
 
+
+<br><br>
 <footer>
     @isset($pie_html)
         {!! $pie_html !!}<br>
@@ -105,7 +108,7 @@
         <div class="row">
             <div class="col-6">
                 <p><span class="label-bold">Tipo:</span> {{ $incidencia->tipoIncidencia->nombre }}</p>
-                <p><span class="label-bold">Fecha creación:</span> {{ $incidencia->created_at->format('d/m/Y H:i:s') }}</p>
+                <p><span class="label-bold">Fecha creación:</span> {{ $incidencia->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>
             </div>
             <div class="col-6">
                 <p><span class="label-bold">Estado:</span>
@@ -119,7 +122,7 @@
                     </span>
                 </p>
                 <p><span class="label-bold">Vencimiento:</span>
-                    {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->format('d/m/Y H:i:s') : 'Sin fecha' }}
+                    {{ $incidencia->fecha_vencimiento ? $incidencia->fecha_vencimiento->setTimezone('America/Caracas')->format('d/m/Y h:i A') : 'Sin fecha' }}
                 </p>
             </div>
         </div>
@@ -179,6 +182,8 @@
 </div>
 @endif
     <!-- Descripción -->
+    <br><br>
+    <br>
     <div class="section">
         <div class="section-title">Descripción</div>
         <div class="box">{{ $incidencia->descripcion }}</div>
@@ -209,52 +214,7 @@
         @endif
     </div>
 
-    <div class="mt-3">
-    <h5><i class="fas fa-camera"></i> Pruebas Fotográficas</h5>
-    <div class="row">
-        @if(isset($reparacion) && $reparacion && $reparacion->pruebasFotograficas && $reparacion->pruebasFotograficas->isNotEmpty())
-            @foreach($reparacion->pruebasFotograficas as $foto)
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        @php
-                            // Si estamos generando PDF (logoBase64 está presente), usar base64 para la imagen
-                            $isPdf = isset($logoBase64);
-                            $imgSrc = '';
-                            if ($isPdf && $foto->ruta && file_exists(public_path('storage/'.$foto->ruta))) {
-                                $imgData = base64_encode(file_get_contents(public_path('storage/'.$foto->ruta)));
-                                $imgSrc = 'data:image/jpeg;base64,' . $imgData;
-                            } else {
-                                $imgSrc = asset('storage/'.$foto->ruta);
-                            }
-                        @endphp
-                        <img src="{{ $imgSrc }}"
-                             class="card-img-top img-fluid"
-                             alt="Prueba fotográfica"
-                             style="max-height: 250px; object-fit: cover;">
-                        <div class="card-body">
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    {{ $foto->observacion ?? 'Sin descripción' }}
-                                </small>
-                            </p>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    {{ $foto->created_at->format('d/m/Y H:i') }}
-                                </small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No se encontraron pruebas fotográficas asociadas a esta reparación.
-                </div>
-            </div>
-        @endif
-    </div>
-</div>
+    
 
     <!-- Historial -->
     @if ($incidencia->movimiento && $incidencia->movimiento->count() > 0)
@@ -297,7 +257,53 @@
             @endforelse
         </div>
     </div>
-
+    <br>
+<div class="mt-3">
+        <div class="section-title">Imágenes de la Incidencia (Después)</div>
+    <div class="row">
+        @if(isset($reparacion) && $reparacion && $reparacion->pruebasFotograficas && $reparacion->pruebasFotograficas->isNotEmpty())
+            @foreach($reparacion->pruebasFotograficas as $foto)
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        @php
+                            // Si estamos generando PDF (logoBase64 está presente), usar base64 para la imagen
+                            $isPdf = isset($logoBase64);
+                            $imgSrc = '';
+                            if ($isPdf && $foto->ruta && file_exists(public_path('storage/'.$foto->ruta))) {
+                                $imgData = base64_encode(file_get_contents(public_path('storage/'.$foto->ruta)));
+                                $imgSrc = 'data:image/jpeg;base64,' . $imgData;
+                            } else {
+                                $imgSrc = asset('storage/'.$foto->ruta);
+                            }
+                        @endphp
+                        <img src="{{ $imgSrc }}"
+                             class="card-img-top img-fluid"
+                             alt="Prueba fotográfica"
+                             style="max-height: 250px; object-fit: cover;">
+                        <div class="card-body">
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ $foto->observacion ?? 'Sin descripción' }}
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ $foto->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No se encontraron pruebas fotográficas asociadas a esta reparación.
+                </div>
+            </div>
+        @endif
+    </div>
+</div>
 </main>
 
 </body>

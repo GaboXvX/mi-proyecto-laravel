@@ -1,158 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Incidencia #{{ $incidencia->cod_incidencia }}</title>
     <style>
+        /* Estilos personalizados */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             color: #333;
         }
 
         .container {
             width: 100%;
             max-width: 800px;
-            margin: 20px auto;
-            padding: 30px;
+            margin: 0 auto;
+            padding: 20px;
             background-color: #fff;
-            border: 1px solid #ddd;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        .header h1 {
-            font-size: 32px;
-            color: #003366;
+        .header h2 {
+            font-size: 24px;
+            color: #204a77;
             margin-bottom: 5px;
         }
 
         .header p {
-            font-size: 16px;
+            font-size: 14px;
             color: #777;
             margin-top: 0;
         }
 
         .details-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 6px;
             border: 1px solid #eee;
+            background-color: #f9f9f9;
         }
 
         .details-section h3 {
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: #003366;
-            border-bottom: 2px solid #003366;
-            padding-bottom: 8px;
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            color: #204a77;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
         }
 
         .details-section p {
-            font-size: 14px;
-            margin: 5px 0;
+            font-size: 13px;
+            margin: 3px 0;
+            line-height: 1.3;
         }
 
         .footer {
             text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #888;
-            padding-top: 10px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #666;
+            padding-top: 8px;
             border-top: 1px solid #eee;
         }
 
-        /* Estilos para badges de estado y nivel */
-        .badge-priority {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .badge-status {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: white;
+        /* Estilos para badges */
+        .priority-badge, .status-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            display: inline-block;
         }
 
         .time-remaining {
-            font-weight: bold;
+            font-size: 12px;
+            padding: 3px 6px;
         }
 
         .time-critical {
             color: #dc3545;
-            animation: blink 1s step-end infinite;
         }
 
-        @keyframes blink {
-            50% { opacity: 0.5; }
+        .membrete {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .membrete img {
+            max-height: 60px;
+            margin-bottom: 5px;
+        }
+
+         .membrete h3 {
+    font-size: 1.03rem; /* Equivalente a ~20px (depende del tamaño base) */
+    word-wrap: break-word; /* Opcional: para textos muy largos */
+}
+        .membrete p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
+        /* Estilo para listas compactas */
+        ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            font-size: 13px;
+            margin-bottom: 3px;
         }
     </style>
-    <title>Comprobante de Incidencia</title>
 </head>
-
 <body>
-    <div class="table-container">
+    <div class="container">
+        <!-- Membrete institucional -->
+        @if(isset($institucionPropietaria))
+            <div class="membrete">
+                @if($institucionPropietaria->logo_path)
+                    <img src="{{ storage_path('app/public/' . $institucionPropietaria->logo_path) }}" alt="Logo">
+                @endif
+<h3>{{ ucwords($institucionPropietaria->encabezado_html) }}</h3>            </div>
+        @endif
+
         <div class="header">
             <h2>Comprobante de Incidencia</h2>
             <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
         </div>
 
         <div class="details-section">
-            <h3>Información de la Incidencia:</h3>
-            <p><strong>Código de Incidencia:</strong> {{ $incidencia->cod_incidencia }}</p>
+            <h3>Información de la Incidencia</h3>
+            <p><strong>Código:</strong> {{ $incidencia->cod_incidencia }}</p>
             <p><strong>Descripción:</strong> {{ $incidencia->descripcion }}</p>
-            <p><strong>Tipo de Incidencia:</strong> {{ $incidencia->tipoIncidencia->nombre }}</p>
-            
-            <!-- Nivel de Prioridad con estilo -->
-            <p><strong>Nivel de Prioridad:</strong> 
-                <span class="badge-priority" style="background-color: {{ $incidencia->nivelIncidencia->color }}">
-                    {{ $incidencia->nivelIncidencia->nombre }} (Nivel {{ $incidencia->nivelIncidencia->nivel }})
+            <p><strong>Tipo:</strong> {{ $incidencia->tipoIncidencia->nombre }}</p>
+            <p><strong>Prioridad:</strong> 
+                <span class="priority-badge" style="background-color: {{ $nivel->color }}; color: white;">
+                    {{ $nivel->nombre }} (Nivel {{ $nivel->nivel }})
                 </span>
             </p>
-            
-            <!-- Estado con estilo -->
             <p><strong>Estado:</strong> 
-                <span class="badge-status" style="background-color: {{ $incidencia->estadoIncidencia->color ?? '#6c757d' }}">
-                    {{ $incidencia->estadoIncidencia->nombre }}
+                <span class="status-badge" style="background-color: {{ $estado->color ?? '#6c757d' }}; color: white;">
+                    {{ $estado->nombre }}
                 </span>
             </p>
-            
-            <p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->format('d/m/Y H:i') }}</p>
-            
-            <!-- Tiempo restante si aplica -->
-            @if(!($incidencia->estadoIncidencia->nombre=='atendido') && $incidencia->fecha_vencimiento)
-            <p><strong>Tiempo Estimado:</strong> 
+<p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>                
+            @if(!($incidencia->estadoIncidencia->nombre == 'Atendido') && $incidencia->fecha_vencimiento)
+                <p><strong>Tiempo Restante:</strong> 
                     <span class="time-remaining @if(now()->gt($incidencia->fecha_vencimiento) || now()->diffInHours($incidencia->fecha_vencimiento) < 12) time-critical @endif">
                         @if(now()->gt($incidencia->fecha_vencimiento))
                             VENCIDO
                         @else
-                            {{ now()->diff($incidencia->fecha_vencimiento)->format('%d días %h horas %i minutos') }}
+                            {{ $tiempoRestante->format('%d días %h horas %i minutos') }}
                         @endif
                     </span>
                 </p>
-                <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->format('d/m/Y H:i') }}</p>
+                    <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>
             @endif
         </div>
 
         @if(isset($incidencia->persona))
         <div class="details-section">
-            <h3>Información de la Persona Afectada:</h3>
+            <h3>Persona Afectada</h3>
             <p><strong>Nombre:</strong> {{ $incidencia->persona->nombre }} {{ $incidencia->persona->apellido }}</p>
-            <p><strong>Cédula:</strong> {{ $incidencia->persona->cedula }}</p>
+            <p><strong>Cédula:</strong> <strong>{{ $incidencia->persona->nacionalidad }}</strong>-{{ $incidencia->persona->cedula }}</p>
             <p><strong>Teléfono:</strong> {{ $incidencia->persona->telefono }}</p>
             <p><strong>Género:</strong> {{ $incidencia->persona->genero ?? 'N/A' }}</p>
         </div>
@@ -160,47 +176,47 @@
 
         @if(isset($incidencia->direccionIncidencia))
         <div class="details-section">
-            <h3>Lugar de la Incidencia:</h3>
-            <p><strong>Estado:</strong> {{ $incidencia->direccionIncidencia->estado->nombre }}</p>
-            <p><strong>Municipio:</strong> {{ $incidencia->direccionIncidencia->municipio->nombre }}</p>
-            <p><strong>Parroquia:</strong> {{ $incidencia->direccionIncidencia->parroquia->nombre }}</p>
-            <p><strong>Urbanización:</strong> {{ $incidencia->direccionIncidencia->urbanizacion->nombre }}</p>
-            <p><strong>Sector:</strong> {{ $incidencia->direccionIncidencia->sector->nombre }}</p>
-                            <p><strong>Comunidad:</strong> {{ $incidencia->direccionIncidencia->comunidad->nombre }}</p>
-
-            <p><strong>Calle:</strong> {{ $incidencia->direccionIncidencia->calle }}</p>
-            <p><strong>Punto de Referencia:</strong> {{ $incidencia->direccionIncidencia->punto_de_referencia }}</p>
+            <h3>Ubicación</h3>
+            <p><strong>Estado/Municipio/Parroquia:</strong> 
+                {{ $incidencia->direccionIncidencia->estado->nombre }} / 
+                {{ $incidencia->direccionIncidencia->municipio->nombre }} / 
+                {{ $incidencia->direccionIncidencia->parroquia->nombre }}
+            </p>
+            <p><strong>Zona:</strong> 
+                {{ $incidencia->direccionIncidencia->urbanizacion->nombre }} / 
+                {{ $incidencia->direccionIncidencia->sector->nombre }} / 
+                {{ $incidencia->direccionIncidencia->comunidad->nombre }}
+            </p>
+            <p><strong>Calle/Referencia:</strong> 
+                {{ $incidencia->direccionIncidencia->calle }} / 
+                {{ $incidencia->direccionIncidencia->punto_de_referencia }}
+            </p>
         </div>
         @endif
 
         <div class="details-section">
-            <h3>Institución Responsable:</h3>
+            <h3>Institución Responsable</h3>
             <p><strong>Institución:</strong> {{ $incidencia->institucion->nombre }}</p>
-            @if(isset($incidencia->institucionEstacion))
-                <p><strong>Estación:</strong> {{ $incidencia->institucionEstacion->nombre }}</p>
-            @else
-                <p><em>No hay estación asignada.</em></p>
-            @endif
+            <p><strong>Estación:</strong> {{ $incidencia->institucionEstacion->nombre ?? 'No asignada' }}</p>
         </div>
-  @if($incidencia->institucionesApoyo->isNotEmpty())
-<div class="details-section">
-    <h3>Instituciones de Apoyo:</h3>
-    <ul>
-        @foreach($incidencia->institucionesApoyo as $institucionApoyo)
-            <li>
-                <strong>Institución:</strong> {{ $institucionApoyo->institucion->nombre }}
-                @if($institucionApoyo->Estacion)
-                    <br><strong>Estación:</strong> {{ $institucionApoyo->Estacion->nombre }}
-                @endif
-            </li>
-        @endforeach
-    </ul>
-</div>
-@endif
+
+        @if($incidencia->institucionesApoyo->isNotEmpty())
+        <div class="details-section">
+            <h3>Instituciones de Apoyo ({{ $incidencia->institucionesApoyo->count() }})</h3>
+            @foreach($incidencia->institucionesApoyo as $institucionApoyo)
+                <p>
+                    <strong>{{ $institucionApoyo->institucion->nombre }}</strong>
+                    @if($institucionApoyo->Estacion)
+                        (Estación: {{ $institucionApoyo->Estacion->nombre }})
+                    @endif
+                </p>
+            @endforeach
+        </div>
+        @endif
+
         <div class="footer">
-            <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
+            {!! $pie_html ?? 'Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas)' !!}
         </div>
     </div>
 </body>
-
 </html>

@@ -126,7 +126,7 @@ Route::post('/empleados/{id}/incorporar', [EmpleadoAutorizadoController::class, 
             Route::get('/incidencias/{slug}/edit/{persona_slug?}', 'edit')->name('incidencias.edit');
             Route::post('/filtrar-incidencia', 'filtrar')->name('filtrar.incidencia');
             Route::post('/incidencias/download', 'download')->name('incidencias.download');
-            Route::get('/incidencias/descargar/{slug}', 'descargar')->name('incidencias.descargar')->middleware('can:descargar grafica incidencia');
+            Route::get('/incidencias/descargar/{slug}', 'descargar')->name('incidencias.descargar');
             Route::post('/filtrar-incidencias-por-fechas', 'filtrarPorFechas')->name('filtrar.incidencias.fechas');
             Route::post('/incidencias/generar-pdf', 'generarPDF')->name('incidencias.generarPDF')->middleware('can:descargar listado incidencias');
             Route::get('/incidencias/chart', 'showChart')->name('estadisticas')->middleware('can:ver grafica incidencia');

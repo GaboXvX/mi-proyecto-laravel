@@ -63,8 +63,7 @@
                         <span class="text-muted">N/A</span>
                     @endif
                 </td>
-                <td>{{ $usuario->created_at ?? '-' }}</td>
-                <td>
+<td>{{ $usuario->created_at ? $usuario->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') : '-' }}</td>                <td>
                     @if (empty($usuario->empleadoAutorizado))
                         <span class="text-muted">No disponible</span>
                     @else
@@ -204,8 +203,7 @@
                         <span class="badge bg-danger">No</span>
                     @endif
                 </td>
-                <td>{{ $empleado->created_at }}</td>
-                <td>
+<td>{{ $empleado->created_at?->setTimezone('America/Caracas')->format('d/m/Y h:i A') ?? '-' }}</td>                <td>
                     <div class="dropdown">
                         <button class="btn btn-link text-dark p-0 m-0" type="button" id="dropdownMenuButton-empleado-{{ $empleado->id_empleado_autorizado }}" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-three-dots-vertical"></i>

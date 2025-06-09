@@ -283,12 +283,21 @@ class UserController extends Controller
 
     public function downloadUsuariosPdf()
 {
-    $usuarios = User::with('empleadoAutorizado')->get();
+    // Obtener usuarios registrados con empleadoAutorizado
+    $usuariosRegistrados = User::with('empleadoAutorizado')->get();
+    
+    // Obtener IDs de empleados que ya tienen usuario
+    $idsUsuarios = $usuariosRegistrados->pluck('empleadoAutorizado.id_empleado_autorizado')->filter()->toArray();
+    
+    // Obtener empleados autorizados sin usuario
+    $empleadosSinUsuario = \App\Models\EmpleadoAutorizado::with('cargo')
+        ->whereNotIn('id_empleado_autorizado', $idsUsuarios)
+        ->get();
 
     // Obtener la institución propietaria
     $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
 
-    // Obtener el logo de la institución en base64
+    // Obtener el logo de la institución en base64 (usando el mismo método que en IncidenciaController)
     $logoBase64 = null;
     if ($institucionPropietaria && $institucionPropietaria->logo_path) {
         $logoPath = public_path('storage/' . $institucionPropietaria->logo_path);
@@ -298,19 +307,16 @@ class UserController extends Controller
         }
     }
 
-    // Encabezado y pie de página
-    $membrete = $institucionPropietaria->encabezado_html ?? '';
-    $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
-
     // Generar el PDF
     $pdf = Pdf::loadView('usuarios.listaUsuarios_pdf', [
-        'usuarios' => $usuarios,
+        'usuariosRegistrados' => $usuariosRegistrados,
+        'empleadosSinUsuario' => $empleadosSinUsuario,
         'logoBase64' => $logoBase64,
-        'membrete' => $membrete,
-        'pie_html' => $pie_html,
+        'membrete' => optional($institucionPropietaria)->encabezado_html,
+        'pie_html' => optional($institucionPropietaria)->pie_html,
     ])->setPaper('a4', 'landscape');
 
-    return $pdf->download('lista_de_empleados.pdf');
+    return $pdf->download('lista_completa_empleados_' . now()->format('Ymd_His') . '.pdf');
 }
     
     public function renovarIntentos($id_usuario)

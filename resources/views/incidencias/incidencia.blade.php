@@ -104,8 +104,38 @@
                 display: none;
             }
         }
+        .membrete {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .membrete img {
+            max-height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .membrete h3 {
+    font-size: 1.05rem; /* Equivalente a ~20px (depende del tamaño base) */
+    word-wrap: break-word; /* Opcional: para textos muy largos */
+}
+
+        .membrete p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
     </style>
-   
+    <main >
+        <!-- Membrete de la institución propietaria -->
+        @if(isset($institucionPropietaria))
+            <div class="membrete">
+                @if($institucionPropietaria->logo_path)
+                    <img src="{{ asset('storage/' . $institucionPropietaria->logo_path) }}" alt="Logo">
+                @endif
+<h3>{{ ucwords($institucionPropietaria->encabezado_html) }}</h3>
+                 </div>
+        @endif
             <div class="header">
                 <h2>Comprobante de Incidencia</h2>
                 <p>Detalles de la Incidencia #{{ $incidencia->id_incidencia }}</p>
@@ -131,8 +161,7 @@
                     </span>
                 </p>
                 
-                <p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->format('d/m/Y H:i') }}</p>
-                
+<p><strong>Fecha de Creación:</strong> {{ $incidencia->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>                
                 <!-- Mostrar Tiempo Restante si aplica -->
                 @if(!($incidencia->estadoIncidencia->nombre=='atendido') && $incidencia->fecha_vencimiento)
                     <p><strong>Tiempo Estimado:</strong> 
@@ -144,7 +173,7 @@
                             @endif
                         </span>
                     </p>
-                    <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->format('d/m/Y H:i') }}</p>
+                    <p><strong>Fecha de Vencimiento:</strong> {{ $incidencia->fecha_vencimiento->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</p>
                 @endif
             </div>
 
@@ -197,8 +226,12 @@
 </div>
 @endif
             <div class="footer">
-                <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
-            </div>
+    @if(isset($pie_html))
+        {!! $pie_html !!}
+    @else
+        <p>Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).</p>
+    @endif
+</div>
        
 
         <div class="button-container">

@@ -334,31 +334,59 @@ protected function esIncidenciaDuplicada(Request $request, $excludeId = null)
 }
 
     public function descargar($slug)
-    {
-        try {
-            // Buscar la incidencia
-            $incidencia = Incidencia::with(['persona', 'direccionIncidencia.estado', 'direccionIncidencia.municipio', 'direccionIncidencia.parroquia', 'direccionIncidencia.urbanizacion', 'direccionIncidencia.sector', 'institucion', 'institucionEstacion','institucionesApoyo.institucion', 
-            'institucionesApoyo.Estacion', ])
-                ->where('slug', $slug)
-                ->first();
+{
+    try {
+        // Buscar la incidencia con todas las relaciones necesarias
+        $incidencia = Incidencia::with([
+            'persona',
+            'direccionIncidencia.estado',
+            'direccionIncidencia.municipio',
+            'direccionIncidencia.parroquia',
+            'direccionIncidencia.urbanizacion',
+            'direccionIncidencia.sector',
+            'direccionIncidencia.comunidad',
+            'institucion',
+            'institucionEstacion',
+            'institucionesApoyo.institucion',
+            'institucionesApoyo.Estacion',
+            'nivelIncidencia',
+            'estadoIncidencia',
+            'tipoIncidencia'
+        ])->where('slug', $slug)->first();
 
-            if (!$incidencia) {
-                abort(404, 'Incidencia no encontrada.');
-            }
-
-            // Generar el PDF
-            $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', compact('incidencia'))
-                ->setPaper('a4', 'portrait');
-
-            return $pdf->download('incidencia-' . $incidencia->cod_incidencia . '.pdf');
-        } catch (\Exception $e) {
-            Log::error('Error al generar el PDF de la incidencia:', ['error' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al generar el PDF de la incidencia: ' . $e->getMessage(),
-            ], 500);
+        if (!$incidencia) {
+            abort(404, 'Incidencia no encontrada.');
         }
+
+        // Obtener la institución propietaria
+        $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
+        // Calcular tiempo restante si aplica
+        $tiempoRestante = null;
+        if (!($incidencia->estadoIncidencia->nombre == 'Atendido') && $incidencia->fecha_vencimiento) {
+            $tiempoRestante = now()->diff($incidencia->fecha_vencimiento);
+        }
+
+        // Generar el PDF con los mismos datos que la vista incidencia.blade.php
+        $pdf = FacadePdf::loadView('incidencias.incidencia_pdf', [
+            'incidencia' => $incidencia,
+            'tiempoRestante' => $tiempoRestante,
+            'nivel' => $incidencia->nivelIncidencia,
+            'estado' => $incidencia->estadoIncidencia,
+            'tipo' => $incidencia->tipoIncidencia,
+            'institucionPropietaria' => $institucionPropietaria,
+            'pie_html' => $institucionPropietaria->pie_html ?? 'Comprobante emitido por el Ministerio del Poder Popular para la Atención de las Aguas (Minaguas).'
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('incidencia-' . $incidencia->cod_incidencia . '.pdf');
+    } catch (\Exception $e) {
+        Log::error('Error al generar el PDF de la incidencia:', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al generar el PDF de la incidencia: ' . $e->getMessage(),
+        ], 500);
     }
+}
 
     public function edit($slug)
     {
@@ -1063,14 +1091,14 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         $incidencia = Incidencia::with([
             'persona',
             'usuario.empleadoAutorizado',
-            'nivelIncidencia',  // Relación con el nivel de prioridad
+            'nivelIncidencia',
             'estadoIncidencia',
             'tipoIncidencia',
-            'institucionesApoyo.institucion', // Carga las instituciones de apoyo y su relación con Institucion
-            'institucionesApoyo.Estacion',    // Carga la relación con Estacion de cada institución de apoyo
-            'institucion',                   // Institución principal
-            'institucionEstacion',            // Estación principal
-            'direccionIncidencia.estado',     // Relaciones para la dirección
+            'institucionesApoyo.institucion',
+            'institucionesApoyo.Estacion',
+            'institucion',
+            'institucionEstacion',
+            'direccionIncidencia.estado',
             'direccionIncidencia.municipio',
             'direccionIncidencia.parroquia',
             'direccionIncidencia.urbanizacion',
@@ -1081,11 +1109,17 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             abort(404, 'Incidencia no encontrada');
         }
 
+        // Obtener la institución propietaria
+        $institucionPropietaria = Institucion::where('es_propietario', 1)->first();
+
         // Calcular tiempo restante (si la incidencia no está resuelta)
         $tiempoRestante = null;
         if (!$incidencia->estadoIncidencia->es_resuelto && $incidencia->fecha_vencimiento) {
             $tiempoRestante = now()->diff($incidencia->fecha_vencimiento);
         }
+
+        // Obtener el pie_html de la institución propietaria o usar uno por defecto
+        $pie_html = $institucionPropietaria->pie_html ?? 'Generado el ' . now()->format('d/m/Y H:i:s');
 
         // Retornar la vista con todos los datos
         return view('incidencias.incidencia', [
@@ -1094,6 +1128,8 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
             'nivel' => $incidencia->nivelIncidencia,
             'estado' => $incidencia->estadoIncidencia,
             'tipo' => $incidencia->tipoIncidencia,
+            'institucionPropietaria' => $institucionPropietaria,
+            'pie_html' => $pie_html // Pasamos el pie_html a la vista
         ]);
     } catch (\Exception $e) {
         Log::error('Error en IncidenciaController@show: ' . $e->getMessage());

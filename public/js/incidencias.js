@@ -97,13 +97,15 @@ class FiltroIncidencias {
     if (incidencias && incidencias.length > 0) {
         incidencias.forEach(incidencia => {
             const fecha = new Date(incidencia.created_at);
-            const fechaFormateada = fecha.toLocaleString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+const fechaFormateada = fecha.toLocaleString('es-VE', {
+    timeZone: 'America/Caracas', // Zona horaria de Venezuela
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true // Formato 12h (AM/PM)
+});
 
             // Información del usuario que registró
             let registradoPor = '<em>No registrado</em>';

@@ -66,7 +66,7 @@
             {!! $membrete !!}
         </div>
         <p>Listado de Incidencias</p>
-        <p>Fecha de generación: {{ now()->format('d-m-Y H:i:s') }}</p>
+        <p>Fecha de generación: {{ now()->setTimezone('America/Caracas')->format('d/m/Y h:i A')}}</p>
         <p>Período: {{ \Carbon\Carbon::parse($fechaInicio)->format('d-m-Y') }} al {{ \Carbon\Carbon::parse($fechaFin)->format('d-m-Y') }}</p>
         @if($estado != 'Todos')
             <p>Filtrado por estado: {{ $estado }}</p>
@@ -142,7 +142,7 @@
             {!! $pie_html !!}<br>
         @endisset
         <span style="color: #6c757d; font-size: 0.9em;">
-            Generado el {{ now()->format('d/m/Y H:i:s') }}
+            Generado el {{ now()->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}
         </span>
     </div>
 </body>

@@ -108,7 +108,7 @@
                             {{ $incidencia->estadoIncidencia->nombre ?? 'N/A' }}
                         </span>
                     </td>
-                    <td>{{ $incidencia->created_at->format('d-m-Y H:i') }}</td>
+                    <td>{{ $incidencia->created_at->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</td>
                     <td>
                         @if($incidencia->usuario && $incidencia->usuario->empleadoAutorizado)
                             {{ $incidencia->usuario->empleadoAutorizado->nombre }} {{ $incidencia->usuario->empleadoAutorizado->apellido }}

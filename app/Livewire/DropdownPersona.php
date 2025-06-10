@@ -37,10 +37,28 @@ class DropdownPersona extends Component
     public $mensajeSector = '';
 
     protected $rules = [
-        'nuevaUrbanizacionNombre' => 'required|string|min:3|max:100',
-        'nuevoSectorNombre' => 'required|string|min:3|max:100',
-        'nuevaComunidadNombre' => 'required|string|min:3|max:100',
+    'nuevaUrbanizacionNombre' => 'required|string|min:3|max:100',
+    'nuevoSectorNombre' => 'required|string|min:3|max:100',
+    'nuevaComunidadNombre' => 'required|string|min:3|max:100',
+];
+
+// Mensajes de error personalizados en español
+protected function messages()
+{
+    return [
+        'nuevaUrbanizacionNombre.required' => 'El nombre de la urbanización es obligatorio.',
+        'nuevaUrbanizacionNombre.min' => 'El nombre de la urbanización debe tener al menos 3 caracteres.',
+        'nuevaUrbanizacionNombre.max' => 'El nombre de la urbanización no puede superar los 100 caracteres.',
+
+        'nuevoSectorNombre.required' => 'El nombre del sector es obligatorio.',
+        'nuevoSectorNombre.min' => 'El nombre del sector debe tener al menos 3 caracteres.',
+        'nuevoSectorNombre.max' => 'El nombre del sector no puede superar los 100 caracteres.',
+
+        'nuevaComunidadNombre.required' => 'El nombre de la comunidad es obligatorio.',
+        'nuevaComunidadNombre.min' => 'El nombre de la comunidad debe tener al menos 3 caracteres.',
+        'nuevaComunidadNombre.max' => 'El nombre de la comunidad no puede superar los 100 caracteres.',
     ];
+}
 
     // Método que se ejecuta al inicializar el componente
     public function mount(
@@ -164,8 +182,13 @@ class DropdownPersona extends Component
     if ($this->urbanizacionId === 'agregar_nueva_urbanizacion') {
         // Validar primero el nombre de la nueva urbanización
         $this->validate([
-            'nuevaUrbanizacionNombre' => 'required|string|min:3|max:100',
-        ]);
+    'nuevaUrbanizacionNombre' => 'required|string|min:3|max:100',
+], [
+    'nuevaUrbanizacionNombre.required' => 'El nombre de la urbanización es obligatorio.',
+    'nuevaUrbanizacionNombre.string'   => 'El nombre debe ser un texto válido.',
+    'nuevaUrbanizacionNombre.min'      => 'El nombre debe tener al menos 3 caracteres.',
+    'nuevaUrbanizacionNombre.max'      => 'El nombre no puede exceder los 100 caracteres.',
+]);
         
         // Verificar duplicados (copiado de tu método crearUrbanizacion)
         $nombreLower = mb_strtolower(trim($this->nuevaUrbanizacionNombre));

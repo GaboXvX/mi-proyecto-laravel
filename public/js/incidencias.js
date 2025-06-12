@@ -46,8 +46,7 @@ class FiltroIncidencias {
         this.dataTable = $(this.table).DataTable({
             // DataTables options for pagination, search, etc.
             "language": {
-                "url": "//cdn.datatables.net/plug-ins/2.0.8/i18n/es-ES.json" // Spanish language file
-            },
+"url": "/js/datatables-i18n/es-ES.json"            },
             "paging": true,       
             "searching": false,   
             "info": true,         

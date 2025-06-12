@@ -983,7 +983,7 @@ private function registrarPersonalReparacion(Request $request, $institucion, $in
         return response()->json([
             'success' => true,
             'incidencias' => $incidenciasTransformadas,
-            'fecha_actualizacion' => now()->format('d-m-Y H:i:s')
+            'fecha_actualizacion' => now()->setTimezone('America/Caracas')->format('d/m/Y h:i A')
         ]);
     } catch (\Exception $e) {
         Log::error('Error al filtrar las incidencias:', ['error' => $e->getMessage()]);

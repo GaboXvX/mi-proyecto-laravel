@@ -20,7 +20,7 @@
     .last-update { font-size: 0.8rem; color: #6c757d; text-align: right; margin-top: 10px; }
     .filters-container { margin-bottom: 20px; }
     .table-container { margin-top: 20px; }
-    
+
     /* Nuevos estilos para badges */
     .priority-badge {
         padding: 4px 8px;
@@ -57,7 +57,6 @@
 @endif
 
 <div class="table-container">
-    <!-- Título y Botón de Registro -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Lista de Incidencias</h2>
         <div>
@@ -71,12 +70,10 @@
         </div>
     </div>
 
-    <!-- Filtros -->
     <div class="filters-container">
         <div class="card-body">
             <form id="filtros-form" method="GET" action="{{ route('incidencias.index') }}">
                 <div class="row">
-                    <!-- Código -->
                     <div class="col-md-3">
                         <label for="codigo-busqueda" class="form-label">Código:</label>
                         <input type="text" id="codigo-busqueda" name="codigo" class="form-control"
@@ -93,7 +90,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <!-- Estado -->
                     <div class="col-md-3">
                         <label for="estado" class="form-label">Estado:</label>
                         <select class="form-select" id="estado" name="estado">
@@ -105,8 +101,7 @@
                             @endforeach
                         </select>
                     </div>
-            
-                    <!-- Prioridad -->
+
                     <div class="col-md-3">
                         <label for="prioridad" class="form-label">Prioridad:</label>
                         <select class="form-select" id="prioridad" name="prioridad">
@@ -118,8 +113,7 @@
                             @endforeach
                         </select>
                     </div>
-            
-                    <!-- Rango de fechas -->
+
                     <div class="col-md-3">
                         <label class="form-label">Rango de Fechas:</label>
                         <div class="input-group">
@@ -131,13 +125,12 @@
                         </div>
                     </div>
                 </div>
-               
+
             </form>
-            
+
         </div>
     </div>
 
-    <!-- Botón para Generar PDF -->
     <div class="d-flex justify-content-end mb-3">
         @can('descargar listado incidencias')
         <form id="generar-pdf-form" action="{{ route('incidencias.generarPDF') }}" method="POST">
@@ -148,7 +141,7 @@
             <input type="hidden" id="pdf-prioridad" name="prioridad" value="{{ request('prioridad') }}">
             <input type="hidden" id="pdf-tipo" name="tipo" value="{{ request('tipo') }}">
             <input type="hidden" id="pdf-codigo" name="codigo" value="{{ request('codigo') }}">
-            
+
             <button type="submit" class="btn btn-primary" title="Descargar PDF">
                 Descargar
             </button>
@@ -157,7 +150,6 @@
     </div>
 
 
-    <!-- Tabla de Incidencias -->
     <div class="table-responsive">
         <table class="table table-striped align-middle" id="tabla-incidencias">
             <thead>
@@ -175,13 +167,19 @@
                 </tr>
             </thead>
             <tbody id="incidencias-tbody">
-                <!-- El contenido será llenado por JS -->
-            </tbody>
+                </tbody>
         </table>
     </div>
-    <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->format('d-m-Y H:i:s') }}</div>
+    <div id="ultima-actualizacion" class="last-update">Última actualización: {{ now()->setTimezone('America/Caracas')->format('d/m/Y h:i A') }}</div>
 </div>
 
+{{-- DataTables CSS --}}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+{{-- jQuery (DataTables dependency) --}}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+{{-- DataTables JS --}}
+<script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+{{-- Your custom JS --}}
 <script src="{{ asset('js/incidencias.js') }}"></script>
 
 @endsection

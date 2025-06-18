@@ -162,4 +162,50 @@
     }
 }
 </script>
+<script>
+    // scripts/soloNumeros.js
+document.addEventListener('DOMContentLoaded', function() {
+    const inputBusqueda = document.getElementById('buscar');
+    
+    if (inputBusqueda) {
+        // Evitar que se pegue texto no numérico
+        inputBusqueda.addEventListener('paste', function(e) {
+            const pastedData = e.clipboardData.getData('text');
+            if (!/^\d+$/.test(pastedData)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Validar mientras se escribe
+        inputBusqueda.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Validar al soltar una tecla (keyup)
+        inputBusqueda.addEventListener('keyup', function() {
+            if (/[^0-9]/.test(this.value)) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            }
+        });
+        
+        // Prevenir la tecla "e" en input type="number" (por si cambias el tipo)
+        inputBusqueda.addEventListener('keydown', function(e) {
+            // Permitir teclas de control (backspace, delete, tab, etc.)
+            if ([46, 8, 9, 27, 13].includes(e.keyCode) || 
+                (e.keyCode === 65 && e.ctrlKey === true) || // Ctrl+A
+                (e.keyCode === 67 && e.ctrlKey === true) || // Ctrl+C
+                (e.keyCode === 86 && e.ctrlKey === true) || // Ctrl+V
+                (e.keyCode === 88 && e.ctrlKey === true) || // Ctrl+X
+                (e.keyCode >= 35 && e.keyCode <= 39)) { // Home, End, Left, Right
+                return;
+            }
+            
+            // Evitar cualquier cosa que no sea número
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 @endsection

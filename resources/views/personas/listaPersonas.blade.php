@@ -141,6 +141,7 @@
             <tr>
                 <td>${persona.nombre}</td>
                 <td>${persona.apellido}</td>
+                <td>${persona.genero}</td>
                 <td>${persona.cedula}</td>
                 <td>${persona.correo}</td>
                 <td>${persona.telefono}</td>

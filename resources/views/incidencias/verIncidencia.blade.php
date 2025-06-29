@@ -189,7 +189,7 @@
                     <div id="collapseUbicacion" class="accordion-collapse collapse" aria-labelledby="headingUbicacion" data-bs-parent="#acordeonPrincipal">
                         <div class="accordion-body bg-section">
                             <p><span class="label-bold">Institución:</span> {{ $incidencia->institucion->nombre ?? 'N/A' }}</p>
-                            <p><span class="label-bold">Estación:</span> {{ $incidencia->estacion->nombre ?? 'N/A' }}</p>
+                            <p><span class="label-bold">Unidad:</span> {{ $incidencia->estacion->nombre ?? 'N/A' }}</p>
                             <p><span class="label-bold">Municipio:</span> {{ $incidencia->estacion->municipio->nombre ?? 'N/A' }}</p>
 
                             <div class="address-card mt-3">

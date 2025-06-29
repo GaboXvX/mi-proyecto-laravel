@@ -205,9 +205,9 @@
                 <h3>Institución Responsable:</h3>
                 <p><strong>Institución:</strong> {{ $incidencia->institucion->nombre }}</p>
                 @if(isset($incidencia->institucionEstacion))
-                    <p><strong>Estación:</strong> {{ $incidencia->institucionEstacion->nombre }}</p>
+                    <p><strong>Unidad:</strong> {{ $incidencia->institucionEstacion->nombre }}</p>
                 @else
-                    <p><em>No hay estación asignada.</em></p>
+                    <p><em>No hay Unidad asignada.</em></p>
                 @endif
             </div>
             @if($incidencia->institucionesApoyo->isNotEmpty())
@@ -218,7 +218,7 @@
             <li>
                 <strong>Institución:</strong> {{ $institucionApoyo->institucion->nombre }}
                 @if($institucionApoyo->Estacion)
-                    <br><strong>Estación:</strong> {{ $institucionApoyo->Estacion->nombre }}
+                    <br><strong>Unidad:</strong> {{ $institucionApoyo->Estacion->nombre }}
                 @endif
             </li>
         @endforeach

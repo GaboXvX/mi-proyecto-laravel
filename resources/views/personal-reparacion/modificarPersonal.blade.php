@@ -36,9 +36,9 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="id_institucion_estacion">Estación</label>
+                    <label for="id_institucion_estacion">Unidad</label>
                     <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-control form-control-sm" required>
-                        <option value="">Seleccione una estación</option>
+                        <option value="">Seleccione una Unidad</option>
                         @foreach($estaciones as $estacion)
                             <option value="{{ $estacion->id_institucion_estacion }}" {{ $personalReparacion->id_institucion_estacion == $estacion->id_institucion_estacion ? 'selected' : '' }}>
                                 {{ $estacion->nombre }}

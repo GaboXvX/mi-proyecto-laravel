@@ -80,9 +80,9 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label for="estacion" class="form-label small mb-0">Estación de Procedencia <span class="text-danger">*</span></label>
+                                <label for="estacion" class="form-label small mb-0">Unidad de Atención de Procedencia <span class="text-danger">*</span></label>
                                 <select name="estacion" id="estacion" class="form-select form-select-sm py-2" required>
-                                    <option value="" selected disabled>Seleccione una estación</option>
+                                    <option value="" selected disabled>Seleccione una Unidad</option>
                                 </select>
                             </div>
                         </div>

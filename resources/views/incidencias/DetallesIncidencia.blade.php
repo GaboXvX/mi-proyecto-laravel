@@ -163,7 +163,7 @@
                     <h5 class="card-title">{{ $apoyo->institucion->nombre ?? 'Institución no especificada' }}</h5>
                     @if($apoyo->Estacion)
                     <p class="card-text">
-                        <span class="label-bold">Estación:</span> 
+                        <span class="label-bold">Unidad:</span> 
                         {{ $apoyo->Estacion->nombre }}
                     </p>
                     @endif

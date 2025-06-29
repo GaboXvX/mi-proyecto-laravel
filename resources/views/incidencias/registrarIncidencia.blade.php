@@ -68,9 +68,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="estacion" class="form-label">Estación:</label>
+                        <label for="estacion" class="form-label">Unidad:</label>
                         <select id="estacion" name="estacion" class="form-select" required>
-                            <option value="" disabled selected>--Seleccione una estación--</option>
+                            <option value="" disabled selected>--Seleccione una Unidad--</option>
                             <!-- Las estaciones se cargarán dinámicamente por JS -->
                         </select>
                     </div>
@@ -101,7 +101,7 @@
                                     <div class="col-md-6">
                                         <label for="estacion_apoyo" class="form-label">Estación</label>
                                         <select id="estacion_apoyo" class="form-select form-select-sm">
-                                            <option value="" selected>--Seleccione una estación--</option>
+                                            <option value="" selected>--Seleccione una Unidad--</option>
                                         </select>
                                     </div>
                                 </div>

@@ -197,7 +197,7 @@
         <div class="details-section">
             <h3>Institución Responsable</h3>
             <p><strong>Institución:</strong> {{ $incidencia->institucion->nombre }}</p>
-            <p><strong>Estación:</strong> {{ $incidencia->institucionEstacion->nombre ?? 'No asignada' }}</p>
+            <p><strong>Unidad:</strong> {{ $incidencia->institucionEstacion->nombre ?? 'No asignada' }}</p>
         </div>
 
         @if($incidencia->institucionesApoyo->isNotEmpty())
@@ -207,7 +207,7 @@
                 <p>
                     <strong>{{ $institucionApoyo->institucion->nombre }}</strong>
                     @if($institucionApoyo->Estacion)
-                        (Estación: {{ $institucionApoyo->Estacion->nombre }})
+                        (Unidad: {{ $institucionApoyo->Estacion->nombre }})
                     @endif
                 </p>
             @endforeach

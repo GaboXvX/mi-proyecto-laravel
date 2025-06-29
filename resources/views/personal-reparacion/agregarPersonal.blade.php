@@ -37,7 +37,7 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="id_institucion_estacion"><span style="color: red;" class="me-2">*</span>Estación</label>
+                    <label for="id_institucion_estacion"><span style="color: red;" class="me-2">*</span>Unidad</label>
                     <select name="id_institucion_estacion" id="id_institucion_estacion" class="form-select" required disabled>
                         <option value="">Primero seleccione una institución</option>
                     </select>

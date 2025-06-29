@@ -77,7 +77,7 @@
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Institución</th>
-                    <th>Estación</th>
+                    <th>Unidad</th>
                     <th>Cédula</th>
                     <th>Teléfono</th>
                 </tr>

@@ -113,7 +113,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="estacion_apoyo" class="form-label">Estación</label>
+                                        <label for="estacion_apoyo" class="form-label">Unidad</label>
                                         <select id="estacion_apoyo" class="form-select form-select-sm">
                                             <option value="" selected>--Seleccione una estación--</option>
                                         </select>
